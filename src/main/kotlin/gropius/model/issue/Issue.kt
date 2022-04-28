@@ -5,7 +5,7 @@ import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
 import io.github.graphglue.model.*
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
 
 // TODO priority
@@ -13,13 +13,13 @@ import org.springframework.data.annotation.Transient
 // TODO keep isDuplicate?
 @DomainNode
 class Issue(
-    createdAt: LocalDateTime,
-    lastModifiedAt: LocalDateTime,
+    createdAt: OffsetDateTime,
+    lastModifiedAt: OffsetDateTime,
     @FilterProperty @OrderProperty var title: String,
-    @FilterProperty @OrderProperty val lastUpdatedAt: LocalDateTime,
+    @FilterProperty @OrderProperty val lastUpdatedAt: OffsetDateTime,
     @FilterProperty val isOpen: Boolean,
-    @FilterProperty @OrderProperty val startDate: LocalDateTime?,
-    @FilterProperty @OrderProperty val dueDate: LocalDateTime?,
+    @FilterProperty @OrderProperty val startDate: OffsetDateTime?,
+    @FilterProperty @OrderProperty val dueDate: OffsetDateTime?,
     @FilterProperty @OrderProperty val estimatedTime: Duration?
 ) : SyncNode(createdAt, lastModifiedAt) {
 

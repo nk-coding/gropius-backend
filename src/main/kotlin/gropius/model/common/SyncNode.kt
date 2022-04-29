@@ -10,4 +10,6 @@ import java.time.OffsetDateTime
 abstract class SyncNode(
     @FilterProperty @OrderProperty @GraphQLIgnore val createdAt: OffsetDateTime,
     @FilterProperty @OrderProperty @GraphQLIgnore var lastModifiedAt: OffsetDateTime
-) : ExtensibleNode()
+) : ExtensibleNode() {
+    internal var isDeleted: Boolean = false
+}

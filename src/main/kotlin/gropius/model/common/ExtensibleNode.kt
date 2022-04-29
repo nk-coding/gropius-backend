@@ -6,8 +6,9 @@ import io.github.graphglue.model.Node
 
 @DomainNode
 abstract class ExtensibleNode : Node() {
-    @GraphQLType("JSON")
+    @GraphQLType("JSON!")
     fun extensionField(name: String): Any {
         TODO()
     }
+
 }

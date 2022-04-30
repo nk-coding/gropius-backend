@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
-abstract class IssueComment(
+class IssueComment(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
     body: String,

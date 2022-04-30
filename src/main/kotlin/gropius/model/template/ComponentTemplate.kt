@@ -6,8 +6,9 @@ import org.springframework.data.annotation.Transient
 
 
 @DomainNode
-class ComponentTemplate(name: String, description: String) :
-    RelationPartnerTemplate<Component, ComponentTemplate>(name, description) {
+class ComponentTemplate(
+    name: String, description: String, isDeprecated: Boolean
+) : RelationPartnerTemplate<Component, ComponentTemplate>(name, description, isDeprecated) {
 
     companion object {
         const val VISIBLE_INTERFACE_SPECIFICATION = "VISIBLE_INTERFACE_SPECIFICATION"

@@ -7,8 +7,8 @@ import org.springframework.data.annotation.Transient
 
 @DomainNode
 class InterfaceSpecificationTemplate(
-    name: String, description: String
-) : RelationPartnerTemplate<InterfaceSpecification, InterfaceSpecificationTemplate>(name, description) {
+    name: String, description: String, isDeprecated: Boolean
+) : RelationPartnerTemplate<InterfaceSpecification, InterfaceSpecificationTemplate>(name, description, isDeprecated) {
 
     @NodeRelationship(ComponentTemplate.VISIBLE_INTERFACE_SPECIFICATION, Direction.INCOMING)
     @FilterProperty

@@ -8,7 +8,9 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
 @DomainNode
-class IssueTemplate(name: String, description: String) : Template<Issue, IssueTemplate>(name, description) {
+class IssueTemplate(
+    name: String, description: String, isDeprecated: Boolean
+) : Template<Issue, IssueTemplate>(name, description, isDeprecated) {
 
     @NodeRelationship(IssueType.PART_OF, Direction.INCOMING)
     @FilterProperty

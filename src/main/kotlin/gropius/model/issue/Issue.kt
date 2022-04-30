@@ -14,16 +14,22 @@ import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
 
 // TODO keep isDuplicate?
+// TODO reintroduce filter and order as soon as supported by GraphGlue
 @DomainNode
 class Issue(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
     @FilterProperty @OrderProperty var title: String,
-    @FilterProperty @OrderProperty val lastUpdatedAt: OffsetDateTime,
-    @FilterProperty val isOpen: Boolean,
-    @FilterProperty @OrderProperty val startDate: OffsetDateTime?,
-    @FilterProperty @OrderProperty val dueDate: OffsetDateTime?,
-    @FilterProperty @OrderProperty val estimatedTime: Duration?
+    @FilterProperty @OrderProperty var lastUpdatedAt: OffsetDateTime,
+    @FilterProperty var isOpen: Boolean,
+    //@FilterProperty @OrderProperty
+    var startDate: OffsetDateTime?,
+    //@FilterProperty @OrderProperty
+    var dueDate: OffsetDateTime?,
+    //@FilterProperty @OrderProperty
+    var estimatedTime: Duration?,
+    //@FilterProperty @OrderProperty
+    var spentTime: Duration?
 ) : SyncNode(createdAt, lastModifiedAt) {
 
     companion object {
@@ -67,7 +73,7 @@ class Issue(
     val type by NodeProperty<IssueType>()
 
     @NodeRelationship(PRIORITY, Direction.OUTGOING)
-    @FilterProperty
+    //@FilterProperty
     @delegate:Transient
     val priority by NodeProperty<IssuePriority?>()
 

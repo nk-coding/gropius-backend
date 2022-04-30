@@ -1,5 +1,6 @@
 package gropius.model.issue
 
+import com.expediagroup.graphql.generator.annotations.GraphQLType
 import gropius.model.architecture.Trackable
 import gropius.model.common.NamedSyncNode
 import io.github.graphglue.model.*
@@ -13,7 +14,7 @@ class Label(
     lastModifiedAt: OffsetDateTime,
     name: String,
     description: String,
-    @FilterProperty @OrderProperty val color: String
+    @FilterProperty @OrderProperty @GraphQLType("Color") var color: String
 ) : NamedSyncNode(createdAt, lastModifiedAt, name, description) {
 
     @NodeRelationship(Trackable.LABEL, Direction.INCOMING)

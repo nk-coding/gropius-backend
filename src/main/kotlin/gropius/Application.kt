@@ -9,10 +9,7 @@ import org.springframework.context.annotation.Bean
 
 @SpringBootApplication
 @EnableGraphglueRepositories
-class Application {
-    @Bean
-    fun jsonScalar() = JsonScalar.INSTANCE
-}
+class Application
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)

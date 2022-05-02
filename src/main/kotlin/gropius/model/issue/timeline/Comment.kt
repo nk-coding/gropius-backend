@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 abstract class Comment(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty var body: String,
+    @FilterProperty open var body: String,
     @FilterProperty @OrderProperty var lastEditedAt: OffsetDateTime
 ) : TimelineItem(createdAt, lastModifiedAt) {
 

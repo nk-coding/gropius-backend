@@ -3,6 +3,7 @@ package gropius.model.user
 import gropius.model.common.ExtensibleNode
 import gropius.model.common.SyncNode
 import gropius.model.issue.Issue
+import gropius.model.issue.timeline.Assignment
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
@@ -23,4 +24,9 @@ abstract class User(
     @FilterProperty
     @delegate:Transient
     val participatedIssues by NodeSetProperty<Issue>()
+
+    @NodeRelationship(Assignment.USER, Direction.INCOMING)
+    @FilterProperty
+    @delegate:Transient
+    val assignments by NodeSetProperty<Assignment>()
 }

@@ -14,10 +14,10 @@ class RemovedOutgoingRelationEvent(
 ) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
-        const val REMOVES = "REMOVES"
+        const val REMOVED_RELATION = "REMOVED_RELATION"
     }
 
-    @NodeRelationship(REMOVES, Direction.OUTGOING)
+    @NodeRelationship(REMOVED_RELATION, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
     val removedRelation by NodeProperty<IssueRelation>()

@@ -3,10 +3,7 @@ package gropius.model.issue
 import gropius.model.architecture.AffectedByIssue
 import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
-import gropius.model.issue.timeline.Body
-import gropius.model.issue.timeline.IssueComment
-import gropius.model.issue.timeline.IssueRelation
-import gropius.model.issue.timeline.TimelineItem
+import gropius.model.issue.timeline.*
 import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
 import gropius.model.user.User
@@ -42,6 +39,8 @@ class Issue(
         const val PARTICIPANT = "PARTICIPANT"
         const val INCOMING_RELATION = "INCOMING_RELATION"
         const val OUTGOING_RELATION = "OUTGOING_RELATION"
+        const val ASSIGNMENT = "ASSIGNMENT"
+        const val PINNED_ON = "PINNED_ON"
     }
 
     @NodeRelationship(AffectedByIssue.AFFECTS, Direction.INCOMING)
@@ -104,4 +103,13 @@ class Issue(
     @delegate:Transient
     val outgoingRelations by NodeSetProperty<IssueRelation>()
 
+    @NodeRelationship(ASSIGNMENT, Direction.OUTGOING)
+    @FilterProperty
+    @delegate:Transient
+    val assignments by NodeSetProperty<Assignment>()
+
+    @NodeRelationship(PINNED_ON, Direction.OUTGOING)
+    @FilterProperty
+    @delegate:Transient
+    val pinnedOn by NodeSetProperty<Trackable>()
 }

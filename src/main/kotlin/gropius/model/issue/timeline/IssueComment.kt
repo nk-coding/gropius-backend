@@ -1,5 +1,6 @@
 package gropius.model.issue.timeline
 
+import com.expediagroup.graphql.generator.annotations.GraphQLName
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -12,12 +13,23 @@ class IssueComment(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
     body: String,
-    lastEditedAt: OffsetDateTime
+    lastEditedAt: OffsetDateTime,
+    @GraphQLName("isDeleted") @FilterProperty val isCommentDeleted: Boolean
 ) : Comment(createdAt, lastModifiedAt, body, lastEditedAt) {
 
     companion object {
         const val ANSWERS = "ANSWERS"
     }
+
+    override var body: String
+        get() {
+            return if (isCommentDeleted) {
+                ""
+            } else {
+                super.body
+            }
+        }
+        set(value) { super.body = value }
 
     @NodeRelationship(ANSWERS, Direction.OUTGOING)
     @FilterProperty

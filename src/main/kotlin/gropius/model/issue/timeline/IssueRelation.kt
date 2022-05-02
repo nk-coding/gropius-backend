@@ -20,7 +20,7 @@ class IssueRelation(
     @NodeRelationship(TYPE, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val type by NodeProperty<IssueRelationType>()
+    val type by NodeProperty<IssueRelationType?>()
 
     @NodeRelationship(RELATED_ISSUE, Direction.OUTGOING)
     @FilterProperty

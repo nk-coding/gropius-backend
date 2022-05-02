@@ -1,7 +1,6 @@
 package gropius.model.issue.timeline
 
 import io.github.graphglue.model.DomainNode
-import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode

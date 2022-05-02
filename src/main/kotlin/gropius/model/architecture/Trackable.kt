@@ -38,4 +38,9 @@ abstract class Trackable(name: String, description: String, @FilterProperty var 
     @delegate:Transient
     val syncsTo by NodeSetProperty<IMSProject>()
 
+    @NodeRelationship(Issue.PINNED_ON, Direction.INCOMING)
+    @FilterProperty
+    @delegate:Transient
+    val pinnedIssues by NodeSetProperty<Issue>()
+
 }

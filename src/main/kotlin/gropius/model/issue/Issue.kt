@@ -5,6 +5,7 @@ import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
 import gropius.model.issue.timeline.Body
 import gropius.model.issue.timeline.IssueComment
+import gropius.model.issue.timeline.IssueRelation
 import gropius.model.issue.timeline.TimelineItem
 import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
@@ -15,6 +16,8 @@ import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
 
 // TODO keep isDuplicate?
+// TODO add (Un)MarkedAsDuplicateEvents?
+// TODO reintroduce Referenced Events?
 @DomainNode
 class Issue(
     createdAt: OffsetDateTime,
@@ -37,6 +40,8 @@ class Issue(
         const val LABEL = "LABEL"
         const val ARTEFACT = "ARTEFACT"
         const val PARTICIPANT = "PARTICIPANT"
+        const val INCOMING_RELATION = "INCOMING_RELATION"
+        const val OUTGOING_RELATION = "OUTGOING_RELATION"
     }
 
     @NodeRelationship(AffectedByIssue.AFFECTS, Direction.INCOMING)
@@ -88,5 +93,15 @@ class Issue(
     @FilterProperty
     @delegate:Transient
     val participants by NodeSetProperty<User>()
+
+    @NodeRelationship(INCOMING_RELATION, Direction.OUTGOING)
+    @FilterProperty
+    @delegate:Transient
+    val incomingRelations by NodeSetProperty<IssueRelation>()
+
+    @NodeRelationship(OUTGOING_RELATION, Direction.OUTGOING)
+    @FilterProperty
+    @delegate:Transient
+    val outgoingRelations by NodeSetProperty<IssueRelation>()
 
 }

@@ -3,7 +3,6 @@ package gropius.model.user
 import gropius.model.common.ExtensibleNode
 import gropius.model.common.SyncNode
 import gropius.model.issue.Issue
-import gropius.model.issue.timeline.Comment
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 

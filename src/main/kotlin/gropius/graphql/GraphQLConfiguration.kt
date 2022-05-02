@@ -66,8 +66,12 @@ class GraphQLConfiguration {
      */
     @Bean
     fun dateTimeFilter() =
-        TypeFilterDefinitionEntry(OffsetDateTime::class.createType()) { name, property, parentNodeDefinition, _ ->
-            DateTimeFilterDefinition(name, parentNodeDefinition.getNeo4jNameOfProperty(property))
+        TypeFilterDefinitionEntry(OffsetDateTime::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
+            DateTimeFilterDefinition(
+                name,
+                parentNodeDefinition.getNeo4jNameOfProperty(property),
+                property.returnType.isMarkedNullable
+            )
         }
 
     /**
@@ -77,8 +81,12 @@ class GraphQLConfiguration {
      */
     @Bean
     fun durationFilter() =
-        TypeFilterDefinitionEntry(Duration::class.createType()) { name, property, parentNodeDefinition, _ ->
-            DurationFilterDefinition(name, parentNodeDefinition.getNeo4jNameOfProperty(property))
+        TypeFilterDefinitionEntry(Duration::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
+            DurationFilterDefinition(
+                name,
+                parentNodeDefinition.getNeo4jNameOfProperty(property),
+                property.returnType.isMarkedNullable
+            )
         }
 
     /**
@@ -88,7 +96,11 @@ class GraphQLConfiguration {
      */
     @Bean
     fun urlFilter() =
-        TypeFilterDefinitionEntry(URL::class.createType()) { name, property, parentNodeDefinition, _ ->
-            StringFilterDefinition(name, parentNodeDefinition.getNeo4jNameOfProperty(property))
+        TypeFilterDefinitionEntry(URL::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
+            StringFilterDefinition(
+                name,
+                parentNodeDefinition.getNeo4jNameOfProperty(property),
+                property.returnType.isMarkedNullable
+            )
         }
 }

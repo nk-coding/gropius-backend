@@ -8,16 +8,15 @@ import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
 import java.net.URL
 
-// TODO reintroduce filter and order as soon as supported by GraphGlue
 @DomainNode
 class Artefact(
     createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime,
     @FilterProperty @OrderProperty var file: URL,
-    //@FilterProperty @OrderProperty
+    @FilterProperty @OrderProperty
     var from: Int?,
-    //@FilterProperty @OrderProperty
+    @FilterProperty @OrderProperty
     var to: Int?,
-    //@FilterProperty @OrderProperty
+    @FilterProperty @OrderProperty
     var version: String?
 ) : SyncNode(createdAt, lastModifiedAt) {
 

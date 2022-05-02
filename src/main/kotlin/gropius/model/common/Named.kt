@@ -4,7 +4,8 @@ import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.OrderProperty
 
 interface Named {
-    @FilterProperty @OrderProperty
+    @FilterProperty
+    @OrderProperty
     var name: String
 
     @FilterProperty

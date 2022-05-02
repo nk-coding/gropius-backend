@@ -4,6 +4,7 @@ import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.OrderProperty
 
 interface Versioned {
-    @FilterProperty @OrderProperty
+    @FilterProperty
+    @OrderProperty
     var version: String
 }

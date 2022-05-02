@@ -3,8 +3,8 @@ package gropius.model.common
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.user.User
 import io.github.graphglue.model.*
-import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
+import java.time.OffsetDateTime
 
 @DomainNode
 abstract class SyncNode(

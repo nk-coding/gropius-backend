@@ -4,9 +4,9 @@ import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
 import gropius.model.issue.timeline.Comment
 import io.github.graphglue.model.*
-import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
 import java.net.URL
+import java.time.OffsetDateTime
 
 @DomainNode
 class Artefact(

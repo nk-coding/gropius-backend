@@ -4,8 +4,8 @@ import gropius.model.architecture.Trackable
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
-import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
+import java.time.OffsetDateTime
 
 class AddedToTrackableEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     TimelineItem(createdAt, lastModifiedAt) {

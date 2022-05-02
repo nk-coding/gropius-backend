@@ -4,8 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLType
 import gropius.model.architecture.Trackable
 import gropius.model.common.NamedSyncNode
 import io.github.graphglue.model.*
-import java.time.OffsetDateTime
 import org.springframework.data.annotation.Transient
+import java.time.OffsetDateTime
 
 
 @DomainNode

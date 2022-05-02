@@ -2,9 +2,12 @@ package gropius.model.issue.timeline
 
 import gropius.model.template.AssignmentType
 import gropius.model.user.User
-import io.github.graphglue.model.*
-import java.time.OffsetDateTime
+import io.github.graphglue.model.Direction
+import io.github.graphglue.model.DomainNode
+import io.github.graphglue.model.FilterProperty
+import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import java.time.OffsetDateTime
 
 
 @DomainNode

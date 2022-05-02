@@ -29,7 +29,9 @@ class IssueComment(
                 super.body
             }
         }
-        set(value) { super.body = value }
+        set(value) {
+            super.body = value
+        }
 
     @NodeRelationship(ANSWERS, Direction.OUTGOING)
     @FilterProperty

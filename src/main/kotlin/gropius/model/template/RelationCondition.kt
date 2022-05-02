@@ -1,7 +1,10 @@
 package gropius.model.template
 
 import gropius.model.common.ExtensibleNode
-import io.github.graphglue.model.*
+import io.github.graphglue.model.Direction
+import io.github.graphglue.model.DomainNode
+import io.github.graphglue.model.FilterProperty
+import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -32,11 +35,11 @@ class RelationCondition(
     @NodeRelationship(FROM, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val from by NodeSetProperty<RelationPartnerTemplate<*,*>>()
+    val from by NodeSetProperty<RelationPartnerTemplate<*, *>>()
 
     @NodeRelationship(TO, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val to by NodeSetProperty<RelationPartnerTemplate<*,*>>()
+    val to by NodeSetProperty<RelationPartnerTemplate<*, *>>()
 
 }

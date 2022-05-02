@@ -7,7 +7,8 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
 @DomainNode
-abstract class ServiceEffectSpecificationLocation(name: String, description: String) : AffectedByIssue(name, description) {
+abstract class ServiceEffectSpecificationLocation(name: String, description: String) :
+    AffectedByIssue(name, description) {
 
     companion object {
         const val IN_SERVICE_EFFECT_SPECIFICATION = "IN_SERVICE_EFFECT_SPECIFICATION"

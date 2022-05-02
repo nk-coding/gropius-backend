@@ -8,9 +8,9 @@ import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
 import gropius.model.user.User
 import io.github.graphglue.model.*
+import org.springframework.data.annotation.Transient
 import java.time.Duration
 import java.time.OffsetDateTime
-import org.springframework.data.annotation.Transient
 
 // TODO keep isDuplicate?
 // TODO add (Un)MarkedAsDuplicateEvents?

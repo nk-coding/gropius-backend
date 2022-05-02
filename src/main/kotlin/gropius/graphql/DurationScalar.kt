@@ -1,15 +1,11 @@
 package gropius.graphql
 
 import graphql.language.StringValue
-import graphql.schema.Coercing
-import graphql.schema.CoercingParseLiteralException
-import graphql.schema.CoercingParseValueException
-import graphql.schema.CoercingSerializeException
-import graphql.schema.GraphQLScalarType
+import graphql.schema.*
 import java.time.Duration
 import java.time.OffsetDateTime
 
-private val DurationCoercing = object: Coercing<Duration, String> {
+private val DurationCoercing = object : Coercing<Duration, String> {
     override fun serialize(input: Any): String {
         if (input !is OffsetDateTime) {
             throw CoercingSerializeException("Expected Duration")

@@ -11,7 +11,8 @@ import java.time.OffsetDateTime
 
 
 @DomainNode
-abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) : SyncNode(createdAt, lastModifiedAt) {
+abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
+    SyncNode(createdAt, lastModifiedAt) {
 
     @NodeRelationship(Issue.TIMELINE, Direction.INCOMING)
     @FilterProperty

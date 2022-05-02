@@ -3,9 +3,12 @@ package gropius.model.architecture
 import gropius.model.issue.Artefact
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
-import io.github.graphglue.model.*
-import java.net.URL
+import io.github.graphglue.model.Direction
+import io.github.graphglue.model.DomainNode
+import io.github.graphglue.model.FilterProperty
+import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import java.net.URL
 
 @DomainNode
 abstract class Trackable(name: String, description: String, @FilterProperty var repositoryURL: URL) :

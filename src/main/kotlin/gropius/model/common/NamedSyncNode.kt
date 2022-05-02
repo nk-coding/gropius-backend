@@ -5,5 +5,8 @@ import java.time.OffsetDateTime
 
 @DomainNode
 abstract class NamedSyncNode(
-    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime, override var name: String, override var description: String
+    createdAt: OffsetDateTime,
+    lastModifiedAt: OffsetDateTime,
+    override var name: String,
+    override var description: String
 ) : SyncNode(createdAt, lastModifiedAt), Named

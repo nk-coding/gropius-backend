@@ -12,7 +12,7 @@ class IssuePriority(
 ) : NamedNode(name, description) {
 
     companion object {
-         const val PART_OF ="PART_OF"
+        const val PART_OF = "PART_OF"
     }
 
     @NodeRelationship(PART_OF, Direction.OUTGOING)

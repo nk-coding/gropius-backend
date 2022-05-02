@@ -1,0 +1,6 @@
+graphql:
+  packages:
+    - "gropius"
+spring:
+  neo4j:
+    uri: "bolt://localhost:7687"

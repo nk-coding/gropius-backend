@@ -103,4 +103,7 @@ class GraphQLConfiguration {
                 property.returnType.isMarkedNullable
             )
         }
+
+    @Bean("usernameFilter")
+    fun usernameFilter() = StringFilterDefinition("username", "username", true)
 }

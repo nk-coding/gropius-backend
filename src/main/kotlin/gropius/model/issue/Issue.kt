@@ -8,6 +8,7 @@ import gropius.model.issue.timeline.IssueComment
 import gropius.model.issue.timeline.TimelineItem
 import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
+import gropius.model.user.User
 import io.github.graphglue.model.*
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -35,6 +36,7 @@ class Issue(
         const val PRIORITY = "PRIORITY"
         const val LABEL = "LABEL"
         const val ARTEFACT = "ARTEFACT"
+        const val PARTICIPANT = "PARTICIPANT"
     }
 
     @NodeRelationship(AffectedByIssue.AFFECTS, Direction.INCOMING)
@@ -65,12 +67,12 @@ class Issue(
     @NodeRelationship(TYPE, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val type by NodeProperty<IssueType>()
+    var type by NodeProperty<IssueType>()
 
     @NodeRelationship(PRIORITY, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val priority by NodeProperty<IssuePriority?>()
+    var priority by NodeProperty<IssuePriority?>()
 
     @NodeRelationship(LABEL, Direction.OUTGOING)
     @FilterProperty
@@ -81,5 +83,10 @@ class Issue(
     @FilterProperty
     @delegate:Transient
     val artefacts by NodeSetProperty<Artefact>()
+
+    @NodeRelationship(PARTICIPANT, Direction.OUTGOING)
+    @FilterProperty
+    @delegate:Transient
+    val participants by NodeSetProperty<User>()
 
 }

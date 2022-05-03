@@ -8,7 +8,7 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
 
-@DomainNode
+@DomainNode("componentTemplates")
 class ComponentTemplate(
     name: String, description: String, isDeprecated: Boolean
 ) : RelationPartnerTemplate<Component, ComponentTemplate>(name, description, isDeprecated) {

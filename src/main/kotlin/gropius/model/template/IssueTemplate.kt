@@ -7,7 +7,7 @@ import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
-@DomainNode
+@DomainNode("issueTemplates")
 class IssueTemplate(
     name: String, description: String, isDeprecated: Boolean
 ) : Template<Issue, IssueTemplate>(name, description, isDeprecated) {

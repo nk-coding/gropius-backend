@@ -8,7 +8,7 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 
 
-@DomainNode
+@DomainNode("interfaceSpecificationTemplates")
 class InterfaceSpecificationTemplate(
     name: String, description: String, isDeprecated: Boolean
 ) : RelationPartnerTemplate<InterfaceSpecification, InterfaceSpecificationTemplate>(name, description, isDeprecated) {

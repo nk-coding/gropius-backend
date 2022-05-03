@@ -18,12 +18,12 @@ class Relation : ExtensibleNode() {
     @NodeRelationship(RelationPartner.INGOING_RELATION, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val end by NodeProperty<RelationPartner>()
+    var end by NodeProperty<RelationPartner>()
 
     @NodeRelationship(RelationPartner.OUTGOING_RELATION, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val start by NodeProperty<RelationPartner>()
+    var start by NodeProperty<RelationPartner>()
 
     @NodeRelationship(START_PART, Direction.OUTGOING)
     @FilterProperty

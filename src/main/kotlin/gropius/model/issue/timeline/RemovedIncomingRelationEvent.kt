@@ -20,6 +20,6 @@ class RemovedIncomingRelationEvent(
     @NodeRelationship(REMOVED_RELATION, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedRelation by NodeProperty<IssueRelation>()
+    var removedRelation by NodeProperty<IssueRelation>()
 
 }

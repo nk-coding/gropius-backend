@@ -17,6 +17,6 @@ class UnlabeledEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) 
     @NodeRelationship(REMOVED_LABEL, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedLabel by NodeProperty<Label>()
+    var removedLabel by NodeProperty<Label>()
 
 }

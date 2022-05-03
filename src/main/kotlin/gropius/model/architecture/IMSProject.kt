@@ -14,11 +14,11 @@ class IMSProject : ExtensibleNode() {
     @NodeRelationship(Trackable.SYNCS_TO, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val trackable by NodeProperty<Trackable>()
+    var trackable by NodeProperty<Trackable>()
 
     @NodeRelationship(IMS.PROJECT, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val ims by NodeProperty<IMS>()
+    var ims by NodeProperty<IMS>()
 
 }

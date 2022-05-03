@@ -21,7 +21,7 @@ class ComponentVersion(
     @NodeRelationship(Component.VERSION, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val component by NodeProperty<Component>()
+    var component by NodeProperty<Component>()
 
     @NodeRelationship(Interface.COMPONENT, Direction.INCOMING)
     @FilterProperty

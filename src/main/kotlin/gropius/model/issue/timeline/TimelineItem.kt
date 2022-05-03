@@ -17,6 +17,6 @@ abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDat
     @NodeRelationship(Issue.TIMELINE, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val issue by NodeProperty<Issue>()
+    var issue by NodeProperty<Issue>()
 
 }

@@ -17,6 +17,6 @@ class RemovedArtefactEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDate
     @NodeRelationship(REMOVED_ARTEFACT, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedArtefact by NodeProperty<Artefact>()
+    var removedArtefact by NodeProperty<Artefact>()
 
 }

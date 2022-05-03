@@ -17,6 +17,6 @@ class AddedArtefactEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTi
     @NodeRelationship(ADDED_ARTEFACT, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val addedArtefact by NodeProperty<Artefact>()
+    var addedArtefact by NodeProperty<Artefact>()
 
 }

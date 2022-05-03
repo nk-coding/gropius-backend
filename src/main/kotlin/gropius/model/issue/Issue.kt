@@ -66,7 +66,7 @@ class Issue(
     @NodeRelationship(BODY, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val body by NodeProperty<Body>()
+    var body by NodeProperty<Body>()
 
     @NodeRelationship(TYPE, Direction.OUTGOING)
     @FilterProperty

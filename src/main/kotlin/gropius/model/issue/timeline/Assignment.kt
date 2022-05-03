@@ -21,11 +21,11 @@ class Assignment(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) : Ti
     @NodeRelationship(TYPE, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val type by NodeProperty<AssignmentType?>()
+    var type by NodeProperty<AssignmentType?>()
 
     @NodeRelationship(USER, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val user by NodeProperty<User>()
+    var user by NodeProperty<User>()
 
 }

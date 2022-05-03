@@ -23,7 +23,7 @@ class Artefact(
     @NodeRelationship(Trackable.ARTEFACT, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val trackable by NodeProperty<Trackable>()
+    var trackable by NodeProperty<Trackable>()
 
     @NodeRelationship(Issue.ARTEFACT, Direction.INCOMING)
     @FilterProperty

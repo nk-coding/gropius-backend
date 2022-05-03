@@ -23,7 +23,7 @@ class InterfaceSpecificationVersion(
     @NodeRelationship(InterfaceSpecification.VERSION, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val interfaceSpecification by NodeProperty<InterfaceSpecification>()
+    var interfaceSpecification by NodeProperty<InterfaceSpecification>()
 
     @NodeRelationship(Interface.SPECIFICATION, Direction.INCOMING)
     @FilterProperty

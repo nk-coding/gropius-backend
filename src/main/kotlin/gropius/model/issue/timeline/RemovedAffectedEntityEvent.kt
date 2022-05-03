@@ -17,6 +17,6 @@ class RemovedAffectedEntityEvent(createdAt: OffsetDateTime, lastModifiedAt: Offs
     @NodeRelationship(REMOVED_AFFECTED, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedAffectedEntity by NodeProperty<AffectedByIssue>()
+    var removedAffectedEntity by NodeProperty<AffectedByIssue>()
 
 }

@@ -17,6 +17,6 @@ class AddedToTrackableEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDat
     @NodeRelationship(ADDED_TO, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val addedToTrackable by NodeProperty<Trackable>()
+    var addedToTrackable by NodeProperty<Trackable>()
 
 }

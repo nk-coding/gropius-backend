@@ -20,6 +20,6 @@ class RelatedByIssueEvent(
     @NodeRelationship(RELATION, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val relation by NodeProperty<IssueRelation>()
+    var relation by NodeProperty<IssueRelation>()
 
 }

@@ -17,6 +17,6 @@ class UnpinnedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     @NodeRelationship(UNPINNED_ON, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val unpinnedOn by NodeProperty<Trackable>()
+    var unpinnedOn by NodeProperty<Trackable>()
 
 }

@@ -16,6 +16,6 @@ class PinnedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) : T
     @NodeRelationship(PINNED_ON, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val pinnedOn by NodeProperty<Trackable>()
+    var pinnedOn by NodeProperty<Trackable>()
 
 }

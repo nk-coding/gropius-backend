@@ -17,6 +17,6 @@ class RemovedFromTrackableEvent(createdAt: OffsetDateTime, lastModifiedAt: Offse
     @NodeRelationship(REMOVED_FROM, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedFromTrackable by NodeProperty<Trackable>()
+    var removedFromTrackable by NodeProperty<Trackable>()
 
 }

@@ -31,6 +31,6 @@ class InterfacePart(name: String, description: String) : ServiceEffectSpecificat
     @NodeRelationship(DEFINED_ON, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val definedOn by NodeProperty<InterfaceSpecification>()
+    var definedOn by NodeProperty<InterfaceSpecification>()
 
 }

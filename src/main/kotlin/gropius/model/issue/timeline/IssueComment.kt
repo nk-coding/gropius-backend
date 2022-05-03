@@ -36,6 +36,6 @@ class IssueComment(
     @NodeRelationship(ANSWERS, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val answers by NodeProperty<Comment>()
+    var answers by NodeProperty<Comment>()
 
 }

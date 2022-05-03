@@ -17,6 +17,6 @@ class LabeledEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     @NodeRelationship(ADDED_LABEL, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val addedLabel by NodeProperty<Label>()
+    var addedLabel by NodeProperty<Label>()
 
 }

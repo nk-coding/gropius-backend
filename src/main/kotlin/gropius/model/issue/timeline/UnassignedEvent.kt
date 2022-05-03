@@ -16,6 +16,6 @@ class UnassignedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime)
     @NodeRelationship(REMOVED_ASSIGNMENT, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val removedAssignment by NodeProperty<Assignment>()
+    var removedAssignment by NodeProperty<Assignment>()
 
 }

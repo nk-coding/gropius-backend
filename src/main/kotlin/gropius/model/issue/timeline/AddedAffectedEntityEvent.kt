@@ -17,6 +17,6 @@ class AddedAffectedEntityEvent(createdAt: OffsetDateTime, lastModifiedAt: Offset
     @NodeRelationship(ADDED_AFFECTED, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val addedAffectedEntity by NodeProperty<AffectedByIssue>()
+    var addedAffectedEntity by NodeProperty<AffectedByIssue>()
 
 }

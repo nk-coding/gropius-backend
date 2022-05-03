@@ -17,10 +17,10 @@ class Interface(name: String, description: String) : RelationPartner(name, descr
     @NodeRelationship(COMPONENT, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val component by NodeProperty<ComponentVersion>()
+    var component by NodeProperty<ComponentVersion>()
 
     @NodeRelationship(SPECIFICATION, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val specification by NodeProperty<InterfaceSpecificationVersion>()
+    var specification by NodeProperty<InterfaceSpecificationVersion>()
 }

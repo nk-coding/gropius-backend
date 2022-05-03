@@ -28,5 +28,5 @@ class InterfaceSpecification(name: String, description: String) :
     @NodeRelationship(COMPONENT, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val component by NodeProperty<Component>()
+    var component by NodeProperty<Component>()
 }

@@ -25,5 +25,5 @@ class IMSUser(displayName: String, email: String?, @GraphQLIgnore val username: 
     @NodeRelationship(IMS.USER, Direction.INCOMING)
     @FilterProperty
     @delegate:Transient
-    val ims by NodeProperty<IMS>()
+    var ims by NodeProperty<IMS>()
 }

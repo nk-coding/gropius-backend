@@ -18,5 +18,5 @@ class InterfaceSpecificationInheritanceCondition : ExtensibleNode() {
     @NodeRelationship(PART_OF, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val partOf by NodeProperty<RelationCondition>()
+    var partOf by NodeProperty<RelationCondition>()
 }

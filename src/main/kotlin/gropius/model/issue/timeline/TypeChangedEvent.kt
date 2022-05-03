@@ -22,10 +22,10 @@ class TypeChangedEvent(
     @NodeRelationship(OLD_TYPE, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val oldType by NodeProperty<IssueType>()
+    var oldType by NodeProperty<IssueType>()
 
     @NodeRelationship(NEW_TYPE, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val newType by NodeProperty<IssueType>()
+    var newType by NodeProperty<IssueType>()
 }

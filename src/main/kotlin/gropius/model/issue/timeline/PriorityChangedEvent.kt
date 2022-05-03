@@ -22,10 +22,10 @@ class PriorityChangedEvent(
     @NodeRelationship(OLD_PRIORITY, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val oldPriority by NodeProperty<IssuePriority>()
+    var oldPriority by NodeProperty<IssuePriority>()
 
     @NodeRelationship(NEW_PRIORITY, Direction.OUTGOING)
     @FilterProperty
     @delegate:Transient
-    val newPriority by NodeProperty<IssuePriority>()
+    var newPriority by NodeProperty<IssuePriority>()
 }

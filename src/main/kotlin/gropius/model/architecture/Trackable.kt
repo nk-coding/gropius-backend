@@ -1,5 +1,6 @@
 package gropius.model.architecture
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.issue.Artefact
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
@@ -11,8 +12,20 @@ import org.springframework.data.annotation.Transient
 import java.net.URL
 
 @DomainNode
-abstract class Trackable(name: String, description: String, @FilterProperty var repositoryURL: URL) :
-    AffectedByIssue(name, description) {
+@GraphQLDescription(
+    """An entity which can have Issues, Labels and Artefacts.
+    Has pinned issues.
+    Can be synced to an IMS by creating an IMSProject.
+    Can be affected by Issues.
+    """
+)
+abstract class Trackable(
+    name: String,
+    description: String,
+    @GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
+    @FilterProperty
+    var repositoryURL: URL
+) : AffectedByIssue(name, description) {
 
     companion object {
         const val ISSUE = "ISSUE"
@@ -22,26 +35,31 @@ abstract class Trackable(name: String, description: String, @FilterProperty var 
     }
 
     @NodeRelationship(ISSUE, Direction.OUTGOING)
+    @GraphQLDescription("The set of issues affecting this trackable.")
     @FilterProperty
     @delegate:Transient
     val issues by NodeSetProperty<Issue>()
 
     @NodeRelationship(LABEL, Direction.OUTGOING)
+    @GraphQLDescription("The set of labels which can be added to issues of this trackable.")
     @FilterProperty
     @delegate:Transient
     val labels by NodeSetProperty<Label>()
 
     @NodeRelationship(ARTEFACT, Direction.OUTGOING)
+    @GraphQLDescription("Artefacts of this trackable, typically some kind of file.")
     @FilterProperty
     @delegate:Transient
     val artefacts by NodeSetProperty<Artefact>()
 
     @NodeRelationship(SYNCS_TO, Direction.OUTGOING)
+    @GraphQLDescription("IMSProjects this Trackable is synced to and from.")
     @FilterProperty
     @delegate:Transient
     val syncsTo by NodeSetProperty<IMSProject>()
 
     @NodeRelationship(Issue.PINNED_ON, Direction.INCOMING)
+    @GraphQLDescription("Issues which are pinned to this trackable, subset of issues.")
     @FilterProperty
     @delegate:Transient
     val pinnedIssues by NodeSetProperty<Issue>()

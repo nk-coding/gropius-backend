@@ -12,7 +12,6 @@ import org.springframework.data.annotation.Transient
 @GraphQLDescription(
     """Template for Components.
     Defines templated fields with specific types (defined using JSON schema).
-    Defines which InterfaceSpecifications can be (in)visible on Components with this Template.
     """
 )
 class ComponentTemplate(

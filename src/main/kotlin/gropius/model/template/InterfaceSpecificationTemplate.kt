@@ -12,6 +12,7 @@ import org.springframework.data.annotation.Transient
 @GraphQLDescription(
     """Template for InterfaceSpecifications.
     Defines templated fields with specific types (defined using JSON schema).
+    Defines on which Components InterfaceSpecifications with this Template can be (in)visible on.
     """
 )
 class InterfaceSpecificationTemplate(

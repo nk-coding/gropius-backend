@@ -10,9 +10,10 @@ import org.springframework.data.annotation.Transient
 
 @DomainNode
 @GraphQLDescription(
-    """Describes how issues propagate at a Component.
-    Semantically, if any Interface in `in` is somewhat affected by an Issue, all Interfaces in `out`
-    are also affected by the Issue.
+    """Describes a dependency between InterfaceSpecification(Version)s
+    Semantically, any InterfaceSpecification(Version) in `out` depends on any InterfaceSpecification(Version) in `in`.
+    This can result in a propagation of Issues, if any location in `in` is in some regard affected by an Issue,
+    all locations in `out` are affected by this Issue, too.
     """
 )
 class ServiceEffectSpecification(name: String, description: String) : NamedNode(name, description) {

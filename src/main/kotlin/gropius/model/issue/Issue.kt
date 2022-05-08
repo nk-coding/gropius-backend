@@ -2,6 +2,7 @@ package gropius.model.issue
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.AffectedByIssue
+import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
 import gropius.model.issue.timeline.*
@@ -154,4 +155,14 @@ class Issue(
     @FilterProperty
     @delegate:Transient
     val pinnedOn by NodeSetProperty<Trackable>()
+
+    @NodeRelationship(IMSProject.PARTIALLY_SYNCED_ISSUES, Direction.INCOMING)
+    @GraphQLDescription(
+        """IMSProjects with which this Issue is currently partially synced,
+        meaning that a sync is in progress, but not completed yet.
+        """
+    )
+    @FilterProperty
+    @delegate:Transient
+    val partiallySyncedWith by NodeSetProperty<IMSProject>()
 }

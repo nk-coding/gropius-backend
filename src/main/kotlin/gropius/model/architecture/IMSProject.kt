@@ -2,6 +2,7 @@ package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.ExtensibleNode
+import gropius.model.issue.Issue
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -16,6 +17,10 @@ import org.springframework.data.annotation.Transient
 )
 class IMSProject : ExtensibleNode() {
 
+    companion object {
+        const val PARTIALLY_SYNCED_ISSUES = "PARTIALLY_SYNCED_ISSUES"
+    }
+
     @NodeRelationship(Trackable.SYNCS_TO, Direction.INCOMING)
     @GraphQLDescription("The trackable which is synced.")
     @FilterProperty
@@ -28,4 +33,9 @@ class IMSProject : ExtensibleNode() {
     @delegate:Transient
     var ims by NodeProperty<IMS>()
 
+    @NodeRelationship(PARTIALLY_SYNCED_ISSUES, Direction.OUTGOING)
+    @GraphQLDescription("Issues which are currently partially synced with this IMSProject")
+    @FilterProperty
+    @delegate:Transient
+    val partiallySyncedIssues by NodeSetProperty<Issue>()
 }

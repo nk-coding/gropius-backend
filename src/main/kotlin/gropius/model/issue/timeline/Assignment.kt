@@ -9,7 +9,6 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
-
 @DomainNode
 class Assignment(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) : TimelineItem(createdAt, lastModifiedAt) {
 

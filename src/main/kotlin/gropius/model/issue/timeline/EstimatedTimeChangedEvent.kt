@@ -9,6 +9,8 @@ import java.time.OffsetDateTime
 class EstimatedTimeChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val oldEstimatedTime: Duration?,
-    @FilterProperty val newEstimatedTime: Duration?
+    @FilterProperty
+    val oldEstimatedTime: Duration?,
+    @FilterProperty
+    val newEstimatedTime: Duration?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

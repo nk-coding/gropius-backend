@@ -14,7 +14,9 @@ class IssueComment(
     lastModifiedAt: OffsetDateTime,
     body: String,
     lastEditedAt: OffsetDateTime,
-    @GraphQLName("isDeleted") @FilterProperty val isCommentDeleted: Boolean
+    @GraphQLName("isDeleted")
+    @FilterProperty
+    val isCommentDeleted: Boolean
 ) : Comment(createdAt, lastModifiedAt, body, lastEditedAt) {
 
     companion object {

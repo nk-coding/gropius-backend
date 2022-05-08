@@ -9,7 +9,12 @@ import java.time.OffsetDateTime
 class TemplateFieldChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val fieldName: String,
-    @GraphQLType("JSON") @FilterProperty val oldValue: Any?,
-    @GraphQLType("JSON") @FilterProperty val newValue: Any?
+    @FilterProperty
+    val fieldName: String,
+    @GraphQLType("JSON")
+    @FilterProperty
+    val oldValue: Any?,
+    @GraphQLType("JSON")
+    @FilterProperty
+    val newValue: Any?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

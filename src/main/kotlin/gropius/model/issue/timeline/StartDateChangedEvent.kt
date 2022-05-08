@@ -8,6 +8,8 @@ import java.time.OffsetDateTime
 class StartDateChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val oldStartDate: OffsetDateTime?,
-    @FilterProperty val newStartDate: OffsetDateTime?
+    @FilterProperty
+    val oldStartDate: OffsetDateTime?,
+    @FilterProperty
+    val newStartDate: OffsetDateTime?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

@@ -8,6 +8,8 @@ import java.time.OffsetDateTime
 class DueDateChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val oldDueDate: OffsetDateTime?,
-    @FilterProperty val newDueDate: OffsetDateTime?
+    @FilterProperty
+    val oldDueDate: OffsetDateTime?,
+    @FilterProperty
+    val newDueDate: OffsetDateTime?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

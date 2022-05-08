@@ -9,7 +9,6 @@ import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
-
 @DomainNode
 abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     SyncNode(createdAt, lastModifiedAt) {

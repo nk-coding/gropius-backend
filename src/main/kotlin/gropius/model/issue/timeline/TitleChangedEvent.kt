@@ -8,6 +8,8 @@ import java.time.OffsetDateTime
 class TitleChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val oldTitle: String,
-    @FilterProperty val newTitle: String
+    @FilterProperty
+    val oldTitle: String,
+    @FilterProperty
+    val newTitle: String
 ) : TimelineItem(createdAt, lastModifiedAt) {}

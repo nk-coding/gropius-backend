@@ -9,6 +9,8 @@ import java.time.OffsetDateTime
 class SpentTimeChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @FilterProperty val oldSpentTime: Duration?,
-    @FilterProperty val newSpentTime: Duration?
+    @FilterProperty
+    val oldSpentTime: Duration?,
+    @FilterProperty
+    val newSpentTime: Duration?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

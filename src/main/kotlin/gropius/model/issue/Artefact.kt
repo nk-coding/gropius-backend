@@ -4,6 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
 import gropius.model.issue.timeline.Comment
+import gropius.model.issue.timeline.IssueComment
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.net.URL
@@ -11,7 +12,7 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription(
-    """An Artefact referencing a file defined via an URL.
+    """An Artefact referencing a file defined via a URL.
     Can optionally specify a line range (fromt - to), and a version.
     Is part of exactly one Trackable.
     Can be referenced by Comments and Issues.
@@ -21,7 +22,7 @@ import java.time.OffsetDateTime
 class Artefact(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("An URL to the file this Artefact references")
+    @GraphQLDescription("A URL to the file this Artefact references")
     @FilterProperty
     @OrderProperty
     var file: URL,
@@ -51,10 +52,10 @@ class Artefact(
     @delegate:Transient
     val issues by NodeSetProperty<Issue>()
 
-    @NodeRelationship(Comment.REFERENCED_ARTEFACT, Direction.INCOMING)
-    @GraphQLDescription("Comments which currently reference this Artefact.")
+    @NodeRelationship(IssueComment.REFERENCED_ARTEFACT, Direction.INCOMING)
+    @GraphQLDescription("IssueComments which currently reference this Artefact.")
     @FilterProperty
     @delegate:Transient
-    val referencingComments by NodeSetProperty<Comment>()
+    val referencingComments by NodeSetProperty<IssueComment>()
 
 }

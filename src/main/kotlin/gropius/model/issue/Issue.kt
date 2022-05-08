@@ -102,13 +102,13 @@ class Issue(
     var body by NodeProperty<Body>()
 
     @NodeRelationship(TYPE, Direction.OUTGOING)
-    @GraphQLDescription("The typo of the Issue, e.g. BUG, ...")
+    @GraphQLDescription("The typo of the Issue, e.g. BUG. Allowed IssueTypes are defined by the template.")
     @FilterProperty
     @delegate:Transient
     var type by NodeProperty<IssueType>()
 
     @NodeRelationship(PRIORITY, Direction.OUTGOING)
-    @GraphQLDescription("The priority of the Issue, e.g. HIGH, LOW, ...")
+    @GraphQLDescription("The priority of the Issue, e.g. HIGH. Allowed IssuePriorities are defined by the template.")
     @FilterProperty
     @delegate:Transient
     var priority by NodeProperty<IssuePriority?>()

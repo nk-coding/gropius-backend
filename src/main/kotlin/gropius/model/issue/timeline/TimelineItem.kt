@@ -1,5 +1,6 @@
 package gropius.model.issue.timeline
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.SyncNode
 import gropius.model.issue.Issue
 import io.github.graphglue.model.Direction
@@ -10,10 +11,12 @@ import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
+@GraphQLDescription("Subtype for all timeline items. Always part of an Issue.")
 abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     SyncNode(createdAt, lastModifiedAt) {
 
     @NodeRelationship(Issue.TIMELINE, Direction.INCOMING)
+    @GraphQLDescription("The Issue this TimelineItem is part of.")
     @FilterProperty
     @delegate:Transient
     var issue by NodeProperty<Issue>()

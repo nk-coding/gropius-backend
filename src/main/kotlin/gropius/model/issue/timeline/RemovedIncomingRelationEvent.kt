@@ -1,5 +1,6 @@
 package gropius.model.issue.timeline
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
+@GraphQLDescription("Event representing that an incoming IssueRelation was removed.")
 class RemovedIncomingRelationEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
@@ -18,6 +20,7 @@ class RemovedIncomingRelationEvent(
     }
 
     @NodeRelationship(REMOVED_RELATION, Direction.OUTGOING)
+    @GraphQLDescription("The IssueRelation removed from `incomingRelations`.")
     @FilterProperty
     @delegate:Transient
     var removedRelation by NodeProperty<IssueRelation>()

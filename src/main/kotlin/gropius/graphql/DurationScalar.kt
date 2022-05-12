@@ -30,6 +30,6 @@ private val DurationCoercing = object : Coercing<Duration, String> {
 
 val DurationScalar: GraphQLScalarType = GraphQLScalarType.newScalar()
     .name("Duration")
-    .description("An ISO 8601 duration string, e.g. ")
+    .description("An ISO 8601 duration string, e.g. P2Y7M4DT5H42M")
     .coercing(DurationCoercing)
     .build()

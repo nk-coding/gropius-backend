@@ -12,7 +12,7 @@ abstract class ExtensibleNode : Node() {
     @GraphQLDescription("Value of an extension field by name of the extension field.")
     @GraphQLType("JSON")
     fun extensionField(
-        @GraphQLDescription("Name of the extension fiel")
+        @GraphQLDescription("Name of the extension field")
         name: String
     ): Any? {
         TODO()

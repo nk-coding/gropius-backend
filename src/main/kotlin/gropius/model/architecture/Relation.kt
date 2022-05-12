@@ -23,7 +23,7 @@ class Relation : ExtensibleNode() {
         const val END_PART = "END_PART"
     }
 
-    @NodeRelationship(RelationPartner.INGOING_RELATION, Direction.INCOMING)
+    @NodeRelationship(RelationPartner.INCOMING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The end of this Relation.")
     @FilterProperty
     @delegate:Transient

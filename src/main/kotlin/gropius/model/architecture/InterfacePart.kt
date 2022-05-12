@@ -32,7 +32,7 @@ class InterfacePart(name: String, description: String) : ServiceEffectSpecificat
     @GraphQLDescription("Relations which include this InterfacePart at the end of the Relation")
     @FilterProperty
     @delegate:Transient
-    val includingIngoingRelations by NodeSetProperty<Relation>()
+    val includingIncomingRelations by NodeSetProperty<Relation>()
 
     @NodeRelationship(InterfaceSpecificationVersion.ACTIVE_PART, Direction.INCOMING)
     @GraphQLDescription("InterfaceSpecificationVersions where this InterfacePart is active.")

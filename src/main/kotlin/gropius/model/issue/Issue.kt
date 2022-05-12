@@ -70,9 +70,10 @@ class Issue(
         const val OUTGOING_RELATION = "OUTGOING_RELATION"
         const val ASSIGNMENT = "ASSIGNMENT"
         const val PINNED_ON = "PINNED_ON"
+        const val AFFECTS = "AFFECTS"
     }
 
-    @NodeRelationship(AffectedByIssue.AFFECTS, Direction.INCOMING)
+    @NodeRelationship(AFFECTS, Direction.OUTGOING)
     @GraphQLDescription("Entities which are in some regard affected by this Issue.")
     @FilterProperty
     @delegate:Transient

@@ -17,11 +17,7 @@ import org.springframework.data.annotation.Transient
 )
 abstract class AffectedByIssue(name: String, description: String) : NamedNode(name, description) {
 
-    companion object {
-        const val AFFECTS = "AFFECTS"
-    }
-
-    @NodeRelationship(AFFECTS, Direction.OUTGOING)
+    @NodeRelationship(Issue.AFFECTS, Direction.INCOMING)
     @GraphQLDescription("The issues which affect this entity")
     @FilterProperty
     @delegate:Transient

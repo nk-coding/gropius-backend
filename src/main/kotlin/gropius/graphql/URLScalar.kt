@@ -21,7 +21,7 @@ private val URLCoercing = object : Coercing<URI, String> {
     }
 
     override fun parseValue(input: Any): URI {
-        val uri = when(input) {
+        val uri = when (input) {
             is String -> {
                 try {
                     URI(input)

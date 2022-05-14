@@ -59,7 +59,7 @@ abstract class Trackable(
     val syncsTo by NodeSetProperty<IMSProject>()
 
     @NodeRelationship(Issue.PINNED_ON, Direction.INCOMING)
-    @GraphQLDescription("Issues which are pinned to this trackable, subset of issues.")
+    @GraphQLDescription("Issues which are pinned to this trackable, subset of `issues`.")
     @FilterProperty
     @delegate:Transient
     val pinnedIssues by NodeSetProperty<Issue>()

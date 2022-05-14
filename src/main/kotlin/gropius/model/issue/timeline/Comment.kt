@@ -1,7 +1,6 @@
 package gropius.model.issue.timeline
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.model.issue.Artefact
 import gropius.model.user.User
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
@@ -26,14 +25,18 @@ abstract class Comment(
     )
     @FilterProperty
     open var body: String,
-    @GraphQLDescription("Keep track when the Comment was last updated. If not updated yet, the DateTime of creation.")
+    @GraphQLDescription(
+        """Keep track when the text of theComment was last updated.
+        If not updated yet, the DateTime of creation.
+        """
+    )
     @FilterProperty
     @OrderProperty
-    var lastEditedAt: OffsetDateTime
+    var textLastEditedAt: OffsetDateTime
 ) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
-        const val LAST_EDITED_BY = "LAST_EDITED_BY"
+        const val TEXT_LAST_EDITED_BY = "TEXT_LAST_EDITED_BY"
     }
 
     @NodeRelationship(IssueComment.ANSWERS, Direction.INCOMING)
@@ -42,10 +45,14 @@ abstract class Comment(
     @delegate:Transient
     val answeredBy by NodeSetProperty<IssueComment>()
 
-    @NodeRelationship(LAST_EDITED_BY, Direction.OUTGOING)
-    @GraphQLDescription("The User who last edited the Comment. If not edited yet, the creator of the Comment.")
+    @NodeRelationship(TEXT_LAST_EDITED_BY, Direction.OUTGOING)
+    @GraphQLDescription(
+        """The User who last edited the text of this Comment.
+        If not edited yet, the creator of the Comment.
+        """
+    )
     @FilterProperty
     @delegate:Transient
-    var lastEditedBy by NodeProperty<User>()
+    var textLastEditedBy by NodeProperty<User>()
 
 }

@@ -35,13 +35,17 @@ abstract class Trackable(
     }
 
     @NodeRelationship(ISSUE, Direction.OUTGOING)
-    @GraphQLDescription("The set of issues affecting this trackable.")
+    @GraphQLDescription(
+        """The set of Issues which are part of this Trackable.
+        An Issue has to be part of a Trackable to use the Labels and Artefacts defined by the Trackable.
+        """
+    )
     @FilterProperty
     @delegate:Transient
     val issues by NodeSetProperty<Issue>()
 
     @NodeRelationship(LABEL, Direction.OUTGOING)
-    @GraphQLDescription("The set of labels which can be added to issues of this trackable.")
+    @GraphQLDescription("The set of Labels which can be added to issues of this trackable.")
     @FilterProperty
     @delegate:Transient
     val labels by NodeSetProperty<Label>()

@@ -18,16 +18,16 @@ import org.springframework.data.annotation.Transient
 )
 class ServiceEffectSpecification(name: String, description: String) : NamedNode(name, description) {
 
-    @NodeRelationship(ServiceEffectSpecificationLocation.IN_SERVICE_EFFECT_SPECIFICATION, Direction.INCOMING)
+    @NodeRelationship(ServiceEffectSpecificationLocation.INCOMING_SERVICE_EFFECT_SPECIFICATION, Direction.INCOMING)
     @GraphQLDescription("The incoming Interfaces of this ServiceEffectSpecification.")
     @FilterProperty
     @delegate:Transient
-    val `in` by NodeSetProperty<ServiceEffectSpecificationLocation>()
+    val incoming by NodeSetProperty<ServiceEffectSpecificationLocation>()
 
-    @NodeRelationship(ServiceEffectSpecificationLocation.OUT_SERVICE_EFFECT_SPECIFICATION, Direction.INCOMING)
+    @NodeRelationship(ServiceEffectSpecificationLocation.OUTGOING_SERVICE_EFFECT_SPECIFICATION, Direction.INCOMING)
     @GraphQLDescription("The outgoing Interfaces of this ServiceEffectSpecification.")
     @FilterProperty
     @delegate:Transient
-    val out by NodeSetProperty<ServiceEffectSpecificationLocation>()
+    val outgoing by NodeSetProperty<ServiceEffectSpecificationLocation>()
 
 }

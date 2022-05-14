@@ -18,19 +18,19 @@ abstract class ServiceEffectSpecificationLocation(name: String, description: Str
 ) {
 
     companion object {
-        const val IN_SERVICE_EFFECT_SPECIFICATION = "IN_SERVICE_EFFECT_SPECIFICATION"
-        const val OUT_SERVICE_EFFECT_SPECIFICATION = "OUT_SERVICE_EFFECT_SPECIFICATION"
+        const val INCOMING_SERVICE_EFFECT_SPECIFICATION = "INCOMING_SERVICE_EFFECT_SPECIFICATION"
+        const val OUTGOING_SERVICE_EFFECT_SPECIFICATION = "OUTGOING_SERVICE_EFFECT_SPECIFICATION"
     }
 
-    @NodeRelationship(IN_SERVICE_EFFECT_SPECIFICATION, Direction.OUTGOING)
-    @GraphQLDescription("ServiceEffectSpecifications where this is used in `in`")
+    @NodeRelationship(INCOMING_SERVICE_EFFECT_SPECIFICATION, Direction.OUTGOING)
+    @GraphQLDescription("ServiceEffectSpecifications where this is used in `incoming`.")
     @FilterProperty
     @delegate:Transient
-    val inServiceEffectSpecifications by NodeSetProperty<ServiceEffectSpecification>()
+    val incomingServiceEffectSpecifications by NodeSetProperty<ServiceEffectSpecification>()
 
-    @NodeRelationship(OUT_SERVICE_EFFECT_SPECIFICATION, Direction.OUTGOING)
-    @GraphQLDescription("ServiceEffectSpecifications where this is used in `out`")
+    @NodeRelationship(OUTGOING_SERVICE_EFFECT_SPECIFICATION, Direction.OUTGOING)
+    @GraphQLDescription("ServiceEffectSpecifications where this is used in `outgoing`.")
     @FilterProperty
     @delegate:Transient
-    val outServiceEffectSpecifications by NodeSetProperty<ServiceEffectSpecification>()
+    val outgoingServiceEffectSpecifications by NodeSetProperty<ServiceEffectSpecification>()
 }

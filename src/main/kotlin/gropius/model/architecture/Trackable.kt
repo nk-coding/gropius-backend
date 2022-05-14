@@ -9,7 +9,7 @@ import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
-import java.net.URL
+import java.net.URI
 
 @DomainNode
 @GraphQLDescription(
@@ -24,7 +24,7 @@ abstract class Trackable(
     description: String,
     @GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
     @FilterProperty
-    var repositoryURL: URL
+    var repositoryURL: URI
 ) : AffectedByIssue(name, description) {
 
     companion object {

@@ -3,17 +3,16 @@ package gropius.model.issue
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.Trackable
 import gropius.model.common.SyncNode
-import gropius.model.issue.timeline.Comment
 import gropius.model.issue.timeline.IssueComment
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
-import java.net.URL
+import java.net.URI
 import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription(
     """An Artefact referencing a file defined via a URL.
-    Can optionally specify a line range (fromt - to), and a version.
+    Can optionally specify a line range (from - to), and a version.
     Is part of exactly one Trackable.
     Can be referenced by Comments and Issues.
     Artefacts are synced to all IMSProjects of the Trackable they are part of.
@@ -25,7 +24,7 @@ class Artefact(
     @GraphQLDescription("A URL to the file this Artefact references")
     @FilterProperty
     @OrderProperty
-    var file: URL,
+    var file: URI,
     @GraphQLDescription("If present, the first line of the file this Artefact references, inclusive")
     @FilterProperty
     @OrderProperty

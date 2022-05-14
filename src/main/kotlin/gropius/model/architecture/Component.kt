@@ -6,7 +6,7 @@ import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
-import java.net.URL
+import java.net.URI
 
 @DomainNode("components")
 @GraphQLDescription(
@@ -17,7 +17,7 @@ import java.net.URL
     Can be affected by Issues.
     """
 )
-class Component(name: String, description: String, repositoryURL: URL) : Trackable(name, description, repositoryURL) {
+class Component(name: String, description: String, repositoryURL: URI) : Trackable(name, description, repositoryURL) {
 
     companion object {
         const val VERSION = "VERSION"

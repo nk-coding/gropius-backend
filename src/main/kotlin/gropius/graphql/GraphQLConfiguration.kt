@@ -4,13 +4,14 @@ import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import graphql.scalars.datetime.DateTimeScalar
 import graphql.scalars.`object`.JsonScalar
 import graphql.scalars.regex.RegexScalar
-import graphql.scalars.url.UrlScalar
 import graphql.schema.GraphQLType
+import gropius.model.user.GropiusUser
+import gropius.model.user.IMSUser
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import java.net.URL
+import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
 import kotlin.reflect.KType
@@ -44,7 +45,7 @@ class GraphQLConfiguration {
     /**
      * SchemaGeneratorHooks which adds support for scalars:
      * - [OffsetDateTime] -> DateTime
-     * - [URL] -> Url
+     * - [URI] -> Url
      * - Duration -> Duration
      */
     @Bean
@@ -52,7 +53,7 @@ class GraphQLConfiguration {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? {
             return when (type.classifier) {
                 OffsetDateTime::class -> DateTimeScalar.INSTANCE
-                URL::class -> UrlScalar.INSTANCE
+                URI::class -> URLScalar
                 Duration::class -> DurationScalar
                 else -> null
             }
@@ -90,13 +91,13 @@ class GraphQLConfiguration {
         }
 
     /**
-     * Filter factory for [URL] properties
+     * Filter factory for [URI] properties
      *
      * @return the generated filter factory
      */
     @Bean
     fun urlFilter() =
-        TypeFilterDefinitionEntry(URL::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
+        TypeFilterDefinitionEntry(URI::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
             StringFilterDefinition(
                 name,
                 parentNodeDefinition.getNeo4jNameOfProperty(property),
@@ -104,6 +105,11 @@ class GraphQLConfiguration {
             )
         }
 
+    /**
+     * Filter for usernames on both [IMSUser] and [GropiusUser]
+     *
+     * @return the generated filter definition
+     */
     @Bean("usernameFilter")
     fun usernameFilter() = StringFilterDefinition("username", "username", true)
 }

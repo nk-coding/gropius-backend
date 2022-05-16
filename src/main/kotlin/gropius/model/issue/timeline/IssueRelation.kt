@@ -15,6 +15,7 @@ import java.time.OffsetDateTime
     """Event representing that a relation between two Issues has been created.
     An IssueRelation is only active if it is still in `outgoingRelations` on the `issue`,
     respectively in incomingRelations on the `relatedIssue`.
+    Caution: This is **not** a subtype of Relation.
     """
 )
 class IssueRelation(

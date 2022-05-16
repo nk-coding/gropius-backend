@@ -14,6 +14,7 @@ import org.springframework.data.annotation.Transient
     Relations are always directional.
     The template defines which RelationPartners are possible as start / end.
     For both start and end, if it is an Interface, it is possible to define the InterfaceParts this includes.
+    Caution: This is **not** a supertype of IssueRelation.
     """
 )
 class Relation : ExtensibleNode() {

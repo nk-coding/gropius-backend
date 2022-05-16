@@ -14,9 +14,6 @@ import org.springframework.data.annotation.Transient
 import java.time.Duration
 import java.time.OffsetDateTime
 
-// TODO keep isDuplicate?
-// TODO add (Un)MarkedAsDuplicateEvents?
-// TODO reintroduce Referenced Events?
 @DomainNode
 @GraphQLDescription(
     """An Issue in the Gropius system.

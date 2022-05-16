@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
 @GraphQLDescription(
     """Label used to mark Issues with.
     A Label consists of a name, a description and a color.
-    Issues are synced to all IMSProjects of Trackables they are part of.
+    Issues may be synced to all IMSProjects of Trackables they are part of.
     """
 )
 class Label(

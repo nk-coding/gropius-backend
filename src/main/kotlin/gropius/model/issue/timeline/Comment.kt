@@ -26,17 +26,17 @@ abstract class Comment(
     @FilterProperty
     open var body: String,
     @GraphQLDescription(
-        """Keep track when the text of theComment was last updated.
+        """Keep track when the body of the Comment was last updated.
         If not updated yet, the DateTime of creation.
         """
     )
     @FilterProperty
     @OrderProperty
-    var textLastEditedAt: OffsetDateTime
+    var bodyLastEditedAt: OffsetDateTime
 ) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
-        const val TEXT_LAST_EDITED_BY = "TEXT_LAST_EDITED_BY"
+        const val BODY_LAST_EDITED_BY = "BODY_LAST_EDITED_BY"
     }
 
     @NodeRelationship(IssueComment.ANSWERS, Direction.INCOMING)
@@ -45,14 +45,14 @@ abstract class Comment(
     @delegate:Transient
     val answeredBy by NodeSetProperty<IssueComment>()
 
-    @NodeRelationship(TEXT_LAST_EDITED_BY, Direction.OUTGOING)
+    @NodeRelationship(BODY_LAST_EDITED_BY, Direction.OUTGOING)
     @GraphQLDescription(
-        """The User who last edited the text of this Comment.
+        """The User who last edited the body of this Comment.
         If not edited yet, the creator of the Comment.
         """
     )
     @FilterProperty
     @delegate:Transient
-    var textLastEditedBy by NodeProperty<User>()
+    var bodyLastEditedBy by NodeProperty<User>()
 
 }

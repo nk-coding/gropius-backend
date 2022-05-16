@@ -104,7 +104,7 @@ class Issue(
     var body by NodeProperty<Body>()
 
     @NodeRelationship(TYPE, Direction.OUTGOING)
-    @GraphQLDescription("The typo of the Issue, e.g. BUG. Allowed IssueTypes are defined by the template.")
+    @GraphQLDescription("The type of the Issue, e.g. BUG. Allowed IssueTypes are defined by the template.")
     @FilterProperty
     @delegate:Transient
     var type by NodeProperty<IssueType>()

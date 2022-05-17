@@ -11,14 +11,14 @@ import java.time.OffsetDateTime
 class TemplateFieldChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The name of the templated field.")
+    @property:GraphQLDescription("The name of the templated field.")
     @FilterProperty
     val fieldName: String,
-    @GraphQLDescription("The old value of the templated field.")
+    @property:GraphQLDescription("The old value of the templated field.")
     @GraphQLType("JSON")
     @FilterProperty
     val oldValue: Any?,
-    @GraphQLDescription("The new value of the templated field.")
+    @property:GraphQLDescription("The new value of the templated field.")
     @GraphQLType("JSON")
     @FilterProperty
     val newValue: Any?

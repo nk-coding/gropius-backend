@@ -10,10 +10,10 @@ import java.time.OffsetDateTime
 class DueDateChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The old due date.")
+    @property:GraphQLDescription("The old due date.")
     @FilterProperty
     val oldDueDate: OffsetDateTime?,
-    @GraphQLDescription("The new due date.")
+    @property:GraphQLDescription("The new due date.")
     @FilterProperty
     val newDueDate: OffsetDateTime?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

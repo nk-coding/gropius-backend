@@ -11,7 +11,7 @@ import org.springframework.data.annotation.Transient
 class IssuePriority(
     name: String,
     description: String,
-    @GraphQLDescription("The value of the IssuePriority, used to compare/order different IssuePriorities.")
+    @property:GraphQLDescription("The value of the IssuePriority, used to compare/order different IssuePriorities.")
     @FilterProperty
     @OrderProperty
     val value: Double

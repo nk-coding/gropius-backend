@@ -17,7 +17,7 @@ import org.springframework.data.annotation.Transient
 class ComponentVersion(
     name: String,
     description: String,
-    @GraphQLDescription("The version of this ComponentVersion")
+    @property:GraphQLDescription("The version of this ComponentVersion")
     override var version: String
 ) : RelationPartner(name, description), Versioned {
 

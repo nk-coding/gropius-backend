@@ -11,10 +11,10 @@ import java.time.OffsetDateTime
 class SpentTimeChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The old spent time.")
+    @property:GraphQLDescription("The old spent time.")
     @FilterProperty
     val oldSpentTime: Duration?,
-    @GraphQLDescription("The mew spent time.")
+    @property:GraphQLDescription("The mew spent time.")
     @FilterProperty
     val newSpentTime: Duration?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

@@ -22,7 +22,7 @@ import org.springframework.data.annotation.Transient
 class GropiusUser(
     displayName: String,
     email: String?,
-    @GraphQLIgnore
+    @property:GraphQLIgnore
     val username: String
 ) : User(displayName, email) {
 

@@ -17,11 +17,11 @@ import org.springframework.data.annotation.Transient
 )
 @AdditionalFilter("usernameFilter")
 abstract class User(
-    @GraphQLDescription("The name which should be displayed for the user.")
+    @property:GraphQLDescription("The name which should be displayed for the user.")
     @FilterProperty
     @OrderProperty
     var displayName: String,
-    @GraphQLDescription("The email address of the user.")
+    @property:GraphQLDescription("The email address of the user.")
     @FilterProperty
     @OrderProperty
     var email: String?

@@ -11,10 +11,10 @@ import java.time.OffsetDateTime
 class EstimatedTimeChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The old estimated time of the Issue.")
+    @property:GraphQLDescription("The old estimated time of the Issue.")
     @FilterProperty
     val oldEstimatedTime: Duration?,
-    @GraphQLDescription("The new estimated time of the Issue.")
+    @property:GraphQLDescription("The new estimated time of the Issue.")
     @FilterProperty
     val newEstimatedTime: Duration?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

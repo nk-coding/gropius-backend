@@ -15,19 +15,19 @@ import org.springframework.data.annotation.Transient
     """
 )
 class InterfaceSpecificationInheritanceCondition(
-    @GraphQLDescription("If true, visible self-defined InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are inherited")
     @FilterProperty
     val inheritsVisibleSelfDefined: Boolean,
-    @GraphQLDescription("If true, invisible self-defined InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, invisible self-defined InterfaceSpecifications are inherited")
     @FilterProperty
     val inheritsInvisibleSelfDefined: Boolean,
-    @GraphQLDescription("If true, visible derived InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, visible derived InterfaceSpecifications are inherited")
     @FilterProperty
     val inheritsVisibleDerived: Boolean,
-    @GraphQLDescription("If true, invisible derived InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, invisible derived InterfaceSpecifications are inherited")
     @FilterProperty
     val inheritsInvisibleDerived: Boolean,
-    @GraphQLDescription(
+    @property:GraphQLDescription(
         """If true, inherited InterfaceSpecifications are visible
          on the end of the Relation, otherwise invisible
         """

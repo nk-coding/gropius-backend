@@ -10,10 +10,10 @@ import java.time.OffsetDateTime
 class StartDateChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The old start date.")
+    @property:GraphQLDescription("The old start date.")
     @FilterProperty
     val oldStartDate: OffsetDateTime?,
-    @GraphQLDescription("The new start date.")
+    @property:GraphQLDescription("The new start date.")
     @FilterProperty
     val newStartDate: OffsetDateTime?
 ) : TimelineItem(createdAt, lastModifiedAt) {}

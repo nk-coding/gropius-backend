@@ -14,11 +14,11 @@ import java.time.OffsetDateTime
     """
 )
 abstract class AuditedNode(
-    @GraphQLDescription("The DateTime this entity was created at.")
+    @property:GraphQLDescription("The DateTime this entity was created at.")
     @FilterProperty
     @OrderProperty
     val createdAt: OffsetDateTime,
-    @GraphQLDescription("The DateTime this entity was last modified at.")
+    @property:GraphQLDescription("The DateTime this entity was last modified at.")
     @FilterProperty
     @OrderProperty
     var lastModifiedAt: OffsetDateTime

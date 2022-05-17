@@ -10,10 +10,10 @@ import java.time.OffsetDateTime
 class TitleChangedEvent(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The old title.")
+    @property:GraphQLDescription("The old title.")
     @FilterProperty
     val oldTitle: String,
-    @GraphQLDescription("The new title.")
+    @property:GraphQLDescription("The new title.")
     @FilterProperty
     val newTitle: String
 ) : TimelineItem(createdAt, lastModifiedAt) {}

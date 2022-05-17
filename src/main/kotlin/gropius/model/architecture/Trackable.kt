@@ -22,7 +22,7 @@ import java.net.URI
 abstract class Trackable(
     name: String,
     description: String,
-    @GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
+    @property:GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
     @FilterProperty
     var repositoryURL: URI
 ) : AffectedByIssue(name, description) {

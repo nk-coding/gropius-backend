@@ -16,7 +16,7 @@ import java.time.OffsetDateTime
 abstract class Comment(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription(
+    @property:GraphQLDescription(
         """The text of the Comment.
         Supports GFM (GitHub Flavored Markdown).
         Updates to the body cause lastEditedAt and lastEditedBy to change, while updates to referencedArtefacts
@@ -25,7 +25,7 @@ abstract class Comment(
     )
     @FilterProperty
     open var body: String,
-    @GraphQLDescription(
+    @property:GraphQLDescription(
         """Keep track when the body of the Comment was last updated.
         If not updated yet, the DateTime of creation.
         """

@@ -21,19 +21,19 @@ import java.time.OffsetDateTime
 class Artefact(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("A URL to the file this Artefact references")
+    @property:GraphQLDescription("A URL to the file this Artefact references")
     @FilterProperty
     @OrderProperty
     var file: URI,
-    @GraphQLDescription("If present, the first line of the file this Artefact references, inclusive")
+    @property:GraphQLDescription("If present, the first line of the file this Artefact references, inclusive")
     @FilterProperty
     @OrderProperty
     var from: Int?,
-    @GraphQLDescription("If present, the last line of the file this Artefact references, inclusive")
+    @property:GraphQLDescription("If present, the last line of the file this Artefact references, inclusive")
     @FilterProperty
     @OrderProperty
     var to: Int?,
-    @GraphQLDescription("if present, the current version of this Artefact")
+    @property:GraphQLDescription("If present, the current version of this Artefact")
     @FilterProperty
     @OrderProperty
     var version: String?

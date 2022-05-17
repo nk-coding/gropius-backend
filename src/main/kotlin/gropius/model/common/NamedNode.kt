@@ -6,8 +6,8 @@ import io.github.graphglue.model.DomainNode
 @DomainNode
 @GraphQLDescription("ExtensibleNode with a name and description")
 abstract class NamedNode(
-    @GraphQLDescription("The name of this entity.")
+    @property:GraphQLDescription("The name of this entity.")
     override var name: String,
-    @GraphQLDescription("The description of this entity.")
+    @property:GraphQLDescription("The description of this entity.")
     override var description: String
 ) : ExtensibleNode(), Named

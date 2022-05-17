@@ -23,7 +23,7 @@ class IssueComment(
     lastModifiedAt: OffsetDateTime,
     body: String,
     lastEditedAt: OffsetDateTime,
-    @GraphQLDescription("If true, the IssueComment was deleted and the body is no longer visible.")
+    @property:GraphQLDescription("If true, the IssueComment was deleted and the body is no longer visible.")
     @GraphQLName("isDeleted")
     @FilterProperty
     val isCommentDeleted: Boolean

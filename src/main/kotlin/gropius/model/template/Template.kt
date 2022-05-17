@@ -15,7 +15,7 @@ import org.springframework.data.annotation.Transient
 abstract class Template<T : Node, S : Template<T, S>>(
     name: String,
     description: String,
-    @GraphQLDescription("If true, this template is deprecated and cannot be used for new entities any more.")
+    @property:GraphQLDescription("If true, this template is deprecated and cannot be used for new entities any more.")
     @FilterProperty
     var isDeprecated: Boolean
 ) : NamedNode(name, description) {

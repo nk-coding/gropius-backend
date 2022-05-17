@@ -20,7 +20,7 @@ class Label(
     lastModifiedAt: OffsetDateTime,
     name: String,
     description: String,
-    @GraphQLDescription("The color of the Label, used to display the Label.")
+    @property:GraphQLDescription("The color of the Label, used to display the Label.")
     @FilterProperty
     @OrderProperty
     @GraphQLType("Color")

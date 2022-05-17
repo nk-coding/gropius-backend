@@ -21,7 +21,7 @@ import org.springframework.data.annotation.Transient
 class IMSUser(
     displayName: String,
     email: String?,
-    @GraphQLIgnore
+    @property:GraphQLIgnore
     var username: String?
 ) : User(displayName, email) {
 

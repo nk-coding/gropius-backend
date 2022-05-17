@@ -9,8 +9,8 @@ import java.time.OffsetDateTime
 abstract class NamedAuditedNode(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("The name of this entity.")
+    @property:GraphQLDescription("The name of this entity.")
     override var name: String,
-    @GraphQLDescription("The description of this entity.")
+    @property:GraphQLDescription("The description of this entity.")
     override var description: String
 ) : AuditedNode(createdAt, lastModifiedAt), Named

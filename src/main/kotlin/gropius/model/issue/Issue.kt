@@ -25,30 +25,30 @@ import java.time.OffsetDateTime
 class Issue(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
-    @GraphQLDescription("Title of the Issue, usually a short description of the Issue.")
+    @property:GraphQLDescription("Title of the Issue, usually a short description of the Issue.")
     @FilterProperty
     @OrderProperty
     var title: String,
-    @GraphQLDescription("The DateTime when the Issue was last updated, this includes a changed timeline.")
+    @property:GraphQLDescription("The DateTime when the Issue was last updated, this includes a changed timeline.")
     @FilterProperty
     @OrderProperty
     var lastUpdatedAt: OffsetDateTime,
-    @GraphQLDescription("If true, this Issue is currently open, otherwise it is closed")
+    @property:GraphQLDescription("If true, this Issue is currently open, otherwise it is closed")
     @FilterProperty
     var isOpen: Boolean,
-    @GraphQLDescription("DateTime when working on this Issue started / will start.")
+    @property:GraphQLDescription("DateTime when working on this Issue started / will start.")
     @FilterProperty
     @OrderProperty
     var startDate: OffsetDateTime?,
-    @GraphQLDescription("DateTime when working on this Issue should be finished.")
+    @property:GraphQLDescription("DateTime when working on this Issue should be finished.")
     @FilterProperty
     @OrderProperty
     var dueDate: OffsetDateTime?,
-    @GraphQLDescription("Estimated amount of time necessary for this Issue.")
+    @property:GraphQLDescription("Estimated amount of time necessary for this Issue.")
     @FilterProperty
     @OrderProperty
     var estimatedTime: Duration?,
-    @GraphQLDescription("Time spent working on this Issue.")
+    @property:GraphQLDescription("Time spent working on this Issue.")
     @FilterProperty
     @OrderProperty
     var spentTime: Duration?

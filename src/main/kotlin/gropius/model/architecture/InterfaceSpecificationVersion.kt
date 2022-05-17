@@ -17,7 +17,10 @@ import org.springframework.data.annotation.Transient
     """
 )
 class InterfaceSpecificationVersion(
-    name: String, description: String, override var version: String
+    name: String,
+    description: String,
+    @property:GraphQLDescription("The version of this InterfaceSpecificationVersion.")
+    override var version: String
 ) : ServiceEffectSpecificationLocation(name, description), Versioned {
 
     companion object {

@@ -7,8 +7,8 @@ import org.springframework.data.annotation.Transient
 @DomainNode
 @GraphQLDescription("Template for RelationPartners.")
 abstract class RelationPartnerTemplate<T : Node, S : RelationPartnerTemplate<T, S>>(
-    name: String, description: String, isDeprecated: Boolean
-) : Template<T, S>(name, description, isDeprecated) {
+    name: String, description: String, templateFieldSpecifications: MutableMap<String, String>, isDeprecated: Boolean
+) : Template<T, S>(name, description, templateFieldSpecifications, isDeprecated) {
 
     @NodeRelationship(RelationCondition.FROM, Direction.INCOMING)
     @GraphQLDescription("RelationConditions which allow this template for the start of the relation.")

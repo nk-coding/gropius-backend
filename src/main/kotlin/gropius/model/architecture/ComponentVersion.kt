@@ -1,11 +1,16 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.BaseTemplate
+import gropius.model.template.ComponentVersionTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -18,8 +23,11 @@ class ComponentVersion(
     name: String,
     description: String,
     @property:GraphQLDescription("The version of this ComponentVersion")
-    override var version: String
-) : RelationPartner(name, description), Versioned {
+    override var version: String,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : RelationPartner(name, description), Versioned, TemplatedNode {
 
     companion object {
         const val VISIBLE_SELF_DEFINED = "VISIBLE_SELF_DEFINED"
@@ -27,6 +35,12 @@ class ComponentVersion(
         const val VISIBLE_DERIVED = "VISIBLE_DERIVED"
         const val INVISIBLE_DERIVED = "INVISIBLE_DERIVED"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this ComponentVersion")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<ComponentVersionTemplate>()
 
     @NodeRelationship(Component.VERSION, Direction.INCOMING)
     @GraphQLDescription("The Component which defines this ComponentVersions")

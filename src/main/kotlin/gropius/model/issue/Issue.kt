@@ -1,16 +1,17 @@
 package gropius.model.issue
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.architecture.AffectedByIssue
 import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
 import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.*
-import gropius.model.template.IssuePriority
-import gropius.model.template.IssueType
+import gropius.model.template.*
 import gropius.model.user.User
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 import java.time.Duration
 import java.time.OffsetDateTime
 
@@ -25,6 +26,9 @@ import java.time.OffsetDateTime
 class Issue(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>,
     @property:GraphQLDescription("Title of the Issue, usually a short description of the Issue.")
     @FilterProperty
     @OrderProperty
@@ -52,7 +56,7 @@ class Issue(
     @FilterProperty
     @OrderProperty
     var spentTime: Duration?
-) : AuditedNode(createdAt, lastModifiedAt) {
+) : AuditedNode(createdAt, lastModifiedAt), TemplatedNode {
 
     companion object {
         const val TIMELINE = "TIMELINE"
@@ -69,6 +73,12 @@ class Issue(
         const val PINNED_ON = "PINNED_ON"
         const val AFFECTS = "AFFECTS"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Issue.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<IssueTemplate>()
 
     @NodeRelationship(AFFECTS, Direction.OUTGOING)
     @GraphQLDescription("Entities which are in some regard affected by this Issue.")

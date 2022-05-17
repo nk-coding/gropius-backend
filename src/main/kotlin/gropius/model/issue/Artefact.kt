@@ -1,11 +1,16 @@
 package gropius.model.issue
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.architecture.Trackable
 import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.IssueComment
+import gropius.model.template.ArtefactTemplate
+import gropius.model.template.BaseTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 import java.net.URI
 import java.time.OffsetDateTime
 
@@ -21,6 +26,9 @@ import java.time.OffsetDateTime
 class Artefact(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>,
     @property:GraphQLDescription("A URL to the file this Artefact references")
     @FilterProperty
     @OrderProperty
@@ -37,7 +45,13 @@ class Artefact(
     @FilterProperty
     @OrderProperty
     var version: String?
-) : AuditedNode(createdAt, lastModifiedAt) {
+) : AuditedNode(createdAt, lastModifiedAt), TemplatedNode {
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Artefact.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<ArtefactTemplate>()
 
     @NodeRelationship(Trackable.ARTEFACT, Direction.INCOMING)
     @GraphQLDescription("The Trackable this Artefact is part of.")

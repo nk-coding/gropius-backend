@@ -1,11 +1,16 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.BaseTemplate
+import gropius.model.template.InterfaceTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -14,12 +19,24 @@ import org.springframework.data.annotation.Transient
     Can be used in Relations and affected by Issues.
     """
 )
-class Interface(name: String, description: String) : RelationPartner(name, description) {
+class Interface(
+    name: String,
+    description: String,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : RelationPartner(name, description), TemplatedNode {
 
     companion object {
         const val COMPONENT = "COMPONENT"
         const val SPECIFICATION = "SPECIFICATION"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Interface.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<InterfaceTemplate>()
 
     @NodeRelationship(COMPONENT, Direction.OUTGOING)
     @GraphQLDescription("The ComponentVersion this Interface is part of.")

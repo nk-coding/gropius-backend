@@ -1,11 +1,16 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.BaseTemplate
+import gropius.model.template.ComponentTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 import java.net.URI
 
 @DomainNode("components")
@@ -17,11 +22,24 @@ import java.net.URI
     Can be affected by Issues.
     """
 )
-class Component(name: String, description: String, repositoryURL: URI) : Trackable(name, description, repositoryURL) {
+class Component(
+    name: String,
+    description: String,
+    repositoryURL: URI,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : Trackable(name, description, repositoryURL), TemplatedNode {
 
     companion object {
         const val VERSION = "VERSION"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Component.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<ComponentTemplate>()
 
     @NodeRelationship(InterfaceSpecification.COMPONENT, Direction.INCOMING)
     @GraphQLDescription(

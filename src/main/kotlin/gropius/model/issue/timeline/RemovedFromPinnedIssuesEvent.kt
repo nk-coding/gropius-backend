@@ -11,8 +11,9 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription("Event representing that an Issue was unpinned on a Trackable.")
-class UnpinnedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+class RemovedFromPinnedIssuesEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
         const val UNPINNED_ON = "UNPINNED_ON"

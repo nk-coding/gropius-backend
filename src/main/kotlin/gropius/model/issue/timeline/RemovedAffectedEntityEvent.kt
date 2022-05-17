@@ -11,8 +11,9 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription("Event representing that an entity is no longer affected by an Issue.")
-class RemovedAffectedEntityEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+class RemovedAffectedEntityEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
         const val REMOVED_AFFECTED = "REMOVED_AFFECTED"

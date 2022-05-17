@@ -11,8 +11,9 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription("Event representing that an Issue was removed from a Trackable.")
-class RemovedFromTrackableEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+class RemovedFromTrackableEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
         const val REMOVED_FROM = "REMOVED_FROM"

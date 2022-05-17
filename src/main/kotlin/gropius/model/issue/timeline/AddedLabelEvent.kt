@@ -1,7 +1,7 @@
 package gropius.model.issue.timeline
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.model.architecture.Trackable
+import gropius.model.issue.Label
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -10,17 +10,19 @@ import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
-@GraphQLDescription("Event representing that an Issue was pinned on a Trackable.")
-class PinnedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) : TimelineItem(createdAt, lastModifiedAt) {
+@GraphQLDescription("Event representing that a Label was added to an Issue.")
+class AddedLabelEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
-        const val PINNED_ON = "PINNED_ON"
+        const val ADDED_LABEL = "ADDED_LABEL"
     }
 
-    @NodeRelationship(PINNED_ON, Direction.OUTGOING)
-    @GraphQLDescription("The Trackable the Issue is now pinned on.")
+    @NodeRelationship(ADDED_LABEL, Direction.OUTGOING)
+    @GraphQLDescription("The Label added to the Issue.")
     @FilterProperty
     @delegate:Transient
-    var pinnedOn by NodeProperty<Trackable>()
+    var addedLabel by NodeProperty<Label>()
 
 }

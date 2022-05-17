@@ -14,8 +14,9 @@ import java.time.OffsetDateTime
     meaning an Assignment was removed from an Issue.
     """
 )
-class UnassignedEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+class RemovedAssignmentEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
         const val REMOVED_ASSIGNMENT = "REMOVED_ASSIGNMENT"

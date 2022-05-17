@@ -11,8 +11,9 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription("Event representing that an entity is affected by an Issue")
-class AddedAffectedEntityEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+class AddedAffectedEntityEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
         const val ADDED_AFFECTED = "ADDED_AFFECTED"

@@ -10,18 +10,19 @@ import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
-@GraphQLDescription("Event representing that a Label was added to an Issue.")
-class LabeledEvent(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
-    TimelineItem(createdAt, lastModifiedAt) {
+@GraphQLDescription("Event representing that a Label was removed from an Issue.")
+class RemovedLabelEvent(
+    createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime
+) : TimelineItem(createdAt, lastModifiedAt) {
 
     companion object {
-        const val ADDED_LABEL = "ADDED_LABEL"
+        const val REMOVED_LABEL = "REMOVED_LABEL"
     }
 
-    @NodeRelationship(ADDED_LABEL, Direction.OUTGOING)
-    @GraphQLDescription("The Label added to the Issue.")
+    @NodeRelationship(REMOVED_LABEL, Direction.OUTGOING)
+    @GraphQLDescription("The Label removed from the Issue.")
     @FilterProperty
     @delegate:Transient
-    var addedLabel by NodeProperty<Label>()
+    var removedLabel by NodeProperty<Label>()
 
 }

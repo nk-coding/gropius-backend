@@ -9,11 +9,11 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription(
-    """ExtensibleNode which provides information necessary for sync
-    When it was created and last modified, if the it is already deleted, and by who it was created and last modiied.
+    """ExtensibleNode which provides auditing information, which can e.g. be used for the sync
+    When it was created and last modified, if the it is already deleted, and by who it was created and last modified.
     """
 )
-abstract class SyncNode(
+abstract class AuditedNode(
     @GraphQLDescription("The DateTime this entity was created at.")
     @FilterProperty
     @OrderProperty

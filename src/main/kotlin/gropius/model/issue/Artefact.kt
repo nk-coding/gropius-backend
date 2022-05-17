@@ -2,7 +2,7 @@ package gropius.model.issue
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.Trackable
-import gropius.model.common.SyncNode
+import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.IssueComment
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
@@ -37,7 +37,7 @@ class Artefact(
     @FilterProperty
     @OrderProperty
     var version: String?
-) : SyncNode(createdAt, lastModifiedAt) {
+) : AuditedNode(createdAt, lastModifiedAt) {
 
     @NodeRelationship(Trackable.ARTEFACT, Direction.INCOMING)
     @GraphQLDescription("The Trackable this Artefact is part of.")

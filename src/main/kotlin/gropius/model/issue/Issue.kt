@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.AffectedByIssue
 import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
-import gropius.model.common.SyncNode
+import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.*
 import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
@@ -52,7 +52,7 @@ class Issue(
     @FilterProperty
     @OrderProperty
     var spentTime: Duration?
-) : SyncNode(createdAt, lastModifiedAt) {
+) : AuditedNode(createdAt, lastModifiedAt) {
 
     companion object {
         const val TIMELINE = "TIMELINE"

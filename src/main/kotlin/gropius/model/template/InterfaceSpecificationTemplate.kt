@@ -61,4 +61,12 @@ class InterfaceSpecificationTemplate(
     @delegate:Transient
     val interfaceTemplate by NodeProperty<InterfaceTemplate>()
 
+    @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
+    @GraphQLDescription(
+        """SubTemplate applied to all InterfaceParts of InterfaceSpecifications with this Template.
+        """
+    )
+    @delegate:Transient
+    val interfacePartTemplate by NodeProperty<InterfacePartTemplate>()
+
 }

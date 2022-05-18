@@ -22,12 +22,12 @@ class IssueComment(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,
     body: String,
-    lastEditedAt: OffsetDateTime,
+    bodyLastEditedAt: OffsetDateTime,
     @property:GraphQLDescription("If true, the IssueComment was deleted and the body is no longer visible.")
     @GraphQLName("isDeleted")
     @FilterProperty
     val isCommentDeleted: Boolean
-) : Comment(createdAt, lastModifiedAt, body, lastEditedAt) {
+) : Comment(createdAt, lastModifiedAt, body, bodyLastEditedAt) {
 
     companion object {
         const val ANSWERS = "ANSWERS"

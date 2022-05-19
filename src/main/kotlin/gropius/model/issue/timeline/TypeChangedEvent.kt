@@ -25,11 +25,11 @@ class TypeChangedEvent(
     @GraphQLDescription("The old type.")
     @FilterProperty
     @delegate:Transient
-    var oldType by NodeProperty<IssueType>()
+    val oldType by NodeProperty<IssueType>()
 
     @NodeRelationship(NEW_TYPE, Direction.OUTGOING)
     @GraphQLDescription("The new type.")
     @FilterProperty
     @delegate:Transient
-    var newType by NodeProperty<IssueType>()
+    val newType by NodeProperty<IssueType>()
 }

@@ -43,7 +43,7 @@ class Artefact(
     @GraphQLDescription("The Trackable this Artefact is part of.")
     @FilterProperty
     @delegate:Transient
-    var trackable by NodeProperty<Trackable>()
+    val trackable by NodeProperty<Trackable>()
 
     @NodeRelationship(Issue.ARTEFACT, Direction.INCOMING)
     @GraphQLDescription("Issues which currently have this Artefact.")

@@ -27,6 +27,6 @@ class RelatedByIssueEvent(
     @GraphQLDescription("The IssueRelation the Issue is related at.")
     @FilterProperty
     @delegate:Transient
-    var relation by NodeProperty<IssueRelation>()
+    val relation by NodeProperty<IssueRelation>()
 
 }

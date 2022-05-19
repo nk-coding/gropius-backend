@@ -45,7 +45,7 @@ class InterfaceSpecificationInheritanceCondition(
     @GraphQLDescription("The RelationCondition this is part of.")
     @FilterProperty
     @delegate:Transient
-    var partOf by NodeProperty<RelationCondition>()
+    val partOf by NodeProperty<RelationCondition>()
 
     @NodeRelationship(INHERITABLE_INTERFACE_SPECIFICATION, Direction.OUTGOING)
     @GraphQLDescription("Templates of InterfaceSpecifications which are inherited.")

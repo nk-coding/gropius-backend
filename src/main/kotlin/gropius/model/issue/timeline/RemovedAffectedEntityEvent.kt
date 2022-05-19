@@ -23,6 +23,6 @@ class RemovedAffectedEntityEvent(
     @GraphQLDescription("The entity which is no longer affected by the Issue.")
     @FilterProperty
     @delegate:Transient
-    var removedAffectedEntity by NodeProperty<AffectedByIssue>()
+    val removedAffectedEntity by NodeProperty<AffectedByIssue>()
 
 }

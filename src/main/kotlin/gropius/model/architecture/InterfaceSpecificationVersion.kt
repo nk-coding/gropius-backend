@@ -42,7 +42,7 @@ class InterfaceSpecificationVersion(
     @GraphQLDescription("The InterfaceSpecification this is part of.")
     @FilterProperty
     @delegate:Transient
-    var interfaceSpecification by NodeProperty<InterfaceSpecification>()
+    val interfaceSpecification by NodeProperty<InterfaceSpecification>()
 
     @NodeRelationship(Interface.SPECIFICATION, Direction.INCOMING)
     @GraphQLDescription("Interfaces this InterfaceSpecificationVersion defines.")

@@ -23,6 +23,6 @@ class AddedToPinnedIssuesEvent(
     @GraphQLDescription("The Trackable the Issue is now pinned on.")
     @FilterProperty
     @delegate:Transient
-    var pinnedOn by NodeProperty<Trackable>()
+    val pinnedOn by NodeProperty<Trackable>()
 
 }

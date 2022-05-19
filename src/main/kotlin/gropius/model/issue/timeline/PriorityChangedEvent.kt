@@ -25,11 +25,11 @@ class PriorityChangedEvent(
     @GraphQLDescription("The old priority.")
     @FilterProperty
     @delegate:Transient
-    var oldPriority by NodeProperty<IssuePriority?>()
+    val oldPriority by NodeProperty<IssuePriority?>()
 
     @NodeRelationship(NEW_PRIORITY, Direction.OUTGOING)
     @GraphQLDescription("The new priority.")
     @FilterProperty
     @delegate:Transient
-    var newPriority by NodeProperty<IssuePriority?>()
+    val newPriority by NodeProperty<IssuePriority?>()
 }

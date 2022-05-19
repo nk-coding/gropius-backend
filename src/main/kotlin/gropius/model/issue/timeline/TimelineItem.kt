@@ -19,6 +19,6 @@ abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDat
     @GraphQLDescription("The Issue this TimelineItem is part of.")
     @FilterProperty
     @delegate:Transient
-    var issue by NodeProperty<Issue>()
+    val issue by NodeProperty<Issue>()
 
 }

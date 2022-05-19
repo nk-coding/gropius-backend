@@ -2,8 +2,6 @@ package gropius.model.template
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.IMS
-import gropius.model.architecture.IMSIssue
-import gropius.model.architecture.IMSProject
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.NodeRelationship
@@ -22,11 +20,11 @@ class IMSTemplate(
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription("SubTemplate applied to all IMSProjects with this Template")
     @delegate:Transient
-    val imsProjectTemplate by NodeProperty<IMSProject>()
+    val imsProjectTemplate by NodeProperty<IMSProjectTemplate>()
 
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription("SubTemplate applied to all IMSIssues with this Template")
     @delegate:Transient
-    val imsIssueTemplate by NodeProperty<IMSIssue>()
+    val imsIssueTemplate by NodeProperty<IMSIssueTemplate>()
 
 }

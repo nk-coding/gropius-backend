@@ -6,7 +6,6 @@ import gropius.model.common.ExtensibleNode
 import gropius.model.issue.Issue
 import gropius.model.template.BaseTemplate
 import gropius.model.template.IMSIssueTemplate
-import gropius.model.template.MutableTemplatedNode
 import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
@@ -42,7 +41,7 @@ class IMSIssue(
     @GraphQLDescription("The IMSProject the issue is synced with.")
     @FilterProperty
     @delegate:Transient
-    var imsProject by NodeProperty<IMSProject>()
+    val imsProject by NodeProperty<IMSProject>()
 
     @NodeRelationship(ISSUE, Direction.OUTGOING)
     @GraphQLDescription("The Issue that is synced by the IMSProject")

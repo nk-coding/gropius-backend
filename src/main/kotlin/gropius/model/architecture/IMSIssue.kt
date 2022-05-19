@@ -5,7 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
 import gropius.model.issue.Issue
 import gropius.model.template.BaseTemplate
-import gropius.model.template.IMSProjectTemplate
+import gropius.model.template.IMSIssueTemplate
 import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
@@ -20,43 +20,32 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     The representation on the IMS depends on the type of IMS, e.g. for GitHub, a project is a repository.
     """
 )
-class IMSProject(
+class IMSIssue(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
 ) : ExtensibleNode(), MutableTemplatedNode {
 
     companion object {
-        const val PARTIALLY_SYNCED_ISSUES = "PARTIALLY_SYNCED_ISSUES"
+        const val PROJECT = "PROJECT"
+        const val ISSUE = "ISSUE"
     }
 
     @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
     @GraphQLDescription("The Template of this Component.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<IMSProjectTemplate>()
+    val template by NodeProperty<IMSIssueTemplate>()
 
-    @NodeRelationship(Trackable.SYNCS_TO, Direction.INCOMING)
-    @GraphQLDescription("The trackable which is synced.")
+    @NodeRelationship(PROJECT, Direction.OUTGOING)
+    @GraphQLDescription("The IMSProject the issue is synced with.")
     @FilterProperty
     @delegate:Transient
-    var trackable by NodeProperty<Trackable>()
+    var imsProject by NodeProperty<IMSProject>()
 
-    @NodeRelationship(IMS.PROJECT, Direction.INCOMING)
-    @GraphQLDescription("The IMS this project is a part of.")
+    @NodeRelationship(ISSUE, Direction.OUTGOING)
+    @GraphQLDescription("The Issue that is synced by the IMSProject")
     @FilterProperty
     @delegate:Transient
-    var ims by NodeProperty<IMS>()
-
-    @NodeRelationship(PARTIALLY_SYNCED_ISSUES, Direction.OUTGOING)
-    @GraphQLDescription("Issues which are currently partially synced with this IMSProject")
-    @FilterProperty
-    @delegate:Transient
-    val partiallySyncedIssues by NodeSetProperty<Issue>()
-
-    @NodeRelationship(IMSIssue.PROJECT, Direction.INCOMING)
-    @GraphQLDescription("The IMSIssues synced to by this project.")
-    @FilterProperty
-    @delegate:Transient
-    val imsIssues by NodeSetProperty<IMSIssue>()
+    val issue by NodeProperty<Issue>()
 }

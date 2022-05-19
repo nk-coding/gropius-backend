@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 
-@GraphQLDescription("Interface for all types which support templates.")
+@GraphQLDescription("Interface for all types which support templates which can be read by the user.")
 interface TemplatedNode {
 
     /**

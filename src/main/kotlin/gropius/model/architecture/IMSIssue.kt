@@ -7,6 +7,7 @@ import gropius.model.issue.Issue
 import gropius.model.template.BaseTemplate
 import gropius.model.template.IMSIssueTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -24,7 +25,7 @@ class IMSIssue(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ExtensibleNode(), MutableTemplatedNode {
+) : ExtensibleNode(), TemplatedNode {
 
     companion object {
         const val PROJECT = "PROJECT"

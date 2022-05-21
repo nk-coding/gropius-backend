@@ -26,6 +26,6 @@ class RemovedAssignmentEvent(
     @GraphQLDescription("The removed Assignment.")
     @FilterProperty
     @delegate:Transient
-    var removedAssignment by NodeProperty<Assignment>()
+    val removedAssignment by NodeProperty<Assignment>()
 
 }

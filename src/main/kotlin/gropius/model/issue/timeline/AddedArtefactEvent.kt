@@ -23,6 +23,6 @@ class AddedArtefactEvent(
     @GraphQLDescription("The Artefact added to the Issue.")
     @FilterProperty
     @delegate:Transient
-    var addedArtefact by NodeProperty<Artefact>()
+    val addedArtefact by NodeProperty<Artefact>()
 
 }

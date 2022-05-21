@@ -23,6 +23,6 @@ class RemovedFromTrackableEvent(
     @GraphQLDescription("The Trackable the Issue was removed from.")
     @FilterProperty
     @delegate:Transient
-    var removedFromTrackable by NodeProperty<Trackable>()
+    val removedFromTrackable by NodeProperty<Trackable>()
 
 }

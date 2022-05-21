@@ -32,12 +32,12 @@ class IssueRelation(
     @GraphQLDescription("The type of the relation, e.g. DUPLICATES. Allowed types are defined by the IssueTemplate.")
     @FilterProperty
     @delegate:Transient
-    var type by NodeProperty<IssueRelationType?>()
+    val type by NodeProperty<IssueRelationType?>()
 
     @NodeRelationship(RELATED_ISSUE, Direction.OUTGOING)
     @GraphQLDescription("The end of the relation.")
     @FilterProperty
     @delegate:Transient
-    var relatedIssue by NodeProperty<Issue>()
+    val relatedIssue by NodeProperty<Issue>()
 
 }

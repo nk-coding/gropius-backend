@@ -36,11 +36,11 @@ class IMSUser(
     @GraphQLDescription("The GropiusUser this IMSUser is linked to. An IMSUser might be linked to no GropiusUser.")
     @FilterProperty
     @delegate:Transient
-    var gropiusUser by NodeProperty<GropiusUser?>()
+    val gropiusUser by NodeProperty<GropiusUser?>()
 
     @NodeRelationship(IMS.USER, Direction.INCOMING)
     @GraphQLDescription("The IMS this user is part of.")
     @FilterProperty
     @delegate:Transient
-    var ims by NodeProperty<IMS>()
+    val ims by NodeProperty<IMS>()
 }

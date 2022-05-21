@@ -46,7 +46,7 @@ class ComponentVersion(
     @GraphQLDescription("The Component which defines this ComponentVersions")
     @FilterProperty
     @delegate:Transient
-    var component by NodeProperty<Component>()
+    val component by NodeProperty<Component>()
 
     @NodeRelationship(Interface.COMPONENT, Direction.INCOMING)
     @GraphQLDescription("Interfaces created by visible InterfaceSpecifications, can be used in Relations.")

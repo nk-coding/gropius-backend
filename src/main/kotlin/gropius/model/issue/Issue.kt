@@ -108,19 +108,19 @@ class Issue(
     @GraphQLDescription("The Body of the Issue, a Comment directly associated with the Issue.")
     @FilterProperty
     @delegate:Transient
-    var body by NodeProperty<Body>()
+    val body by NodeProperty<Body>()
 
     @NodeRelationship(TYPE, Direction.OUTGOING)
     @GraphQLDescription("The type of the Issue, e.g. BUG. Allowed IssueTypes are defined by the template.")
     @FilterProperty
     @delegate:Transient
-    var type by NodeProperty<IssueType>()
+    val type by NodeProperty<IssueType>()
 
     @NodeRelationship(PRIORITY, Direction.OUTGOING)
     @GraphQLDescription("The priority of the Issue, e.g. HIGH. Allowed IssuePriorities are defined by the template.")
     @FilterProperty
     @delegate:Transient
-    var priority by NodeProperty<IssuePriority?>()
+    val priority by NodeProperty<IssuePriority?>()
 
     @NodeRelationship(LABEL, Direction.OUTGOING)
     @GraphQLDescription("Labels currently assigned to the Issue. For the history, see timelineItems.")

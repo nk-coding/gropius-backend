@@ -61,6 +61,6 @@ class InterfacePart(
     @GraphQLDescription("InterfaceSpecification which defines this InterfacePart")
     @FilterProperty
     @delegate:Transient
-    var definedOn by NodeProperty<InterfaceSpecification>()
+    val definedOn by NodeProperty<InterfaceSpecification>()
 
 }

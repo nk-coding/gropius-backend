@@ -1,6 +1,8 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.model.user.permission.ProjectPermission
+import gropius.model.user.permission.SubPermission
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -27,4 +29,10 @@ class Project(name: String, description: String, repositoryURL: URI) : Trackable
     @FilterProperty
     @delegate:Transient
     val components by NodeSetProperty<ComponentVersion>()
+
+    @NodeRelationship(SubPermission.NODE, Direction.INCOMING)
+    @GraphQLDescription("Permissions for this Project.")
+    @FilterProperty
+    @delegate:Transient
+    val permissions by NodeSetProperty<ProjectPermission>()
 }

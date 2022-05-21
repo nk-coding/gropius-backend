@@ -2,6 +2,7 @@ package gropius.model.user
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.user.permission.Permission
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -26,6 +27,10 @@ class GropiusUser(
     val username: String
 ) : User(displayName, email) {
 
+    companion object {
+        const val PERMISSION = "PERMISSION"
+    }
+
     @GraphQLDescription("A unique identifier for the GropiusUser. Note that this might not be unique across all Users.")
     override fun username(): String = username
 
@@ -34,4 +39,10 @@ class GropiusUser(
     @FilterProperty
     @delegate:Transient
     val imsUsers by NodeSetProperty<IMSUser>()
+
+    @NodeRelationship(PERMISSION, Direction.OUTGOING)
+    @GraphQLDescription("Permissions the user has.")
+    @FilterProperty
+    @delegate:Transient
+    val permissions by NodeSetProperty<Permission>()
 }

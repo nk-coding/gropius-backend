@@ -23,6 +23,6 @@ class AddedAffectedEntityEvent(
     @GraphQLDescription("The entity affected by the Issue.")
     @FilterProperty
     @delegate:Transient
-    var addedAffectedEntity by NodeProperty<AffectedByIssue>()
+    val addedAffectedEntity by NodeProperty<AffectedByIssue>()
 
 }

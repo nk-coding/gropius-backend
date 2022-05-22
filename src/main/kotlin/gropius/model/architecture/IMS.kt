@@ -1,14 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.authorization.IMS_PERMISSION_RULE
 import gropius.model.common.ExtensibleNode
 import gropius.model.user.IMSUser
+import gropius.model.user.permission.NodePermission
 import gropius.model.user.permission.IMSPermission
-import gropius.model.user.permission.SubPermission
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode("imss")
@@ -17,6 +15,9 @@ import org.springframework.data.annotation.Transient
     Trackables can be added to this via an IMSProject, so that their issues are synced to this IMS.
     """
 )
+@Authorization(NodePermission.READ, allow = [Rule(IMS_PERMISSION_RULE)])
+@Authorization(NodePermission.ADMIN, allow = [Rule(IMS_PERMISSION_RULE)])
+@Authorization(IMSPermission.SYNC_TRACKABLES, allow = [Rule(IMS_PERMISSION_RULE, options = [NodePermission.ADMIN])])
 class IMS : ExtensibleNode() {
 
     companion object {
@@ -36,7 +37,7 @@ class IMS : ExtensibleNode() {
     @delegate:Transient
     val users by NodeSetProperty<IMSUser>()
 
-    @NodeRelationship(SubPermission.NODE, Direction.INCOMING)
+    @NodeRelationship(NodePermission.NODE, Direction.INCOMING)
     @GraphQLDescription("Permissions for this IMS.")
     @FilterProperty
     @delegate:Transient

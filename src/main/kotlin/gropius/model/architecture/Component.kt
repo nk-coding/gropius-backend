@@ -2,7 +2,7 @@ package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.user.permission.ComponentPermission
-import gropius.model.user.permission.SubPermission
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -41,7 +41,7 @@ class Component(name: String, description: String, repositoryURL: URI) : Trackab
     @delegate:Transient
     val versions by NodeSetProperty<ComponentVersion>()
 
-    @NodeRelationship(SubPermission.NODE, Direction.INCOMING)
+    @NodeRelationship(NodePermission.NODE, Direction.INCOMING)
     @GraphQLDescription("Permissions for this Component.")
     @FilterProperty
     @delegate:Transient

@@ -11,16 +11,16 @@ import org.springframework.context.annotation.Configuration
 class PermissionConfiguration {
 
     /**
-     * Default [CommonPermission] entries
+     * Default [NodePermission] entries
      */
-    private val commonPermissionEntries = setOf(
+    private val nodePermissionEntries = setOf(
         PermissionEntry(
-            CommonPermission.READ, """
+            NodePermission.READ, """
                 Allows to read the Node (obtain it via the API) and to read certain related Nodes.
                 See documentation for specific Node for the specific conditions.
             """.trimIndent()
         ), PermissionEntry(
-            CommonPermission.ADMIN, """
+            NodePermission.ADMIN, """
                 Grants all other permissions on the Node except READ.
             """.trimIndent()
         )
@@ -29,7 +29,7 @@ class PermissionConfiguration {
     /**
      * Default [TrackablePermission] entries
      */
-    private val trackablePermissionEntries = commonPermissionEntries + setOf(
+    private val trackablePermissionEntries = nodePermissionEntries + setOf(
         PermissionEntry(
             TrackablePermission.MANAGE_IMS, """
                 Allows to add, remove, and update IMSProjects on this Trackable.
@@ -89,25 +89,25 @@ class PermissionConfiguration {
     )
 
     /**
-     * Default [Permission] entries
+     * Default [GlobalPermission] entries
      *
      * @return the generated entries
      */
     @Bean
-    fun permissionEntries() = PermissionEntryCollection<Permission>(
+    fun permissionEntries() = PermissionEntryCollection<GlobalPermission>(
         setOf(
             PermissionEntry(
-                Permission.CAN_CREATE_PROJECTS, """
+                GlobalPermission.CAN_CREATE_PROJECTS, """
                     Allows to create new Projects.
                 """.trimIndent()
             ),
             PermissionEntry(
-                Permission.CAN_CREATE_COMPONENTS, """
+                GlobalPermission.CAN_CREATE_COMPONENTS, """
                     Allows to create new Components.
                 """.trimIndent()
             ),
             PermissionEntry(
-                Permission.CAN_CREATE_TEMPLATES, """
+                GlobalPermission.CAN_CREATE_TEMPLATES, """
                     Allows to create new Templates.
                 """.trimIndent()
             )
@@ -121,7 +121,7 @@ class PermissionConfiguration {
      */
     @Bean
     fun imsPermissionEntries() = PermissionEntryCollection<IMSPermission>(
-        commonPermissionEntries + setOf(
+        nodePermissionEntries + setOf(
             PermissionEntry(
                 IMSPermission.SYNC_TRACKABLES, """
                     Allows to create IMSProjects with this IMS.
@@ -173,14 +173,14 @@ class PermissionConfiguration {
     )
 
     /**
-     * [Permission] entry enum generator
+     * [GlobalPermission] entry enum generator
      * Generates the enum with name [PERMISSION_ENTRY_NAME]
      *
      * @param entryCollections all permission entry defining collections
      * @return the generated enum type
      */
     @Bean
-    fun permissionEntryType(entryCollections: List<PermissionEntryCollection<Permission>>): GraphQLEnumType {
+    fun permissionEntryType(entryCollections: List<PermissionEntryCollection<GlobalPermission>>): GraphQLEnumType {
         return generatePermissionEntryEnum(
             PERMISSION_ENTRY_NAME, "Permission entry enum type.", entryCollections
         )

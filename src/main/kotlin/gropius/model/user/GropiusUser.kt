@@ -2,7 +2,8 @@ package gropius.model.user
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.model.user.permission.Permission
+import gropius.model.user.permission.BasePermission
+import gropius.model.user.permission.GlobalPermission
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -44,5 +45,5 @@ class GropiusUser(
     @GraphQLDescription("Permissions the user has.")
     @FilterProperty
     @delegate:Transient
-    val permissions by NodeSetProperty<Permission>()
+    val permissions by NodeSetProperty<BasePermission>()
 }

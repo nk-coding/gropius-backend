@@ -1,9 +1,10 @@
 package gropius.model.user.permission
 
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.graphql.TypeGraphQLType
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.Node
+import io.github.graphglue.model.*
+import org.springframework.data.annotation.Transient
 
 /**
  * Common base class for [IMSPermission], [ComponentPermission] and [ProjectPermission]
@@ -13,9 +14,11 @@ import io.github.graphglue.model.Node
  */
 @DomainNode
 @GraphQLIgnore
-abstract class CommonPermission<T : Node>(entries: MutableList<String>) : SubPermission<T>(entries) {
+abstract class NodePermission<T : Node>(entries: MutableList<String>) : BasePermission(entries) {
 
     companion object {
+        const val NODE = "NODE"
+
         /**
          * Permission to check if a user is allowed to read a node
          * This Permission is not implied by any other permission!
@@ -28,5 +31,11 @@ abstract class CommonPermission<T : Node>(entries: MutableList<String>) : SubPer
          */
         const val ADMIN = "ADMIN"
     }
+
+    @NodeRelationship(NODE, Direction.OUTGOING)
+    @GraphQLDescription("Nodes on which the Permission is granted.")
+    @FilterProperty
+    @delegate:Transient
+    val nodesWithPermission by NodeSetProperty<T>()
 
 }

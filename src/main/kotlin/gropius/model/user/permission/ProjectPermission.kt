@@ -12,7 +12,7 @@ import io.github.graphglue.model.DomainNode
 const val PROJECT_PERMISSION_ENTRY_NAME = "ProjectPermissionEntry"
 
 @DomainNode
-@GraphQLDescription("SubPermission to grant specific permissions to a set of Projects.")
+@GraphQLDescription("NodePermission to grant specific permissions to a set of Projects.")
 class ProjectPermission(entries: MutableList<String>) : TrackablePermission<Project>(entries) {
 
     companion object {

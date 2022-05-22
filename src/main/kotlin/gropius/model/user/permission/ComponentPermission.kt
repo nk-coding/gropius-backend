@@ -13,7 +13,7 @@ import io.github.graphglue.model.DomainNode
 const val COMPONENT_PERMISSION_ENTRY_NAME = "ComponentPermissionEntry"
 
 @DomainNode
-@GraphQLDescription("SubPermission to grant specific permissions to a set of Components.")
+@GraphQLDescription("NodePermission to grant specific permissions to a set of Components.")
 class ComponentPermission(entries: MutableList<String>) : TrackablePermission<Component>(entries) {
 
     companion object {

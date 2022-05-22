@@ -1,7 +1,6 @@
 package gropius.model.user.permission
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.graphql.TypeGraphQLType
 import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
 import gropius.model.issue.Artefact
@@ -17,7 +16,7 @@ import io.github.graphglue.model.DomainNode
  */
 @DomainNode
 @GraphQLIgnore
-abstract class TrackablePermission<T : Trackable>(entries: MutableList<String>) : CommonPermission<T>(entries) {
+abstract class TrackablePermission<T : Trackable>(entries: MutableList<String>) : NodePermission<T>(entries) {
 
     companion object {
         /**

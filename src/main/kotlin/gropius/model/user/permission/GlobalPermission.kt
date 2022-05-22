@@ -20,10 +20,10 @@ const val PERMISSION_ENTRY_NAME = "PermissionEntry"
 @DomainNode
 @GraphQLDescription(
     """Permission associated with a set of users.
-    Can have SubPermissions to grant permissions on specific Nodes.
+    Can have NodePermissions to grant permissions on specific Nodes.
     """
 )
-class Permission(entries: MutableList<String>) : BasePermission(entries) {
+class GlobalPermission(entries: MutableList<String>) : BasePermission(entries) {
 
     companion object {
         /**
@@ -41,18 +41,6 @@ class Permission(entries: MutableList<String>) : BasePermission(entries) {
          */
         const val CAN_CREATE_TEMPLATES = "CAN_CREATE_TEMPLATES"
     }
-
-    @NodeRelationship(SubPermission.PART_OF, Direction.INCOMING)
-    @GraphQLDescription("SubPermissions granting permissions on specific Nodes")
-    @FilterProperty
-    @delegate:Transient
-    val subPermissions by NodeSetProperty<SubPermission<*>>()
-
-    @NodeRelationship(GropiusUser.PERMISSION, Direction.INCOMING)
-    @GraphQLDescription("GropiusUsers granted this Permission")
-    @FilterProperty
-    @delegate:Transient
-    val users by NodeSetProperty<GropiusUser>()
 
     @GraphQLDescription(ENTRIES_DESCRIPTION)
     override val entries: MutableList<@TypeGraphQLType(PERMISSION_ENTRY_NAME) String>

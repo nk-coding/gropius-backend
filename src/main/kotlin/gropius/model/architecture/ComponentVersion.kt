@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Transient
     """Version of a component. 
     Can specifies visible/invisible InterfaceSpecifications.
     Can be used in Relations, affected by issues and included by Projects.
+    READ is granted if READ is granted on `component`.
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["component"])

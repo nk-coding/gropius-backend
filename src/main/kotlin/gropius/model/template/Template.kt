@@ -2,6 +2,7 @@ package gropius.model.template
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.NamedNode
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.Transient
     Defines templated fields with specific types (defined using JSON schema).
     """
 )
+@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
 abstract class Template<T : Node, S : Template<T, S>>(
     name: String,
     description: String,

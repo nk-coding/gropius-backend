@@ -3,15 +3,18 @@ package gropius.model.issue.timeline
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.AuditedNode
 import gropius.model.issue.Issue
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
 @DomainNode
-@GraphQLDescription("Subtype for all timeline items. Always part of an Issue.")
+@GraphQLDescription(
+    """Subtype for all timeline items. Always part of an Issue
+    READ is granted if READ is granted on `issue`.
+    """
+)
+@Authorization(NodePermission.READ, allowFromRelated = ["issue"])
 abstract class TimelineItem(createdAt: OffsetDateTime, lastModifiedAt: OffsetDateTime) :
     AuditedNode(createdAt, lastModifiedAt) {
 

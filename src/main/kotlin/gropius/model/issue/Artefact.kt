@@ -4,6 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.architecture.Trackable
 import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.IssueComment
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.net.URI
@@ -16,8 +17,10 @@ import java.time.OffsetDateTime
     Is part of exactly one Trackable.
     Can be referenced by Comments and Issues.
     Artefacts are synced to all IMSProjects of the Trackable they are part of.
+    READ is granted if READ is granted on `trackable`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["trackable"])
 class Artefact(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

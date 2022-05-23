@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Transient
 @GraphQLDescription(
     """Entity which represents an issue management system (like GitHub, Jira, Redmine, ...).
     Trackables can be added to this via an IMSProject, so that their issues are synced to this IMS.
-    READ is granted via an associated IMSPermission
+    READ is granted via an associated IMSPermission.
     """
 )
 @Authorization(NodePermission.READ, allow = [Rule(IMS_PERMISSION_RULE)])

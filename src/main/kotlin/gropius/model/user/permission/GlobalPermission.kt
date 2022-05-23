@@ -16,6 +16,7 @@ const val PERMISSION_ENTRY_NAME = "PermissionEntry"
 @GraphQLDescription(
     """Permission associated with a set of users.
     Can have NodePermissions to grant permissions on specific Nodes.
+    READ is granted if the global admin is granted.
     """
 )
 class GlobalPermission(entries: MutableList<String>, allUsers: Boolean) : BasePermission(entries, allUsers) {

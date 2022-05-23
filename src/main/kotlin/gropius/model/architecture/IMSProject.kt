@@ -3,18 +3,18 @@ package gropius.model.architecture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.ExtensibleNode
 import gropius.model.issue.Issue
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
 @GraphQLDescription(
     """Project on an IMS, represents a Trackable synced to an IMS.
     The representation on the IMS depends on the type of IMS, e.g. for GitHub, a project is a repository.
+    READ is granted is READ is granted on `trackable` or `ims`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["trackable", "ims"])
 class IMSProject : ExtensibleNode() {
 
     companion object {

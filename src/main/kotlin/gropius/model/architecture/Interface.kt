@@ -1,10 +1,8 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -12,8 +10,10 @@ import org.springframework.data.annotation.Transient
     """An interface which is part of a specific ComponentVersion.
     Its semantics depend on the InterfaceSpecification it is specified by, e.g. an Interface can represent a REST API.
     Can be used in Relations and affected by Issues.
+    READ is granted if READ is granted on `component`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["component"])
 class Interface(name: String, description: String) : RelationPartner(name, description) {
 
     companion object {

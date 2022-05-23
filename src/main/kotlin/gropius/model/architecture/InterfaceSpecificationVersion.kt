@@ -1,10 +1,8 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -14,8 +12,10 @@ import org.springframework.data.annotation.Transient
     Can be both visible (generates an Interface) and invisible (does not generate an Interface)
     on different Components.
     Can be derived by Relations, and affected by Issues.
+    READ is granted if READ is granted on `interfaceSpecification`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["interfaceSpecification"])
 class InterfaceSpecificationVersion(
     name: String,
     description: String,

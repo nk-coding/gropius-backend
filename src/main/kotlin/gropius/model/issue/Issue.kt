@@ -9,6 +9,7 @@ import gropius.model.issue.timeline.*
 import gropius.model.template.IssuePriority
 import gropius.model.template.IssueType
 import gropius.model.user.User
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.time.Duration
@@ -20,8 +21,10 @@ import java.time.OffsetDateTime
     Issues can be used to report bugs, request features, ask questions, ...
     Issues are synced to all IMSProjects of Trackables they are part of.
     All changes to the Issue are reflected by the timeline.
+    READ is granted if READ is granted on any Trackable in `trackables`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["trackables"])
 class Issue(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

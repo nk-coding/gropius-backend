@@ -14,7 +14,7 @@ import java.net.URI
     Consists of a set of ComponentVersions, which form a graph with the Relations between them.
     Can be affected by issues.
     Can have issues, labels and artefacts as this is a Trackable.
-    READ is granted via an associated ProjectPermission
+    READ is granted via an associated ProjectPermission.
     """
 )
 @Authorization(

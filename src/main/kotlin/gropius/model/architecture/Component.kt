@@ -17,7 +17,7 @@ import java.net.URI
     Defines InterfaceSpecifications, but visible/invisible InterfaceSpecificationVersions depend on the ComponentVersion.
     Can be affected by Issues.
     READ is granted via an associated ComponentPermission or if READ is granted on any Project including any 
-    ComponentVersion in `versions` of this Component
+    ComponentVersion in `versions` of this Component.
     """
 )
 @Authorization(NodePermission.READ, allow = [Rule(COMPONENT_READ_VIA_PROJECT_RULE)])

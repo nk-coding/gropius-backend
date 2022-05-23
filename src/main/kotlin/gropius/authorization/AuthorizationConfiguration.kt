@@ -1,6 +1,7 @@
 package gropius.authorization
 
 import gropius.model.architecture.*
+import gropius.model.common.AuditedNode
 import gropius.model.user.GropiusUser
 import gropius.model.user.permission.*
 import io.github.graphglue.authorization.AuthorizationRuleGenerator
@@ -38,6 +39,11 @@ const val NODE_PERMISSION_READ_RULE = "nodePermissionReadRule"
  * The name of the [ComponentReadViaProjectRuleGenerator] used to check for READ on [Component]
  */
 const val COMPONENT_READ_VIA_PROJECT_RULE = "componentReadViaProjectRule"
+
+/**
+ * The name of the [IsDeletedRuleGenerator] used to check that an [AuditedNode] is deleted
+ */
+const val IS_DELETED_RULE = "isDeletedRule"
 
 /**
  * Provides Authorization related beans which are necessary to check for permissions
@@ -133,6 +139,14 @@ class AuthorizationConfiguration {
             nodeDefinitionCollection.getNodeDefinition<GropiusUser>()
         )
     }
+
+    /**
+     * Creates the [IsDeletedRuleGenerator] to check that an [AuditedNode] is deleted
+     *
+     * @return the generated [IsDeletedRuleGenerator]
+     */
+    @Bean(IS_DELETED_RULE)
+    fun isDeletedRule(): AuthorizationRuleGenerator = IsDeletedRuleGenerator()
 
     /**
      * Creates a new [RelatedToNodePermissionRuleGenerator] based on the provided [nodePermissionDefinition]

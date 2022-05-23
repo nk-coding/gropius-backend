@@ -25,7 +25,9 @@ class GropiusUser(
     displayName: String,
     email: String?,
     @property:GraphQLIgnore
-    val username: String
+    val username: String,
+    @property:GraphQLIgnore
+    val isAdmin: Boolean
 ) : User(displayName, email) {
 
     companion object {

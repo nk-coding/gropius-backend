@@ -2,10 +2,8 @@ package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.ExtensibleNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -15,8 +13,10 @@ import org.springframework.data.annotation.Transient
     The template defines which RelationPartners are possible as start / end.
     For both start and end, if it is an Interface, it is possible to define the InterfaceParts this includes.
     Caution: This is **not** a supertype of IssueRelation.
+    READ is granted if READ is granted on `start` or `end`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["start", "end"])
 class Relation : ExtensibleNode() {
 
     companion object {

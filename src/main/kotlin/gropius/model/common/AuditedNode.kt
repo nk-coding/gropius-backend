@@ -2,7 +2,9 @@ package gropius.model.common
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.authorization.IS_DELETED_RULE
 import gropius.model.user.User
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
@@ -13,6 +15,7 @@ import java.time.OffsetDateTime
     When it was created and last modified, if the it is already deleted, and by who it was created and last modified.
     """
 )
+@Authorization(NodePermission.READ, disallow = [Rule(IS_DELETED_RULE)])
 abstract class AuditedNode(
     @property:GraphQLDescription("The DateTime this entity was created at.")
     @FilterProperty

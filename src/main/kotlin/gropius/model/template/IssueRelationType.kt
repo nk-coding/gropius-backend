@@ -3,14 +3,17 @@ package gropius.model.template
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.NamedNode
 import gropius.model.issue.timeline.IssueRelation
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
-@GraphQLDescription("Type for an IssueRelation, like DUPLICATES or DEPENDS_ON. Part of an IssueTemplate.")
+@GraphQLDescription(
+    """Type for an IssueRelation, like DUPLICATES or DEPENDS_ON. Part of an IssueTemplate.
+    READ is always granted.
+    """
+)
+@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
 class IssueRelationType(name: String, description: String) : NamedNode(name, description) {
 
     companion object {

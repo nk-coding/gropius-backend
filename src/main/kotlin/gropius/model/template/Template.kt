@@ -4,7 +4,6 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
-// TODO templateFieldSpecifications
 @DomainNode
 @GraphQLDescription(
     """BaseTemplate with composition features.

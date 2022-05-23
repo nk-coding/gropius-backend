@@ -1,12 +1,10 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.authorization.PROJECT_PERMISSION_RULE
 import gropius.model.user.permission.NodePermission
 import gropius.model.user.permission.ProjectPermission
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.net.URI
 
@@ -16,9 +14,13 @@ import java.net.URI
     Consists of a set of ComponentVersions, which form a graph with the Relations between them.
     Can be affected by issues.
     Can have issues, labels and artefacts as this is a Trackable.
+    READ is granted via an associated ProjectPermission
     """
 )
-class Project(name: String, description: String, repositoryURL: URI) : Trackable(name, description, repositoryURL) {
+@Authorization(
+    ProjectPermission.MANAGE_COMPONENTS, allow = [Rule(PROJECT_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+class Project(name: String, description: String, repositoryURL: URI?) : Trackable(name, description, repositoryURL) {
 
     companion object {
         const val COMPONENT = "COMPONENT"

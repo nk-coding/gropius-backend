@@ -13,7 +13,7 @@ const val IMS_PERMISSION_ENTRY_NAME = "IMSPermissionEntry"
 
 @DomainNode
 @GraphQLDescription("NodePermission to grant specific permissions to a set of IMSs.")
-class IMSPermission(entries: MutableList<String>) : NodePermission<IMS>(entries) {
+class IMSPermission(entries: MutableList<String>, allUsers: Boolean) : NodePermission<IMS>(entries, allUsers) {
 
     companion object {
         /**

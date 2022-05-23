@@ -13,7 +13,9 @@ const val PROJECT_PERMISSION_ENTRY_NAME = "ProjectPermissionEntry"
 
 @DomainNode
 @GraphQLDescription("NodePermission to grant specific permissions to a set of Projects.")
-class ProjectPermission(entries: MutableList<String>) : TrackablePermission<Project>(entries) {
+class ProjectPermission(
+    entries: MutableList<String>, allUsers: Boolean
+) : TrackablePermission<Project>(entries, allUsers) {
 
     companion object {
         /**

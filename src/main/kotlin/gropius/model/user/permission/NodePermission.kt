@@ -2,6 +2,7 @@ package gropius.model.user.permission
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.authorization.NODE_PERMISSION_READ_RULE
 import gropius.graphql.TypeGraphQLType
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
@@ -14,7 +15,10 @@ import org.springframework.data.annotation.Transient
  */
 @DomainNode
 @GraphQLIgnore
-abstract class NodePermission<T : Node>(entries: MutableList<String>) : BasePermission(entries) {
+@Authorization(NodePermission.READ, allow = [Rule(NODE_PERMISSION_READ_RULE)])
+abstract class NodePermission<T : Node>(
+    entries: MutableList<String>, allUsers: Boolean
+) : BasePermission(entries, allUsers) {
 
     companion object {
         const val NODE = "NODE"

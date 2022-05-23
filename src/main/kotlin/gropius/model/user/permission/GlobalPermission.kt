@@ -5,12 +5,7 @@ import gropius.graphql.TypeGraphQLType
 import gropius.model.architecture.Component
 import gropius.model.architecture.Project
 import gropius.model.template.Template
-import gropius.model.user.GropiusUser
-import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
-import org.springframework.data.annotation.Transient
 
 /**
  * The name of the IMSPermissionEntry GraphQL enum
@@ -23,7 +18,7 @@ const val PERMISSION_ENTRY_NAME = "PermissionEntry"
     Can have NodePermissions to grant permissions on specific Nodes.
     """
 )
-class GlobalPermission(entries: MutableList<String>) : BasePermission(entries) {
+class GlobalPermission(entries: MutableList<String>, allUsers: Boolean) : BasePermission(entries, allUsers) {
 
     companion object {
         /**

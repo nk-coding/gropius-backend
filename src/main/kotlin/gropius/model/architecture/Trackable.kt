@@ -1,13 +1,13 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.authorization.TRACKABLE_PERMISSION_RULE
 import gropius.model.issue.Artefact
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.TrackablePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.net.URI
 
@@ -19,12 +19,50 @@ import java.net.URI
     Can be affected by Issues.
     """
 )
+@Authorization(NodePermission.READ, allow = [Rule(TRACKABLE_PERMISSION_RULE)])
+@Authorization(NodePermission.ADMIN, allow = [Rule(TRACKABLE_PERMISSION_RULE)])
+@Authorization(
+    TrackablePermission.MANAGE_IMS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.CREATE_ISSUES, allow = [Rule(
+        TRACKABLE_PERMISSION_RULE,
+        options = [NodePermission.ADMIN, TrackablePermission.MANAGE_ISSUES, TrackablePermission.MODERATOR]
+    )]
+)
+@Authorization(
+    TrackablePermission.LINK_TO_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.LINK_FROM_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.MODERATOR, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.COMMENT, allow = [Rule(
+        TRACKABLE_PERMISSION_RULE,
+        options = [NodePermission.ADMIN, TrackablePermission.MANAGE_ISSUES, TrackablePermission.MODERATOR]
+    )]
+)
+@Authorization(
+    TrackablePermission.MANAGE_LABELS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.MANAGE_ARTEFACTS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.MANAGE_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    TrackablePermission.EXPORT_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
 abstract class Trackable(
     name: String,
     description: String,
     @property:GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
     @FilterProperty
-    var repositoryURL: URI
+    var repositoryURL: URI?
 ) : AffectedByIssue(name, description) {
 
     companion object {

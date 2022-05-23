@@ -1,12 +1,11 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.authorization.COMPONENT_READ_VIA_PROJECT_RULE
+import gropius.model.user.permission.COMPONENT_PERMISSION_ENTRY_NAME
 import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.NodePermission
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.net.URI
 
@@ -17,9 +16,20 @@ import java.net.URI
     Can have issues, labels and artefacts as this is a Trackable.
     Defines InterfaceSpecifications, but visible/invisible InterfaceSpecificationVersions depend on the ComponentVersion.
     Can be affected by Issues.
+    READ is granted via an associated ComponentPermission or if READ is granted on any Project including any 
+    ComponentVersion in `versions` of this Component
     """
 )
-class Component(name: String, description: String, repositoryURL: URI) : Trackable(name, description, repositoryURL) {
+@Authorization(NodePermission.READ, allow = [Rule(COMPONENT_READ_VIA_PROJECT_RULE)])
+@Authorization(
+    ComponentPermission.RELATE_TO_COMPONENT,
+    allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    ComponentPermission.RELATE_FROM_COMPONENT,
+    allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
+)
+class Component(name: String, description: String, repositoryURL: URI?) : Trackable(name, description, repositoryURL) {
 
     companion object {
         const val VERSION = "VERSION"

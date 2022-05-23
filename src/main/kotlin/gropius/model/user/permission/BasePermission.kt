@@ -15,12 +15,17 @@ const val ENTRIES_DESCRIPTION = "All permissions this Permission grants"
  * Base class for all permissions
  *
  * @param entries the granted permission entries as Strings
+ * @param allUsers if true, the permission is granted to all users
  */
 @DomainNode
 @GraphQLIgnore
 abstract class BasePermission(
     @GraphQLIgnore
-    open val entries: MutableList<String>
+    open val entries: MutableList<String>,
+    @property:GraphQLDescription("If `true`, the permission is granted to all users. Use with caution.")
+    @property:FilterProperty
+    @property:OrderProperty
+    var allUsers: Boolean
 ) : Node() {
 
     @NodeRelationship(GropiusUser.PERMISSION, Direction.INCOMING)

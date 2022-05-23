@@ -1,10 +1,8 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -14,6 +12,7 @@ import org.springframework.data.annotation.Transient
     Can be used in Relations, affected by issues and included by Projects.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["component"])
 class ComponentVersion(
     name: String,
     description: String,

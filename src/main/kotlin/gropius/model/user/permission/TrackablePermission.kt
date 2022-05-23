@@ -13,10 +13,14 @@ import io.github.graphglue.model.DomainNode
  * Common base class for [ComponentPermission] and [ProjectPermission]
  *
  * @param T the type of Node which is affected by this permission
+ * @param entries the granted permission entries as Strings
+ * @param allUsers if true, the permission is granted to all users
  */
 @DomainNode
 @GraphQLIgnore
-abstract class TrackablePermission<T : Trackable>(entries: MutableList<String>) : NodePermission<T>(entries) {
+abstract class TrackablePermission<T : Trackable>(
+    entries: MutableList<String>, allUsers: Boolean
+) : NodePermission<T>(entries, allUsers) {
 
     companion object {
         /**

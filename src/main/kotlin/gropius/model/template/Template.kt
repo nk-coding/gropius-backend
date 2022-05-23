@@ -12,14 +12,14 @@ import org.springframework.data.annotation.Transient
     Defines templated fields with specific types (defined using JSON schema).
     """
 )
-abstract class Template<T : Node, S : Template<T, S>>(
+abstract class Template<T, S : Template<T, S>>(
     name: String,
     description: String,
     templateFieldSpecifications: MutableMap<String, String>,
     @property:GraphQLDescription("If true, this template is deprecated and cannot be used for new entities any more.")
     @FilterProperty
     var isDeprecated: Boolean
-) : BaseTemplate<T, S>(name, description, templateFieldSpecifications) {
+) : BaseTemplate<T, S>(name, description, templateFieldSpecifications) where T : Node, T : TemplatedNode {
 
     companion object {
         const val EXTENDS = "EXTENDS"

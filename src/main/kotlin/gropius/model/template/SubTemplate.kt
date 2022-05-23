@@ -14,9 +14,9 @@ import org.springframework.data.annotation.Transient
     Does not provide any composition features, as composition is handled by the Template it is part of.
     """
 )
-abstract class SubTemplate<T : Node, P : Template<*, *>, S : SubTemplate<T, P, S>>(
+abstract class SubTemplate<T, P : Template<*, *>, S : SubTemplate<T, P, S>>(
     name: String, description: String, templateFieldSpecifications: MutableMap<String, String>
-) : BaseTemplate<T, S>(name, description, templateFieldSpecifications) {
+) : BaseTemplate<T, S>(name, description, templateFieldSpecifications) where T : Node, T : TemplatedNode {
 
     companion object {
         const val PART_OF = "PART_OF"

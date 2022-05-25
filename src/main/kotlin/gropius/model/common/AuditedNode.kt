@@ -40,12 +40,12 @@ abstract class AuditedNode(
     @GraphQLDescription("The User who created this entity.")
     @FilterProperty
     @delegate:Transient
-    var createdBy by NodeProperty<User>()
+    val createdBy by NodeProperty<User>()
 
     @NodeRelationship(LAST_MODIFIED_BY, Direction.OUTGOING)
     @GraphQLDescription("The User who last modified this entity.")
     @FilterProperty
     @delegate:Transient
-    var lastModifiedBy by NodeProperty<User>()
+    val lastModifiedBy by NodeProperty<User>()
 
 }

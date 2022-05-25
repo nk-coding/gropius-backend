@@ -43,13 +43,13 @@ class Relation(
     @GraphQLDescription("The end of this Relation.")
     @FilterProperty
     @delegate:Transient
-    var end by NodeProperty<RelationPartner>()
+    val end by NodeProperty<RelationPartner>()
 
     @NodeRelationship(RelationPartner.OUTGOING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The start of this Relation.")
     @FilterProperty
     @delegate:Transient
-    var start by NodeProperty<RelationPartner>()
+    val start by NodeProperty<RelationPartner>()
 
     @NodeRelationship(START_PART, Direction.OUTGOING)
     @GraphQLDescription("If the start is an Interface, the parts of that Interface this Relation includes.")

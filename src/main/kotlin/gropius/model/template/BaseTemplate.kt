@@ -24,13 +24,13 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     Defines templated fields with specific types (defined using JSON schema).
     """
 )
-abstract class BaseTemplate<T : Node, S : BaseTemplate<T, S>>(
+abstract class BaseTemplate<T, S : BaseTemplate<T, S>> (
     name: String,
     description: String,
     @property:GraphQLIgnore
     @CompositeProperty
     val templateFieldSpecifications: MutableMap<String, String>
-) : NamedNode(name, description) {
+) : NamedNode(name, description) where T : Node, T : TemplatedNode {
 
     companion object {
         const val USED_IN = "USED_IN"

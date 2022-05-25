@@ -23,6 +23,6 @@ class RemovedOutgoingRelationEvent(
     @GraphQLDescription("The IssueRelation removed from `outgoingRelations`.")
     @FilterProperty
     @delegate:Transient
-    var removedRelation by NodeProperty<IssueRelation>()
+    val removedRelation by NodeProperty<IssueRelation>()
 
 }

@@ -42,11 +42,11 @@ class Interface(
     @GraphQLDescription("The ComponentVersion this Interface is part of.")
     @FilterProperty
     @delegate:Transient
-    var component by NodeProperty<ComponentVersion>()
+    val component by NodeProperty<ComponentVersion>()
 
     @NodeRelationship(SPECIFICATION, Direction.OUTGOING)
     @GraphQLDescription("The InterfaceSpecification which specifies this Interface and thereby defines its semantics.")
     @FilterProperty
     @delegate:Transient
-    var specification by NodeProperty<InterfaceSpecificationVersion>()
+    val specification by NodeProperty<InterfaceSpecificationVersion>()
 }

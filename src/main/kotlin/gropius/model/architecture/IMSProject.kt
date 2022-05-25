@@ -40,13 +40,13 @@ class IMSProject(
     @GraphQLDescription("The trackable which is synced.")
     @FilterProperty
     @delegate:Transient
-    var trackable by NodeProperty<Trackable>()
+    val trackable by NodeProperty<Trackable>()
 
     @NodeRelationship(IMS.PROJECT, Direction.INCOMING)
     @GraphQLDescription("The IMS this project is a part of.")
     @FilterProperty
     @delegate:Transient
-    var ims by NodeProperty<IMS>()
+    val ims by NodeProperty<IMS>()
 
     @NodeRelationship(PARTIALLY_SYNCED_ISSUES, Direction.OUTGOING)
     @GraphQLDescription("Issues which are currently partially synced with this IMSProject")

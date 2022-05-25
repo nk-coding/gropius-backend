@@ -53,6 +53,6 @@ abstract class Comment(
     )
     @FilterProperty
     @delegate:Transient
-    var bodyLastEditedBy by NodeProperty<User>()
+    val bodyLastEditedBy by NodeProperty<User>()
 
 }

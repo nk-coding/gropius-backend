@@ -61,5 +61,5 @@ class InterfaceSpecification(
     @GraphQLDescription("The Component this InterfaceSpecificaton is part of.")
     @FilterProperty
     @delegate:Transient
-    var component by NodeProperty<Component>()
+    val component by NodeProperty<Component>()
 }

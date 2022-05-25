@@ -1,11 +1,16 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.BaseTemplate
+import gropius.model.template.InterfaceSpecificationTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -15,14 +20,26 @@ import org.springframework.data.annotation.Transient
     Defines InterfaceParts, but active parts depend on the InterfaceSpecificationVersion.
     """
 )
-class InterfaceSpecification(name: String, description: String) : ServiceEffectSpecificationLocation(
+class InterfaceSpecification(
+    name: String,
+    description: String,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : ServiceEffectSpecificationLocation(
     name, description
-) {
+), TemplatedNode {
 
     companion object {
         const val VERSION = "VERSION"
         const val COMPONENT = "COMPONENT"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this InterfaceSpecification.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<InterfaceSpecificationTemplate>()
 
     @NodeRelationship(VERSION, Direction.OUTGOING)
     @GraphQLDescription("Versions of this InterfaceSpecification.")

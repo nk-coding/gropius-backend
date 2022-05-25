@@ -1,12 +1,17 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
+import gropius.model.template.BaseTemplate
+import gropius.model.template.RelationTemplate
+import gropius.model.template.TemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
 import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -17,12 +22,22 @@ import org.springframework.data.annotation.Transient
     Caution: This is **not** a supertype of IssueRelation.
     """
 )
-class Relation : ExtensibleNode() {
+class Relation(
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : ExtensibleNode(), TemplatedNode {
 
     companion object {
         const val START_PART = "START_PART"
         const val END_PART = "END_PART"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Relation.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<RelationTemplate>()
 
     @NodeRelationship(RelationPartner.INCOMING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The end of this Relation.")

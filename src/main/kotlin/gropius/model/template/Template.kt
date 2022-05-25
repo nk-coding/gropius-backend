@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Transient
     Defines templated fields with specific types (defined using JSON schema).
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
+@Authorization(NodePermission.READ, allowAll = true)
 abstract class Template<T : Node, S : Template<T, S>>(
     name: String,
     description: String,

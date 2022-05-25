@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Transient
     READ is granted if READ is granted on `component`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["component"])
+@Authorization(NodePermission.READ, allowFromRelated = ["component", "includingProjects"])
 class ComponentVersion(
     name: String,
     description: String,

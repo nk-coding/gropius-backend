@@ -1,7 +1,7 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.authorization.TRACKABLE_PERMISSION_RULE
+import gropius.authorization.RELATED_TO_NODE_PERMISSION_RULE
 import gropius.model.issue.Artefact
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
@@ -19,43 +19,43 @@ import java.net.URI
     Can be affected by Issues.
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(TRACKABLE_PERMISSION_RULE)])
-@Authorization(NodePermission.ADMIN, allow = [Rule(TRACKABLE_PERMISSION_RULE)])
+@Authorization(NodePermission.READ, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE)])
+@Authorization(NodePermission.ADMIN, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE)])
 @Authorization(
-    TrackablePermission.MANAGE_IMS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MANAGE_IMS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
     TrackablePermission.CREATE_ISSUES, allow = [Rule(
-        TRACKABLE_PERMISSION_RULE,
+        RELATED_TO_NODE_PERMISSION_RULE,
         options = [NodePermission.ADMIN, TrackablePermission.MANAGE_ISSUES, TrackablePermission.MODERATOR]
     )]
 )
 @Authorization(
-    TrackablePermission.LINK_TO_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.LINK_TO_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.LINK_FROM_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.LINK_FROM_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.MODERATOR, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MODERATOR, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
     TrackablePermission.COMMENT, allow = [Rule(
-        TRACKABLE_PERMISSION_RULE,
+        RELATED_TO_NODE_PERMISSION_RULE,
         options = [NodePermission.ADMIN, TrackablePermission.MANAGE_ISSUES, TrackablePermission.MODERATOR]
     )]
 )
 @Authorization(
-    TrackablePermission.MANAGE_LABELS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MANAGE_LABELS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.MANAGE_ARTEFACTS, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MANAGE_ARTEFACTS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.MANAGE_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MANAGE_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.EXPORT_ISSUES, allow = [Rule(TRACKABLE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.EXPORT_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 abstract class Trackable(
     name: String,

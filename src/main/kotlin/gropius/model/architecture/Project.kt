@@ -1,7 +1,7 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.authorization.PROJECT_PERMISSION_RULE
+import gropius.authorization.RELATED_TO_NODE_PERMISSION_RULE
 import gropius.model.user.permission.NodePermission
 import gropius.model.user.permission.ProjectPermission
 import io.github.graphglue.model.*
@@ -18,7 +18,7 @@ import java.net.URI
     """
 )
 @Authorization(
-    ProjectPermission.MANAGE_COMPONENTS, allow = [Rule(PROJECT_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    ProjectPermission.MANAGE_COMPONENTS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 class Project(name: String, description: String, repositoryURL: URI?) : Trackable(name, description, repositoryURL) {
 

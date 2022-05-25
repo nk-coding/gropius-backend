@@ -8,6 +8,7 @@ import io.github.graphglue.model.Rule
 import org.neo4j.cypherdsl.core.Condition
 import org.neo4j.cypherdsl.core.Cypher
 import org.neo4j.cypherdsl.core.Node
+import org.neo4j.cypherdsl.core.RelationshipPattern
 
 /**
  * Permission rule generator which checks for a Node that is related via a [NodePermission] which
@@ -32,17 +33,21 @@ class RelatedToNodePermissionRuleGenerator(
     private val nodePermissionDefinition: NodeDefinition, private val gropiusUserDefinition: NodeDefinition
 ) : NodePermissionRuleGenerator {
 
-    override fun generateCondition(node: Node, rule: Rule, permission: Permission): Condition {
+    override fun generateRule(
+        node: Node,
+        currentRelationship: RelationshipPattern,
+        rule: Rule,
+        permission: Permission
+    ): Pair<RelationshipPattern, Condition> {
         val nodePermissionNode = nodePermissionDefinition.node().named("g_1")
         val gropiusUserNode = gropiusUserDefinition.node().named("g_2")
         val permissionNames = rule.options.toList() + permission.name
         val subQueryPredicate = generatePredicateCondition(
             nodePermissionNode, gropiusUserNode, permission, permissionNames
         )
-        return Cypher.match(
-            node.relationshipFrom(nodePermissionNode, NodePermission.NODE)
-                .relationshipFrom(gropiusUserNode, GropiusUser.PERMISSION)
-        ).where(subQueryPredicate).asCondition()
+        val newRelationship = currentRelationship.relationshipFrom(nodePermissionNode, NodePermission.NODE)
+            .relationshipFrom(gropiusUserNode, GropiusUser.PERMISSION)
+        return newRelationship to subQueryPredicate
     }
 
 }

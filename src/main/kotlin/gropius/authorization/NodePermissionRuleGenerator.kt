@@ -3,7 +3,7 @@ package gropius.authorization
 import gropius.model.user.GropiusUser
 import gropius.model.user.permission.BasePermission
 import gropius.model.user.permission.NodePermission
-import io.github.graphglue.authorization.AuthorizationRuleGenerator
+import io.github.graphglue.authorization.AllowRuleGenerator
 import io.github.graphglue.authorization.Permission
 import org.neo4j.cypherdsl.core.Condition
 import org.neo4j.cypherdsl.core.Cypher
@@ -11,11 +11,11 @@ import org.neo4j.cypherdsl.core.Node
 import org.neo4j.cypherdsl.core.Predicates
 
 /**
- * Base class for all [NodePermission] based [AuthorizationRuleGenerator]s
+ * Base class for all [NodePermission] based [AllowRuleGenerator]s
  * Provides a method which is able to check for a specific permission on a [NodePermission] for a specific
  * [GropiusUser]
  */
-interface NodePermissionRuleGenerator : AuthorizationRuleGenerator {
+interface NodePermissionRuleGenerator : AllowRuleGenerator {
 
     /**
      * Generates the condition for the authorization

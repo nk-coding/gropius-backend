@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Transient
     READ is always granted.
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
+@Authorization(NodePermission.READ, allowAll = true)
 class InterfaceSpecificationInheritanceCondition(
     @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are inherited")
     @FilterProperty

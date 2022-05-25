@@ -1,7 +1,7 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.authorization.IMS_PERMISSION_RULE
+import gropius.authorization.RELATED_TO_NODE_PERMISSION_RULE
 import gropius.model.common.ExtensibleNode
 import gropius.model.user.IMSUser
 import gropius.model.user.permission.IMSPermission
@@ -16,9 +16,9 @@ import org.springframework.data.annotation.Transient
     READ is granted via an associated IMSPermission.
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(IMS_PERMISSION_RULE)])
-@Authorization(NodePermission.ADMIN, allow = [Rule(IMS_PERMISSION_RULE)])
-@Authorization(IMSPermission.SYNC_TRACKABLES, allow = [Rule(IMS_PERMISSION_RULE, options = [NodePermission.ADMIN])])
+@Authorization(NodePermission.READ, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE)])
+@Authorization(NodePermission.ADMIN, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE)])
+@Authorization(IMSPermission.SYNC_TRACKABLES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])])
 class IMS : ExtensibleNode() {
 
     companion object {

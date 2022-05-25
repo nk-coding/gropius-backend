@@ -16,7 +16,7 @@ import org.springframework.data.annotation.Transient
     READ is always granted.
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
+@Authorization(NodePermission.READ, allowAll = true)
 class RelationCondition : ExtensibleNode() {
 
     companion object {

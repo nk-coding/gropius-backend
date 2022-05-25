@@ -18,7 +18,7 @@ import org.springframework.data.annotation.Transient
     """
 )
 @AdditionalFilter("usernameFilter")
-@Authorization(NodePermission.READ, allow = [Rule(ALL_RULE)])
+@Authorization(NodePermission.READ, allowAll = true)
 abstract class User(
     @property:GraphQLDescription("The name which should be displayed for the user.")
     @FilterProperty

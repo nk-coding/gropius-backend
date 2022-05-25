@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.ComponentTemplate
-import gropius.model.template.TemplatedNode
+import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -29,7 +29,7 @@ class Component(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : Trackable(name, description, repositoryURL), TemplatedNode {
+) : Trackable(name, description, repositoryURL), MutableTemplatedNode {
 
     companion object {
         const val VERSION = "VERSION"

@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceTemplate
-import gropius.model.template.TemplatedNode
+import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -25,7 +25,7 @@ class Interface(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : RelationPartner(name, description), TemplatedNode {
+) : RelationPartner(name, description), MutableTemplatedNode {
 
     companion object {
         const val COMPONENT = "COMPONENT"

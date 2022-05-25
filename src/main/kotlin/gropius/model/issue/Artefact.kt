@@ -7,7 +7,7 @@ import gropius.model.common.AuditedNode
 import gropius.model.issue.timeline.IssueComment
 import gropius.model.template.ArtefactTemplate
 import gropius.model.template.BaseTemplate
-import gropius.model.template.TemplatedNode
+import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
@@ -45,7 +45,7 @@ class Artefact(
     @FilterProperty
     @OrderProperty
     var version: String?
-) : AuditedNode(createdAt, lastModifiedAt), TemplatedNode {
+) : AuditedNode(createdAt, lastModifiedAt), MutableTemplatedNode {
 
     @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
     @GraphQLDescription("The Template of this Artefact.")

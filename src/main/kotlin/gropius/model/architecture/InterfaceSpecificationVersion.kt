@@ -4,7 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceSpecificationVersionTemplate
-import gropius.model.template.TemplatedNode
+import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -29,7 +29,7 @@ class InterfaceSpecificationVersion(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(name, description), Versioned, TemplatedNode {
+) : ServiceEffectSpecificationLocation(name, description), Versioned, MutableTemplatedNode {
 
     companion object {
         const val ACTIVE_PART = "ACTIVE_PART"

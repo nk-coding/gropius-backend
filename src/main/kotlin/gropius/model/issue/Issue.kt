@@ -3,6 +3,7 @@ package gropius.model.issue
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.architecture.AffectedByIssue
+import gropius.model.architecture.IMSIssue
 import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
 import gropius.model.common.AuditedNode
@@ -56,7 +57,7 @@ class Issue(
     @FilterProperty
     @OrderProperty
     var spentTime: Duration?
-) : AuditedNode(createdAt, lastModifiedAt), TemplatedNode {
+) : AuditedNode(createdAt, lastModifiedAt), MutableTemplatedNode {
 
     companion object {
         const val TIMELINE = "TIMELINE"
@@ -173,4 +174,13 @@ class Issue(
     @FilterProperty
     @delegate:Transient
     val partiallySyncedWith by NodeSetProperty<IMSProject>()
+
+    @NodeRelationship(IMSIssue.ISSUE, Direction.INCOMING)
+    @GraphQLDescription(
+        """Descriptions of each IMSProject this issue is synced to containing information specified by the sync
+        """
+    )
+    @FilterProperty
+    @delegate:Transient
+    val imsIssues by NodeSetProperty<IMSIssue>()
 }

@@ -5,7 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
 import gropius.model.template.BaseTemplate
 import gropius.model.template.RelationTemplate
-import gropius.model.template.TemplatedNode
+import gropius.model.template.MutableTemplatedNode
 import io.github.graphglue.model.Direction
 import io.github.graphglue.model.DomainNode
 import io.github.graphglue.model.FilterProperty
@@ -26,7 +26,7 @@ class Relation(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ExtensibleNode(), TemplatedNode {
+) : ExtensibleNode(), MutableTemplatedNode {
 
     companion object {
         const val START_PART = "START_PART"

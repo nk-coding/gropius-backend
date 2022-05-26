@@ -7,10 +7,8 @@ import gropius.model.issue.Issue
 import gropius.model.template.BaseTemplate
 import gropius.model.template.IMSIssueTemplate
 import gropius.model.template.TemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -18,8 +16,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 @GraphQLDescription(
     """Project on an IMS, represents a Trackable synced to an IMS.
     The representation on the IMS depends on the type of IMS, e.g. for GitHub, a project is a repository.
+    READ is granted if read is granted on `issue`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["issue"])
 class IMSIssue(
     @property:GraphQLIgnore
     @CompositeProperty

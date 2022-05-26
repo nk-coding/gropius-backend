@@ -19,8 +19,8 @@ import org.springframework.data.annotation.Transient
     """
 )
 class IssueTemplate(
-    name: String, description: String, isDeprecated: Boolean
-) : Template<Issue, IssueTemplate>(name, description, isDeprecated) {
+    name: String, description: String, templateFieldSpecifications: MutableMap<String, String>, isDeprecated: Boolean
+) : Template<Issue, IssueTemplate>(name, description, templateFieldSpecifications, isDeprecated) {
 
     @NodeRelationship(IssueType.PART_OF, Direction.INCOMING)
     @GraphQLDescription("Set of all types Issues with this Template can have.")

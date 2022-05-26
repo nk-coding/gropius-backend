@@ -1,20 +1,26 @@
 package gropius.graphql
 
+import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.scalars.datetime.DateTimeScalar
-import graphql.scalars.`object`.JsonScalar
 import graphql.scalars.regex.RegexScalar
+import graphql.schema.DataFetcherFactory
+import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
 import graphql.schema.GraphQLTypeReference
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
+import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
+import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.findAnnotation
@@ -32,7 +38,9 @@ class GraphQLConfiguration {
      * @return the provided JSON scalar
      */
     @Bean
-    fun jsonScalar() = JsonScalar.INSTANCE
+    fun jsonScalar(objectMapper: ObjectMapper) =
+        GraphQLScalarType.newScalar().name("JSON").description("A JSON scalar").coercing(JSONCoercing(objectMapper))
+            .build()
 
     /**
      * Color scalar which can be used by annotating a function / property with `@GraphQLType("Color")`
@@ -77,9 +85,7 @@ class GraphQLConfiguration {
     fun dateTimeFilter() =
         TypeFilterDefinitionEntry(OffsetDateTime::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
             DateTimeFilterDefinition(
-                name,
-                parentNodeDefinition.getNeo4jNameOfProperty(property),
-                property.returnType.isMarkedNullable
+                name, parentNodeDefinition.getNeo4jNameOfProperty(property), property.returnType.isMarkedNullable
             )
         }
 
@@ -92,9 +98,7 @@ class GraphQLConfiguration {
     fun durationFilter() =
         TypeFilterDefinitionEntry(Duration::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
             DurationFilterDefinition(
-                name,
-                parentNodeDefinition.getNeo4jNameOfProperty(property),
-                property.returnType.isMarkedNullable
+                name, parentNodeDefinition.getNeo4jNameOfProperty(property), property.returnType.isMarkedNullable
             )
         }
 
@@ -107,9 +111,7 @@ class GraphQLConfiguration {
     fun urlFilter() =
         TypeFilterDefinitionEntry(URI::class.createType(nullable = true)) { name, property, parentNodeDefinition, _ ->
             StringFilterDefinition(
-                name,
-                parentNodeDefinition.getNeo4jNameOfProperty(property),
-                property.returnType.isMarkedNullable
+                name, parentNodeDefinition.getNeo4jNameOfProperty(property), property.returnType.isMarkedNullable
             )
         }
 
@@ -120,4 +122,20 @@ class GraphQLConfiguration {
      */
     @Bean("usernameFilter")
     fun usernameFilter() = StringFilterDefinition("username", "username", true)
+
+    /**
+     * Provides the [KotlinDataFetcherFactoryProvider] which generates a FunctionDataFetcher which handles
+     * JSON input value injecting correctly.
+     *
+     * @param applicationContext used to obtain Spring beans
+     * @return the generated [KotlinDataFetcherFactoryProvider], used by graphql-kotlin
+     */
+    @Bean
+    fun kotlinDataFetcherFactory(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
+        object : SimpleKotlinDataFetcherFactoryProvider() {
+            override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
+                JSONAwareFunctionDataFetcher(target, kFunction, applicationContext)
+            }
+        }
+
 }

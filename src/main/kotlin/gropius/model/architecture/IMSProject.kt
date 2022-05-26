@@ -1,11 +1,16 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
 import gropius.model.issue.Issue
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
+import gropius.model.template.BaseTemplate
+import gropius.model.template.IMSProjectTemplate
+import gropius.model.template.MutableTemplatedNode
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -15,11 +20,21 @@ import org.springframework.data.annotation.Transient
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackable", "ims"])
-class IMSProject : ExtensibleNode() {
+class IMSProject(
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : ExtensibleNode(), MutableTemplatedNode {
 
     companion object {
         const val PARTIALLY_SYNCED_ISSUES = "PARTIALLY_SYNCED_ISSUES"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this Component.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<IMSProjectTemplate>()
 
     @NodeRelationship(Trackable.SYNCS_TO, Direction.INCOMING)
     @GraphQLDescription("The trackable which is synced.")
@@ -38,4 +53,10 @@ class IMSProject : ExtensibleNode() {
     @FilterProperty
     @delegate:Transient
     val partiallySyncedIssues by NodeSetProperty<Issue>()
+
+    @NodeRelationship(IMSIssue.PROJECT, Direction.INCOMING)
+    @GraphQLDescription("The IMSIssues synced to by this project.")
+    @FilterProperty
+    @delegate:Transient
+    val imsIssues by NodeSetProperty<IMSIssue>()
 }

@@ -12,11 +12,14 @@ import org.springframework.data.annotation.Transient
 @GraphQLDescription(
     """Template for Components.
     Defines templated fields with specific types (defined using JSON schema).
+    Defines SubTemplate for ComponentVersions.
     """
 )
 class ComponentTemplate(
-    name: String, description: String, isDeprecated: Boolean
-) : RelationPartnerTemplate<Component, ComponentTemplate>(name, description, isDeprecated) {
+    name: String, description: String, templateFieldSpecifications: MutableMap<String, String>, isDeprecated: Boolean
+) : RelationPartnerTemplate<Component, ComponentTemplate>(
+    name, description, templateFieldSpecifications, isDeprecated
+) {
 
     companion object {
         const val VISIBLE_INTERFACE_SPECIFICATION = "VISIBLE_INTERFACE_SPECIFICATION"
@@ -34,5 +37,10 @@ class ComponentTemplate(
     @FilterProperty
     @delegate:Transient
     val possibleInvisibleInterfaceSpecifications by NodeSetProperty<InterfaceSpecificationTemplate>()
+
+    @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
+    @GraphQLDescription("SubTemplate applied to all ComponentVersions of Components with this Template")
+    @delegate:Transient
+    val componentVersionTemplate by NodeProperty<ComponentVersionTemplate>()
 
 }

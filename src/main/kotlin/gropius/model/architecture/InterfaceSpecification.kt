@@ -3,7 +3,12 @@ package gropius.model.architecture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.BaseTemplate
+import gropius.model.template.InterfaceSpecificationTemplate
+import gropius.model.template.MutableTemplatedNode
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -15,14 +20,26 @@ import org.springframework.data.annotation.Transient
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["component"])
-class InterfaceSpecification(name: String, description: String) : ServiceEffectSpecificationLocation(
+class InterfaceSpecification(
+    name: String,
+    description: String,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : ServiceEffectSpecificationLocation(
     name, description
-) {
+), MutableTemplatedNode {
 
     companion object {
         const val VERSION = "VERSION"
         const val COMPONENT = "COMPONENT"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this InterfaceSpecification.")
+    @FilterProperty
+    @delegate:Transient
+    val template by NodeProperty<InterfaceSpecificationTemplate>()
 
     @NodeRelationship(VERSION, Direction.OUTGOING)
     @GraphQLDescription("Versions of this InterfaceSpecification.")

@@ -20,8 +20,8 @@ import org.neo4j.cypherdsl.core.RelationshipPattern
  */
 class NodePermissionReadRuleGenerator(
     private val nodePermissionDefinition: NodeDefinition,
-    private val gropiusUserDefinition: NodeDefinition
-) : NodePermissionRuleGenerator {
+    gropiusUserDefinition: NodeDefinition
+) : NodePermissionRuleGenerator(gropiusUserDefinition) {
 
     override fun generateRule(
         node: Node,
@@ -31,13 +31,11 @@ class NodePermissionReadRuleGenerator(
     ): Pair<RelationshipPattern, Condition> {
         assert(permission.name == NodePermission.READ)
 
-        val gropiusUserNode = gropiusUserDefinition.node().named("g_1")
         val relatedNodePermissionNode = nodePermissionDefinition.node().named("g_2")
         val subQueryPredicate = generatePredicateCondition(
-            relatedNodePermissionNode, gropiusUserNode, permission, listOf(NodePermission.ADMIN)
+            relatedNodePermissionNode, permission, listOf(NodePermission.ADMIN)
         )
         val newRelationship = currentRelationship.relationshipBetween(relatedNodePermissionNode, NodePermission.NODE).length(0, 2)
-            .relationshipFrom(gropiusUserNode, GropiusUser.PERMISSION)
         return newRelationship to subQueryPredicate
     }
 

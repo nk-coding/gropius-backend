@@ -16,7 +16,7 @@ import java.net.URI
     Can have issues, labels and artefacts as this is a Trackable.
     """
 )
-class Project(name: String, description: String, repositoryURL: URI) : Trackable(name, description, repositoryURL) {
+class Project(name: String, description: String, repositoryURL: URI?) : Trackable(name, description, repositoryURL) {
 
     companion object {
         const val COMPONENT = "COMPONENT"

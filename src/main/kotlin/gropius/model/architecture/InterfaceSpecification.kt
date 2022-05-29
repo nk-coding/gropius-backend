@@ -16,10 +16,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     Defined on a Component, but can be visible and invisible on different ComponentVersions.
     Can be affected by Issues, and be used as start / end of ServiceEffectSpecifications.
     Defines InterfaceParts, but active parts depend on the InterfaceSpecificationVersion.
-    READ is granted if READ is granted on `component`.
+    READ is granted if READ is granted on `component`, or any InterfaceSpecificationVersion in `versions`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["component"])
+@Authorization(NodePermission.READ, allowFromRelated = ["component", "versions"])
 class InterfaceSpecification(
     name: String,
     description: String,

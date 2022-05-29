@@ -1,12 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
-import gropius.model.user.permission.NodePermission
-import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceSpecificationVersionTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -17,10 +17,14 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     Can be both visible (generates an Interface) and invisible (does not generate an Interface)
     on different Components.
     Can be derived by Relations, and affected by Issues.
-    READ is granted if READ is granted on `interfaceSpecification`.
+    READ is granted if READ is granted on `interfaceSpecification`, any ComponentVersion in`visibleDerivedOn`,
+    or any ComponentVersion in `invisibleDerivedOn`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["interfaceSpecification"])
+@Authorization(
+    NodePermission.READ,
+    allowFromRelated = ["interfaceSpecification", "visibleDerivedOn", "invisibleDerivedOn"]
+)
 class InterfaceSpecificationVersion(
     name: String,
     description: String,

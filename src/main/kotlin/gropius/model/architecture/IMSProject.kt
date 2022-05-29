@@ -44,6 +44,7 @@ class IMSProject(
 
     @NodeRelationship(IMS.PROJECT, Direction.INCOMING)
     @GraphQLDescription("The IMS this project is a part of.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val ims by NodeProperty<IMS>()

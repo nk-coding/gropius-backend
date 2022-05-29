@@ -41,12 +41,14 @@ class Relation(
 
     @NodeRelationship(RelationPartner.INCOMING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The end of this Relation.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val end by NodeProperty<RelationPartner>()
 
     @NodeRelationship(RelationPartner.OUTGOING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The start of this Relation.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val start by NodeProperty<RelationPartner>()

@@ -9,6 +9,7 @@ import io.github.graphglue.model.*
 import gropius.model.template.BaseTemplate
 import gropius.model.template.IMSProjectTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.user.permission.TrackablePermission
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -20,6 +21,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackable", "ims"])
+@Authorization(TrackablePermission.MANAGE_IMS, allowFromRelated = ["trackable"])
 class IMSProject(
     @property:GraphQLIgnore
     @CompositeProperty

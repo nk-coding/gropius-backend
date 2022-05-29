@@ -5,6 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLType
 import gropius.model.architecture.Trackable
 import gropius.model.common.NamedAuditedNode
 import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.TrackablePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
@@ -18,6 +19,7 @@ import java.time.OffsetDateTime
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.MANAGE_LABELS, allowFromRelated = ["trackables"])
 class Label(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

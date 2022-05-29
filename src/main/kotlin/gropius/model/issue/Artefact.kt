@@ -9,6 +9,7 @@ import gropius.model.user.permission.NodePermission
 import gropius.model.template.ArtefactTemplate
 import gropius.model.template.BaseTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.user.permission.TrackablePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
@@ -26,6 +27,7 @@ import java.time.OffsetDateTime
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackable"])
+@Authorization(TrackablePermission.MANAGE_ARTEFACTS, allowFromRelated = ["trackable"])
 class Artefact(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

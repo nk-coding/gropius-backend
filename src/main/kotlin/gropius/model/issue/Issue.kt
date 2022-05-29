@@ -11,6 +11,7 @@ import gropius.model.issue.timeline.*
 import gropius.model.template.*
 import gropius.model.user.User
 import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.TrackablePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
@@ -27,6 +28,12 @@ import java.time.OffsetDateTime
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.LINK_TO_ISSUES, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.LINK_FROM_ISSUES, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.MODERATOR, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.COMMENT, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.MANAGE_ISSUES, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.EXPORT_ISSUES, allowFromRelated = ["trackables"])
 class Issue(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

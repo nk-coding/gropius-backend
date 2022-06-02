@@ -5,10 +5,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceSpecificationVersionTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -25,6 +22,8 @@ class InterfaceSpecificationVersion(
     name: String,
     description: String,
     @property:GraphQLDescription("The version of this InterfaceSpecificationVersion.")
+    @FilterProperty
+    @OrderProperty
     override var version: String,
     @property:GraphQLIgnore
     @CompositeProperty

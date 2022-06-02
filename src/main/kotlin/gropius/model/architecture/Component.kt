@@ -25,7 +25,7 @@ import java.net.URI
 class Component(
     name: String,
     description: String,
-    repositoryURL: URI,
+    repositoryURL: URI?,
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>

@@ -42,6 +42,7 @@ class IssueComment(
         Empty String if IssueComment is deleted.
         """
     )
+    @FilterProperty
     override var body: String
         get() {
             return if (isCommentDeleted) {

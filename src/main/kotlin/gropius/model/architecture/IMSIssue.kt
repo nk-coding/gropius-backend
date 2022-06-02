@@ -14,8 +14,8 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
-    """Project on an IMS, represents a Trackable synced to an IMS.
-    The representation on the IMS depends on the type of IMS, e.g. for GitHub, a project is a repository.
+    """Issue on an IMS, represents an Issue synced to an IMS.
+    The representation of the Issue on the IMS depends on the type of IMS.
     READ is granted if read is granted on `issue`.
     """
 )

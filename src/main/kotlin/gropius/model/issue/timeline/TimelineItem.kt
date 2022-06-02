@@ -10,7 +10,7 @@ import java.time.OffsetDateTime
 
 @DomainNode
 @GraphQLDescription(
-    """Subtype for all timeline items. Always part of an Issue
+    """Supertype of all timeline items. Always part of an Issue
     READ is granted if READ is granted on `issue`.
     """
 )

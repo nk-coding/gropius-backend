@@ -17,7 +17,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 @GraphQLDescription(
     """Project on an IMS, represents a Trackable synced to an IMS.
     The representation on the IMS depends on the type of IMS, e.g. for GitHub, a project is a repository.
-    READ is granted is READ is granted on `trackable` or `ims`.
+    READ is granted if READ is granted on `trackable` or `ims`.
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackable", "ims"])

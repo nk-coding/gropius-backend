@@ -2,6 +2,7 @@ package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.authorization.RELATED_TO_ADMIN_NODE_PERMISSION_RULE
 import gropius.model.common.ExtensibleNode
 import gropius.model.issue.Issue
 import gropius.model.user.permission.NodePermission
@@ -20,8 +21,13 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     READ is granted if READ is granted on `trackable` or `ims`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["trackable", "ims"])
+@Authorization(
+    NodePermission.READ,
+    allow = [Rule(RELATED_TO_ADMIN_NODE_PERMISSION_RULE, "2")],
+    allowFromRelated = ["trackable"]
+)
 @Authorization(TrackablePermission.MANAGE_IMS, allowFromRelated = ["trackable"])
+@Authorization(NodePermission.RELATED_TO_NODE_PERMISSION, allowFromRelated = ["ims"])
 class IMSProject(
     @property:GraphQLIgnore
     @CompositeProperty

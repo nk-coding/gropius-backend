@@ -1,5 +1,6 @@
 package gropius.authorization
 
+import gropius.model.architecture.IMSProject
 import gropius.model.user.GropiusUser
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.authorization.Permission
@@ -11,31 +12,30 @@ import org.neo4j.cypherdsl.core.Node
 import org.neo4j.cypherdsl.core.RelationshipPattern
 
 /**
- * Permission rule generator used to check for READ on [NodePermission]
- * READ is granted if the user provided via the context is ADMIN on **any** related node.
- * For details how checking for ADMIN on the related node works, see [RelatedToNodePermissionRuleGenerator]
+ * Permission rule generator used to check if a node is connected via [NodePermission.RELATED_TO_NODE_PERMISSION]
+ * to an [NodePermission] with [NodePermission.ADMIN]
+ * The Permission must be declared with a parameter containing the max amount of relationships
+ * to traverse until the [NodePermission]
+ *
+ * Used e.g. to check for [NodePermission.READ] on [NodePermission] and [IMSProject]
  *
  * @param nodePermissionDefinition used to generate Cypher DSL node for [NodePermission]
  * @param gropiusUserDefinition used to generate Cypher DSL node for [GropiusUser]
  */
-class NodePermissionReadRuleGenerator(
-    private val nodePermissionDefinition: NodeDefinition,
-    gropiusUserDefinition: NodeDefinition
+class RelatedToAdminNodePermissionRuleGenerator(
+    private val nodePermissionDefinition: NodeDefinition, gropiusUserDefinition: NodeDefinition
 ) : NodePermissionRuleGenerator(gropiusUserDefinition) {
 
     override fun generateRule(
-        node: Node,
-        currentRelationship: RelationshipPattern,
-        rule: Rule,
-        permission: Permission
+        node: Node, currentRelationship: RelationshipPattern, rule: Rule, permission: Permission
     ): Pair<RelationshipPattern, Condition> {
-        assert(permission.name == NodePermission.READ)
-
         val relatedNodePermissionNode = nodePermissionDefinition.node().named("g_2")
         val subQueryPredicate = generatePredicateCondition(
             relatedNodePermissionNode, permission, listOf(NodePermission.ADMIN)
         )
-        val newRelationship = currentRelationship.relationshipBetween(relatedNodePermissionNode, NodePermission.NODE).length(0, 2)
+        val maxLength = rule.options.first().toInt()
+        val newRelationship = currentRelationship.relationshipBetween(relatedNodePermissionNode)
+            .properties(NodePermission.RELATED_TO_NODE_PERMISSION, Cypher.literalTrue()).length(0, maxLength)
         return newRelationship to subQueryPredicate
     }
 

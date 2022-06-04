@@ -2,7 +2,8 @@ package gropius.model.user.permission
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.authorization.NODE_PERMISSION_READ_RULE
+import gropius.authorization.RELATED_TO_ADMIN_NODE_PERMISSION_RULE
+import gropius.authorization.RelatedToAdminNodePermissionRuleGenerator
 import gropius.graphql.TypeGraphQLType
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
@@ -15,7 +16,8 @@ import org.springframework.data.annotation.Transient
  */
 @DomainNode
 @GraphQLIgnore
-@Authorization(NodePermission.READ, allow = [Rule(NODE_PERMISSION_READ_RULE)])
+@Authorization(NodePermission.READ, allow = [Rule(RELATED_TO_ADMIN_NODE_PERMISSION_RULE, "2")])
+@Authorization(NodePermission.RELATED_TO_NODE_PERMISSION, allowFromRelated = ["nodesWithPermission"])
 abstract class NodePermission<T : Node>(
     entries: MutableList<String>, allUsers: Boolean
 ) : BasePermission(entries, allUsers) {
@@ -34,6 +36,13 @@ abstract class NodePermission<T : Node>(
          * If [ADMIN] is granted, [READ] must be granted, too
          */
         const val ADMIN = "ADMIN"
+
+        /**
+         * This should not be checked directly!
+         * Helper permission to check if a node is related via this permission to a [NodePermission]
+         * Used for [RelatedToAdminNodePermissionRuleGenerator]
+         */
+        const val RELATED_TO_NODE_PERMISSION = "RELATED_TO_NODE_PERMISSION"
     }
 
     @NodeRelationship(NODE, Direction.OUTGOING)

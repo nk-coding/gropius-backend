@@ -19,7 +19,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     READ is granted if read is granted on `issue`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["issue"])
+@Authorization(NodePermission.READ, allowFromRelated = ["imsProject"])
 class IMSIssue(
     @property:GraphQLIgnore
     @CompositeProperty

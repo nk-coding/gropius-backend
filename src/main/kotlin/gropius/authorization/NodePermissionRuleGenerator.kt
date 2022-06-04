@@ -26,7 +26,6 @@ abstract class NodePermissionRuleGenerator(private val gropiusUserDefinition: No
      * If any permission in [permissionNames] is present, the condition evaluates to `true`
      *
      * @param nodePermissionNode the CypherDSL node of the [NodePermission] in the match pattern
-     * @param gropiusUserNode the CypherDSL node of the [GropiusUser] in the match pattern
      * @param permission used to obtain the [GropiusAuthorizationContext] to check for the correct user
      * @param permissionNames list of permissions on
      */

@@ -25,7 +25,7 @@ import java.net.URI
     ComponentVersion in `versions` of this Component.
     """
 )
-@Authorization(NodePermission.READ, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE)], allowFromRelated = ["versions"])
+@Authorization(NodePermission.READ, allowFromRelated = ["versions"])
 @Authorization(
     ComponentPermission.RELATE_TO_COMPONENT,
     allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]

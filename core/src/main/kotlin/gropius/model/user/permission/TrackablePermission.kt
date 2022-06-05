@@ -19,8 +19,8 @@ import io.github.graphglue.model.DomainNode
 @DomainNode
 @GraphQLIgnore
 abstract class TrackablePermission<T : Trackable>(
-    entries: MutableList<String>, allUsers: Boolean
-) : NodePermission<T>(entries, allUsers) {
+    name: String, description: String, entries: MutableList<String>, allUsers: Boolean
+) : NodePermission<T>(name, description, entries, allUsers) {
 
     companion object {
         /**

@@ -29,6 +29,8 @@ class InterfaceSpecificationVersion(
     name: String,
     description: String,
     @property:GraphQLDescription("The version of this InterfaceSpecificationVersion.")
+    @FilterProperty
+    @OrderProperty
     override var version: String,
     @property:GraphQLIgnore
     @CompositeProperty

@@ -23,6 +23,8 @@ class ComponentVersion(
     name: String,
     description: String,
     @property:GraphQLDescription("The version of this ComponentVersion")
+    @FilterProperty
+    @OrderProperty
     override var version: String,
     @property:GraphQLIgnore
     @CompositeProperty

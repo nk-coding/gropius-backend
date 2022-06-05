@@ -19,7 +19,9 @@ const val PERMISSION_ENTRY_NAME = "PermissionEntry"
     READ is granted if the global admin is granted.
     """
 )
-class GlobalPermission(entries: MutableList<String>, allUsers: Boolean) : BasePermission(entries, allUsers) {
+class GlobalPermission(
+    name: String, description: String, entries: MutableList<String>, allUsers: Boolean
+) : BasePermission(name, description, entries, allUsers) {
 
     companion object {
         /**

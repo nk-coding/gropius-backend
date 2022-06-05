@@ -17,9 +17,10 @@ import org.springframework.context.annotation.Configuration
 const val RELATED_TO_NODE_PERMISSION_RULE = "relatedToNodePermissionRule"
 
 /**
- * The name of the [NodePermissionReadRuleGenerator] used to check for READ on  [NodePermission]
+ * The name of the [RelatedToAdminNodePermissionRuleGenerator], used to check if a node is related to a
+ * [NodePermission] with ADMIN via [NodePermission.RELATED_TO_NODE_PERMISSION]
  */
-const val NODE_PERMISSION_READ_RULE = "nodePermissionReadRule"
+const val RELATED_TO_ADMIN_NODE_PERMISSION_RULE = "relatedToAdminNodePermission"
 
 /**
  * The name of the [IsDeletedRuleGenerator] used to check that an [AuditedNode] is deleted
@@ -33,15 +34,15 @@ const val IS_DELETED_RULE = "isDeletedRule"
 class AuthorizationConfiguration {
 
     /**
-     * Creates the [NodePermissionReadRuleGenerator] to check for READ on [NodePermission]
+     * Creates the [RelatedToAdminNodePermissionRuleGenerator] to check for READ on [NodePermission]
      * The rule can only be used on [NodePermission], and only for READ
      *
      * @param nodeDefinitionCollection used to obtain [NodeDefinition]s
-     * @return the generated [NodePermissionReadRuleGenerator]
+     * @return the generated [RelatedToAdminNodePermissionRuleGenerator]
      */
-    @Bean(NODE_PERMISSION_READ_RULE)
-    fun nodePermissionReadRule(nodeDefinitionCollection: NodeDefinitionCollection): AllowRuleGenerator {
-        return NodePermissionReadRuleGenerator(
+    @Bean(RELATED_TO_ADMIN_NODE_PERMISSION_RULE)
+    fun relatedToAdminNodePermissionRule(nodeDefinitionCollection: NodeDefinitionCollection): AllowRuleGenerator {
+        return RelatedToAdminNodePermissionRuleGenerator(
             nodeDefinitionCollection.getNodeDefinition<NodePermission<*>>(),
             nodeDefinitionCollection.getNodeDefinition<GropiusUser>()
         )

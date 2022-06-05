@@ -19,8 +19,8 @@ import org.springframework.data.annotation.Transient
 @Authorization(NodePermission.READ, allow = [Rule(RELATED_TO_ADMIN_NODE_PERMISSION_RULE, "2")])
 @Authorization(NodePermission.RELATED_TO_NODE_PERMISSION, allowFromRelated = ["nodesWithPermission"])
 abstract class NodePermission<T : Node>(
-    entries: MutableList<String>, allUsers: Boolean
-) : BasePermission(entries, allUsers) {
+    name: String, description: String, entries: MutableList<String>, allUsers: Boolean
+) : BasePermission(name, description, entries, allUsers) {
 
     companion object {
         const val NODE = "NODE"

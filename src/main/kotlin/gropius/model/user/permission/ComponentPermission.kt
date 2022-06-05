@@ -15,8 +15,8 @@ const val COMPONENT_PERMISSION_ENTRY_NAME = "ComponentPermissionEntry"
 @DomainNode
 @GraphQLDescription("NodePermission to grant specific permissions to a set of Components.")
 class ComponentPermission(
-    entries: MutableList<String>, allUsers: Boolean
-) : TrackablePermission<Component>(entries, allUsers) {
+    name: String, description: String, entries: MutableList<String>, allUsers: Boolean
+) : TrackablePermission<Component>(name, description, entries, allUsers) {
 
     companion object {
         /**

@@ -38,9 +38,8 @@ class NodeSourcerer(
                 return type
             }
         }
-        val template = ensureGithubTemplate()
         var type = IssueType("github-issue", "Issue synced from github")
-        template.issueTypes() += type
+        type.partOf() += ensureGithubTemplate()
         type = neoOperations.save(type).awaitSingle()
         return type
     }

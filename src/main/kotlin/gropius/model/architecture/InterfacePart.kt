@@ -1,14 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfacePartTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -19,8 +17,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     this could represent a single endpoint of the API.
     Relations can specify for both start and end included InterfaceParts.
     Can be affected by Issues, and be used as start / end of ServiceEffectSpecifications.
+    READ is granted if READ is granted on `definedOn`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["definedOn"])
 class InterfacePart(
     name: String,
     description: String,

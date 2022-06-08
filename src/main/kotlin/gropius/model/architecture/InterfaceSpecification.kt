@@ -1,14 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceSpecificationTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -18,8 +16,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     Defined on a Component, but can be visible and invisible on different ComponentVersions.
     Can be affected by Issues, and be used as start / end of ServiceEffectSpecifications.
     Defines InterfaceParts, but active parts depend on the InterfaceSpecificationVersion.
+    READ is granted if READ is granted on `component`, or any InterfaceSpecificationVersion in `versions`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["component", "versions"])
 class InterfaceSpecification(
     name: String,
     description: String,

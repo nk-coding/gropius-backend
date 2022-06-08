@@ -2,10 +2,8 @@ package gropius.model.template
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.ExtensibleNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -15,8 +13,10 @@ import org.springframework.data.annotation.Transient
     and the end of the Relation has a template in to.
     Also defines which InterfaceSpecifications are inherited via the Relation.
     Part of a RelationTemplate.
+    READ is always granted.
     """
 )
+@Authorization(NodePermission.READ, allowAll = true)
 class RelationCondition : ExtensibleNode() {
 
     companion object {

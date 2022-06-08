@@ -5,6 +5,7 @@ import gropius.model.common.ExtensibleNode
 import gropius.model.common.AuditedNode
 import gropius.model.issue.Issue
 import gropius.model.issue.timeline.Assignment
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
@@ -13,9 +14,11 @@ import org.springframework.data.annotation.Transient
     """A user known to the Gropius System.
     This might be a user that registered directly, or a user the systems know via a sync adapter.
     A user can create AuditedNodes, participate in Issues and be assigned to Issues.
+    READ is always granted.
     """
 )
 @AdditionalFilter("usernameFilter")
+@Authorization(NodePermission.READ, allowAll = true)
 abstract class User(
     @property:GraphQLDescription("The name which should be displayed for the user.")
     @FilterProperty

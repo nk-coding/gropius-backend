@@ -1,14 +1,15 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.authorization.RELATED_TO_NODE_PERMISSION_RULE
+import gropius.model.user.permission.COMPONENT_PERMISSION_ENTRY_NAME
+import gropius.model.user.permission.ComponentPermission
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.ComponentTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 import java.net.URI
@@ -20,7 +21,18 @@ import java.net.URI
     Can have issues, labels and artefacts as this is a Trackable.
     Defines InterfaceSpecifications, but visible/invisible InterfaceSpecificationVersions depend on the ComponentVersion.
     Can be affected by Issues.
+    READ is granted via an associated ComponentPermission or if READ is granted on any Project including any 
+    ComponentVersion in `versions` of this Component.
     """
+)
+@Authorization(NodePermission.READ, allowFromRelated = ["versions"])
+@Authorization(
+    ComponentPermission.RELATE_TO_COMPONENT,
+    allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
+)
+@Authorization(
+    ComponentPermission.RELATE_FROM_COMPONENT,
+    allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
 )
 class Component(
     name: String,
@@ -56,5 +68,11 @@ class Component(
     @FilterProperty
     @delegate:Transient
     val versions by NodeSetProperty<ComponentVersion>()
+
+    @NodeRelationship(NodePermission.NODE, Direction.INCOMING)
+    @GraphQLDescription("Permissions for this Component.")
+    @FilterProperty
+    @delegate:Transient
+    val permissions by NodeSetProperty<ComponentPermission>()
 
 }

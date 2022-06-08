@@ -9,6 +9,7 @@ import graphql.scalars.regex.RegexScalar
 import graphql.schema.DataFetcherFactory
 import graphql.schema.GraphQLScalarType
 import graphql.schema.GraphQLType
+import graphql.schema.GraphQLTypeReference
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
@@ -22,6 +23,7 @@ import java.time.OffsetDateTime
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
+import kotlin.reflect.full.findAnnotation
 
 /**
  * Contains bean necessary for GraphQL configuration
@@ -51,7 +53,8 @@ class GraphQLConfiguration {
         .addPattern("#[0-9a-fA-F]{6}".toRegex().toPattern())
 
     /**
-     * SchemaGeneratorHooks which adds support for scalars:
+     * SchemaGeneratorHooks which support the [TypeGraphQLType] annotation
+     * Also adds support for scalars:
      * - [OffsetDateTime] -> DateTime
      * - [URI] -> Url
      * - Duration -> Duration
@@ -59,11 +62,16 @@ class GraphQLConfiguration {
     @Bean
     fun schemaGeneratorHooks() = object : SchemaGeneratorHooks {
         override fun willGenerateGraphQLType(type: KType): GraphQLType? {
-            return when (type.classifier) {
-                OffsetDateTime::class -> DateTimeScalar.INSTANCE
-                URI::class -> URLScalar
-                Duration::class -> DurationScalar
-                else -> null
+            val typeAnnotation = type.findAnnotation<TypeGraphQLType>()
+            return if (typeAnnotation != null) {
+                GraphQLTypeReference.typeRef(typeAnnotation.name)
+            } else {
+                when (type.classifier) {
+                    OffsetDateTime::class -> DateTimeScalar.INSTANCE
+                    URI::class -> URLScalar
+                    Duration::class -> DurationScalar
+                    else -> null
+                }
             }
         }
     }

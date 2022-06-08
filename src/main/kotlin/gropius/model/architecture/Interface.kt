@@ -1,14 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.InterfaceTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -17,8 +15,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """An interface which is part of a specific ComponentVersion.
     Its semantics depend on the InterfaceSpecification it is specified by, e.g. an Interface can represent a REST API.
     Can be used in Relations and affected by Issues.
+    READ is granted if READ is granted on `component`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["component"])
 class Interface(
     name: String,
     description: String,

@@ -3,10 +3,7 @@ package gropius.model.issue.timeline
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.issue.Issue
 import gropius.model.template.IssueRelationType
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import java.time.OffsetDateTime
 
@@ -36,6 +33,7 @@ class IssueRelation(
 
     @NodeRelationship(RELATED_ISSUE, Direction.OUTGOING)
     @GraphQLDescription("The end of the relation.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val relatedIssue by NodeProperty<Issue>()

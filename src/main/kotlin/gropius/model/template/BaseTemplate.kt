@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import gropius.model.common.NamedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.Node
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
@@ -22,8 +20,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 @GraphQLDescription(
     """Base type for both Template and SubTemplate.
     Defines templated fields with specific types (defined using JSON schema).
+    READ is always granted.
     """
 )
+@Authorization(NodePermission.READ, allowAll = true)
 abstract class BaseTemplate<T, S : BaseTemplate<T, S>> (
     name: String,
     description: String,

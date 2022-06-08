@@ -3,13 +3,11 @@ package gropius.model.architecture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import gropius.model.template.BaseTemplate
 import gropius.model.template.RelationTemplate
 import gropius.model.template.MutableTemplatedNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -20,8 +18,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     The template defines which RelationPartners are possible as start / end.
     For both start and end, if it is an Interface, it is possible to define the InterfaceParts this includes.
     Caution: This is **not** a supertype of IssueRelation.
+    READ is granted if READ is granted on `start` or `end`.
     """
 )
+@Authorization(NodePermission.READ, allowFromRelated = ["start", "end"])
 class Relation(
     @property:GraphQLIgnore
     @CompositeProperty
@@ -41,12 +41,14 @@ class Relation(
 
     @NodeRelationship(RelationPartner.INCOMING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The end of this Relation.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val end by NodeProperty<RelationPartner>()
 
     @NodeRelationship(RelationPartner.OUTGOING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The start of this Relation.")
+    @GraphQLNullable
     @FilterProperty
     @delegate:Transient
     val start by NodeProperty<RelationPartner>()

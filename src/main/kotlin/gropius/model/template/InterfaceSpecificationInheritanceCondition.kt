@@ -2,18 +2,18 @@ package gropius.model.template
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.ExtensibleNode
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
 @GraphQLDescription(
     """Defines which InterfaceSpecifications are inherited under which conditions by a Relation.
     Part of a RelationCondition, which is part of RelationTemplates.
+    READ is always granted.
     """
 )
+@Authorization(NodePermission.READ, allowAll = true)
 class InterfaceSpecificationInheritanceCondition(
     @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are inherited")
     @FilterProperty

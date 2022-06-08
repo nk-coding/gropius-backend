@@ -3,14 +3,17 @@ package gropius.model.template
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.common.NamedNode
 import gropius.model.issue.timeline.Assignment
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
-@GraphQLDescription("Type for an Assignment, like REVIEWER. Part of an IssueTemplate.")
+@GraphQLDescription(
+    """Type for an Assignment, like REVIEWER. Part of an IssueTemplate.
+    READ is always granted.
+    """
+)
+@Authorization(NodePermission.READ, allowAll = true)
 class AssignmentType(name: String, description: String) : NamedNode(name, description) {
 
     companion object {

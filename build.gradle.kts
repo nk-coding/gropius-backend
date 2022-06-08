@@ -11,6 +11,6 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.graphglue", "graphglue", "3.0.0")
+    implementation("io.github.graphglue", "graphglue", "4.0.0")
     implementation("com.graphql-java","graphql-java-extended-scalars", "18.0")
 }

@@ -1,12 +1,13 @@
 description = "A Cross-Component Issue Management System for Component-based Architectures"
 
 plugins {
-	kotlin("jvm")
+    kotlin("jvm")
 }
 
 allprojects {
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
 

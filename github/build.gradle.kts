@@ -11,7 +11,7 @@ dependencies {
     implementation(project(path = ":sync"))
     implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
     implementation("com.apollographql.apollo3:apollo-adapters:3.3.0")
-    implementation("org.springframework.boot","spring-boot-starter-data-mongodb-reactive",springBootVersion)
+    implementation("org.springframework.boot", "spring-boot-starter-data-mongodb-reactive", springBootVersion)
 }
 
 

@@ -74,6 +74,9 @@ class TimelineItemHandler(
         return Pair(titleChangedEvent.rawId, event.createdAt)
     }
 
+    /**
+     * Save a non-comment timeline item to the database
+     */
     suspend fun handleIssueModifiedItem(issue: IssueInfo, event: TimelineItemData): Pair<String?, OffsetDateTime?> {
         return when (event) {
             is IssueCommentTimelineItemData -> handleIssueComment(issue, event)

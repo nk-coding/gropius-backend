@@ -7,8 +7,14 @@ import kotlinx.coroutines.flow.toList
 import org.bson.types.ObjectId
 import java.time.OffsetDateTime
 
+/**
+ * Requests data from github using steps that are managed over restarts for processing items (e.g. issues, timeline, ...)
+ */
 abstract class Grabber<T : Any> {
 
+    /**
+     * The response of a single step
+     */
     interface StepResponse<T : Any> {
         val metaData: MetaData
         val nodes: Iterable<T>
@@ -16,13 +22,44 @@ abstract class Grabber<T : Any> {
         val pageInfoData: PageInfoData
     }
 
+    /**
+     * Request a single step from github
+     */
     protected abstract suspend fun grabStep(since: OffsetDateTime?, cursor: String?, count: Int): StepResponse<T>?
+
+    /**
+     * Set the newest timestamp to the given timestamp or newer
+     */
     protected abstract suspend fun writeTimestamp(time: OffsetDateTime)
+
+    /**
+     * Read the highest timestamp from the database
+     */
     protected abstract suspend fun readTimestamp(): OffsetDateTime?
+
+    /**
+     * Add a node into the database cache
+     */
     protected abstract suspend fun addToCache(node: T): ObjectId
+
+    /**
+     * Iterate through all nodes of the database cache
+     */
     protected abstract suspend fun iterateCache(): Flow<T>
+
+    /**
+     * Remove a single id from the database cache
+     */
     protected abstract suspend fun removeFromCache(node: String)
+
+    /**
+     * Increase the number of failed attempts for a node in the cache
+     */
     protected abstract suspend fun increasedFailedCache(node: String)
+
+    /**
+     * Get the id from a node
+     */
     protected abstract fun nodeId(node: T): String
 
     private suspend fun handleStepResponse(response: Grabber.StepResponse<T>) {
@@ -31,6 +68,9 @@ abstract class Grabber<T : Any> {
         }
     }
 
+    /**
+     * Update nodes with fresh data
+     */
     suspend fun requestNewNodes() {
         var githubCursor: String? = null
         var remaining = 1
@@ -48,6 +88,9 @@ abstract class Grabber<T : Any> {
         } while ((githubCursor != null) && (remaining > 0))
     }
 
+    /**
+     * Iterate through all nodes that have not yet been done
+     */
     suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?) {
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {

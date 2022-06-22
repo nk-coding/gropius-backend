@@ -36,6 +36,9 @@ class Incoming(
     private val timelineItemHandler: TimelineItemHandler
 ) {
 
+    /**
+     * Mark issue as dirty
+     */
     suspend fun issueModified(info: IssueDataExtensive): OffsetDateTime {
         val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(info)
         mongoOperations.updateFirst(
@@ -46,6 +49,9 @@ class Incoming(
         return info.updatedAt
     }
 
+    /**
+     * Save a single timline event into the database
+     */
     suspend fun handleTimelineEvent(issue: IssueInfo, event: TimelineItemData): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
         return if ((dbEntry != null) && !((event.asIssueComment()?.lastEditedAt != null) && (event.asIssueComment()!!.lastEditedAt!! > dbEntry.lastModifiedAt))) {
@@ -60,6 +66,9 @@ class Incoming(
         }
     }
 
+    /**
+     * Sync github with gropius
+     */
     suspend fun sync() {
         val issueGrabber = IssueGrabber(repositoryInfoRepository, mongoOperations)
         issueGrabber.requestNewNodes()

@@ -31,6 +31,9 @@ class NodeSourcerer(
     private val userInfoRepository: UserInfoRepository,
     private val labelInfoRepository: LabelInfoRepository
 ) {
+    /**
+     * Ensure the default github issue type with the default template is in the database
+     */
     suspend fun ensureGithubType(): IssueType {
         val types = neoOperations.findAll<IssueType>().toList()
         for (type in types) {
@@ -44,6 +47,9 @@ class NodeSourcerer(
         return type
     }
 
+    /**
+     * Ensure the default github template is in the databse
+     */
     suspend fun ensureGithubTemplate(): IssueTemplate {
         val types = neoOperations.findAll<IssueTemplate>().toList()
         for (type in types) {
@@ -56,6 +62,9 @@ class NodeSourcerer(
         return template
     }
 
+    /**
+     * Create an issuebody for the given issue is in the database
+     */
     private suspend fun createIssueBody(info: IssueData): Body {
         val user = ensureUser(info.author!!)
         val issueBody = Body(
@@ -67,6 +76,9 @@ class NodeSourcerer(
         return issueBody
     }
 
+    /**
+     * Ensure a given issue is in the database
+     */
     suspend fun ensureIssue(info: IssueData): Pair<Issue, IssueInfo> {
         val issueInfo = issueInfoRepository.findByGithubId(info.id)
         if (issueInfo == null) {
@@ -97,10 +109,19 @@ class NodeSourcerer(
         }
     }
 
+    /**
+     * Ensure the user with the given UserData is insertzied in the database
+     */
     suspend fun ensureUser(info: UserData) = ensureUser(info.login)
 
+    /**
+     * Ensure the fallback user for actions unknown origin is in the database
+     */
     suspend fun ensureBotUser() = ensureUser("github-bot")//TODO: Read from template
 
+    /**
+     * Ensure a user with the given username is in the database
+     */
     suspend fun ensureUser(username: String): User {
         val userInfo = userInfoRepository.findByLogin(username)
         return if (userInfo == null) {
@@ -113,6 +134,9 @@ class NodeSourcerer(
         }
     }
 
+    /**
+     * Ensure a given label is in the database
+     */
     suspend fun ensureLabel(info: LabelData): Label {
         val labelInfo = labelInfoRepository.findByGithubId(info.id)
         return if (labelInfo == null) {

@@ -11,11 +11,24 @@ import java.time.OffsetDateTime
  */
 @Document
 data class RepositoryInfo(
+    /**
+     * user/orga on github
+     */
     @Indexed
     val user: String,
+    /**
+     * repo on github
+     */
     @Indexed
-    val repo: String, var lastAccess: OffsetDateTime
+    val repo: String,
+    /**
+     * Time of the last item of the last issue query
+     */
+    var lastAccess: OffsetDateTime
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
 }

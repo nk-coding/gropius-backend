@@ -16,7 +16,13 @@ import java.time.OffsetDateTime
  */
 @Component
 class TimelineItemHandler(
+    /**
+     * Reference for the spring instance of NodeSourcerer
+     */
     private val nodeSourcerer: NodeSourcerer,
+    /**
+     * Reference for the spring instance of ReactiveNeo4jOperations
+     */
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations
 ) {

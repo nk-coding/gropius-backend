@@ -14,11 +14,28 @@ import java.time.OffsetDateTime
  */
 @Document
 data class IssueInfo(
+    /**
+     * ID on github
+     */
     @Indexed(unique = true)
     var githubId: String,
+    /**
+     * ID in gropius database
+     */
     @Indexed(unique = true)
-    var neo4jId: String, val dirty: Boolean, var lastAccess: OffsetDateTime?
+    var neo4jId: String,
+    /**
+     * True if changed after last access and has to be queried
+     */
+    val dirty: Boolean,
+    /**
+     * Time of the last accessed timeline item
+     */
+    var lastAccess: OffsetDateTime?
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
     suspend fun load(neoOperations: ReactiveNeo4jOperations): Issue {

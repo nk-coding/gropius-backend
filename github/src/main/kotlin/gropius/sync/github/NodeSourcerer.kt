@@ -28,10 +28,22 @@ import java.time.OffsetDateTime
  */
 @Component
 class NodeSourcerer(
+    /**
+     * Reference for the spring instance of ReactiveNeo4jOperations
+     */
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations,
+    /**
+     * Reference for the spring instance of IssueInfoRepository
+     */
     private val issueInfoRepository: IssueInfoRepository,
+    /**
+     * Reference for the spring instance of UserInfoRepository
+     */
     private val userInfoRepository: UserInfoRepository,
+    /**
+     * Reference for the spring instance of LabelInfoRepository
+     */
     private val labelInfoRepository: LabelInfoRepository
 ) {
     /**

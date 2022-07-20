@@ -24,11 +24,23 @@ import java.time.OffsetDateTime
  * Implementation of Grabber to retrieve timeline items and cache them in the database
  */
 class TimelineGrabber(
+    /**
+     * Reference for the spring instance of IssueInfoRepository
+     */
     private val issueInfoRepository: IssueInfoRepository,
+    /**
+     * Reference for the spring instance of ReactiveMongoOperations
+     */
     private val mongoOperations: ReactiveMongoOperations,
+    /**
+     * github id of the issue
+     */
     private val id: String
 ) : Grabber<TimelineItemData>() {
 
+    /**
+     * The response of a single step of timeline grabbing
+     */
     class TimelineStepResponse(val content: TimelineReadQuery.Data) : StepResponse<TimelineItemData> {
         override val metaData get() = content.metaData()!!
         override val nodes

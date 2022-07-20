@@ -11,9 +11,27 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 data class TimelineItemDataCache(
+    /**
+     * ID on github
+     */
     @Indexed(unique = true)
-    var githubId: String, val issue: String, val data: TimelineItemData, var attempts: Int?
+    var githubId: String,
+    /**
+     * Github ID of the associated issue
+     */
+    val issue: String,
+    /**
+     * Raw Github API data
+     */
+    val data: TimelineItemData,
+    /**
+     * Number of attempts to sync into gropius database
+     */
+    var attempts: Int?
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
 }

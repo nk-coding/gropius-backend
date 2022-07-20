@@ -26,7 +26,14 @@ import java.time.OffsetDateTime
  * Implementation of Grabber to retrieve issues and cache them in the database
  */
 class IssueGrabber(
-    private val repositoryInfoRepository: RepositoryInfoRepository, private val mongoOperations: ReactiveMongoOperations
+    /**
+     * Reference for the spring instance of RepositoryInfoRepository
+     */
+    private val repositoryInfoRepository: RepositoryInfoRepository,
+    /**
+     * Reference for the spring instance of ReactiveMongoOperations
+     */
+    private val mongoOperations: ReactiveMongoOperations
 ) : Grabber<IssueDataExtensive>() {
 
     /**
@@ -39,6 +46,9 @@ class IssueGrabber(
      */
     val repo = "idf-component-manager" //"llvm-project"
 
+    /**
+     * The response of a single issue grabbing step
+     */
     class IssueStepResponse(val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {
         override val metaData get() = content.metaData()!!
         override val nodes get() = content.repository!!.issues.nodes!!.filterNotNull()
@@ -48,14 +58,14 @@ class IssueGrabber(
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<RepositoryInfo>().matching(
-                query(where(RepositoryInfo::user.name).`is`(user)).addCriteria(
-                    where(RepositoryInfo::repo.name).`is`(
-                        repo
-                    )
+            query(where(RepositoryInfo::user.name).`is`(user)).addCriteria(
+                where(RepositoryInfo::repo.name).`is`(
+                    repo
                 )
-            ).apply(
-                Update().max(RepositoryInfo::lastAccess.name, time)
-            ).upsertAndAwait()
+            )
+        ).apply(
+            Update().max(RepositoryInfo::lastAccess.name, time)
+        ).upsertAndAwait()
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {

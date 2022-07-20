@@ -9,13 +9,14 @@ import java.time.OffsetDateTime
 
 /**
  * Requests data from github using steps that are managed over restarts for processing items (e.g. issues, timeline, ...)
+ * @param T type of the resulting grabbed item
  */
 abstract class Grabber<T : Any> {
 
     /**
      * The response of a single step
      */
-    interface StepResponse<T : Any> {
+    protected interface StepResponse<T : Any> {
         /**
          * Global metadata like rate limit
          */

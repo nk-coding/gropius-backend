@@ -11,11 +11,28 @@ import java.time.OffsetDateTime
  */
 @Document
 data class TimelineEventInfo(
+    /**
+     * ID on github
+     */
     @Indexed(unique = true)
     val githubId: String,
+    /**
+     * ID in gropius database
+     */
     @Indexed
-    val neo4jId: String?, val lastModifiedAt: OffsetDateTime, val type: String?
+    val neo4jId: String?,
+    /**
+     * Time of the last interaction with this timeline item
+     */
+    val lastModifiedAt: OffsetDateTime,
+    /**
+     * Github __typename of this event
+     */
+    val type: String?
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
 }

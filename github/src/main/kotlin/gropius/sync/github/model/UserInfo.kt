@@ -10,11 +10,20 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 data class UserInfo(
+    /**
+     * username on github
+     */
     @Indexed(unique = true)
     val login: String,
+    /**
+     * ID in gropius database
+     */
     @Indexed(unique = true)
     val neo4jId: String
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
 }

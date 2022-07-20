@@ -11,9 +11,31 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 data class IssueDataCache(
+    /**
+     * ID on github
+     */
     @Indexed(unique = true)
-    var githubId: String, val user: String, val repo: String, val data: IssueDataExtensive, var attempts: Int?
+    var githubId: String,
+    /**
+     * Owner of the parent repo
+     */
+    val user: String,
+    /**
+     * Parent repo
+     */
+    val repo: String,
+    /**
+     * Data from github api
+     */
+    val data: IssueDataExtensive,
+    /**
+     * Number of attempts tried to insert into db
+     */
+    var attempts: Int?
 ) {
+    /**
+     * MongoDB ID
+     */
     @Id
     var id: ObjectId? = null
 }

@@ -28,14 +28,41 @@ import java.time.OffsetDateTime
  */
 @Component
 class Incoming(
+    /**
+     * Reference for the spring instance of RepositoryInfoRepository
+     */
     private val repositoryInfoRepository: RepositoryInfoRepository,
+    /**
+     * Reference for the spring instance of IssueInfoRepository
+     */
     private val issueInfoRepository: IssueInfoRepository,
+    /**
+     * Reference for the spring instance of UserInfoRepository
+     */
     private val userInfoRepository: UserInfoRepository,
+    /**
+     * Reference for the spring instance of LabelInfoRepository
+     */
     private val labelInfoRepository: LabelInfoRepository,
+    /**
+     * Reference for the spring instance of ReactiveMongoOperations
+     */
     private val mongoOperations: ReactiveMongoOperations,
+    /**
+     * Reference for the spring instance of ReactiveMongoOperations
+     */
     private val timelineEventInfoRepository: TimelineEventInfoRepository,
+    /**
+     * Reference for the spring instance of IssueCleaner
+     */
     private val issueCleaner: IssueCleaner,
+    /**
+     * Reference for the spring instance of NodeSourcerer
+     */
     private val nodeSourcerer: NodeSourcerer,
+    /**
+     * Reference for the spring instance of TimelineItemHandler
+     */
     private val timelineItemHandler: TimelineItemHandler
 ) {
 

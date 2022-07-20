@@ -12,10 +12,14 @@ import org.springframework.stereotype.Repository
 interface TimelineEventInfoRepository : ReactiveMongoRepository<TimelineEventInfo, ObjectId> {
     /**
      * Lookup to find the mapping given a neo4j id
+     * @param neo4jId Database query param
+     * @return result of database operation
      */
     suspend fun findByNeo4jId(neo4jId: String): TimelineEventInfo?
     /**
      * Lookup to find the mapping given a github id
+     * @param githubId Database query param
+     * @return result of database operation
      */
-    suspend fun findByGithubId(findByGithubId: String): TimelineEventInfo?
+    suspend fun findByGithubId(githubId: String): TimelineEventInfo?
 }

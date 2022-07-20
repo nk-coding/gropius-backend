@@ -12,6 +12,9 @@ import org.springframework.stereotype.Repository
 interface RepositoryInfoRepository : ReactiveMongoRepository<RepositoryInfo, ObjectId> {
     /**
      * Lookup to find the mapping given a github id
+     * @param user Database query param
+     * @param repo Database query param
+     * @return result of database operation
      */
     suspend fun findByUserAndRepo(user: String, repo: String): RepositoryInfo?
 }

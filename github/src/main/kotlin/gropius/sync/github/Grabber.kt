@@ -16,49 +16,77 @@ abstract class Grabber<T : Any> {
      * The response of a single step
      */
     interface StepResponse<T : Any> {
+        /**
+         * Global metadata like rate limit
+         */
         val metaData: MetaData
+
+        /**
+         * The resulting nodes
+         */
         val nodes: Iterable<T>
+
+        /**
+         * Total node count (as github didn't put it in the metadata section)
+         */
         val totalCount: Int
+
+        /**
+         * The pageinfo block containing next cursor
+         */
         val pageInfoData: PageInfoData
     }
 
     /**
      * Request a single step from github
+     * @param since First entry that could be relevant, null for all-time
+     * @param cursor Cursor of the pageInfoData of the previous query
+     * @param count preferred number of entries to request this request
+     * @return result, null for no entries
      */
     protected abstract suspend fun grabStep(since: OffsetDateTime?, cursor: String?, count: Int): StepResponse<T>?
 
     /**
      * Set the newest timestamp to the given timestamp or newer
+     * @param time Timestamp to set the database to (if older exists)
      */
     protected abstract suspend fun writeTimestamp(time: OffsetDateTime)
 
     /**
      * Read the highest timestamp from the database
+     * @return returns the highest timestamp or null if none exists
      */
     protected abstract suspend fun readTimestamp(): OffsetDateTime?
 
     /**
      * Add a node into the database cache
+     * @param node to add
+     * @return the inserted id
      */
     protected abstract suspend fun addToCache(node: T): ObjectId
 
     /**
      * Iterate through all nodes of the database cache
+     * @return Iterate through all nodes currently in the cache
      */
     protected abstract suspend fun iterateCache(): Flow<T>
 
     /**
      * Remove a single id from the database cache
+     * @param node The id in the node to query (not mongo id)
      */
     protected abstract suspend fun removeFromCache(node: String)
 
     /**
      * Increase the number of failed attempts for a node in the cache
+     * @param node Node id to increase the number on (not mongo id)
      */
     protected abstract suspend fun increasedFailedCache(node: String)
 
     /**
      * Get the id from a node
+     * @param node The node as object
+     * @return The node as string
      */
     protected abstract fun nodeId(node: T): String
 
@@ -90,12 +118,12 @@ abstract class Grabber<T : Any> {
 
     /**
      * Iterate through all nodes that have not yet been done
+     * @param callback Iterate through all nodes in the cache. Has to return a new date time if successful and null if failed and should be retried
      */
     suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?) {
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {
             increasedFailedCache(nodeId(node))
-            println(node)
             val newMaxTime = callback(node)
             if (newMaxTime != null) {
                 times.add(newMaxTime)

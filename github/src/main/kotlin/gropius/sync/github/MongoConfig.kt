@@ -8,6 +8,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.*
 
+/**
+ * Custom configuration for the mongodb driver implementing custom conversion for offsetdatetime
+ */
 @Configuration
 class MongoConfig {
     @Bean

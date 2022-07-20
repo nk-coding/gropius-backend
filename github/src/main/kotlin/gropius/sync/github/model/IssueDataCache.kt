@@ -7,6 +7,9 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
 
+/**
+ * Cache for unprocessed issues
+ */
 @Document
 data class IssueDataCache(
     @Indexed(unique = true)

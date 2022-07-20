@@ -11,6 +11,9 @@ import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
+/**
+ * Save a github timeline item into a gropius timeline item
+ */
 @Component
 class TimelineItemHandler(
     private val nodeSourcerer: NodeSourcerer,
@@ -76,6 +79,9 @@ class TimelineItemHandler(
 
     /**
      * Save a non-comment timeline item to the database
+     * @param issue The mongo info for the the issue
+     * @param event a GrqphQL timeline issue
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     suspend fun handleIssueModifiedItem(issue: IssueInfo, event: TimelineItemData): Pair<String?, OffsetDateTime?> {
         return when (event) {

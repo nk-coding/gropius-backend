@@ -23,6 +23,9 @@ import org.springframework.data.neo4j.core.findById
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
+/**
+ * Save github nodes as gropius nodes into the database
+ */
 @Component
 class NodeSourcerer(
     @Qualifier("graphglueNeo4jOperations")
@@ -33,6 +36,7 @@ class NodeSourcerer(
 ) {
     /**
      * Ensure the default github issue type with the default template is in the database
+     * @return The default type for github issues
      */
     suspend fun ensureGithubType(): IssueType {
         val types = neoOperations.findAll<IssueType>().toList()
@@ -49,6 +53,7 @@ class NodeSourcerer(
 
     /**
      * Ensure the default github template is in the databse
+     * @return The default template for github issues
      */
     suspend fun ensureGithubTemplate(): IssueTemplate {
         val types = neoOperations.findAll<IssueTemplate>().toList()
@@ -64,6 +69,8 @@ class NodeSourcerer(
 
     /**
      * Create an issuebody for the given issue is in the database
+     * @param info The issue to created this body for
+     * @return The finished body
      */
     private suspend fun createIssueBody(info: IssueData): Body {
         val user = ensureUser(info.author!!)
@@ -78,6 +85,8 @@ class NodeSourcerer(
 
     /**
      * Ensure a given issue is in the database
+     * @param info The issue to created this body for
+     * @return The gropius issue and the mongodb issue mapping
      */
     suspend fun ensureIssue(info: IssueData): Pair<Issue, IssueInfo> {
         val issueInfo = issueInfoRepository.findByGithubId(info.id)
@@ -111,16 +120,21 @@ class NodeSourcerer(
 
     /**
      * Ensure the user with the given UserData is insertzied in the database
+     * @param info The GraphQL user data
+     * @return a gropius user
      */
     suspend fun ensureUser(info: UserData) = ensureUser(info.login)
 
     /**
      * Ensure the fallback user for actions unknown origin is in the database
+     * @return a gropius user
      */
     suspend fun ensureBotUser() = ensureUser("github-bot")//TODO: Read from template
 
     /**
      * Ensure a user with the given username is in the database
+     * @param username The github username string
+     * @return a gropius user
      */
     suspend fun ensureUser(username: String): User {
         val userInfo = userInfoRepository.findByLogin(username)
@@ -136,6 +150,8 @@ class NodeSourcerer(
 
     /**
      * Ensure a given label is in the database
+     * @param info The GraphQL data for this label
+     * @return a gropius label
      */
     suspend fun ensureLabel(info: LabelData): Label {
         val labelInfo = labelInfoRepository.findByGithubId(info.id)

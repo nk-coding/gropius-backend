@@ -22,11 +22,21 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.mongodb.core.query.Update.update
 import java.time.OffsetDateTime
 
+/**
+ * Implementation of Grabber to retrieve issues and cache them in the database
+ */
 class IssueGrabber(
     private val repositoryInfoRepository: RepositoryInfoRepository, private val mongoOperations: ReactiveMongoOperations
 ) : Grabber<IssueDataExtensive>() {
 
+    /**
+     * test repository user
+     */
     val user = "espressif"
+
+    /**
+     * test repository name
+     */
     val repo = "idf-component-manager" //"llvm-project"
 
     class IssueStepResponse(val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {

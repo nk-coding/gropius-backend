@@ -9,6 +9,9 @@ import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
 import java.time.OffsetDateTime
 
+/**
+ * Mapping of a single issue from neo4j to github
+ */
 @Document
 data class IssueInfo(
     @Indexed(unique = true)

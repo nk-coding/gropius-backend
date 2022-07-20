@@ -6,6 +6,9 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.OffsetDateTime
 
+/**
+ * Mapping of a single timeline event from neo4j to github
+ */
 @Document
 data class TimelineEventInfo(
     @Indexed(unique = true)

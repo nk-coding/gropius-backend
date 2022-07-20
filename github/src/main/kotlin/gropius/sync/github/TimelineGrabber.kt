@@ -20,6 +20,9 @@ import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import java.time.OffsetDateTime
 
+/**
+ * Implementation of Grabber to retrieve timeline items and cache them in the database
+ */
 class TimelineGrabber(
     private val issueInfoRepository: IssueInfoRepository,
     private val mongoOperations: ReactiveMongoOperations,

@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 
+/**
+ * Mapping of a single label from neo4j to github
+ */
 @Document
 data class LabelInfo(
     @Indexed(unique = true)

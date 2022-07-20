@@ -5,8 +5,18 @@ import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
 
+/**
+ * Mapping of a single label from neo4j to github
+ */
 @Repository
 interface LabelInfoRepository : ReactiveMongoRepository<LabelInfo, ObjectId> {
+    /**
+     * Lookup to find the mapping given a neo4j id
+     */
     suspend fun findByNeo4jId(neo4jId: String): LabelInfo?
+
+    /**
+     * Lookup to find the mapping given a github id
+     */
     suspend fun findByGithubId(findByGithubId: String): LabelInfo?
 }

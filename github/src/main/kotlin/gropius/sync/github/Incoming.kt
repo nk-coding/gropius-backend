@@ -23,6 +23,9 @@ import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
+/**
+ * Stateless component for the incoming part of the sync
+ */
 @Component
 class Incoming(
     private val repositoryInfoRepository: RepositoryInfoRepository,
@@ -38,6 +41,8 @@ class Incoming(
 
     /**
      * Mark issue as dirty
+     * @param info The full dataset of an issue
+     * @return The DateTime the issue was last changed
      */
     suspend fun issueModified(info: IssueDataExtensive): OffsetDateTime {
         val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(info)
@@ -51,6 +56,9 @@ class Incoming(
 
     /**
      * Save a single timline event into the database
+     * @param issue the issue the timeline belongs to
+     * @param event a single timeline item
+     * @return The time of the event or null for error
      */
     suspend fun handleTimelineEvent(issue: IssueInfo, event: TimelineItemData): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
@@ -67,7 +75,7 @@ class Incoming(
     }
 
     /**
-     * Sync github with gropius
+     * Sync github to gropius
      */
     suspend fun sync() {
         val issueGrabber = IssueGrabber(repositoryInfoRepository, mongoOperations)

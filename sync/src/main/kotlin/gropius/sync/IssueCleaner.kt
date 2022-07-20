@@ -22,6 +22,10 @@ class IssueCleaner(
     val neoOperations: ReactiveNeo4jOperations,
 ) {
 
+    /**
+     * Clean all labels on this issue into a consistent state
+     * @param issue issue to work on
+     */
     private suspend fun cleanLabels(issue: Issue) {
         issue.labels().clear()
         for (item in issue.timelineItems().sortedBy { it.createdAt }) {
@@ -34,6 +38,10 @@ class IssueCleaner(
         }
     }
 
+    /**
+     * Clean the ttile on this issue into a consistent state
+     * @param issue issue to work on
+     */
     private suspend fun cleanTitle(issue: Issue) {
         for (item in issue.timelineItems().sortedBy { it.createdAt }) {
             if (item is TitleChangedEvent) {

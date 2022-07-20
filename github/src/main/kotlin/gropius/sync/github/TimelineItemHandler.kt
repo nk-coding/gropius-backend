@@ -26,6 +26,12 @@ class TimelineItemHandler(
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations
 ) {
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueComment(
         issue: IssueInfo, event: IssueCommentTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
@@ -33,6 +39,12 @@ class TimelineItemHandler(
         return Pair(null, event.updatedAt)
     }
 
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueClosed(
         issue: IssueInfo, event: ClosedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
@@ -40,6 +52,12 @@ class TimelineItemHandler(
         return Pair(null, event.createdAt)
     }
 
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueReopen(
         issue: IssueInfo, event: ReopenedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
@@ -47,6 +65,12 @@ class TimelineItemHandler(
         return Pair(null, event.createdAt)
     }
 
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueLabeled(
         issue: IssueInfo, event: LabeledEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
@@ -59,6 +83,12 @@ class TimelineItemHandler(
         return Pair(addedLabelEvent.rawId, event.createdAt)
     }
 
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueUnlabeled(
         issue: IssueInfo, event: UnlabeledEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
@@ -71,6 +101,12 @@ class TimelineItemHandler(
         return Pair(removedLabelEvent.rawId, event.createdAt)
     }
 
+    /**
+     * Save timeline item to database
+     * @param issue Affected issue
+     * @param event raw github timeline item
+     * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
+     */
     private suspend fun handleIssueRenamedTitle(
         issue: IssueInfo, event: RenamedTitleEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {

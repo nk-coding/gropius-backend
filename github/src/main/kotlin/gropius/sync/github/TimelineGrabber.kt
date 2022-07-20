@@ -41,7 +41,12 @@ class TimelineGrabber(
     /**
      * The response of a single step of timeline grabbing
      */
-    class TimelineStepResponse(val content: TimelineReadQuery.Data) : StepResponse<TimelineItemData> {
+    class TimelineStepResponse(
+        /**
+         * The raw github response
+         */
+        val content: TimelineReadQuery.Data
+    ) : StepResponse<TimelineItemData> {
         override val metaData get() = content.metaData()!!
         override val nodes
             get() = content.node!!.asIssue()!!.timelineItems.nodes!!.filterNotNull()

@@ -49,7 +49,11 @@ class IssueGrabber(
     /**
      * The response of a single issue grabbing step
      */
-    class IssueStepResponse(val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {
+    class IssueStepResponse(
+        /**
+         * The raw github response
+         */
+        val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {
         override val metaData get() = content.metaData()!!
         override val nodes get() = content.repository!!.issues.nodes!!.filterNotNull()
         override val totalCount get() = content.repository!!.issues.totalCount

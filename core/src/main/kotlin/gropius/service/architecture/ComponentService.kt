@@ -10,4 +10,4 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ComponentService(repository: ComponentRepository) : TrackableService<Component>(repository)
+class ComponentService(repository: ComponentRepository) : TrackableService<Component, ComponentRepository>(repository)

@@ -67,11 +67,16 @@ internal fun convertArgumentValue(
     val argumentValue = argumentMap[argumentName]
     return when {
         type.isSubtypeOf(OptionalInput::class.starProjectedType) -> {
+            val paramType = type.arguments.first().type!!
             when {
                 !argumentMap.containsKey(argumentName) -> OptionalInput.Undefined
-                argumentValue == null -> OptionalInput.Defined(null)
+                argumentValue == null -> {
+                    if (!paramType.isMarkedNullable) {
+                        throw IllegalArgumentException("Null not allowed, please do not provide at all (undefined)")
+                    }
+                    OptionalInput.Defined(null)
+                }
                 else -> {
-                    val paramType = type.arguments.first().type!!
                     val value = convertValue(paramType, argumentValue)
                     OptionalInput.Defined(value)
                 }

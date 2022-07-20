@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ArtefactTemplateService(repository: ArtefactTemplateRepository) : TemplateService<ArtefactTemplate>(repository)
+class ArtefactTemplateService(repository: ArtefactTemplateRepository) :
+    AbstractTemplateService<ArtefactTemplate, ArtefactTemplateRepository>(repository)

@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class InterfaceSpecificationTemplateService(repository: InterfaceSpecificationTemplateRepository) : TemplateService<InterfaceSpecificationTemplate>(repository)
+class InterfaceSpecificationTemplateService(repository: InterfaceSpecificationTemplateRepository) :
+    AbstractTemplateService<InterfaceSpecificationTemplate, InterfaceSpecificationTemplateRepository>(repository)

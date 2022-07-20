@@ -8,4 +8,5 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  *
  * @param repository the associated repository used for CRUD functionality
  */
-abstract class AuditedNodeService<T : AuditedNode>(repository: ReactiveNeo4jRepository<T, String>) : ExtensibleNodeService<T>(repository)
+abstract class AuditedNodeService<T : AuditedNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
+    AbstractExtensibleNodeService<T, R>(repository)

@@ -11,4 +11,4 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class IMSService(repository: IMSRepository) : NamedNodeService<IMS>(repository)
+class IMSService(repository: IMSRepository) : NamedNodeService<IMS, IMSRepository>(repository)

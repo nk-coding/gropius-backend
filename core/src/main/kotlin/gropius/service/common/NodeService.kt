@@ -1,6 +1,8 @@
 package gropius.service.common
 
 import gropius.authorization.GropiusAuthorizationContext
+import gropius.model.user.GropiusUser
+import gropius.repository.user.GropiusUserRepository
 import io.github.graphglue.authorization.AuthorizationChecker
 import io.github.graphglue.authorization.Permission
 import io.github.graphglue.model.Node
@@ -12,12 +14,17 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  *
  * @param repository the associated repository used for CRUD functionality
  */
-abstract class NodeService<T : Node>(val repository: ReactiveNeo4jRepository<T, String>) {
+abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val repository: R) {
 
     /**
      * Injected, used for the [checkPermission] function
      */
     lateinit var authorizationChecker: AuthorizationChecker
+
+    /**
+     * Injected, used to get a user based on a [GropiusAuthorizationContext]
+     */
+    lateinit var gropiusUserRepository: GropiusUserRepository
 
     /**
      * Checks if the [permission] is granted on [node]
@@ -35,5 +42,15 @@ abstract class NodeService<T : Node>(val repository: ReactiveNeo4jRepository<T, 
         if (checkPermission && !authorizationChecker.hasAuthorization(node, permission!!).awaitSingle()) {
             throw IllegalArgumentException(errorMessage)
         }
+    }
+
+    /**
+     * Gets a [GropiusUser] based on the userId from the [authorizationContext]
+     *
+     * @param authorizationContext used to get the user id, must be a [GropiusAuthorizationContext]
+     * @return the found user
+     */
+    suspend fun getUser(authorizationContext: GropiusAuthorizationContext): GropiusUser {
+        return gropiusUserRepository.findById(authorizationContext.userId).awaitSingle()
     }
 }

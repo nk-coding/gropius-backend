@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class SubTemplateService(repository: SubTemplateRepository) : BaseTemplateService<SubTemplate<*,*,*>>(repository)
+class SubTemplateService(repository: SubTemplateRepository) :
+    BaseTemplateService<SubTemplate<*, *, *>, SubTemplateRepository>(repository)

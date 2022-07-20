@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class InterfaceService(repository: InterfaceRepository) : RelationPartnerService<Interface>(repository)
+class InterfaceService(repository: InterfaceRepository) :
+    RelationPartnerService<Interface, InterfaceRepository>(repository)

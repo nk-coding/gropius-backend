@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ComponentVersionService(repository: ComponentVersionRepository) : RelationPartnerService<ComponentVersion>(repository)
+class ComponentVersionService(repository: ComponentVersionRepository) :
+    RelationPartnerService<ComponentVersion, ComponentVersionRepository>(repository)

@@ -9,10 +9,17 @@ import kotlin.properties.Delegates
  */
 abstract class CreateNamedNodeInput : UpdateExtensibleNodeInput() {
 
-    @GraphQLDescription("The name of the NamedNode, must not be empty")
+    @GraphQLDescription("The name of the NamedNode, must not be blank")
     var name: String by Delegates.notNull()
 
     @GraphQLDescription("The description of the NamedNode")
     var description: String by Delegates.notNull()
+
+    override fun validate() {
+        super.validate()
+        if (name.isBlank()) {
+            throw IllegalStateException("Name must not be blank")
+        }
+    }
 
 }

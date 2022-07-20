@@ -2,6 +2,7 @@ package gropius.dto.input.common
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.OptionalInput
+import gropius.dto.input.ifPresent
 import gropius.model.common.NamedNode
 import kotlin.properties.Delegates
 
@@ -15,5 +16,14 @@ abstract class UpdateNamedNodeInput : UpdateExtensibleNodeInput() {
 
     @GraphQLDescription("The description of the NamedNode")
     var description: OptionalInput<String> by Delegates.notNull()
+
+    override fun validate() {
+        super.validate()
+        name.ifPresent {
+            if (it.isBlank()) {
+                throw IllegalStateException("If name is defined, it must not be blank")
+            }
+        }
+    }
 
 }

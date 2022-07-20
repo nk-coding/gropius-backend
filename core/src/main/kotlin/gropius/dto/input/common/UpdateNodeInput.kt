@@ -8,7 +8,7 @@ import kotlin.properties.Delegates
 /**
  * Fragment for update mutation inputs for classes extending [Node]
  */
-abstract class UpdateNodeInput {
+abstract class UpdateNodeInput : Input() {
 
     @GraphQLDescription("The id of the node to update")
     var id: ID by Delegates.notNull()

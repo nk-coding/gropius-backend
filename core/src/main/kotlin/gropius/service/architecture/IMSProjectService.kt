@@ -2,7 +2,7 @@ package gropius.service.architecture
 
 import gropius.model.architecture.IMSProject
 import gropius.repository.architecture.IMSProjectRepository
-import gropius.service.common.ExtensibleNodeService
+import gropius.service.common.AbstractExtensibleNodeService
 import org.springframework.stereotype.Service
 
 /**
@@ -11,4 +11,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class IMSProjectService(repository: IMSProjectRepository) : ExtensibleNodeService<IMSProject>(repository)
+class IMSProjectService(repository: IMSProjectRepository) :
+    AbstractExtensibleNodeService<IMSProject, IMSProjectRepository>(repository)

@@ -1,0 +1,56 @@
+package gropius.service.common
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import gropius.dto.input.common.CreateExtensibleNodeInput
+import gropius.dto.input.common.JSONFieldInput
+import gropius.dto.input.common.UpdateExtensibleNodeInput
+import gropius.dto.input.orElse
+import gropius.model.common.ExtensibleNode
+import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+
+/**
+ * Base class for services for subclasses of [ExtensibleNode]
+ *
+ * @param repository the associated repository used for CRUD functionality
+ */
+abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
+    NodeService<T, R>(repository) {
+    /**
+     * Injected [ObjectMapper]
+     */
+    lateinit var objectMapper: ObjectMapper
+
+    /**
+     * Updates [node] based on [input]
+     * Sets extension fields
+     *
+     * @param node the node to update
+     * @param input defines how to update the provided [node]
+     */
+    fun updateExtensibleNode(node: ExtensibleNode, input: UpdateExtensibleNodeInput) {
+        updateExtensionFields(node, input.extensionFields.orElse(emptyList()))
+    }
+
+    /**
+     * Updates [node] based on [input]
+     * Should be called after the node was constructed
+     *
+     * @param node the node to update
+     * @param input defines how to update the provided [node]
+     */
+    fun createdExtensibleNode(node: ExtensibleNode, input: CreateExtensibleNodeInput) {
+        updateExtensionFields(node, input.extensionFields.orElse(emptyList()))
+    }
+
+    /**
+     * Updates the extension fields of the provided [node] based on [fields]
+     *
+     * @param node the node to update
+     * @param fields extension fields to set
+     */
+    private fun updateExtensionFields(node: ExtensibleNode, fields: List<JSONFieldInput>) {
+        for (field in fields) {
+            node.extensionFields[field.name] = objectMapper.writeValueAsString(field.value)
+        }
+    }
+}

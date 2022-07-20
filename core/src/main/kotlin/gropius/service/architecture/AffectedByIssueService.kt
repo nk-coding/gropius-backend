@@ -9,4 +9,5 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  *
  * @param repository the associated repository used for CRUD functionality
  */
-abstract class AffectedByIssueService<T : AffectedByIssue>(repository: ReactiveNeo4jRepository<T, String>) : NamedNodeService<T>(repository)
+abstract class AffectedByIssueService<T : AffectedByIssue, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
+    NamedNodeService<T, R>(repository)

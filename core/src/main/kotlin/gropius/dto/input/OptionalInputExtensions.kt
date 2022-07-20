@@ -1,0 +1,27 @@
+package gropius.dto.input
+
+import com.expediagroup.graphql.generator.execution.OptionalInput
+
+/**
+ * Executes [block] with the value if `this is OptionalInput.Defined`
+ *
+ * @param block executed if input is defined
+ */
+inline fun <T> OptionalInput<T>.ifPresent(block: (T) -> Any) {
+    if (this is OptionalInput.Defined) {
+        block(this.value!!)
+    }
+}
+
+/**
+ * If present, returns its value, otherwise [value]
+ *
+ * @param value result in case not present
+ * @return its value if present, otherwise [value]
+ */
+fun <T> OptionalInput<T>.orElse(value: T): T {
+    ifPresent {
+        return it
+    }
+    return value
+}

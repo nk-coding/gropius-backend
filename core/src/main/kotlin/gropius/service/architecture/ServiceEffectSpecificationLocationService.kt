@@ -8,4 +8,6 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  *
  * @param repository the associated repository used for CRUD functionality
  */
-abstract class ServiceEffectSpecificationLocationService<T : ServiceEffectSpecificationLocation>(repository: ReactiveNeo4jRepository<T, String>) : AffectedByIssueService<T>(repository)
+abstract class ServiceEffectSpecificationLocationService<T : ServiceEffectSpecificationLocation, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : AffectedByIssueService<T, R>(repository)

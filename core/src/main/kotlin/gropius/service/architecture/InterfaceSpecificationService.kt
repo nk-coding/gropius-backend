@@ -10,4 +10,5 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class InterfaceSpecificationService(repository: InterfaceSpecificationRepository) : ServiceEffectSpecificationLocationService<InterfaceSpecification>(repository)
+class InterfaceSpecificationService(repository: InterfaceSpecificationRepository) :
+    ServiceEffectSpecificationLocationService<InterfaceSpecification, InterfaceSpecificationRepository>(repository)

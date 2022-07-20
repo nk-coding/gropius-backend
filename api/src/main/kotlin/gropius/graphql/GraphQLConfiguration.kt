@@ -2,14 +2,13 @@ package gropius.graphql
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.generator.extensions.deepName
+import com.expediagroup.graphql.generator.extensions.unwrapType
 import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.scalars.datetime.DateTimeScalar
 import graphql.scalars.regex.RegexScalar
-import graphql.schema.DataFetcherFactory
-import graphql.schema.GraphQLScalarType
-import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
+import graphql.schema.*
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
@@ -20,10 +19,12 @@ import org.springframework.context.annotation.Configuration
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
+import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 
 /**
  * Contains bean necessary for GraphQL configuration
@@ -58,23 +59,10 @@ class GraphQLConfiguration {
      * - [OffsetDateTime] -> DateTime
      * - [URI] -> Url
      * - Duration -> Duration
+     * Handles the automatic generation of payload types for mutations annotated with [AutoPayloadType]
      */
     @Bean
-    fun schemaGeneratorHooks() = object : SchemaGeneratorHooks {
-        override fun willGenerateGraphQLType(type: KType): GraphQLType? {
-            val typeAnnotation = type.findAnnotation<TypeGraphQLType>()
-            return if (typeAnnotation != null) {
-                GraphQLTypeReference.typeRef(typeAnnotation.name)
-            } else {
-                when (type.classifier) {
-                    OffsetDateTime::class -> DateTimeScalar.INSTANCE
-                    URI::class -> URLScalar
-                    Duration::class -> DurationScalar
-                    else -> null
-                }
-            }
-        }
-    }
+    fun schemaGeneratorHooks() = DefaultSchemaGeneratorHooks
 
     /**
      * Filter factory for [OffsetDateTime] properties

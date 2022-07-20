@@ -13,6 +13,11 @@ import java.util.*
  */
 @Configuration
 class MongoConfig {
+
+    /**
+     * Bean providing custom converter
+     * @return resulting converter list
+     */
     @Bean
     fun customConversions(): MongoCustomConversions {
         return MongoCustomConversions(
@@ -23,12 +28,18 @@ class MongoConfig {
         )
     }
 
+    /**
+     * MongoDB write type converter
+     */
     internal class OffsetDateTimeWriteConverter : Converter<OffsetDateTime, Date?> {
         override fun convert(source: OffsetDateTime): Date? {
             return Date.from(source.toInstant().atZone(ZoneOffset.UTC).toInstant())
         }
     }
 
+    /**
+     * MongoDB read type converter
+     */
     internal class OffsetDateTimeReadConverter : Converter<Date, OffsetDateTime?> {
         override fun convert(source: Date): OffsetDateTime? {
             return source.toInstant()?.atOffset(ZoneOffset.UTC)

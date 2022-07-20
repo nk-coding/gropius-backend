@@ -9,7 +9,7 @@ import org.neo4j.cypherdsl.core.Cypher
  *
  * @param userId the id of the authenticated [GropiusUser]
  */
-class GropiusAuthorizationContext(userId: String) : AuthorizationContext {
+class GropiusAuthorizationContext(userId: String, val checkPermission: Boolean = true) : AuthorizationContext {
 
     /**
      * A Cypher DSL parameter with the userId

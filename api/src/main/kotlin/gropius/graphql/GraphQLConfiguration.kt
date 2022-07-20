@@ -2,11 +2,7 @@ package gropius.graphql
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.extensions.deepName
-import com.expediagroup.graphql.generator.extensions.unwrapType
-import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
 import com.fasterxml.jackson.databind.ObjectMapper
-import graphql.scalars.datetime.DateTimeScalar
 import graphql.scalars.regex.RegexScalar
 import graphql.schema.*
 import gropius.model.user.GropiusUser
@@ -19,12 +15,8 @@ import org.springframework.context.annotation.Configuration
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
-import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
-import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.hasAnnotation
 
 /**
  * Contains bean necessary for GraphQL configuration
@@ -122,7 +114,7 @@ class GraphQLConfiguration {
     fun kotlinDataFetcherFactory(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
         object : SimpleKotlinDataFetcherFactoryProvider() {
             override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
-                JSONAwareFunctionDataFetcher(target, kFunction, applicationContext)
+                GropiusFunctionDataFetcher(target, kFunction, applicationContext)
             }
         }
 

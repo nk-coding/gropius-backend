@@ -15,6 +15,7 @@ abstract class Grabber<T : Any> {
 
     /**
      * The response of a single step
+     * @param T type of the resulting grabbed item (same as in Grabber)
      */
     protected interface StepResponse<T : Any> {
         /**

@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import org.springframework.stereotype.Component
 
 @Configuration
-class ApplicationFisch(
+class SyncApplication(
     val incoming: Incoming
 ) {
     @EventListener(ApplicationReadyEvent::class)

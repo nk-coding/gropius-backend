@@ -10,7 +10,7 @@ spring:
       port: 27017
       database: "gropius"
       username: "root"
-      password: "pizzafisch"
+      password: "root"
       "authentication-database": admin
       "auto-index-creation": true
 logging:

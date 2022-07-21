@@ -2,16 +2,20 @@ package gropius.graphql
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
+import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.scalars.regex.RegexScalar
 import graphql.schema.*
+import gropius.authorization.GropiusAuthorizationContext
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
+import io.github.graphglue.authorization.AuthorizationContext
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.web.reactive.function.server.ServerRequest
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -24,6 +28,23 @@ import kotlin.reflect.full.createType
  */
 @Configuration
 class GraphQLConfiguration {
+
+    /**
+     * Generates the GraphQL context map
+     * TODO: use authentication as soon as available
+     * 
+     * @return the generated context factory
+     */
+    @Bean
+    fun contextFactory() = object : DefaultSpringGraphQLContextFactory() {
+        override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
+            //TODO use authentication as soon as available
+            val userId = request.headers().firstHeader("Authorization")!!
+            return super.generateContextMap(request) + (AuthorizationContext::class to GropiusAuthorizationContext(
+                userId
+            ))
+        }
+    }
 
     /**
      * JSON scalar which can be used by annotating a function / property with `@GraphQLType("JSON")`

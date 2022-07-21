@@ -33,12 +33,7 @@ class TemplateService(repository: TemplateRepository) :
     ): Template<*, *> {
         input.validate()
         val template = repository.findById(input.id)
-        val user = getUser(authorizationContext)
-        checkPermission(
-            user,
-            Permission(GlobalPermission.CAN_CREATE_TEMPLATES, authorizationContext),
-            "User does not have permission to update Templates"
-        )
+        checkCreateTemplatePermission(authorizationContext)
         template.isDeprecated = input.isDeprecated
         return repository.save(template).awaitSingle()
     }

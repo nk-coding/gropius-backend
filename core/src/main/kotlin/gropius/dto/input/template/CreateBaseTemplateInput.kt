@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.JsonValidator
 import com.networknt.schema.SpecVersionDetector
+import gropius.dto.input.common.CreateNamedNodeInput
 import gropius.dto.input.common.JSONFieldInput
 import gropius.dto.input.common.UpdateNamedNodeInput
 import gropius.dto.input.common.ensureNoDuplicates
@@ -16,7 +17,7 @@ import kotlin.properties.Delegates
 /**
  * Fragment for create mutation inputs for classes extending [BaseTemplate]
  */
-abstract class CreateBaseTemplateInput : UpdateNamedNodeInput() {
+abstract class CreateBaseTemplateInput : CreateNamedNodeInput() {
 
     @GraphQLDescription("The initial value of the templateFieldSpecifications, should be a JSON schema JSON")
     var templateFieldSpecifications: OptionalInput<List<JSONFieldInput>> by Delegates.notNull()

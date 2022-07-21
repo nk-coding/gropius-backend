@@ -1,9 +1,12 @@
 package gropius.service.template
 
+import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.ifPresent
 import gropius.dto.input.template.CreateBaseTemplateInput
 import gropius.model.template.BaseTemplate
+import gropius.model.user.permission.GlobalPermission
 import gropius.service.common.NamedNodeService
+import io.github.graphglue.authorization.Permission
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 
 /**
@@ -21,11 +24,26 @@ abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepo
      * @param template the [BaseTemplate] to update
      * @param input specifies added templateFieldSpecifications
      */
-    suspend fun createdBaseTemplate(template: T, input: CreateBaseTemplateInput) {
+    fun createdBaseTemplate(template: T, input: CreateBaseTemplateInput) {
         input.extensionFields.ifPresent {
             for (field in it) {
                 template.templateFieldSpecifications[field.name] = objectMapper.writeValueAsString(field.value)
             }
         }
+    }
+
+    /**
+     * Checks for CAN_CREATE_TEMPLATE permission on the user provided via [authorizationContext]
+     *
+     * @param authorizationContext used to get the user to check for CAN_CREATE_TEMPLATE
+     * @throws IllegalArgumentException if the permission is not granted
+     */
+    suspend fun checkCreateTemplatePermission(authorizationContext: GropiusAuthorizationContext) {
+        val user = getUser(authorizationContext)
+        checkPermission(
+            user,
+            Permission(GlobalPermission.CAN_CREATE_TEMPLATES, authorizationContext),
+            "User does not have permission to create/update Templates"
+        )
     }
 }

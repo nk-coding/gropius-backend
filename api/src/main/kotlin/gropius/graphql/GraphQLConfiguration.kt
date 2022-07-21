@@ -9,12 +9,17 @@ import graphql.schema.*
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
+import gropius.repository.user.GropiusUserRepository
 import io.github.graphglue.authorization.AuthorizationContext
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
+import kotlinx.coroutines.reactor.awaitSingle
+import org.neo4j.driver.Driver
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
+import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
 import org.springframework.web.reactive.function.server.ServerRequest
 import java.net.URI
 import java.time.Duration
@@ -32,18 +37,37 @@ class GraphQLConfiguration {
     /**
      * Generates the GraphQL context map
      * TODO: use authentication as soon as available
-     * 
+     *
+     * @param gropiusUserRepository used to get the user
      * @return the generated context factory
      */
     @Bean
-    fun contextFactory() = object : DefaultSpringGraphQLContextFactory() {
+    fun contextFactory(gropiusUserRepository: GropiusUserRepository) = object : DefaultSpringGraphQLContextFactory() {
         override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
             //TODO use authentication as soon as available
-            val userId = request.headers().firstHeader("Authorization")!!
-            return super.generateContextMap(request) + (AuthorizationContext::class to GropiusAuthorizationContext(
-                userId
-            ))
+            val userId = request.headers().firstHeader("Authorization")
+            val additionalContextEntries = if (userId == null) {
+                emptyMap()
+            } else {
+                val user = gropiusUserRepository.findById(userId).awaitSingle()
+                mapOf(AuthorizationContext::class to GropiusAuthorizationContext(userId, !user.isAdmin))
+            }
+            return super.generateContextMap(request) + additionalContextEntries
         }
+    }
+
+    /**
+     * Necessary transaction manager
+     *
+     * @param driver used Neo4j driver
+     * @param databaseNameProvider Neo4j database provider
+     * @return the generated transaction manager
+     */
+    @Bean
+    fun reactiveTransactionManager(
+        driver: Driver, databaseNameProvider: ReactiveDatabaseSelectionProvider
+    ): ReactiveNeo4jTransactionManager {
+        return ReactiveNeo4jTransactionManager(driver, databaseNameProvider)
     }
 
     /**

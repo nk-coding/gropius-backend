@@ -6,6 +6,7 @@ import gropius.dto.input.common.JSONFieldInput
 import gropius.dto.input.common.UpdateExtensibleNodeInput
 import gropius.dto.input.orElse
 import gropius.model.common.ExtensibleNode
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 
 /**
@@ -20,6 +21,7 @@ abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo
     /**
      * Injected [ObjectMapper]
      */
+    @Autowired
     lateinit var objectMapper: ObjectMapper
 
     /**

@@ -7,6 +7,7 @@ import io.github.graphglue.authorization.AuthorizationChecker
 import io.github.graphglue.authorization.Permission
 import io.github.graphglue.model.Node
 import kotlinx.coroutines.reactor.awaitSingle
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 
 /**
@@ -21,11 +22,13 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
     /**
      * Injected, used for the [checkPermission] function
      */
+    @Autowired
     lateinit var authorizationChecker: AuthorizationChecker
 
     /**
      * Injected, used to get a user based on a [GropiusAuthorizationContext]
      */
+    @Autowired
     lateinit var gropiusUserRepository: GropiusUserRepository
 
     /**

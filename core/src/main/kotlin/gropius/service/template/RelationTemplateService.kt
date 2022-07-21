@@ -41,8 +41,8 @@ class RelationTemplateService(
         checkCreateTemplatePermission(authorizationContext)
         val template = RelationTemplate(input.name, input.description, mutableMapOf(), false)
         createdTemplate(template, input)
-        template.relationConditions() += input.relationConditions.map { input ->
-            createRelationCondition(input)
+        template.relationConditions() += input.relationConditions.map {
+            createRelationCondition(it)
         }
         return repository.save(template).awaitSingle()
     }

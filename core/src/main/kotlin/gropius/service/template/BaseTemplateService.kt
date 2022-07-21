@@ -27,7 +27,7 @@ abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepo
      * @param input specifies added templateFieldSpecifications
      */
     fun createdBaseTemplate(template: T, input: CreateBaseTemplateInput) {
-        input.extensionFields.ifPresent {
+        input.templateFieldSpecifications.ifPresent {
             for (field in it) {
                 template.templateFieldSpecifications[field.name] = objectMapper.writeValueAsString(field.value)
             }

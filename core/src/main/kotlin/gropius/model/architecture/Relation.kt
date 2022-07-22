@@ -37,7 +37,7 @@ class Relation(
     @GraphQLDescription("The Template of this Relation.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<RelationTemplate>()
+    override val template by NodeProperty<RelationTemplate>()
 
     @NodeRelationship(RelationPartner.INCOMING_RELATION, Direction.INCOMING)
     @GraphQLDescription("The end of this Relation.")

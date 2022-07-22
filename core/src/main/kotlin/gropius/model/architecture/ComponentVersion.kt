@@ -42,7 +42,7 @@ class ComponentVersion(
     @GraphQLDescription("The Template of this ComponentVersion")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<ComponentVersionTemplate>()
+    override val template by NodeProperty<ComponentVersionTemplate>()
 
     @NodeRelationship(Component.VERSION, Direction.INCOMING)
     @GraphQLDescription("The Component which defines this ComponentVersions")

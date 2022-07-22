@@ -51,7 +51,7 @@ class Component(
     @GraphQLDescription("The Template of this Component.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<ComponentTemplate>()
+    override val template by NodeProperty<ComponentTemplate>()
 
     @NodeRelationship(InterfaceSpecification.COMPONENT, Direction.INCOMING)
     @GraphQLDescription(

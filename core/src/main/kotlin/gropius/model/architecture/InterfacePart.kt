@@ -37,7 +37,7 @@ class InterfacePart(
     @GraphQLDescription("The Template of this InterfacePart")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfacePartTemplate>()
+    override val template by NodeProperty<InterfacePartTemplate>()
 
     @NodeRelationship(Relation.START_PART, Direction.INCOMING)
     @GraphQLDescription("Relations which include this InterfacePart at the start of the Relation")

@@ -19,7 +19,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
     NodeService<T, R>(repository) {
     /**
-     * Injected [ObjectMapper]
+     * Injected [ObjectMapper], used to parse [JSONFieldInput]
      */
     @Autowired
     lateinit var objectMapper: ObjectMapper

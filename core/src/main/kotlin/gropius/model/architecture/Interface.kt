@@ -36,7 +36,7 @@ class Interface(
     @GraphQLDescription("The Template of this Interface.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfaceTemplate>()
+    override val template by NodeProperty<InterfaceTemplate>()
 
     @NodeRelationship(COMPONENT, Direction.OUTGOING)
     @GraphQLDescription("The ComponentVersion this Interface is part of.")

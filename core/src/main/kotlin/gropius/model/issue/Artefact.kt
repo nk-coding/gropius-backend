@@ -56,7 +56,7 @@ class Artefact(
     @GraphQLDescription("The Template of this Artefact.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<ArtefactTemplate>()
+    override val template by NodeProperty<ArtefactTemplate>()
 
     @NodeRelationship(Trackable.ARTEFACT, Direction.INCOMING)
     @GraphQLDescription("The Trackable this Artefact is part of.")

@@ -45,7 +45,7 @@ class InterfaceSpecificationVersion(
     @GraphQLDescription("The Template of this InterfaceSpecificationVersion")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfaceSpecificationVersionTemplate>()
+    override val template by NodeProperty<InterfaceSpecificationVersionTemplate>()
 
     @NodeRelationship(ACTIVE_PART, Direction.OUTGOING)
     @GraphQLDescription(

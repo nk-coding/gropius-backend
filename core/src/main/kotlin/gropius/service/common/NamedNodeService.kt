@@ -1,5 +1,7 @@
 package gropius.service.common
 
+import gropius.dto.input.common.UpdateNamedNodeInput
+import gropius.dto.input.ifPresent
 import gropius.model.common.NamedNode
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 
@@ -11,4 +13,24 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param R Repository type associated with [T]
  */
 abstract class NamedNodeService<T : NamedNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    AbstractExtensibleNodeService<T, R>(repository)
+    AbstractExtensibleNodeService<T, R>(repository) {
+
+    /**
+     * Updates [node] based on [input]
+     * Calls [updateExtensibleNode]
+     * Updates name and description
+     *
+     * @param node the node to update
+     * @param input defines how to update the provided [node]
+     */
+    fun updateNamedNode(node: NamedNode, input: UpdateNamedNodeInput) {
+       updateExtensibleNode(node, input)
+        input.name.ifPresent {
+            node.name = it
+        }
+        input.description.ifPresent {
+            node.description = it
+        }
+    }
+
+}

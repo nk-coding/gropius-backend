@@ -7,7 +7,7 @@ import com.expediagroup.graphql.generator.execution.OptionalInput
  *
  * @param block executed if input is defined
  */
-inline fun <T> OptionalInput<T>.ifPresent(block: (T) -> Any) {
+inline fun <T> OptionalInput<T>.ifPresent(block: (T) -> Unit) {
     if (this is OptionalInput.Defined) {
         block(this.value!!)
     }

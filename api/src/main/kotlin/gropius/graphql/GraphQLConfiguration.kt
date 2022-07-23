@@ -9,8 +9,10 @@ import graphql.schema.*
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
+import gropius.model.user.permission.NodePermission
 import gropius.repository.user.GropiusUserRepository
 import io.github.graphglue.authorization.AuthorizationContext
+import io.github.graphglue.authorization.Permission
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
 import kotlinx.coroutines.reactor.awaitSingle
@@ -50,7 +52,13 @@ class GraphQLConfiguration {
                 emptyMap()
             } else {
                 val user = gropiusUserRepository.findById(userId).awaitSingle()
-                mapOf(AuthorizationContext::class to GropiusAuthorizationContext(userId, !user.isAdmin))
+                val context = GropiusAuthorizationContext(userId, !user.isAdmin)
+                if (user.isAdmin) {
+                    mapOf(AuthorizationContext::class to context)
+                } else {
+                    mapOf(Permission::class to Permission(NodePermission.READ, context))
+                }
+
             }
             return super.generateContextMap(request) + additionalContextEntries
         }

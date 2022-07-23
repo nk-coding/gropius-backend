@@ -5,7 +5,7 @@ import gropius.repository.template.SubTemplateRepository
 import org.springframework.stereotype.Service
 
 /**
- * Service [SubTemplate]s. Provides functions to create, update and delete
+ * Service for [SubTemplate]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  */

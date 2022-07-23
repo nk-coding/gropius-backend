@@ -85,6 +85,10 @@ class PermissionConfiguration {
             TrackablePermission.EXPORT_ISSUES, """
                 Allows adding Issues on this Trackable to other Trackables.
             """.trimIndent()
+        ), PermissionEntry(
+            TrackablePermission.EXPORT_LABELS, """
+                Allows adding Labels on this Trackable to other Trackables.
+            """.trimIndent()
         )
     )
 

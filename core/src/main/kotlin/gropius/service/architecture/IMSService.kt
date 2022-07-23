@@ -6,7 +6,7 @@ import gropius.service.common.NamedNodeService
 import org.springframework.stereotype.Service
 
 /**
- * Service [IMS]s. Provides functions to create, update and delete
+ * Service for [IMS]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  */

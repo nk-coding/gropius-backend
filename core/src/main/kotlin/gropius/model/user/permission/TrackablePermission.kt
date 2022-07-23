@@ -87,6 +87,11 @@ abstract class TrackablePermission<T : Trackable>(
          * Permission to check if the user can add [Issue]s on the [Trackable] to other [Trackable]s
          */
         const val EXPORT_ISSUES = "EXPORT_ISSUES"
+
+        /**
+         * Permission to check if the user can add [Label]s on the [Trackable] to other [Trackable]s
+         */
+        const val EXPORT_LABELS = "EXPORT_LABELS"
     }
 
 }

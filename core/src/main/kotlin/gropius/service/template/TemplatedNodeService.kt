@@ -14,7 +14,7 @@ import gropius.model.template.TemplatedNode
 import org.springframework.stereotype.Service
 
 /**
- * Service [TemplatedNode]s. Provides functions to create, update and delete
+ * Service for [TemplatedNode]s. Provides functions to create, update and delete
  *
  * @param objectMapper injected [ObjectMapper], used to parse [JSONFieldInput]
  */

@@ -5,7 +5,7 @@ import gropius.repository.architecture.InterfacePartRepository
 import org.springframework.stereotype.Service
 
 /**
- * Service [InterfacePart]s. Provides functions to create, update and delete
+ * Service for [InterfacePart]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  */

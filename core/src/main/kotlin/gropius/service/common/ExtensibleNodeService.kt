@@ -11,7 +11,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 /**
- * Service [ExtensibleNode]s. Provides functions to update
+ * Service for [ExtensibleNode]s. Provides functions to update
  *
  * @param repository the associated repository used for CRUD functionality
  */

@@ -11,7 +11,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 /**
- * Service [Template]s. Provides function to update the deprecation status
+ * Service for [Template]s. Provides function to update the deprecation status
  *
  * @param repository the associated repository used for CRUD functionality
  */

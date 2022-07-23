@@ -14,7 +14,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 /**
- * Service [InterfaceSpecificationTemplate]s. Provides functions to create, update and delete
+ * Service for [InterfaceSpecificationTemplate]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  * @param componentTemplateRepository used to get [ComponentTemplate]s

@@ -8,7 +8,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 /**
- * Service [ArtefactTemplate]s. Provides functions to create, update and delete
+ * Service for [ArtefactTemplate]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  */

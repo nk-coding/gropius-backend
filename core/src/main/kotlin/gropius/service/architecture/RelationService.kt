@@ -6,7 +6,7 @@ import gropius.service.common.AbstractExtensibleNodeService
 import org.springframework.stereotype.Service
 
 /**
- * Service [Relation]s. Provides functions to create, update and delete
+ * Service for [Relation]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
  */

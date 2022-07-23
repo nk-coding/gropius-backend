@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 class TemplateMutations() : Mutation {
 
     @GraphQLDescription("Updates the deprecation state of the template, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The updated Template")
     suspend fun updateTemplateDeprecationStatus(
         @GraphQLDescription("Defines the new deprecation status and the Template to update")
         input: UpdateTemplateDeprecationStatusInput,
@@ -29,7 +29,7 @@ class TemplateMutations() : Mutation {
     }
 
     @GraphQLDescription("Creates a new ArtefactTemplate, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The created ArtefactTemplate")
     suspend fun createArtefactTemplate(
         @GraphQLDescription("Defines the created ArtefactTemplate")
         input: CreateArtefactTemplateInput,
@@ -42,7 +42,7 @@ class TemplateMutations() : Mutation {
     }
 
     @GraphQLDescription("Creates a new ComponentTemplate, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The created ComponentTemplate")
     suspend fun createComponentTemplate(
         @GraphQLDescription("Defines the created ComponentTemplate")
         input: CreateComponentTemplateInput,
@@ -55,7 +55,7 @@ class TemplateMutations() : Mutation {
     }
 
     @GraphQLDescription("Creates a new InterfaceSpecificationTemplate, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The created InterfaceTemplate")
     suspend fun createInterfaceSpecificationTemplate(
         @GraphQLDescription("Defines the created InterfaceSpecificationTemplate")
         input: CreateInterfaceSpecificationTemplateInput,
@@ -68,7 +68,7 @@ class TemplateMutations() : Mutation {
     }
 
     @GraphQLDescription("Creates a new IssueTemplate, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The created IssueTemplate")
     suspend fun createIssueTemplate(
         @GraphQLDescription("Defines the created IssueTemplate")
         input: CreateIssueTemplateInput,
@@ -81,7 +81,7 @@ class TemplateMutations() : Mutation {
     }
 
     @GraphQLDescription("Creates a new RelationTemplate, requires CAN_CREATE_TEMPLATES")
-    @AutoPayloadType
+    @AutoPayloadType("The created RelationTemplate")
     suspend fun createRelationTemplate(
         @GraphQLDescription("Defines the created RelationTemplate")
         input: CreateRelationTemplateInput,

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 class CommonMutations : Mutation {
 
     @GraphQLDescription("Updates extensionFields of the specified ExtensibleNode. Requires READ")
-    @AutoPayloadType
+    @AutoPayloadType("The updated ExtensibleNode")
     suspend fun updateExtensionFields(
         @GraphQLDescription("Defines the ExtensibleNode to update and changed extensionFields")
         input: UpdateExtensionFieldsInput,

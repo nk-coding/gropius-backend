@@ -47,11 +47,12 @@ object DefaultSchemaGeneratorHooks : SchemaGeneratorHooks {
         kClass: KClass<*>, function: KFunction<*>, fieldDefinition: GraphQLFieldDefinition
     ): GraphQLFieldDefinition {
         return if (function.hasAnnotation<AutoPayloadType>()) {
-            val fieldName = fieldDefinition.type.unwrapType().deepName.replaceFirstChar(Char::lowercase)
+            val fieldName = fieldDefinition.type.asFieldName
+            val description = function.findAnnotation<AutoPayloadType>()!!.description
             val payloadType =
                 GraphQLObjectType.newObject().name(fieldDefinition.name.replaceFirstChar(Char::titlecase) + "Payload")
                     .field {
-                        it.name(fieldName).description("The result of the mutation").type(fieldDefinition.type)
+                        it.name(fieldName).description(description).type(fieldDefinition.type)
                     }.build()
             codeRegistry.dataFetcher(
                 FieldCoordinates.coordinates(payloadType, fieldName),
@@ -61,6 +62,19 @@ object DefaultSchemaGeneratorHooks : SchemaGeneratorHooks {
             super.didGenerateMutationField(kClass, function, fieldDefinition)
         }
     }
+
+    /**
+     * Transforms the name of the type to a field name
+     * Maps all starting titlecase letters to lowercase
+     */
+    private val GraphQLOutputType.asFieldName: String
+        get() {
+            val unwrappedName = unwrapType().deepName
+            val pattern = "^[A-Z]+".toRegex()
+            return pattern.replace(unwrappedName) {
+                it.value.map(Char::lowercase).joinToString("")
+            }
+        }
 
     override fun willBuildSchema(builder: GraphQLSchema.Builder): GraphQLSchema.Builder {
         val oldCodeRegistry = builder.build().codeRegistry

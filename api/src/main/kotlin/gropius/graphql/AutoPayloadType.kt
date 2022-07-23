@@ -6,4 +6,4 @@ package gropius.graphql
  */
 @MustBeDocumented
 @Target(AnnotationTarget.FUNCTION)
-annotation class AutoPayloadType
+annotation class AutoPayloadType(val description: String)

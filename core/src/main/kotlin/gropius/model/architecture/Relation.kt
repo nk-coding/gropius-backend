@@ -64,4 +64,16 @@ class Relation(
     @FilterProperty
     @delegate:Transient
     val endParts by NodeSetProperty<InterfacePart>()
+
+    @NodeRelationship(InterfaceDefinition.VISIBLE_DERIVED_BY, Direction.INCOMING)
+    @GraphQLDescription("InterfaceDefinition this Relation derives visible")
+    @FilterProperty
+    @delegate:Transient
+    val derivesVisible by NodeSetProperty<InterfaceDefinition>()
+
+    @NodeRelationship(InterfaceDefinition.INVISIBLE_DERIVED_BY, Direction.INCOMING)
+    @GraphQLDescription("InterfaceDefinition this Relation derives invisible")
+    @FilterProperty
+    @delegate:Transient
+    val derivesInvisible by NodeSetProperty<InterfaceDefinition>()
 }

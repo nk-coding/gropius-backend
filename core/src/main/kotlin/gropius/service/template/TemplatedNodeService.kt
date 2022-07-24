@@ -7,6 +7,7 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersionDetector
 import gropius.dto.input.common.JSONFieldInput
 import gropius.dto.input.ifPresent
+import gropius.dto.input.orElse
 import gropius.dto.input.template.CreateTemplatedNodeInput
 import gropius.dto.input.template.UpdateTemplatedNodeInput
 import gropius.model.template.BaseTemplate
@@ -24,19 +25,55 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
     /**
      * Updates the [TemplatedNode.templatedFields] of a [TemplatedNode] based on the [input]
      * Does not check authorization permissions, and does not save the provided [node] afterwards
-     * Validates the new value of the fiels
+     * Validates the new value of the fields
+     * If [templateWasUpdated], validates all fields. Requires that the new template is already set
      *
      * @param node the node to update the templated fields of
      * @param input defines how to update the templated fields
-     * @throws IllegalArgumentException if the new value for a templated field is invalid
+     * @param templateWasUpdated if true, no longer existing templatedFields are removed, and all existing fields
+     *                           are validated
+     * @throws IllegalArgumentException if the new/old value for a templated field is invalid
      */
-    suspend fun updateTemplatedFields(node: TemplatedNode, input: UpdateTemplatedNodeInput) {
-        input.templatedFields.ifPresent {fields ->
+    suspend fun updateTemplatedFields(
+        node: TemplatedNode,
+        input: UpdateTemplatedNodeInput,
+        templateWasUpdated: Boolean
+    ) {
+        input.templatedFields.ifPresent { fields ->
             val template = node.template().value
             ensureTemplatedFieldsExist(template, fields.map { it.name })
             for (field in fields) {
                 validateField(field.value as JsonNode, template.templateFieldSpecifications[field.name]!!, field.name)
                 node.templatedFields[field.name] = objectMapper.writeValueAsString(field.value)
+            }
+        }
+        if (templateWasUpdated) {
+            validateTemplatedFieldsAfterTemplateUpdate(node, input)
+        }
+
+    }
+
+    /**
+     * After the template of [node] was updated, validate all fields and remove fields which are no longer necessary
+     *
+     * @param node the node of which to validate the fields
+     * @param input defines how to update the templated fields, used to find fields which are already validated
+     * @throws IllegalArgumentException if the old value for a templated field is invalid
+     */
+    private suspend fun validateTemplatedFieldsAfterTemplateUpdate(
+        node: TemplatedNode,
+        input: UpdateTemplatedNodeInput
+    ) {
+        val template = node.template().value
+        val changedFields = input.templatedFields.orElse(emptyList()).map { it.name }
+        val fieldsToRemove = mutableListOf<String>()
+        for ((name, value) in node.templatedFields) {
+            if (name in changedFields) {
+                continue
+            } else if (name !in template.templateFieldSpecifications) {
+                fieldsToRemove += name
+            } else {
+                validateField(objectMapper.readTree(value), template.templateFieldSpecifications[name]!!, name)
             }
         }
     }

@@ -64,7 +64,8 @@ class RelationTemplateService(
                 it.inheritsInvisibleSelfDefined,
                 it.inheritsVisibleDerived,
                 it.inheritsInvisibleDerived,
-                it.isVisibleInherited
+                it.isVisibleInherited,
+                it.isInvisibleInherited
             )
         }
         relationCondition.from() += relationPartnerTemplateRepository.findAllById(input.from)

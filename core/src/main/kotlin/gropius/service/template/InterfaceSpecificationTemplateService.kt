@@ -5,7 +5,6 @@ import gropius.dto.input.template.CreateInterfaceSpecificationTemplateInput
 import gropius.model.template.InterfacePartTemplate
 import gropius.model.template.InterfaceSpecificationTemplate
 import gropius.model.template.InterfaceSpecificationVersionTemplate
-import gropius.model.template.InterfaceTemplate
 import gropius.model.template.ComponentTemplate
 import gropius.repository.findAllById
 import gropius.repository.template.ComponentTemplateRepository
@@ -45,7 +44,6 @@ class InterfaceSpecificationTemplateService(
         template.canBeInvisibleOnComponents() += template.extends().flatMap { it.canBeInvisibleOnComponents() }
         template.interfaceSpecificationVersionTemplate().value =
             createSubTemplate(::InterfaceSpecificationVersionTemplate, input.interfaceSpecificationVersionTemplate)
-        template.interfaceTemplate().value = createSubTemplate(::InterfaceTemplate, input.interfaceTemplate)
         template.interfacePartTemplate().value = createSubTemplate(::InterfacePartTemplate, input.interfacePartTemplate)
         return repository.save(template).awaitSingle()
     }

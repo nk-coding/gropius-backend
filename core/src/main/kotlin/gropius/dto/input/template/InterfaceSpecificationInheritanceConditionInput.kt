@@ -2,6 +2,7 @@ package gropius.dto.input.template
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.dto.input.common.CreateExtensibleNodeInput
+import io.github.graphglue.model.FilterProperty
 
 @GraphQLDescription("Input to create a InterfaceSpecificationInheritanceCondition")
 class InterfaceSpecificationInheritanceConditionInput(
@@ -13,10 +14,8 @@ class InterfaceSpecificationInheritanceConditionInput(
     val inheritsVisibleDerived: Boolean,
     @GraphQLDescription("If true, invisible derived InterfaceSpecifications are inherited")
     val inheritsInvisibleDerived: Boolean,
-    @GraphQLDescription(
-        """If true, inherited InterfaceSpecifications are visible
-         on the end of the Relation, otherwise invisible
-        """
-    )
-    val isVisibleInherited: Boolean
+    @GraphQLDescription("If true InterfaceSpecifications are visible inherited")
+    val isVisibleInherited: Boolean,
+    @GraphQLDescription("If true InterfaceSpecifications are invisible inherited")
+    val isInvisibleInherited: Boolean
 ) : CreateExtensibleNodeInput()

@@ -27,13 +27,12 @@ class InterfaceSpecificationInheritanceCondition(
     @property:GraphQLDescription("If true, invisible derived InterfaceSpecifications are inherited")
     @FilterProperty
     val inheritsInvisibleDerived: Boolean,
-    @property:GraphQLDescription(
-        """If true, inherited InterfaceSpecifications are visible
-         on the end of the Relation, otherwise invisible
-        """
-    )
+    @property:GraphQLDescription("If true InterfaceSpecifications are visible inherited")
     @FilterProperty
-    val isVisibleInherited: Boolean
+    val isVisibleInherited: Boolean,
+    @property:GraphQLDescription("If true InterfaceSpecifications are invisible inherited")
+    @FilterProperty
+    val isInvisibleInherited: Boolean
 ) : ExtensibleNode() {
 
     companion object {

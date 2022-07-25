@@ -2,10 +2,7 @@ package gropius.service.template
 
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.template.CreateInterfaceSpecificationTemplateInput
-import gropius.model.template.InterfacePartTemplate
-import gropius.model.template.InterfaceSpecificationTemplate
-import gropius.model.template.InterfaceSpecificationVersionTemplate
-import gropius.model.template.ComponentTemplate
+import gropius.model.template.*
 import gropius.repository.findAllById
 import gropius.repository.template.ComponentTemplateRepository
 import gropius.repository.template.InterfaceSpecificationTemplateRepository
@@ -45,6 +42,9 @@ class InterfaceSpecificationTemplateService(
         template.interfaceSpecificationVersionTemplate().value =
             createSubTemplate(::InterfaceSpecificationVersionTemplate, input.interfaceSpecificationVersionTemplate)
         template.interfacePartTemplate().value = createSubTemplate(::InterfacePartTemplate, input.interfacePartTemplate)
+        template.interfaceTemplate().value = createSubTemplate(::InterfaceTemplate, input.interfaceTemplate)
+        template.interfaceDefinitionTemplate().value =
+            createSubTemplate(::InterfaceDefinitionTemplate, input.interfaceDefinitionTemplate)
         return repository.save(template).awaitSingle()
     }
 

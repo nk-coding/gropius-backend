@@ -4,6 +4,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.execution.OptionalInput
 import com.expediagroup.graphql.generator.scalars.ID
 import gropius.dto.input.common.JSONFieldInput
+import gropius.dto.input.common.ensureNoDuplicates
+import gropius.dto.input.ifPresent
 import gropius.dto.input.template.UpdateTemplatedNodeInput
 
 @GraphQLDescription("Input for the update")
@@ -25,4 +27,15 @@ class UpdateComponentInput(
         """
     )
     val componentVersionTemplatedFields: OptionalInput<List<JSONFieldInput>>
-) : UpdateTrackableInput(), UpdateTemplatedNodeInput
+) : UpdateTrackableInput(), UpdateTemplatedNodeInput {
+
+    override fun validate() {
+        super.validate()
+        templatedFields.ifPresent {
+            it.ensureNoDuplicates()
+        }
+        componentVersionTemplatedFields.ifPresent {
+            it.ensureNoDuplicates()
+        }
+    }
+}

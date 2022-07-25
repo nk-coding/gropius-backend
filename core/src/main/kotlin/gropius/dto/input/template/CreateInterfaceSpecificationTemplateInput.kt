@@ -12,5 +12,19 @@ class CreateInterfaceSpecificationTemplateInput(
     @GraphQLDescription("SubTemplate for all InterfaceSpecificationVersions of a InterfaceSpecification with the created Template")
     val interfaceSpecificationVersionTemplate: SubTemplateInput,
     @GraphQLDescription("SubTemplate for all InterfaceParts of a InterfaceSpecification with the created Template")
-    val interfacePartTemplate: SubTemplateInput
-) : CreateTemplateInput()
+    val interfacePartTemplate: SubTemplateInput,
+    @GraphQLDescription("SubTemplate for all Interfaces of a InterfaceSpecification with the created Template")
+    val interfaceTemplate: NullableSubTemplateInput,
+    @GraphQLDescription("SubTemplate for all InterfacesDefinitions of a InterfaceSpecification with the created Template")
+    val interfaceDefinitionTemplate: NullableSubTemplateInput
+) : CreateTemplateInput() {
+
+    override fun validate() {
+        super.validate()
+        interfaceSpecificationVersionTemplate.validate()
+        interfacePartTemplate.validate()
+        interfaceTemplate.validate()
+        interfaceDefinitionTemplate.validate()
+    }
+
+}

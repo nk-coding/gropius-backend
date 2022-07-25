@@ -6,4 +6,10 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 class CreateComponentTemplateInput(
     @GraphQLDescription("SubTemplate for all ComponentVersions of a Component with the created Template")
     val componentVersionTemplate: SubTemplateInput
-) : CreateTemplateInput()
+) : CreateTemplateInput() {
+
+    override fun validate() {
+        super.validate()
+        componentVersionTemplate.validate()
+    }
+}

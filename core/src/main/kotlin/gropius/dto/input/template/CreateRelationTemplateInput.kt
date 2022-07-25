@@ -6,4 +6,10 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 class CreateRelationTemplateInput(
     @GraphQLDescription("Defines which Relations can use the created Template, at least one RelationCondition has to match")
     val relationConditions: List<RelationConditionInput>
-) : CreateTemplateInput()
+) : CreateTemplateInput() {
+
+    override fun validate() {
+        super.validate()
+        relationConditions.forEach { it.validate() }
+    }
+}

@@ -1,11 +1,16 @@
 package gropius.service.architecture
 
+import gropius.authorization.GropiusAuthorizationContext
+import gropius.dto.input.architecture.CreateTrackableInput
 import gropius.dto.input.architecture.UpdateTrackableInput
 import gropius.dto.input.ifPresent
 import gropius.model.architecture.Trackable
+import gropius.model.user.permission.TrackablePermission
+import gropius.repository.findAllById
 import gropius.repository.issue.ArtefactRepository
 import gropius.repository.issue.LabelRepository
 import gropius.service.issue.IssueService
+import io.github.graphglue.authorization.Permission
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 

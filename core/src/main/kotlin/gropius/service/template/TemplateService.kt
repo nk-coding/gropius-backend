@@ -3,10 +3,8 @@ package gropius.service.template
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.template.UpdateTemplateDeprecationStatusInput
 import gropius.model.template.Template
-import gropius.model.user.permission.GlobalPermission
 import gropius.repository.findById
 import gropius.repository.template.TemplateRepository
-import io.github.graphglue.authorization.Permission
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 

@@ -12,4 +12,10 @@ class RelationConditionInput(
     val from: List<ID>,
     @GraphQLDescription("IDs of Templates of allowed end RelationPartners")
     val to: List<ID>
-) : CreateExtensibleNodeInput()
+) : CreateExtensibleNodeInput() {
+
+    override fun validate() {
+        super.validate()
+        interfaceSpecificationInheritanceConditions.forEach { it.validate() }
+    }
+}

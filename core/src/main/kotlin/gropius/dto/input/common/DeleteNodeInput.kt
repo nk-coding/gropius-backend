@@ -7,4 +7,4 @@ import com.expediagroup.graphql.generator.scalars.ID
 class DeleteNodeInput(
     @GraphQLDescription("The id of the Node to delete")
     val id: ID
-)
+) : Input()

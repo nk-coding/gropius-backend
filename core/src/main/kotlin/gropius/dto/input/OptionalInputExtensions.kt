@@ -14,6 +14,11 @@ inline fun <T> OptionalInput<T>.ifPresent(block: (T) -> Unit) {
 }
 
 /**
+ * `true` if the input is present
+ */
+val OptionalInput<*>.isPresent: Boolean get() = this is OptionalInput.Defined
+
+/**
  * If present, returns its value, otherwise [value]
  *
  * @param value result in case not present

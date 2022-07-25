@@ -8,6 +8,9 @@ import io.github.graphglue.model.property.NodeCache
 
 /**
  * Helper class to handle anything InterfaceSpecification derivation related
+ *
+ * After using, nodes from [deletedNodes] must be deleted, and nodes from [updatedNodes] must be saved
+ *
  */
 class ComponentGraphUpdater {
     /**
@@ -15,18 +18,31 @@ class ComponentGraphUpdater {
      */
     private val cache = NodeCache()
 
+    /**
+     * Nodes which should be deleted
+     */
     val deletedNodes = mutableSetOf<Node>()
-
-    private val internalDeletedNodes = mutableSetOf<Node>()
 
     /**
      * Nodes which are updated and need to be saved
+     * This may contain nodes also present in [deletedNodes] or [internalDeletedNodes]
      */
-    private val updatedNodes: MutableSet<Node> = mutableSetOf()
+    private val internalUpdatedNodes: MutableSet<Node> = mutableSetOf()
 
+    /**
+     * Nodes which are updated and need to be saved
+     * Does not include any deleted nodes
+     */
+    val updatedNodes: Set<Node> get() = internalUpdatedNodes - (deletedNodes)
+
+    /**
+     * Called when a [Component] should be deleted
+     *
+     * Handles the deletion of []
+     */
     suspend fun deleteComponent(component: Component) {
         cache.add(component)
-        internalDeletedNodes += component
+        deletedNodes += component
         component.interfaceSpecifications(cache).forEach {
             deleteInterfaceSpecification(it)
         }
@@ -37,7 +53,7 @@ class ComponentGraphUpdater {
 
     suspend fun deleteComponentVersion(componentVersion: ComponentVersion) {
         cache.add(componentVersion)
-        internalDeletedNodes += componentVersion
+        deletedNodes += componentVersion
         componentVersion.outgoingRelations(cache).forEach {
             deleteRelation(it)
         }
@@ -66,7 +82,8 @@ class ComponentGraphUpdater {
 
     suspend fun deleteInterfaceSpecification(interfaceSpecification: InterfaceSpecification) {
         cache.add(interfaceSpecification)
-        internalDeletedNodes += interfaceSpecification
+        deletedNodes += interfaceSpecification
+        deletedNodes += interfaceSpecification.definedParts(cache)
         interfaceSpecification.versions(cache).forEach {
             deleteInterfaceSpecificationVersion(it)
         }
@@ -74,7 +91,7 @@ class ComponentGraphUpdater {
 
     suspend fun deleteInterfaceSpecificationVersion(interfaceSpecificationVersion: InterfaceSpecificationVersion) {
         cache.add(interfaceSpecificationVersion)
-        internalDeletedNodes += interfaceSpecificationVersion
+        deletedNodes += interfaceSpecificationVersion
         interfaceSpecificationVersion.definitions(cache).toSet().forEach {
             deleteInterfaceDefinition(it)
         }
@@ -130,7 +147,7 @@ class ComponentGraphUpdater {
             if (invisible) {
                 definition.invisibleSelfDefined = false
             }
-            updatedNodes += definition
+            internalUpdatedNodes += definition
             validateRelatedComponentVersions(componentVersion, setOf(interfaceSpecificationVersion))
         }
 
@@ -149,7 +166,7 @@ class ComponentGraphUpdater {
         if (invisible) {
             definition.invisibleSelfDefined = true
         }
-        updatedNodes += definition
+        internalUpdatedNodes += definition
         addForUpdatedComponentVersion(componentVersion, setOf(definition))
     }
 
@@ -218,7 +235,7 @@ class ComponentGraphUpdater {
                             )
                             if (condition.isVisibleInherited) {
                                 if (targetDefinition.visibleDerivedBy(cache).add(relation)) {
-                                    updatedNodes += targetDefinition
+                                    internalUpdatedNodes += targetDefinition
                                     updatedDefinitions += targetDefinition
                                     if (!targetDefinition.visibleSelfDefined && targetDefinition.visibleDerivedBy(cache).size == 1) {
                                         handleUpdatedInterfaceDefinition(targetDefinition)
@@ -227,7 +244,7 @@ class ComponentGraphUpdater {
                             }
                             if (condition.isInvisibleInherited) {
                                 if (targetDefinition.invisibleDerivedBy(cache).add(relation)) {
-                                    updatedNodes += targetDefinition
+                                    internalUpdatedNodes += targetDefinition
                                     updatedDefinitions += targetDefinition
                                 }
                             }
@@ -259,9 +276,18 @@ class ComponentGraphUpdater {
         return componentVersion.interfaceDefinitions(cache).firstOrNull {
             it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
         } ?: run {
-            val newDefinition = InterfaceDefinition(false, false)
+            val template =
+                interfaceSpecificationVersion.template(cache).value.partOf(cache).value.interfaceDefinitionTemplate(
+                    cache
+                ).value
+            val newDefinition = InterfaceDefinition(
+                false,
+                false,
+                template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
+            )
+            newDefinition.template(cache).value = template
             componentVersion.interfaceDefinitions(cache) += newDefinition
-            updatedNodes += componentVersion
+            internalUpdatedNodes += componentVersion
             newDefinition
         }
     }
@@ -278,8 +304,14 @@ class ComponentGraphUpdater {
         if (definition.visibleSelfDefined || definition.visibleDerivedBy(cache).isNotEmpty()) {
             if (definition.visibleInterface(cache).value == null) {
                 val specification = definition.interfaceSpecificationVersion(cache).value
-                val newInterface = Interface(specification.name, specification.description)
-                updatedNodes += definition
+                val template = definition.template(cache).value.partOf(cache).value.interfaceTemplate(cache).value
+                val newInterface = Interface(
+                    specification.name,
+                    specification.description,
+                    template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
+                )
+                newInterface.template(cache).value = template
+                internalUpdatedNodes += definition
                 definition.visibleInterface(cache).value = newInterface
             }
         }
@@ -300,7 +332,8 @@ class ComponentGraphUpdater {
     }
 
     private suspend fun validateRelatedComponentVersions(
-        componentVersion: ComponentVersion, startInterfaceSpecificationVersions: Set<InterfaceSpecificationVersion>? = null
+        componentVersion: ComponentVersion,
+        startInterfaceSpecificationVersions: Set<InterfaceSpecificationVersion>? = null
     ) {
         for (relation in componentVersion.outgoingRelations(cache)) {
             val endNode = relation.end(cache).value

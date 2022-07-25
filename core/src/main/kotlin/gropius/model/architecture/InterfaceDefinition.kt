@@ -1,10 +1,15 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.common.ExtensibleNode
+import gropius.model.template.BaseTemplate
+import gropius.model.template.InterfaceDefinitionTemplate
+import gropius.model.template.MutableTemplatedNode
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
+import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
@@ -27,8 +32,11 @@ class InterfaceDefinition(
     )
     @FilterProperty
     @OrderProperty
-    var invisibleSelfDefined: Boolean
-) : ExtensibleNode() {
+    var invisibleSelfDefined: Boolean,
+    @property:GraphQLIgnore
+    @CompositeProperty
+    override val templatedFields: MutableMap<String, String>
+) : ExtensibleNode(), MutableTemplatedNode {
 
     companion object {
         const val VISIBLE_DERIVED_BY = "VISIBLE_DERIVED_BY"
@@ -36,6 +44,12 @@ class InterfaceDefinition(
         const val INTERFACE_SPECIFICATION_VERSION = "INTERFACE_SPECIFICATION_VERSION"
         const val COMPONENT_VERSION = "COMPONENT_VERSION"
     }
+
+    @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
+    @GraphQLDescription("The Template of this InterfaceDefinition.")
+    @FilterProperty
+    @delegate:Transient
+    override val template by NodeProperty<InterfaceDefinitionTemplate>()
 
     @NodeRelationship(INTERFACE_SPECIFICATION_VERSION, Direction.OUTGOING)
     @GraphQLDescription("The InterfaceSpecificationVersion present on the ComponentVersion")

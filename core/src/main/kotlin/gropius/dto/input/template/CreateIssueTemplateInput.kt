@@ -12,4 +12,13 @@ class CreateIssueTemplateInput(
     val issuePriorities: List<IssuePriorityInput>,
     @GraphQLDescription("Set of all types outgoing IssueRelations of Issues with the created can have")
     val relationTypes: List<IssueRelationTypeInput>
-) : CreateTemplateInput()
+) : CreateTemplateInput() {
+
+    override fun validate() {
+        super.validate()
+        issueTypes.forEach { it.validate() }
+        assignmentTypes.forEach { it.validate() }
+        issuePriorities.forEach { it.validate() }
+        relationTypes.forEach { it.validate() }
+    }
+}

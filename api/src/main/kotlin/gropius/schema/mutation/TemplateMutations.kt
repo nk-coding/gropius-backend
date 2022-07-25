@@ -12,8 +12,11 @@ import gropius.service.template.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
+/**
+ * Contains all template-related mutations
+ */
 @Component
-class TemplateMutations() : Mutation {
+class TemplateMutations : Mutation {
 
     @GraphQLDescription("Updates the deprecation state of the template, requires CAN_CREATE_TEMPLATES")
     @AutoPayloadType("The updated Template")

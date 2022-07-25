@@ -12,6 +12,9 @@ import gropius.service.common.ExtensibleNodeService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
+/**
+ * Contains all mutations not related to a specific subgroup of mutations
+ */
 @Component
 class CommonMutations : Mutation {
 

@@ -15,6 +15,7 @@ import gropius.repository.common.NodeRepository
 import gropius.repository.findById
 import gropius.repository.template.ComponentTemplateRepository
 import gropius.service.template.TemplatedNodeService
+import gropius.service.user.permission.ComponentPermissionService
 import io.github.graphglue.authorization.Permission
 import io.github.graphglue.model.Node
 import kotlinx.coroutines.reactor.awaitSingle
@@ -28,15 +29,16 @@ import org.springframework.stereotype.Service
  * @param templatedNodeService service used to update templatedFields
  * @param componentTemplateRepository used to get [ComponentTemplate]
  * @param nodeRepository used to save any node
+ * @param componentPermissionService used to create the initial permission for a created [Component]
  */
 @Service
 class ComponentService(
     repository: ComponentRepository,
     val templatedNodeService: TemplatedNodeService,
     val componentTemplateRepository: ComponentTemplateRepository,
-    val nodeRepository: NodeRepository
-) :
-    TrackableService<Component, ComponentRepository>(repository) {
+    val nodeRepository: NodeRepository,
+    val componentPermissionService: ComponentPermissionService
+) : TrackableService<Component, ComponentRepository>(repository) {
 
     /**
      * Creates a new [Component] based on the provided [input]
@@ -47,21 +49,19 @@ class ComponentService(
      * @return the saved created [Component]
      */
     suspend fun createComponent(
-        authorizationContext: GropiusAuthorizationContext,
-        input: CreateComponentInput
+        authorizationContext: GropiusAuthorizationContext, input: CreateComponentInput
     ): Component {
         input.validate()
         val user = getUser(authorizationContext)
         checkPermission(
-            user,
-            Permission(GlobalPermission.CAN_CREATE_COMPONENTS, authorizationContext),
-            "User does not have permission to create Components"
+            user, Permission(GlobalPermission.CAN_CREATE_COMPONENTS, authorizationContext), "create Components"
         )
         val template = componentTemplateRepository.findById(input.template)
         val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
         val component = Component(input.name, input.description, input.repositoryURL, templatedFields)
         component.template().value = template
         createdExtensibleNode(component, input)
+        componentPermissionService.createDefaultPermission(user, component)
         return repository.save(component).awaitSingle()
     }
 
@@ -74,16 +74,13 @@ class ComponentService(
      * @return the updated [Component]
      */
     suspend fun updateComponent(
-        authorizationContext: GropiusAuthorizationContext,
-        input: UpdateComponentInput
+        authorizationContext: GropiusAuthorizationContext, input: UpdateComponentInput
     ): Component {
         input.validate()
         val component = repository.findById(input.id)
         val nodesToSave = mutableSetOf<Node>(component)
         checkPermission(
-            component,
-            Permission(NodePermission.ADMIN, authorizationContext),
-            "User does not have permission to update the Component"
+            component, Permission(NodePermission.ADMIN, authorizationContext), "update the Component"
         )
         input.template.ifPresent {
             component.template().value = componentTemplateRepository.findById(it)
@@ -105,15 +102,12 @@ class ComponentService(
      * @param input defines which [Component] to delete
      */
     suspend fun deleteComponent(
-        authorizationContext: GropiusAuthorizationContext,
-        input: DeleteNodeInput
+        authorizationContext: GropiusAuthorizationContext, input: DeleteNodeInput
     ) {
         input.validate()
         val component = repository.findById(input.id)
         checkPermission(
-            component,
-            Permission(NodePermission.ADMIN, authorizationContext),
-            "User does not have permission to delete the Component"
+            component, Permission(NodePermission.ADMIN, authorizationContext), "delete the Component"
         )
         val graphUpdater = ComponentGraphUpdater()
         graphUpdater.updateComponentTemplate(component)

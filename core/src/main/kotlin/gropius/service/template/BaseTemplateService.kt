@@ -45,7 +45,7 @@ abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepo
         checkPermission(
             user,
             Permission(GlobalPermission.CAN_CREATE_TEMPLATES, authorizationContext),
-            "User does not have permission to create/update Templates"
+            "create/update Templates"
         )
     }
 }

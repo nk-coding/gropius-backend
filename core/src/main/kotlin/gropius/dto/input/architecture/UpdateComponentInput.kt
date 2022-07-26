@@ -13,7 +13,7 @@ class UpdateComponentInput(
     @GraphQLDescription("Values for templatedFields to update")
     override val templatedFields: OptionalInput<List<JSONFieldInput>>,
     @GraphQLDescription(
-        """If provided, the new template fo the Component
+        """If provided, the id of the new template for the Component
         Use `templatedFields` to update fields so that they conform with the new specifications.
         Use `componentVersionTemplatedFields` to update the `templatedFields` of ALL ComponentVersions
         No longer needed fields are automatically removed.

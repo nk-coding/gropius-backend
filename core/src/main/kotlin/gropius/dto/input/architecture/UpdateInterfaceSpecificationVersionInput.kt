@@ -1,0 +1,36 @@
+package gropius.dto.input.architecture
+
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.execution.OptionalInput
+import com.expediagroup.graphql.generator.scalars.ID
+import gropius.dto.input.common.JSONFieldInput
+import gropius.dto.input.common.UpdateNamedNodeInput
+import gropius.dto.input.common.ensureNoDuplicates
+import gropius.dto.input.ifPresent
+import gropius.dto.input.template.UpdateTemplatedNodeInput
+
+@GraphQLDescription("Input for the updateInterfaceSpecificationVersion mutation")
+class UpdateInterfaceSpecificationVersionInput(
+    @GraphQLDescription("Values for templatedFields to update")
+    override val templatedFields: OptionalInput<List<JSONFieldInput>>,
+    @GraphQLDescription("Ids of InterfaceParts defined by the associated InterfaceSpecification to add to `activeParts`")
+    val addedActiveParts: OptionalInput<List<ID>>,
+    @GraphQLDescription("Ids of InterfaceParts defined by the associated InterfaceSpecification to remove from `activeParts`")
+    val removedActiveParts: OptionalInput<List<ID>>,
+) : UpdateNamedNodeInput(), UpdateTemplatedNodeInput {
+
+    override fun validate() {
+        super.validate()
+        templatedFields.ifPresent {
+            it.ensureNoDuplicates()
+        }
+        addedActiveParts.ifPresent { addedIds ->
+            removedActiveParts.ifPresent {
+                val commonIds = addedIds intersect it.toSet()
+                if (commonIds.isNotEmpty()) {
+                    throw IllegalStateException("`addedActiveParts` and `removedActiveParts` must be distinct: $commonIds")
+                }
+            }
+        }
+    }
+}

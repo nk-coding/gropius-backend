@@ -1,6 +1,7 @@
 package gropius.service.architecture
 
 import gropius.model.architecture.*
+import gropius.model.template.ComponentTemplate
 import gropius.model.template.InterfaceSpecificationInheritanceCondition
 import gropius.model.template.InterfaceSpecificationTemplate
 import io.github.graphglue.model.Node
@@ -25,7 +26,7 @@ class ComponentGraphUpdater {
 
     /**
      * Nodes which are updated and need to be saved
-     * This may contain nodes also present in [deletedNodes] or [internalDeletedNodes]
+     * This may contain nodes also present in [deletedNodes]
      */
     private val internalUpdatedNodes: MutableSet<Node> = mutableSetOf()
 
@@ -108,30 +109,28 @@ class ComponentGraphUpdater {
         component.versions(cache).forEach { componentVersion ->
             val updatedInterfaceSpecificationVersions = mutableSetOf<InterfaceSpecificationVersion>()
             componentVersion.interfaceDefinitions(cache).toSet().forEach {
-                val interfaceSpecificationVersion = it.interfaceSpecificationVersion(cache).value
-                val interfaceSpecification = interfaceSpecificationVersion.interfaceSpecification(cache).value
-                val specificationTemplate = interfaceSpecification.template(cache).value
-                var updated = false
-                if (template !in specificationTemplate.canBeVisibleOnComponents(cache)) {
-                    updated = true
-                    it.visibleSelfDefined = false
-                    it.visibleDerivedBy(cache).clear()
-                }
-                if (template !in specificationTemplate.canBeInvisibleOnComponents(cache)) {
-                    updated = true
-                    it.invisibleSelfDefined = false
-                    it.invisibleDerivedBy(cache).clear()
-                }
-                if (updated) {
-                    updatedInterfaceSpecificationVersions += interfaceSpecificationVersion
-                    handleUpdatedInterfaceDefinition(it)
+                if (validateInterfaceDefinitionAfterTemplateUpdate(it, template)) {
+                    updatedInterfaceSpecificationVersions += it.interfaceSpecificationVersion(cache).value
                 }
             }
             validateRelatedComponentVersions(componentVersion, updatedInterfaceSpecificationVersions)
         }
     }
 
-    suspend fun removeInterfaceSpecificationVersionToComponentVersion(
+    suspend fun updateInterfaceSpecificationTemplate(interfaceSpecification: InterfaceSpecification) {
+        val definitions = interfaceSpecification.versions(cache).flatMap { it.definitions(cache) }
+        for (definition in definitions) {
+            val componentVersion = definition.componentVersion(cache).value
+            val template = componentVersion.component(cache).value.template(cache).value
+            if (validateInterfaceDefinitionAfterTemplateUpdate(definition, template)) {
+                validateRelatedComponentVersions(
+                    componentVersion, setOf(definition.interfaceSpecificationVersion(cache).value)
+                )
+            }
+        }
+    }
+
+    suspend fun removeInterfaceSpecificationVersionFromComponentVersion(
         interfaceSpecificationVersion: InterfaceSpecificationVersion,
         componentVersion: ComponentVersion,
         visible: Boolean,
@@ -180,7 +179,39 @@ class ComponentGraphUpdater {
         if (endNode is ComponentVersion) {
             validateComponentVersion(endNode)
         }
+    }
 
+    /**
+     * Called after the template of a [Component] or an [InterfaceSpecification] was updated
+     * Validates that [interfaceDefinition] can still be present on the associated [ComponentVersion],
+     * and if not, removes it (maybe partially)
+     * Does NOT perform any validation of the graph
+     *
+     * @param interfaceDefinition the [InterfaceDefinition] to validate
+     * @param template the template of the [Component] associated with the [ComponentVersion] associated with [interfaceDefinition]
+     * @return `true` if the [interfaceDefinition] was updated, and a graph update should be triggered
+     */
+    private suspend fun validateInterfaceDefinitionAfterTemplateUpdate(
+        interfaceDefinition: InterfaceDefinition, template: ComponentTemplate
+    ): Boolean {
+        val interfaceSpecificationVersion = interfaceDefinition.interfaceSpecificationVersion(cache).value
+        val interfaceSpecification = interfaceSpecificationVersion.interfaceSpecification(cache).value
+        val specificationTemplate = interfaceSpecification.template(cache).value
+        var updated = false
+        if (template !in specificationTemplate.canBeVisibleOnComponents(cache)) {
+            updated = true
+            interfaceDefinition.visibleSelfDefined = false
+            interfaceDefinition.visibleDerivedBy(cache).clear()
+        }
+        if (template !in specificationTemplate.canBeInvisibleOnComponents(cache)) {
+            updated = true
+            interfaceDefinition.invisibleSelfDefined = false
+            interfaceDefinition.invisibleDerivedBy(cache).clear()
+        }
+        if (updated) {
+            handleUpdatedInterfaceDefinition(interfaceDefinition)
+        }
+        return updated
     }
 
     private suspend fun updatedRelation(relation: Relation) {
@@ -281,9 +312,7 @@ class ComponentGraphUpdater {
                     cache
                 ).value
             val newDefinition = InterfaceDefinition(
-                false,
-                false,
-                template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
+                false, false, template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
             )
             newDefinition.template(cache).value = template
             componentVersion.interfaceDefinitions(cache) += newDefinition

@@ -7,6 +7,7 @@ import gropius.dto.input.common.DeleteNodeInput
 import gropius.dto.input.ifPresent
 import gropius.dto.input.isPresent
 import gropius.model.architecture.Component
+import gropius.model.architecture.InterfaceSpecification
 import gropius.model.template.ComponentTemplate
 import gropius.model.user.permission.GlobalPermission
 import gropius.model.user.permission.NodePermission
@@ -28,8 +29,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  * @param templatedNodeService service used to update templatedFields
  * @param componentTemplateRepository used to get [ComponentTemplate]
- * @param nodeRepository used to save any node
+ * @param nodeRepository used to save/delete any node
  * @param componentPermissionService used to create the initial permission for a created [Component]
+ * @param interfaceSpecificationService used to create [InterfaceSpecification]s
  */
 @Service
 class ComponentService(
@@ -37,7 +39,8 @@ class ComponentService(
     val templatedNodeService: TemplatedNodeService,
     val componentTemplateRepository: ComponentTemplateRepository,
     val nodeRepository: NodeRepository,
-    val componentPermissionService: ComponentPermissionService
+    val componentPermissionService: ComponentPermissionService,
+    val interfaceSpecificationService: InterfaceSpecificationService
 ) : TrackableService<Component, ComponentRepository>(repository) {
 
     /**
@@ -60,6 +63,11 @@ class ComponentService(
         val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
         val component = Component(input.name, input.description, input.repositoryURL, templatedFields)
         component.template().value = template
+        input.interfaceSpecifications.ifPresent { inputs ->
+            component.interfaceSpecifications() += inputs.map {
+                interfaceSpecificationService.createInterfaceSpecification(component, it)
+            }
+        }
         createdExtensibleNode(component, input)
         componentPermissionService.createDefaultPermission(user, component)
         return repository.save(component).awaitSingle()
@@ -78,12 +86,17 @@ class ComponentService(
     ): Component {
         input.validate()
         val component = repository.findById(input.id)
-        val nodesToSave = mutableSetOf<Node>(component)
         checkPermission(
             component, Permission(NodePermission.ADMIN, authorizationContext), "update the Component"
         )
-        input.template.ifPresent {
-            component.template().value = componentTemplateRepository.findById(it)
+        val nodesToSave = mutableSetOf<Node>(component)
+        input.template.ifPresent { templateId ->
+            component.template().value = componentTemplateRepository.findById(templateId)
+            val componentVersionTemplate = component.template().value.componentVersionTemplate().value
+            component.versions().forEach {
+                it.template().value = componentVersionTemplate
+                templatedNodeService.updateTemplatedFields(it, input.componentVersionTemplatedFields, true)
+            }
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateComponentTemplate(component)
             nodeRepository.deleteAll(graphUpdater.deletedNodes)
@@ -110,7 +123,7 @@ class ComponentService(
             component, Permission(NodePermission.ADMIN, authorizationContext), "delete the Component"
         )
         val graphUpdater = ComponentGraphUpdater()
-        graphUpdater.updateComponentTemplate(component)
+        graphUpdater.deleteComponent(component)
         beforeDeleteTrackable(component)
         nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
         nodeRepository.saveAll(graphUpdater.updatedNodes).collectList().awaitSingle()

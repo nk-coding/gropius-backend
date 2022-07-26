@@ -25,6 +25,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     NodePermission.READ,
     allowFromRelated = ["interfaceSpecification", "definitions"]
 )
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["interfaceSpecification"])
 class InterfaceSpecificationVersion(
     name: String,
     description: String,

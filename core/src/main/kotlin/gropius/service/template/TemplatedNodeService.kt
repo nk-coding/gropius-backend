@@ -1,5 +1,6 @@
 package gropius.service.template
 
+import com.expediagroup.graphql.generator.execution.OptionalInput
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
@@ -39,7 +40,27 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
         input: UpdateTemplatedNodeInput,
         templateWasUpdated: Boolean
     ) {
-        input.templatedFields.ifPresent { fields ->
+        updateTemplatedFields(node, input.templatedFields, templateWasUpdated)
+    }
+
+    /**
+     * Updates the [TemplatedNode.templatedFields] of a [TemplatedNode] based on the [input]
+     * Does not check authorization permissions, and does not save the provided [node] afterwards
+     * Validates the new value of the fields
+     * If [templateWasUpdated], validates all fields. Requires that the new template is already set
+     *
+     * @param node the node to update the templated fields of
+     * @param templatedFields values to update the templatedFields
+     * @param templateWasUpdated if true, no longer existing templatedFields are removed, and all existing fields
+     *                           are validated
+     * @throws IllegalArgumentException if the new/old value for a templated field is invalid
+     */
+    suspend fun updateTemplatedFields(
+        node: TemplatedNode,
+        templatedFields: OptionalInput<List<JSONFieldInput>>,
+        templateWasUpdated: Boolean
+    ) {
+        templatedFields.ifPresent { fields ->
             val template = node.template().value
             ensureTemplatedFieldsExist(template, fields.map { it.name })
             for (field in fields) {
@@ -48,7 +69,7 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
             }
         }
         if (templateWasUpdated) {
-            validateTemplatedFieldsAfterTemplateUpdate(node, input)
+            validateTemplatedFieldsAfterTemplateUpdate(node, templatedFields)
         }
 
     }
@@ -57,15 +78,15 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
      * After the template of [node] was updated, validate all fields and remove fields which are no longer necessary
      *
      * @param node the node of which to validate the fields
-     * @param input defines how to update the templated fields, used to find fields which are already validated
+     * @param templatedFields values to update the templatedFields
      * @throws IllegalArgumentException if the old value for a templated field is invalid
      */
     private suspend fun validateTemplatedFieldsAfterTemplateUpdate(
         node: TemplatedNode,
-        input: UpdateTemplatedNodeInput
+        templatedFields: OptionalInput<List<JSONFieldInput>>
     ) {
         val template = node.template().value
-        val changedFields = input.templatedFields.orElse(emptyList()).map { it.name }
+        val changedFields = templatedFields.orElse(emptyList()).map { it.name }
         val fieldsToRemove = mutableListOf<String>()
         for ((name, value) in node.templatedFields) {
             if (name in changedFields) {

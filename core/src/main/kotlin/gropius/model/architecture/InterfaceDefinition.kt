@@ -20,6 +20,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["componentVersion"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["componentVersion"])
 class InterfaceDefinition(
     @property:GraphQLDescription(
         """If true, `interfaceSpecificationVersion`is self-defined visible on the `componentVersion`"""

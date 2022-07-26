@@ -19,6 +19,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["interfaceDefinition"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["interfaceDefinition"])
 class Interface(
     name: String,
     description: String,

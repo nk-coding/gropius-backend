@@ -38,7 +38,7 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
     suspend fun updateTemplatedFields(
         node: TemplatedNode,
         input: UpdateTemplatedNodeInput,
-        templateWasUpdated: Boolean
+        templateWasUpdated: Boolean = false
     ) {
         updateTemplatedFields(node, input.templatedFields, templateWasUpdated)
     }

@@ -16,7 +16,9 @@ class CreateComponentInput(
     @GraphQLDescription("The template of the created Component")
     val template: ID,
     @GraphQLDescription("Initial InterfaceSpecifications")
-    val interfaceSpecifications: OptionalInput<List<InterfaceSpecificationInput>>
+    val interfaceSpecifications: OptionalInput<List<InterfaceSpecificationInput>>,
+    @GraphQLDescription("Initial versions of the Component")
+    val versions: OptionalInput<List<ComponentVersionInput>>
 ) : CreateTrackableInput(), CreateTemplatedNodeInput {
 
     override fun validate() {

@@ -241,4 +241,36 @@ class ArchitectureMutations(
         )
     }
 
+    @GraphQLDescription("Creates a new ComponentVersion, requires ADMIN on the Component.")
+    @AutoPayloadType("The created ComponentVersion")
+    suspend fun createComponentVersion(
+        @GraphQLDescription("Defines the created ComponentVersion")
+        input: CreateComponentVersionInput, dfe: DataFetchingEnvironment
+    ): ComponentVersion {
+        return componentVersionService.createComponentVersion(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription("Updates the specified ComponentVersion, requires ADMIN on the Component of the ComponentVersion to update")
+    @AutoPayloadType("The updated ComponentVersion")
+    suspend fun updateComponentVersion(
+        @GraphQLDescription("Defines which ComponentVersion to update and how to update it")
+        input: UpdateComponentVersionInput, dfe: DataFetchingEnvironment
+    ): ComponentVersion {
+        return componentVersionService.updateComponentVersion(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription("Deletes the specified ComponentVersion, requires ADMIN on the Component of the ComponentVersion to delete")
+    @AutoPayloadType("The id of the deleted ComponentVersion")
+    suspend fun deleteComponentVersion(
+        @GraphQLDescription("Defines which ComponentVersion to delete")
+        input: DeleteNodeInput, dfe: DataFetchingEnvironment
+    ): ID {
+        componentVersionService.deleteComponentVersion(dfe.gropiusAuthorizationContext, input)
+        return input.id
+    }
+
 }

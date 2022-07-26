@@ -120,6 +120,9 @@ class InterfaceSpecificationVersionService(
                 interfacePartService.findPartsByIdAndValidatePartOfInterfaceSpecification(it, interfaceSpecification)
             )
         }
+        input.version.ifPresent {
+            interfaceSpecificationVersion.version = it
+        }
         templatedNodeService.updateTemplatedFields(interfaceSpecificationVersion, input, false)
         updateNamedNode(interfaceSpecificationVersion, input)
         return repository.save(interfaceSpecificationVersion).awaitSingle()

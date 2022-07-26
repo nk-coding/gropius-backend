@@ -17,6 +17,8 @@ class UpdateInterfaceSpecificationVersionInput(
     val addedActiveParts: OptionalInput<List<ID>>,
     @GraphQLDescription("Ids of InterfaceParts defined by the associated InterfaceSpecification to remove from `activeParts`")
     val removedActiveParts: OptionalInput<List<ID>>,
+    @GraphQLDescription("New version of the InterfaceSpecificationVersion")
+    val version: OptionalInput<String>
 ) : UpdateNamedNodeInput(), UpdateTemplatedNodeInput {
 
     override fun validate() {

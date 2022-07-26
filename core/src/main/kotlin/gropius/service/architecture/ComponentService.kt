@@ -7,6 +7,7 @@ import gropius.dto.input.common.DeleteNodeInput
 import gropius.dto.input.ifPresent
 import gropius.dto.input.isPresent
 import gropius.model.architecture.Component
+import gropius.model.architecture.ComponentVersion
 import gropius.model.architecture.InterfaceSpecification
 import gropius.model.template.ComponentTemplate
 import gropius.model.user.permission.GlobalPermission
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service
  * @param nodeRepository used to save/delete any node
  * @param componentPermissionService used to create the initial permission for a created [Component]
  * @param interfaceSpecificationService used to create [InterfaceSpecification]s
+ * @param componentVersionService used to create [ComponentVersion]s
  */
 @Service
 class ComponentService(
@@ -40,7 +42,8 @@ class ComponentService(
     val componentTemplateRepository: ComponentTemplateRepository,
     val nodeRepository: NodeRepository,
     val componentPermissionService: ComponentPermissionService,
-    val interfaceSpecificationService: InterfaceSpecificationService
+    val interfaceSpecificationService: InterfaceSpecificationService,
+    val componentVersionService: ComponentVersionService
 ) : TrackableService<Component, ComponentRepository>(repository) {
 
     /**
@@ -66,6 +69,11 @@ class ComponentService(
         input.interfaceSpecifications.ifPresent { inputs ->
             component.interfaceSpecifications() += inputs.map {
                 interfaceSpecificationService.createInterfaceSpecification(component, it)
+            }
+        }
+        input.versions.ifPresent { inputs ->
+            component.versions() += inputs.map {
+                componentVersionService.createComponentVersion(component, it)
             }
         }
         createdExtensibleNode(component, input)

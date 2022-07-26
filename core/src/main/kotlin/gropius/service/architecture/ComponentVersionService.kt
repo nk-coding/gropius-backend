@@ -2,16 +2,18 @@ package gropius.service.architecture
 
 import com.expediagroup.graphql.generator.scalars.ID
 import gropius.authorization.GropiusAuthorizationContext
-import gropius.dto.input.architecture.AddInterfaceSpecificationVersionToComponentVersionInput
-import gropius.dto.input.architecture.RemoveInterfaceSpecificationVersionFromComponentVersionInput
+import gropius.dto.input.architecture.*
+import gropius.dto.input.common.DeleteNodeInput
 import gropius.model.architecture.Component
 import gropius.model.architecture.ComponentVersion
 import gropius.model.architecture.InterfaceSpecificationVersion
 import gropius.model.user.permission.NodePermission
+import gropius.repository.architecture.ComponentRepository
 import gropius.repository.architecture.ComponentVersionRepository
 import gropius.repository.architecture.InterfaceSpecificationVersionRepository
 import gropius.repository.common.NodeRepository
 import gropius.repository.findById
+import gropius.service.template.TemplatedNodeService
 import io.github.graphglue.authorization.Permission
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -23,12 +25,16 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  * @param interfaceSpecificationVersionRepository used to get [InterfaceSpecificationVersion]s by id
  * @param nodeRepository used to save/delete any node
+ * @param componentRepository used to get [Component]s by id
+ * @param templatedNodeService used to update templatedFields
  */
 @Service
 class ComponentVersionService(
     repository: ComponentVersionRepository,
     val interfaceSpecificationVersionRepository: InterfaceSpecificationVersionRepository,
     val nodeRepository: NodeRepository,
+    val componentRepository: ComponentRepository,
+    val templatedNodeService: TemplatedNodeService,
 ) : RelationPartnerService<ComponentVersion, ComponentVersionRepository>(repository) {
 
     /**
@@ -114,6 +120,98 @@ class ComponentVersionService(
         updateFunction(graphUpdater, componentVersion, interfaceSpecificationVersion)
         nodeRepository.saveAll(graphUpdater.updatedNodes).collectList().awaitSingle()
         nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
+    }
+
+    /**
+     * Creates a new [ComponentVersion] based on the provided [input]
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines the [ComponentVersion]
+     * @return the saved created [ComponentVersion]
+     */
+    suspend fun createComponentVersion(
+        authorizationContext: GropiusAuthorizationContext, input: CreateComponentVersionInput
+    ): ComponentVersion {
+        input.validate()
+        val component = componentRepository.findById(input.component)
+        checkPermission(
+            component,
+            Permission(NodePermission.ADMIN, authorizationContext),
+            "create ComponentVersions on the Component"
+        )
+        val componentVersion = createComponentVersion(component, input)
+        componentVersion.component().value = component
+        return repository.save(componentVersion).awaitSingle()
+    }
+
+    /**
+     * Creates a new [ComponentVersion] based on the provided [input] on [component]
+     * Does not check the authorization status, does not save the created nodes
+     * Validates the [input]
+     *
+     * @param component the [Component] the created [ComponentVersion] is part of
+     * @param input defines the [ComponentVersion]
+     * @return the created [ComponentVersion]
+     */
+    suspend fun createComponentVersion(
+        component: Component, input: ComponentVersionInput
+    ): ComponentVersion {
+        input.validate()
+        val template = component.template().value.componentVersionTemplate().value
+        val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
+        val componentVersion =
+            ComponentVersion(input.name, input.description, input.version, templatedFields)
+        componentVersion.template().value = template
+        createdExtensibleNode(componentVersion, input)
+        return componentVersion
+    }
+
+    /**
+     * Updates a [ComponentVersion] based on the provided [input]
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines which [ComponentVersion] to update and how
+     * @return the updated [ComponentVersion]
+     */
+    suspend fun updateComponentVersion(
+        authorizationContext: GropiusAuthorizationContext, input: UpdateComponentVersionInput
+    ): ComponentVersion {
+        input.validate()
+        val componentVersion = repository.findById(input.id)
+        checkPermission(
+            componentVersion,
+            Permission(NodePermission.ADMIN, authorizationContext),
+            "update the ComponentVersion"
+        )
+        templatedNodeService.updateTemplatedFields(componentVersion, input, false)
+        updateNamedNode(componentVersion, input)
+        return repository.save(componentVersion).awaitSingle()
+    }
+
+    /**
+     * Deletes a [ComponentVersion] by id
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines which [ComponentVersion] to delete
+     */
+    suspend fun deleteComponentVersion(
+        authorizationContext: GropiusAuthorizationContext, input: DeleteNodeInput
+    ) {
+        input.validate()
+        val componentVersion = repository.findById(input.id)
+        checkPermission(
+            componentVersion,
+            Permission(NodePermission.ADMIN, authorizationContext),
+            "delete the ComponentVersion"
+        )
+        val graphUpdater = ComponentGraphUpdater()
+        graphUpdater.deleteComponentVersion(componentVersion)
+        nodeRepository.saveAll(graphUpdater.updatedNodes).collectList().awaitSingle()
+        nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
+        repository.delete(componentVersion).awaitSingle()
     }
 
 }

@@ -318,4 +318,31 @@ class ArchitectureMutations(
         return input.id
     }
 
+    @GraphQLDescription(
+        """Adds a ComponentVersion to a Project,
+        requires MANAGE_COMPONENTS on the Project and ADD_TO_PROJECTS on the Component associated
+        with the ComponentVersion
+        """
+    )
+    @AutoPayloadType("The updated Project")
+    suspend fun addComponentVersionToProject(
+        @GraphQLDescription("Defines which ComponentVersion to add to which Project")
+        input: AddComponentVersionToProjectInput, dfe: DataFetchingEnvironment
+    ): Project {
+        return projectService.addComponentVersionToProject(dfe.gropiusAuthorizationContext, input)
+    }
+
+    @GraphQLDescription(
+        """Removes a ComponentVersion from a Project,
+        requires MANAGE_COMPONENTS on the Project
+        """
+    )
+    @AutoPayloadType("The updated Project")
+    suspend fun removeComponentVersionFromProject(
+        @GraphQLDescription("Defines which ComponentVersion to remove from which Project")
+        input: RemoveComponentVersionFromProjectInput, dfe: DataFetchingEnvironment
+    ): Project {
+        return projectService.removeComponentVersionFromProject(dfe.gropiusAuthorizationContext, input)
+    }
+
 }

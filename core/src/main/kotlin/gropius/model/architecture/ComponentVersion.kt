@@ -23,6 +23,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 @Authorization(NodePermission.ADMIN, allowFromRelated = ["component"])
 @Authorization(ComponentPermission.RELATE_TO_COMPONENT, allowFromRelated = ["component"])
 @Authorization(ComponentPermission.RELATE_FROM_COMPONENT, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.ADD_TO_PROJECTS, allowFromRelated = ["component"])
 class ComponentVersion(
     name: String,
     description: String,

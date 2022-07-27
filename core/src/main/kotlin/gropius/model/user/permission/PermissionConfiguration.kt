@@ -156,6 +156,12 @@ class PermissionConfiguration {
                     Note: as these Relations cannot cause new Interfaces on this Component, this can be granted
                     more permissively compared to `RELATE_TO_COMPONENT`.
                 """.trimIndent()
+            ), PermissionEntry(
+                ComponentPermission.ADD_TO_PROJECTS, """
+                    Allows to add the Component to Projects
+                    Note: this should be handled very carefully, as adding a Component to a Project gives
+                    all users with READ access to the Project READ access to the Component
+                """.trimIndent()
             )
         )
     )

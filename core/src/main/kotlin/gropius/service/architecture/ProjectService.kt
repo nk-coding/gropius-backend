@@ -1,12 +1,18 @@
 package gropius.service.architecture
 
 import gropius.authorization.GropiusAuthorizationContext
+import gropius.dto.input.architecture.AddComponentVersionToProjectInput
 import gropius.dto.input.architecture.CreateProjectInput
+import gropius.dto.input.architecture.RemoveComponentVersionFromProjectInput
 import gropius.dto.input.architecture.UpdateProjectInput
 import gropius.dto.input.common.DeleteNodeInput
+import gropius.model.architecture.ComponentVersion
 import gropius.model.architecture.Project
+import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.GlobalPermission
 import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.ProjectPermission
+import gropius.repository.architecture.ComponentVersionRepository
 import gropius.repository.architecture.ProjectRepository
 import gropius.repository.findById
 import gropius.service.user.permission.ProjectPermissionService
@@ -19,9 +25,14 @@ import org.springframework.stereotype.Service
  *
  * @param repository the associated repository used for CRUD functionality
  * @param projectPermissionService used to create the initial permission for a created [Project]
+ * @param componentVersionRepository used to get [ComponentVersion]s by id
  */
 @Service
-class ProjectService(repository: ProjectRepository, val projectPermissionService: ProjectPermissionService) :
+class ProjectService(
+    repository: ProjectRepository,
+    val projectPermissionService: ProjectPermissionService,
+    val componentVersionRepository: ComponentVersionRepository
+) :
     TrackableService<Project, ProjectRepository>(repository) {
 
     /**
@@ -83,6 +94,57 @@ class ProjectService(repository: ProjectRepository, val projectPermissionService
         )
         beforeDeleteTrackable(project)
         repository.delete(project).awaitSingle()
+    }
+
+    /**
+     * Adds a [ComponentVersion] to a [Project]
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines which [ComponentVersion] to add to which [Project]
+     * @return the updated [Project]
+     */
+    suspend fun addComponentVersionToProject(
+        authorizationContext: GropiusAuthorizationContext, input: AddComponentVersionToProjectInput
+    ): Project {
+        input.validate()
+        val project = repository.findById(input.project)
+        checkPermission(
+            project,
+            Permission(ProjectPermission.MANAGE_COMPONENTS, authorizationContext),
+            "add ComponentVersions to the Project"
+        )
+        val componentVersion = componentVersionRepository.findById(input.componentVersion)
+        checkPermission(
+            componentVersion,
+            Permission(ComponentPermission.ADD_TO_PROJECTS, authorizationContext),
+            "add the ComponentVersion to Projects"
+        )
+        project.components() += componentVersion
+        return repository.save(project).awaitSingle()
+    }
+
+    /**
+     * Removes a [ComponentVersion] from a [Project]
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines which [ComponentVersion] to remove from which [Project]
+     * @return the updated [Project]
+     */
+    suspend fun removeComponentVersionFromProject(
+        authorizationContext: GropiusAuthorizationContext, input: RemoveComponentVersionFromProjectInput
+    ): Project {
+        input.validate()
+        val project = repository.findById(input.project)
+        checkPermission(
+            project,
+            Permission(ProjectPermission.MANAGE_COMPONENTS, authorizationContext),
+            "remove ComponentVersions from the Project"
+        )
+        val componentVersion = componentVersionRepository.findById(input.componentVersion)
+        project.components() += componentVersion
+        return repository.save(project).awaitSingle()
     }
 
 }

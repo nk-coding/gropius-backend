@@ -34,6 +34,10 @@ import java.net.URI
     ComponentPermission.RELATE_FROM_COMPONENT,
     allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
 )
+@Authorization(
+    ComponentPermission.ADD_TO_PROJECTS,
+    allow = [Rule(COMPONENT_PERMISSION_ENTRY_NAME, options = [NodePermission.ADMIN])]
+)
 class Component(
     name: String,
     description: String,

@@ -8,7 +8,7 @@ import gropius.dto.input.common.ensureNoDuplicates
 import gropius.dto.input.ifPresent
 import gropius.dto.input.template.UpdateTemplatedNodeInput
 
-@GraphQLDescription("Input for the update")
+@GraphQLDescription("Input for the updateComponent mutation")
 class UpdateComponentInput(
     @GraphQLDescription("Values for templatedFields to update")
     override val templatedFields: OptionalInput<List<JSONFieldInput>>,

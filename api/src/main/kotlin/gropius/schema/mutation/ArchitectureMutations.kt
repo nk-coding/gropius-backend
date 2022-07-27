@@ -30,7 +30,8 @@ class ArchitectureMutations(
     private val interfaceSpecificationService: InterfaceSpecificationService,
     private val interfaceSpecificationVersionService: InterfaceSpecificationVersionService,
     private val interfacePartService: InterfacePartService,
-    private val componentVersionService: ComponentVersionService
+    private val componentVersionService: ComponentVersionService,
+    private val relationService: RelationService
 ) : Mutation {
 
     @GraphQLDescription(
@@ -270,6 +271,50 @@ class ArchitectureMutations(
         input: DeleteNodeInput, dfe: DataFetchingEnvironment
     ): ID {
         componentVersionService.deleteComponentVersion(dfe.gropiusAuthorizationContext, input)
+        return input.id
+    }
+
+    @GraphQLDescription(
+        """Creates a new Relation, requires RELATE_FROM_COMPONENT on the Component associated with 
+        start AND RELATE_TO_COMPONENT on the Component associated with end.
+        """
+    )
+    @AutoPayloadType("The created Relation")
+    suspend fun createRelation(
+        @GraphQLDescription("Defines the created Relation")
+        input: CreateRelationInput, dfe: DataFetchingEnvironment
+    ): Relation {
+        return relationService.createRelation(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Updates the specified Relation, requires RELATE_FROM_COMPONENT on the Component associated with 
+        start AND RELATE_TO_COMPONENT on the Component associated with end.
+        """
+    )
+    @AutoPayloadType("The updated Relation")
+    suspend fun updateRelation(
+        @GraphQLDescription("Defines which Relation to update and how to update it")
+        input: UpdateRelationInput, dfe: DataFetchingEnvironment
+    ): Relation {
+        return relationService.updateRelation(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Deletes the specified Relation, requires RELATE_FROM_COMPONENT on the Component associated with 
+        start OR RELATE_TO_COMPONENT on the Component associated with end.
+        """
+    )
+    @AutoPayloadType("The id of the deleted Relation")
+    suspend fun deleteRelation(
+        @GraphQLDescription("Defines which Relation to delete")
+        input: DeleteNodeInput, dfe: DataFetchingEnvironment
+    ): ID {
+        relationService.deleteRelation(dfe.gropiusAuthorizationContext, input)
         return input.id
     }
 

@@ -35,7 +35,6 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
      * Checks if the [permission] is granted on [node]
      * If checkPermission on the `permission.context` is `false`, no permission is evaluated
      * Does not handle the case that the user is an admin
-     * If [permission] is `null`, no check is performed
      *
      * @param node the node where the permission must be granted
      * @param permission the permission to check for, none is checked if `null`
@@ -43,11 +42,24 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
      *                     appended to "User does not have permission to"
      * @throws IllegalArgumentException with the provided [errorMessage] in case the permission is not granted
      */
-    suspend fun checkPermission(node: Node, permission: Permission?, errorMessage: String) {
-        val checkPermission = permission != null && (permission.context as GropiusAuthorizationContext).checkPermission
-        if (checkPermission && !authorizationChecker.hasAuthorization(node, permission!!).awaitSingle()) {
+    suspend fun checkPermission(node: Node, permission: Permission, errorMessage: String) {
+        if (evaluatePermission(node, permission)) {
             throw IllegalArgumentException("User does not have permission to $errorMessage")
         }
+    }
+
+    /**
+     * Evaluates if the [permission] is granted on [node]
+     * If checkPermission on the `permission.context` is `false`, no permission is evaluated
+     * Does not handle the case that the user is an admin
+     *
+     * @param node the node where the permission must be granted
+     * @param permission the permission to check for, none is checked if `null`
+     * @return `true` if the permission is granted
+     */
+    suspend fun evaluatePermission(node: Node, permission: Permission): Boolean {
+        val checkPermission = (permission.context as GropiusAuthorizationContext).checkPermission
+        return checkPermission && !authorizationChecker.hasAuthorization(node, permission).awaitSingle()
     }
 
     /**

@@ -7,6 +7,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.ComponentVersionTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.user.permission.ComponentPermission
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -20,6 +21,8 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["component", "includingProjects"])
 @Authorization(NodePermission.ADMIN, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.RELATE_TO_COMPONENT, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.RELATE_FROM_COMPONENT, allowFromRelated = ["component"])
 class ComponentVersion(
     name: String,
     description: String,

@@ -6,6 +6,7 @@ import com.expediagroup.graphql.generator.scalars.ID
 import gropius.dto.input.common.JSONFieldInput
 import gropius.dto.input.common.UpdateNamedNodeInput
 import gropius.dto.input.common.ensureNoDuplicates
+import gropius.dto.input.ensureDistinct
 import gropius.dto.input.ifPresent
 import gropius.dto.input.template.UpdateTemplatedNodeInput
 
@@ -26,13 +27,6 @@ class UpdateInterfaceSpecificationVersionInput(
         templatedFields.ifPresent {
             it.ensureNoDuplicates()
         }
-        addedActiveParts.ifPresent { addedIds ->
-            removedActiveParts.ifPresent {
-                val commonIds = addedIds intersect it.toSet()
-                if (commonIds.isNotEmpty()) {
-                    throw IllegalStateException("`addedActiveParts` and `removedActiveParts` must be distinct: $commonIds")
-                }
-            }
-        }
+        ::addedActiveParts ensureDistinct ::removedActiveParts
     }
 }

@@ -1,6 +1,8 @@
 package gropius.dto.input
 
 import com.expediagroup.graphql.generator.execution.OptionalInput
+import com.expediagroup.graphql.generator.scalars.ID
+import kotlin.reflect.KProperty0
 
 /**
  * Executes [block] with the value if `this is OptionalInput.Defined`
@@ -29,4 +31,23 @@ fun <T> OptionalInput<T>.orElse(value: T): T {
         return it
     }
     return value
+}
+
+/**
+ * Helper function to ensure that two optional lists of ids are distinct
+ * Typically used in an add/remove update context
+ * Uses the properties to get the name of the properties to generate the failure message
+ *
+ * @param otherProperty the other property
+ * @throws IllegalStateException if both lists are present and not distinct
+ */
+infix fun KProperty0<OptionalInput<List<ID>>>.ensureDistinct(otherProperty: KProperty0<OptionalInput<List<ID>>>) {
+    this.get().ifPresent { thisIds ->
+        otherProperty.get().ifPresent {
+            val commonIds = thisIds intersect it.toSet()
+            if (commonIds.isNotEmpty()) {
+                throw IllegalStateException("`${this.name}` and `${otherProperty.name}` must be distinct: $commonIds")
+            }
+        }
+    }
 }

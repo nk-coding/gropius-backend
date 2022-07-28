@@ -1,16 +1,11 @@
 package gropius.service.architecture
 
-import gropius.authorization.GropiusAuthorizationContext
-import gropius.dto.input.architecture.CreateTrackableInput
 import gropius.dto.input.architecture.UpdateTrackableInput
 import gropius.dto.input.ifPresent
 import gropius.model.architecture.Trackable
-import gropius.model.user.permission.TrackablePermission
-import gropius.repository.findAllById
 import gropius.repository.issue.ArtefactRepository
 import gropius.repository.issue.LabelRepository
 import gropius.service.issue.IssueService
-import io.github.graphglue.authorization.Permission
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 
@@ -39,6 +34,12 @@ abstract class TrackableService<T : Trackable, R : ReactiveNeo4jRepository<T, St
      */
     @Autowired
     lateinit var artefactRepository: ArtefactRepository
+
+    /**
+     * Injected [IMSProjectService]
+     */
+    @Autowired
+    lateinit var imsProjectService: IMSProjectService
 
     /**
      * Updates [node] based on [input]
@@ -72,6 +73,9 @@ abstract class TrackableService<T : Trackable, R : ReactiveNeo4jRepository<T, St
             if (it.trackables().size == 1) {
                 issueService.deleteIssue(it, true)
             }
+        }
+        node.syncsTo().forEach {
+            imsProjectService.deleteIMSProject(it)
         }
     }
 

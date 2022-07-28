@@ -111,6 +111,11 @@ class PermissionConfiguration {
                 """.trimIndent()
             ),
             PermissionEntry(
+                GlobalPermission.CAN_CREATE_IMSS, """
+                    Allows to create new IMSs.
+                """.trimIndent()
+            ),
+            PermissionEntry(
                 GlobalPermission.CAN_CREATE_TEMPLATES, """
                     Allows to create new Templates.
                 """.trimIndent()

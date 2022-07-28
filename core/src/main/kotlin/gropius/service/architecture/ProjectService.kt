@@ -18,6 +18,7 @@ import gropius.repository.findById
 import gropius.service.user.permission.ProjectPermissionService
 import io.github.graphglue.authorization.Permission
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 
 /**
@@ -93,7 +94,7 @@ class ProjectService(
             project, Permission(NodePermission.ADMIN, authorizationContext), "delete the Project"
         )
         beforeDeleteTrackable(project)
-        repository.delete(project).awaitSingle()
+        repository.delete(project).awaitSingleOrNull()
     }
 
     /**

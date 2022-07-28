@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired
  * @param interfaceSpecificationVersionService used for InterfaceSpecificationVersion-related mutations
  * @param interfacePartService used for InterfacePart-related mutations
  * @param componentVersionService used for ComponentVersion-related mutations
+ * @param imsService used for IMS-related mutations
+ * @param imsProjectService used for IMSProject-related mutations
  */
 @org.springframework.stereotype.Component
 class ArchitectureMutations(
@@ -31,7 +33,9 @@ class ArchitectureMutations(
     private val interfaceSpecificationVersionService: InterfaceSpecificationVersionService,
     private val interfacePartService: InterfacePartService,
     private val componentVersionService: ComponentVersionService,
-    private val relationService: RelationService
+    private val relationService: RelationService,
+    private val imsService: IMSService,
+    private val imsProjectService: IMSProjectService
 ) : Mutation {
 
     @GraphQLDescription(
@@ -343,6 +347,88 @@ class ArchitectureMutations(
         input: RemoveComponentVersionFromProjectInput, dfe: DataFetchingEnvironment
     ): Project {
         return projectService.removeComponentVersionFromProject(dfe.gropiusAuthorizationContext, input)
+    }
+
+    @GraphQLDescription("Creates a new IMS, requires CAN_CREATE_IMSS.")
+    @AutoPayloadType("The created IMS")
+    suspend fun createIMS(
+        @GraphQLDescription("Defines the created IMS")
+        input: CreateIMSInput, dfe: DataFetchingEnvironment
+    ): IMS {
+        return imsService.createIMS(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription("Updates the specified IMS, requires ADMIN on the IMS.")
+    @AutoPayloadType("The updated IMS")
+    suspend fun updateIMS(
+        @GraphQLDescription("Defines which IMS to update and how to update it")
+        input: UpdateIMSInput, dfe: DataFetchingEnvironment
+    ): IMS {
+        return imsService.updateIMS(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Deletes the specified IMS, requires ADMIN on the IMS to delete. 
+        Also deletes all associated IMSProjects
+        """
+    )
+    @AutoPayloadType("The id of the deleted IMS")
+    suspend fun deleteIMS(
+        @GraphQLDescription("Defines which IMS to delete")
+        input: DeleteNodeInput, dfe: DataFetchingEnvironment
+    ): ID {
+        imsService.deleteIMS(dfe.gropiusAuthorizationContext, input)
+        return input.id
+    }
+
+    @GraphQLDescription(
+        """Creates a new IMSProject, requirse SYNC_TRACKABLES on the specified IMS
+        AND MANAGE_IMS on the specified Trackable
+        """
+    )
+    @AutoPayloadType("The created IMSProject")
+    suspend fun createIMSProject(
+        @GraphQLDescription("Defines the created IMSProject")
+        input: CreateIMSProjectInput, dfe: DataFetchingEnvironment
+    ): IMSProject {
+        return imsProjectService.createIMSProject(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Updates the specified IMSProject, requirse SYNC_TRACKABLES on the IMS associted with the
+        specified IMSProject AND MANAGE_IMS on the Trackable associated with the specified
+        IMSProject.
+        """
+    )
+    @AutoPayloadType("The updated IMSProject")
+    suspend fun updateIMSProject(
+        @GraphQLDescription("Defines which IMSProject to update and how to update it")
+        input: UpdateIMSProjectInput, dfe: DataFetchingEnvironment
+    ): IMSProject {
+        return imsProjectService.updateIMSProject(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Deletes the specified IMSProject, requirse ADMIN on the IMS associted with the
+        specified IMSProject OR MANAGE_IMS on the Trackable associated with the specified
+        IMSProject.
+        """
+    )
+    @AutoPayloadType("The id of the deleted IMSProject")
+    suspend fun deleteIMSProject(
+        @GraphQLDescription("Defines which IMSProject to delete")
+        input: DeleteNodeInput, dfe: DataFetchingEnvironment
+    ): ID {
+        imsProjectService.deleteIMSProject(dfe.gropiusAuthorizationContext, input)
+        return input.id
     }
 
 }

@@ -131,7 +131,7 @@ class NodeSourcerer(
     }
 
     /**
-     * Ensure the user with the given UserData is insertzied in the database
+     * Ensure the user with the given UserData is inserted in the database
      * @param info The GraphQL user data
      * @return a gropius user
      */

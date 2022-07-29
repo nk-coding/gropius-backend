@@ -24,8 +24,10 @@ import java.time.OffsetDateTime
 
 /**
  * Implementation of Grabber to retrieve issues and cache them in the database
+ * @param apolloClient Apollo Client to use
  */
 class IssueGrabber(
+    private val remote: RepoDescription,
     /**
      * Reference for the spring instance of RepositoryInfoRepository
      */
@@ -33,19 +35,9 @@ class IssueGrabber(
     /**
      * Reference for the spring instance of ReactiveMongoOperations
      */
-    private val mongoOperations: ReactiveMongoOperations
+    private val mongoOperations: ReactiveMongoOperations,
+   private val apolloClient: ApolloClient
 ) : Grabber<IssueDataExtensive>() {
-
-    /**
-     * test repository user
-     */
-    val user = "espressif"
-
-    /**
-     * test repository name
-     */
-    val repo = "idf-component-manager" //"llvm-project"
-
     /**
      * The response of a single issue grabbing step
      */
@@ -62,9 +54,9 @@ class IssueGrabber(
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<RepositoryInfo>().matching(
-            query(where(RepositoryInfo::user.name).`is`(user)).addCriteria(
+            query(where(RepositoryInfo::user.name).`is`(remote.owner)).addCriteria(
                 where(RepositoryInfo::repo.name).`is`(
-                    repo
+                    remote.owner
                 )
             )
         ).apply(
@@ -73,14 +65,14 @@ class IssueGrabber(
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return repositoryInfoRepository.findByUserAndRepo(user, repo)?.lastAccess
+        return repositoryInfoRepository.findByUserAndRepo(remote.owner, remote.repo)?.lastAccess
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
         return mongoOperations.update<IssueDataCache>()
             .matching(query(where(IssueDataCache::githubId.name).`is`(node.id))).apply(
-                update(IssueDataCache::data.name, node).set(IssueDataCache::repo.name, repo)
-                    .set(IssueDataCache::user.name, user)
+                update(IssueDataCache::data.name, node).set(IssueDataCache::repo.name, remote.repo)
+                    .set(IssueDataCache::user.name, remote.owner)
             ).withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify()
             .awaitSingle().id!!
     }
@@ -88,8 +80,8 @@ class IssueGrabber(
     override suspend fun iterateCache(): Flow<IssueDataExtensive> {
         return mongoOperations.query<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::user.name).`is`(user)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(repo))
+                where(IssueDataCache::user.name).`is`(remote.owner)
+            ).addCriteria(where(IssueDataCache::repo.name).`is`(remote.repo))
                 .addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
@@ -97,8 +89,8 @@ class IssueGrabber(
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<IssueDataCache>(
             query(
-                where(IssueDataCache::user.name).`is`(user)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(repo)).addCriteria(where("data.id").`is`(node))
+                where(IssueDataCache::user.name).`is`(remote.owner)
+            ).addCriteria(where(IssueDataCache::repo.name).`is`(remote.repo)).addCriteria(where("data.id").`is`(node))
         ).awaitSingle()
     }
 
@@ -114,12 +106,9 @@ class IssueGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<IssueDataExtensive>? {
-        //TODO: Pool the clients by accessing user
-        val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
-            .addHttpHeader("Authorization", "bearer " + System.getenv("GITHUB_DUMMY_PAT")!!).build()
         val response = apolloClient.query(
             IssueReadQuery(
-                repoOwner = user, repoName = repo, since = since, cursor = cursor, issueCount = count
+                repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
             )
         ).execute()
         return if (response.data?.repository?.issues?.nodes != null) {

@@ -22,6 +22,7 @@ import java.time.OffsetDateTime
 
 /**
  * Implementation of Grabber to retrieve timeline items and cache them in the database
+ * @param apolloClient Apollo Client to use
  */
 class TimelineGrabber(
     /**
@@ -35,7 +36,8 @@ class TimelineGrabber(
     /**
      * github id of the issue
      */
-    private val id: String
+    private val id: String,
+    private val apolloClient: ApolloClient
 ) : Grabber<TimelineItemData>() {
 
     /**
@@ -100,9 +102,6 @@ class TimelineGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<TimelineItemData>? {
-        //TODO: Pool the clients by accessing user
-        val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
-            .addHttpHeader("Authorization", "bearer " + System.getenv("GITHUB_DUMMY_PAT")!!).build()
         val response = apolloClient.query(
             TimelineReadQuery(
                 issue = id, since = since, cursor = cursor, issueCount = count

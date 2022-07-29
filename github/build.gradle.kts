@@ -1,5 +1,7 @@
 val graphglueVersion: String by project
 val springBootVersion: String by project
+val apolloVersion: String by project
+val kosonVersion: String by project
 
 plugins {
     id("org.springframework.boot")
@@ -9,9 +11,10 @@ plugins {
 
 dependencies {
     implementation(project(path = ":sync"))
-    implementation("com.apollographql.apollo3:apollo-runtime:3.3.0")
-    implementation("com.apollographql.apollo3:apollo-adapters:3.3.0")
+    implementation("com.apollographql.apollo3", "apollo-runtime", apolloVersion)
+    implementation("com.apollographql.apollo3", "apollo-adapters", apolloVersion)
     implementation("org.springframework.boot", "spring-boot-starter-data-mongodb-reactive", springBootVersion)
+    implementation("com.lectra", "koson", kosonVersion)
 }
 
 

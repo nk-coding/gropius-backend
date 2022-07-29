@@ -1,5 +1,6 @@
 package gropius.sync.github
 
+import com.apollographql.apollo3.ApolloClient
 import gropius.sync.IssueCleaner
 import gropius.sync.github.generated.fragment.IssueDataExtensive
 import gropius.sync.github.generated.fragment.TimelineItemData
@@ -21,10 +22,13 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.stereotype.Component
+import java.lang.Exception
 import java.time.OffsetDateTime
 
 /**
  * Stateless component for the incoming part of the sync
+ * @param helper JSON Helper
+ * @param imsConfigManager Reference for the spring instance of RepositoryInfoRepository
  */
 @Component
 class Incoming(
@@ -63,7 +67,9 @@ class Incoming(
     /**
      * Reference for the spring instance of TimelineItemHandler
      */
-    private val timelineItemHandler: TimelineItemHandler
+    private val timelineItemHandler: TimelineItemHandler,
+    private val helper: JsonHelper,
+    private val imsConfigManager: IMSConfigManager
 ) {
 
     /**
@@ -74,9 +80,7 @@ class Incoming(
     suspend fun issueModified(info: IssueDataExtensive): OffsetDateTime {
         val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(info)
         mongoOperations.updateFirst(
-            Query(where("_id").`is`(mongoIssue.id!!)),
-            Update().set(IssueInfo::dirty.name, true),
-            IssueInfo::class.java
+            Query(where("_id").`is`(mongoIssue.id!!)), Update().set(IssueInfo::dirty.name, true), IssueInfo::class.java
         ).awaitSingle()
         return info.updatedAt
     }
@@ -105,20 +109,46 @@ class Incoming(
      * Sync github to gropius
      */
     suspend fun sync() {
-        val issueGrabber = IssueGrabber(repositoryInfoRepository, mongoOperations)
+        for (imsTemplate in imsConfigManager.findTemplates()) {
+            for (ims in imsTemplate.usedIn()) {
+                try {
+                    val imsConfig = IMSConfig(helper, ims)
+                    syncIMS(imsConfig)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    suspend fun syncIMS(imsConfig: IMSConfig) {
+        val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
+            .addHttpHeader("Authorization", "bearer " + System.getenv("GITHUB_DUMMY_PAT")!!).build()
+        for (project in imsConfig.ims.projects()) {
+            try {
+                val imsProjectConfig = IMSProjectConfig(helper, imsConfig, project)
+                syncProject(imsProjectConfig, apolloClient)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
+        val issueGrabber = IssueGrabber(imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient)
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
             issueModified(it)
         }
         for (issue in issueInfoRepository.findByDirtyIsTrue().toList()) {
-            val timelineGrabber = TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId)
+            val timelineGrabber = TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId,apolloClient)
             timelineGrabber.requestNewNodes()
         }
         for (issueId in mongoOperations.query<TimelineItemDataCache>().matching(
             Query.query(Criteria.where(TimelineItemDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.issue }.toSet()) {
             val issue = issueInfoRepository.findByGithubId(issueId)!!
-            val timelineGrabber = TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId)
+            val timelineGrabber = TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId, apolloClient)
             timelineGrabber.iterate {
                 handleTimelineEvent(issue, it)
             }

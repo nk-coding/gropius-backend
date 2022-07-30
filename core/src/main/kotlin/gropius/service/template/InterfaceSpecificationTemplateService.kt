@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
 @Service
 class InterfaceSpecificationTemplateService(
     repository: InterfaceSpecificationTemplateRepository, val componentTemplateRepository: ComponentTemplateRepository
-) : AbstractTemplateService<InterfaceSpecificationTemplate, InterfaceSpecificationTemplateRepository>(repository) {
+) : RelationPartnerTemplateService<InterfaceSpecificationTemplate, InterfaceSpecificationTemplateRepository>(repository) {
 
     /**
      * Creates a new [InterfaceSpecificationTemplate] based on the provided [input]
@@ -34,11 +34,12 @@ class InterfaceSpecificationTemplateService(
         input.validate()
         checkCreateTemplatePermission(authorizationContext)
         val template = InterfaceSpecificationTemplate(input.name, input.description, mutableMapOf(), false)
-        createdTemplate(template, input)
+        createdRelationPartnerTemplate(template, input)
         template.canBeVisibleOnComponents() += componentTemplateRepository.findAllById(input.canBeVisibleOnComponents)
         template.canBeVisibleOnComponents() += template.extends().flatMap { it.canBeVisibleOnComponents() }
         template.canBeInvisibleOnComponents() += componentTemplateRepository.findAllById(input.canBeInvisibleOnComponents)
         template.canBeInvisibleOnComponents() += template.extends().flatMap { it.canBeInvisibleOnComponents() }
+        template.inheritableBy() += template.extends().flatMap { it.inheritableBy() }
         template.interfaceSpecificationVersionTemplate().value =
             createSubTemplate(::InterfaceSpecificationVersionTemplate, input.interfaceSpecificationVersionTemplate)
         template.interfacePartTemplate().value = createSubTemplate(::InterfacePartTemplate, input.interfacePartTemplate)

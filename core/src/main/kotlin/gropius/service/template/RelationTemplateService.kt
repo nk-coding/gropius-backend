@@ -21,10 +21,8 @@ import org.springframework.stereotype.Service
  */
 @Service
 class RelationTemplateService(
-    repository: RelationTemplateRepository,
-    val relationPartnerTemplateRepository: RelationPartnerTemplateRepository
-) :
-    AbstractTemplateService<RelationTemplate, RelationTemplateRepository>(repository) {
+    repository: RelationTemplateRepository, val relationPartnerTemplateRepository: RelationPartnerTemplateRepository
+) : AbstractTemplateService<RelationTemplate, RelationTemplateRepository>(repository) {
 
     /**
      * Creates a new [RelationTemplate] based on the provided [input]
@@ -44,6 +42,7 @@ class RelationTemplateService(
         template.relationConditions() += input.relationConditions.map {
             createRelationCondition(it)
         }
+        template.relationConditions() += template.extends().flatMap { it.relationConditions() }
         return repository.save(template).awaitSingle()
     }
 

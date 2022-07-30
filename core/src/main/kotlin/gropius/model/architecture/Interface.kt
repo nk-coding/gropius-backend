@@ -2,12 +2,11 @@ package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.model.template.BaseTemplate
-import gropius.model.template.InterfaceTemplate
-import gropius.model.template.MutableTemplatedNode
+import gropius.model.template.*
 import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
+import io.github.graphglue.model.property.NodeCache
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -46,4 +45,10 @@ class Interface(
     @FilterProperty
     @delegate:Transient
     val interfaceDefinition by NodeProperty<InterfaceDefinition>()
+
+    @GraphQLIgnore
+    override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {
+        val interfaceSpecificationVersion = interfaceDefinition(cache).value.interfaceSpecificationVersion(cache).value
+        return interfaceSpecificationVersion.interfaceSpecification(cache).value.template(cache).value
+    }
 }

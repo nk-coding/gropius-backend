@@ -4,6 +4,7 @@ import gropius.model.architecture.*
 import gropius.model.template.ComponentTemplate
 import gropius.model.template.InterfaceSpecificationInheritanceCondition
 import gropius.model.template.InterfaceSpecificationTemplate
+import gropius.model.template.RelationPartnerTemplate
 import io.github.graphglue.model.Node
 import io.github.graphglue.model.property.NodeCache
 
@@ -34,7 +35,7 @@ class ComponentGraphUpdater {
      * Nodes which are updated and need to be saved
      * Does not include any deleted nodes
      */
-    val updatedNodes: Set<Node> get() = internalUpdatedNodes - (deletedNodes)
+    val updatedNodes: Set<Node> get() = internalUpdatedNodes - deletedNodes
 
     /**
      * Called when a [Component] should be deleted
@@ -65,6 +66,7 @@ class ComponentGraphUpdater {
 
     suspend fun deleteRelation(relation: Relation) {
         if (relation !in deletedNodes) {
+            cache.add(relation)
             deletedNodes += relation
             relation.start(cache).value.outgoingRelations(cache) -= relation
             val endNode = relation.end(cache).value
@@ -99,6 +101,7 @@ class ComponentGraphUpdater {
     }
 
     suspend fun updateComponentTemplate(component: Component) {
+        cache.add(component)
         component.versions(cache).forEach { componentVersion ->
             val updatedDefinitions = componentVersion.incomingRelations(cache).flatMap { relation ->
                 addForUpdatedRelation(relation)
@@ -113,11 +116,13 @@ class ComponentGraphUpdater {
                     updatedInterfaceSpecificationVersions += it.interfaceSpecificationVersion(cache).value
                 }
             }
+            validateRelationsAfterTemplateUpdate(componentVersion)
             validateRelatedComponentVersions(componentVersion, updatedInterfaceSpecificationVersions)
         }
     }
 
     suspend fun updateInterfaceSpecificationTemplate(interfaceSpecification: InterfaceSpecification) {
+        cache.add(interfaceSpecification)
         val definitions = interfaceSpecification.versions(cache).flatMap { it.definitions(cache) }
         for (definition in definitions) {
             val componentVersion = definition.componentVersion(cache).value
@@ -136,6 +141,8 @@ class ComponentGraphUpdater {
         visible: Boolean,
         invisible: Boolean
     ) {
+        cache.add(interfaceSpecificationVersion)
+        cache.add(componentVersion)
         val definition = componentVersion.interfaceDefinitions(cache).firstOrNull {
             it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
         }
@@ -158,6 +165,8 @@ class ComponentGraphUpdater {
         visible: Boolean,
         invisible: Boolean
     ) {
+        cache.add(interfaceSpecificationVersion)
+        cache.add(componentVersion)
         val definition = getOrCreateInterfaceDefinition(componentVersion, interfaceSpecificationVersion)
         if (visible) {
             definition.visibleSelfDefined = true
@@ -170,10 +179,12 @@ class ComponentGraphUpdater {
     }
 
     suspend fun createRelation(relation: Relation) {
+        cache.add(relation)
         updatedRelation(relation)
     }
 
     suspend fun updateRelationTemplate(relation: Relation) {
+        cache.add(relation)
         updatedRelation(relation)
         val endNode = relation.end(cache).value
         if (endNode is ComponentVersion) {
@@ -211,7 +222,33 @@ class ComponentGraphUpdater {
         if (updated) {
             handleUpdatedInterfaceDefinition(interfaceDefinition)
         }
+        val visibleInterface = interfaceDefinition.visibleInterface(cache).value
+        if (visibleInterface != null) {
+            validateRelationsAfterTemplateUpdate(visibleInterface)
+        }
         return updated
+    }
+
+    private suspend fun validateRelationsAfterTemplateUpdate(
+        relationPartner: RelationPartner
+    ) {
+        val template = relationPartner.relationPartnerTemplate(cache)
+        relationPartner.incomingRelations(cache).toSet().forEach {
+            validateRelation(it, it.start(cache).value.relationPartnerTemplate(cache), template)
+        }
+        relationPartner.outgoingRelations(cache).toSet().forEach {
+            validateRelation(it, template, it.end(cache).value.relationPartnerTemplate(cache))
+        }
+    }
+
+    private suspend fun validateRelation(
+        relation: Relation, startTemplate: RelationPartnerTemplate<*, *>, endTemplate: RelationPartnerTemplate<*, *>
+    ) {
+        if (relation.template(cache).value.relationConditions(cache)
+                .none { startTemplate in it.from(cache) && endTemplate in it.to(cache) }
+        ) {
+            deleteRelation(relation)
+        }
     }
 
     private suspend fun updatedRelation(relation: Relation) {
@@ -231,8 +268,8 @@ class ComponentGraphUpdater {
             if (startNode !is ComponentVersion || endNode !is ComponentVersion) {
                 return emptySet()
             }
-            val startTemplate = startNode.template(cache).value.partOf(cache).value
-            val endTemplate = endNode.template(cache).value.partOf(cache).value
+            val startTemplate = startNode.relationPartnerTemplate(cache)
+            val endTemplate = endNode.relationPartnerTemplate(cache)
             val inheritanceConditionsByTemplate =
                 mutableMapOf<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>()
             relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
@@ -262,7 +299,7 @@ class ComponentGraphUpdater {
                     ) {
                         if (condition.isVisibleInherited && canBeVisible || condition.isInvisibleInherited && canBeInvisible) {
                             val targetDefinition = getOrCreateInterfaceDefinition(
-                                startNode, interfaceSpecificationVersion
+                                endNode, interfaceSpecificationVersion
                             )
                             if (condition.isVisibleInherited) {
                                 if (targetDefinition.visibleDerivedBy(cache).add(relation)) {
@@ -308,15 +345,18 @@ class ComponentGraphUpdater {
             it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
         } ?: run {
             val template =
-                interfaceSpecificationVersion.template(cache).value.partOf(cache).value.interfaceDefinitionTemplate(
+                interfaceSpecificationVersion.interfaceSpecification(cache).value.template(cache).value.interfaceDefinitionTemplate(
                     cache
                 ).value
             val newDefinition = InterfaceDefinition(
                 false, false, template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
             )
             newDefinition.template(cache).value = template
+            newDefinition.interfaceSpecificationVersion(cache).value = interfaceSpecificationVersion
+            newDefinition.componentVersion(cache).value = componentVersion
             componentVersion.interfaceDefinitions(cache) += newDefinition
-            internalUpdatedNodes += componentVersion
+            interfaceSpecificationVersion.definitions(cache) += newDefinition
+            internalUpdatedNodes += newDefinition
             newDefinition
         }
     }
@@ -330,10 +370,14 @@ class ComponentGraphUpdater {
     }
 
     private suspend fun handleUpdatedInterfaceDefinition(definition: InterfaceDefinition) {
+        internalUpdatedNodes += definition
         if (definition.visibleSelfDefined || definition.visibleDerivedBy(cache).isNotEmpty()) {
             if (definition.visibleInterface(cache).value == null) {
                 val specification = definition.interfaceSpecificationVersion(cache).value
-                val template = definition.template(cache).value.partOf(cache).value.interfaceTemplate(cache).value
+                val template =
+                    definition.interfaceSpecificationVersion(cache).value.interfaceSpecification(cache).value.template(cache).value.interfaceTemplate(
+                        cache
+                    ).value
                 val newInterface = Interface(
                     specification.name,
                     specification.description,
@@ -479,8 +523,8 @@ class ComponentGraphUpdater {
                 it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
             } ?: return false
 
-            val startTemplate = startNode.template(cache).value.partOf(cache).value
-            val endTemplate = endNode.template(cache).value.partOf(cache).value
+            val startTemplate = startNode.relationPartnerTemplate(cache)
+            val endTemplate = endNode.relationPartnerTemplate(cache)
 
             var byVisibleSelfDefined = false
             var byVisibleDerived = false

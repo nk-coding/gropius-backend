@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service
 @Service
 class ComponentTemplateService(
     repository: ComponentTemplateRepository, val componentTemplateRepository: ComponentTemplateRepository
-) : AbstractTemplateService<ComponentTemplate, ComponentTemplateRepository>(repository) {
+) : RelationPartnerTemplateService<ComponentTemplate, ComponentTemplateRepository>(repository) {
 
     /**
      * Creates a new [ComponentTemplate] based on the provided [input]
@@ -33,9 +33,15 @@ class ComponentTemplateService(
         input.validate()
         checkCreateTemplatePermission(authorizationContext)
         val template = ComponentTemplate(input.name, input.description, mutableMapOf(), false)
-        createdTemplate(template, input)
+        createdRelationPartnerTemplate(template, input)
         template.componentVersionTemplate().value =
             createSubTemplate(::ComponentVersionTemplate, input.componentVersionTemplate)
+        template.possibleVisibleInterfaceSpecifications() += template.extends().flatMap {
+            it.possibleVisibleInterfaceSpecifications()
+        }
+        template.possibleInvisibleInterfaceSpecifications() += template.extends().flatMap {
+            it.possibleInvisibleInterfaceSpecifications()
+        }
         return repository.save(template).awaitSingle()
     }
 

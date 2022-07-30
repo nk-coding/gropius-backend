@@ -107,7 +107,7 @@ class ComponentService(
             }
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateComponentTemplate(component)
-            nodeRepository.deleteAll(graphUpdater.deletedNodes)
+            nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
             nodesToSave += graphUpdater.updatedNodes
         }
         templatedNodeService.updateTemplatedFields(component, input, input.template.isPresent)

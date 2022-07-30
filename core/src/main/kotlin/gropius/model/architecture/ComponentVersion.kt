@@ -4,10 +4,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.model.template.BaseTemplate
-import gropius.model.template.ComponentVersionTemplate
-import gropius.model.template.MutableTemplatedNode
+import gropius.model.template.*
 import gropius.model.user.permission.ComponentPermission
+import io.github.graphglue.model.property.NodeCache
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -59,4 +58,9 @@ class ComponentVersion(
     @FilterProperty
     @delegate:Transient
     val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()
+
+    @GraphQLIgnore
+    override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {
+        return component(cache).value.template(cache).value
+    }
 }

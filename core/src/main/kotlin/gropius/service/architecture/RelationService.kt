@@ -85,7 +85,7 @@ class RelationService(
         createdExtensibleNode(relation, input)
         val graphUpdater = ComponentGraphUpdater()
         graphUpdater.createRelation(relation)
-        nodeRepository.deleteAll(graphUpdater.deletedNodes)
+        nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
         val updatedNodes = graphUpdater.updatedNodes + relation
         return nodeRepository.saveAll(updatedNodes).collectList().awaitSingle().first { it == relation } as Relation
     }
@@ -131,8 +131,8 @@ class RelationService(
     private suspend fun validateRelationStartAndEnd(
         start: RelationPartner, end: RelationPartner, template: RelationTemplate
     ) {
-        val startTemplate = start.template().value
-        val endTemplate = end.template().value
+        val startTemplate = start.relationPartnerTemplate()
+        val endTemplate = end.relationPartnerTemplate()
         if (template.relationConditions().none { startTemplate in it.from() && endTemplate in it.to() }) {
             throw IllegalStateException("No RelationCondition allows the chosen relationTemplate & start & end combination")
         }
@@ -168,7 +168,7 @@ class RelationService(
             relation.template().value = template
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateRelationTemplate(relation)
-            nodeRepository.deleteAll(graphUpdater.deletedNodes)
+            nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
             nodesToSave += graphUpdater.updatedNodes
         }
         input.addedStartParts.ifPresent {

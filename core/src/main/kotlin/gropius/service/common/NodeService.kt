@@ -43,7 +43,7 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
      * @throws IllegalArgumentException with the provided [errorMessage] in case the permission is not granted
      */
     suspend fun checkPermission(node: Node, permission: Permission, errorMessage: String) {
-        if (evaluatePermission(node, permission)) {
+        if (!evaluatePermission(node, permission)) {
             throw IllegalArgumentException("User does not have permission to $errorMessage")
         }
     }
@@ -59,7 +59,7 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
      */
     suspend fun evaluatePermission(node: Node, permission: Permission): Boolean {
         val checkPermission = (permission.context as GropiusAuthorizationContext).checkPermission
-        return checkPermission && !authorizationChecker.hasAuthorization(node, permission).awaitSingle()
+        return !checkPermission || authorizationChecker.hasAuthorization(node, permission).awaitSingle()
     }
 
     /**

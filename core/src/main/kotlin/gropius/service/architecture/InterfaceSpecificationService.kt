@@ -153,7 +153,7 @@ class InterfaceSpecificationService(
             }
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateInterfaceSpecificationTemplate(interfaceSpecification)
-            nodeRepository.deleteAll(graphUpdater.deletedNodes)
+            nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
             nodesToSave += graphUpdater.updatedNodes
         }
         templatedNodeService.updateTemplatedFields(interfaceSpecification, input, input.template.isPresent)

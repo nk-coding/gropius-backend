@@ -138,12 +138,6 @@ class NodeSourcerer(
     suspend fun ensureUser(info: UserData) = ensureUser(info.login)
 
     /**
-     * Ensure the fallback user for actions unknown origin is in the database
-     * @return a gropius user
-     */
-    suspend fun ensureBotUser() = ensureUser("github-bot")//TODO: Read from template
-
-    /**
      * Ensure a user with the given username is in the database
      * @param username The github username string
      * @return a gropius user
@@ -165,7 +159,7 @@ class NodeSourcerer(
      * @param info The GraphQL data for this label
      * @return a gropius label
      */
-    suspend fun ensureLabel(info: LabelData): Label {
+    suspend fun ensureLabel(imsProjectConfig: IMSProjectConfig, info: LabelData): Label {
         val labelInfo = labelInfoRepository.findByGithubId(info.id)
         return if (labelInfo == null) {
             var label = Label(
@@ -175,8 +169,8 @@ class NodeSourcerer(
                 (info as? LabelDataExtensive)?.description ?: "",
                 (info as? LabelDataExtensive)?.color ?: "#000000"
             )
-            label.createdBy().value = ensureBotUser()
-            label.lastModifiedBy().value = ensureBotUser()
+            label.createdBy().value = ensureUser(imsProjectConfig.botUser)
+            label.lastModifiedBy().value = ensureUser(imsProjectConfig.botUser)
             label = neoOperations.save(label).awaitSingle()
             labelInfoRepository.save(LabelInfo(info.id, label.rawId!!)).awaitSingle()
             label

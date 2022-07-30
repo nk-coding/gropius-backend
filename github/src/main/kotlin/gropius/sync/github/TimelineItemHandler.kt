@@ -16,6 +16,7 @@ import java.time.OffsetDateTime
  */
 @Component
 class TimelineItemHandler(
+    private val imsProjectConfig: IMSProjectConfig,
     /**
      * Reference for the spring instance of NodeSourcerer
      */
@@ -24,7 +25,7 @@ class TimelineItemHandler(
      * Reference for the spring instance of ReactiveNeo4jOperations
      */
     @Qualifier("graphglueNeo4jOperations")
-    private val neoOperations: ReactiveNeo4jOperations
+    private val neoOperations: ReactiveNeo4jOperations,
 ) {
     /**
      * Save timeline item to database
@@ -78,7 +79,7 @@ class TimelineItemHandler(
         addedLabelEvent.issue().value = issue.load(neoOperations)
         addedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
         addedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        addedLabelEvent.addedLabel().value = nodeSourcerer.ensureLabel(event.label)
+        addedLabelEvent.addedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         addedLabelEvent = neoOperations.save(addedLabelEvent).awaitSingle()
         return Pair(addedLabelEvent.rawId, event.createdAt)
     }
@@ -96,7 +97,7 @@ class TimelineItemHandler(
         removedLabelEvent.issue().value = issue.load(neoOperations)
         removedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
         removedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        removedLabelEvent.removedLabel().value = nodeSourcerer.ensureLabel(event.label)
+        removedLabelEvent.removedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         removedLabelEvent = neoOperations.save(removedLabelEvent).awaitSingle()
         return Pair(removedLabelEvent.rawId, event.createdAt)
     }

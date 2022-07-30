@@ -439,6 +439,7 @@ class ComponentGraphUpdater {
         componentVersion: ComponentVersion, startDefinitions: Set<InterfaceDefinition>? = null
     ) {
         val nextInterfaceSpecificationVersions = mutableSetOf<InterfaceSpecificationVersion>()
+        var anyUpdated = false
         for (definition in startDefinitions ?: componentVersion.interfaceDefinitions(cache).toSet()) {
             val circularDerivationChecker = CircularDerivationChecker(definition)
             var updated = false
@@ -454,8 +455,11 @@ class ComponentGraphUpdater {
                 nextInterfaceSpecificationVersions += definition.interfaceSpecificationVersion(cache).value
                 handleUpdatedInterfaceDefinition(definition)
             }
+            anyUpdated = anyUpdated || updated
         }
-        validateRelatedComponentVersions(componentVersion, nextInterfaceSpecificationVersions)
+        if (anyUpdated) {
+            validateRelatedComponentVersions(componentVersion, nextInterfaceSpecificationVersions)
+        }
     }
 
     inner class CircularDerivationChecker(

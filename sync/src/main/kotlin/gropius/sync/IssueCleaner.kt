@@ -1,9 +1,7 @@
 package gropius.sync
 
 import gropius.model.issue.Issue
-import gropius.model.issue.timeline.AddedLabelEvent
-import gropius.model.issue.timeline.RemovedLabelEvent
-import gropius.model.issue.timeline.TitleChangedEvent
+import gropius.model.issue.timeline.*
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
@@ -39,13 +37,29 @@ class IssueCleaner(
     }
 
     /**
-     * Clean the ttile on this issue into a consistent state
+     * Clean the title on this issue into a consistent state
      * @param issue issue to work on
      */
     private suspend fun cleanTitle(issue: Issue) {
         for (item in issue.timelineItems().sortedBy { it.createdAt }) {
             if (item is TitleChangedEvent) {
                 issue.title = item.newTitle
+            }
+        }
+    }
+
+    /**
+     * Clean the open state on this issue into a consistent state
+     * @param issue issue to work on
+     */
+    private suspend fun cleanOpenState(issue: Issue) {
+        issue.isOpen = true
+        for (item in issue.timelineItems().sortedBy { it.createdAt }) {
+            if (item is ReopenedEvent) {
+                issue.isOpen = true
+            }
+            if (item is ClosedEvent) {
+                issue.isOpen = false
             }
         }
     }
@@ -59,6 +73,7 @@ class IssueCleaner(
     suspend fun cleanIssue(id: String) {
         var issue = neoOperations.findById<Issue>(id)!!
         cleanLabels(issue)
+        cleanOpenState(issue)
         cleanTitle(issue)
         issue = neoOperations.save(issue).awaitSingle()
     }

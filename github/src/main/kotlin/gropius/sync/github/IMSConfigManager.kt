@@ -26,6 +26,9 @@ class IMSConfigManager(
     private val commonTemplateFields = mapOf("bot-user" to obj {
         "\$schema" to schema
         "type" to arr["null", "string"]
+    }.toString(), "last-notification" to obj {
+        "\$schema" to schema
+        "type" to arr["null", "string"]
     }.toString())
     private val imsTemplateName = "Github"
     private val imsTemplateFields = mapOf("read-user" to obj {
@@ -49,7 +52,10 @@ class IMSConfigManager(
         "gropius-type" to "github-user"
     }.toString()) + commonTemplateFields
     private val imsIssueTemplateName = "Github Issue"
-    private val imsIssueTemplateFields = mapOf<String, String>()
+    private val imsIssueTemplateFields = mapOf<String, String>("last-notification" to obj {
+        "\$schema" to schema
+        "type" to arr["null", "string"]
+    }.toString())
 
     /**
      * Check if a given Template can be used as if it was the reference template.

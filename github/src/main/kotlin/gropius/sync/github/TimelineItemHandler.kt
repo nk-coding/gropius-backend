@@ -1,8 +1,6 @@
 package gropius.sync.github
 
-import gropius.model.issue.timeline.AddedLabelEvent
-import gropius.model.issue.timeline.RemovedLabelEvent
-import gropius.model.issue.timeline.TitleChangedEvent
+import gropius.model.issue.timeline.*
 import gropius.sync.github.generated.fragment.*
 import gropius.sync.github.model.IssueInfo
 import kotlinx.coroutines.reactor.awaitSingle
@@ -49,8 +47,12 @@ class TimelineItemHandler(
     private suspend fun handleIssueClosed(
         issue: IssueInfo, event: ClosedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
-        //TODO: PR #5
-        return Pair(null, event.createdAt)
+        var closedEvent = ClosedEvent(event.createdAt, OffsetDateTime.now())
+        closedEvent.issue().value = issue.load(neoOperations)
+        closedEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        closedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        closedEvent = neoOperations.save(closedEvent).awaitSingle()
+        return Pair(closedEvent.rawId, event.createdAt)
     }
 
     /**
@@ -62,8 +64,12 @@ class TimelineItemHandler(
     private suspend fun handleIssueReopen(
         issue: IssueInfo, event: ReopenedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
-        //TODO: PR #5
-        return Pair(null, event.createdAt)
+        var reopenedEvent = ReopenedEvent(event.createdAt, OffsetDateTime.now())
+        reopenedEvent.issue().value = issue.load(neoOperations)
+        reopenedEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        reopenedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        reopenedEvent = neoOperations.save(reopenedEvent).awaitSingle()
+        return Pair(reopenedEvent.rawId, event.createdAt)
     }
 
     /**
@@ -161,7 +167,6 @@ class TimelineItemHandler(
             is SubscribedEventTimelineItemData -> Pair(null, event.createdAt)
             is UnsubscribedEventTimelineItemData -> Pair(null, event.createdAt)
             else -> {
-                println(event)
                 TODO("Throw nice exception for unhandled event: " + event.__typename)
             }
         }

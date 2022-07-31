@@ -6,8 +6,8 @@ import gropius.dto.input.common.CreateExtensibleNodeInput
 
 @GraphQLDescription("Input to create a RelationCondition")
 class RelationConditionInput(
-    @GraphQLDescription("Defines which InterfaceSpecifications are inherited via the relation")
-    val interfaceSpecificationInheritanceConditions: List<InterfaceSpecificationInheritanceConditionInput>,
+    @GraphQLDescription("Defines which InterfaceSpecifications are derived via the relation")
+    val interfaceSpecificationDerivationConditions: List<InterfaceSpecificationDerivationConditionInput>,
     @GraphQLDescription("IDs of Templates of allowed start RelationPartners")
     val from: List<ID>,
     @GraphQLDescription("IDs of Templates of allowed end RelationPartners")
@@ -16,6 +16,6 @@ class RelationConditionInput(
 
     override fun validate() {
         super.validate()
-        interfaceSpecificationInheritanceConditions.forEach { it.validate() }
+        interfaceSpecificationDerivationConditions.forEach { it.validate() }
     }
 }

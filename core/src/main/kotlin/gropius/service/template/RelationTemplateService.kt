@@ -3,7 +3,7 @@ package gropius.service.template
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.template.CreateRelationTemplateInput
 import gropius.dto.input.template.RelationConditionInput
-import gropius.model.template.InterfaceSpecificationInheritanceCondition
+import gropius.model.template.InterfaceSpecificationDerivationCondition
 import gropius.model.template.RelationCondition
 import gropius.model.template.RelationPartnerTemplate
 import gropius.model.template.RelationTemplate
@@ -58,14 +58,14 @@ class RelationTemplateService(
         input: RelationConditionInput
     ): RelationCondition {
         val relationCondition = RelationCondition()
-        relationCondition.interfaceSpecificationInheritanceConditions() += input.interfaceSpecificationInheritanceConditions.map {
-            InterfaceSpecificationInheritanceCondition(
+        relationCondition.interfaceSpecificationDerivationConditions() += input.interfaceSpecificationDerivationConditions.map {
+            InterfaceSpecificationDerivationCondition(
                 it.inheritsVisibleSelfDefined,
                 it.inheritsInvisibleSelfDefined,
                 it.inheritsVisibleDerived,
                 it.inheritsInvisibleDerived,
-                it.isVisibleInherited,
-                it.isInvisibleInherited
+                it.isVisibleDerived,
+                it.isInvisibleDerived
             )
         }
         relationCondition.from() += relationPartnerTemplateRepository.findAllById(input.from)

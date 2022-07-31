@@ -30,13 +30,13 @@ abstract class AbstractTemplateService<T : Template<*, T>, R : ReactiveNeo4jRepo
         createdBaseTemplate(template, input)
         val extendedTemplates = repository.findAllById(input.extends.orElse(emptyList()))
         template.extends().addAll(extendedTemplates)
-        val inheritedFields = extendedTemplates.flatMap { it.templateFieldSpecifications.entries }.map { it.toPair() }
-        val allFields = inheritedFields + template.templateFieldSpecifications.entries.map { it.toPair() }
+        val derivedFields = extendedTemplates.flatMap { it.templateFieldSpecifications.entries }.map { it.toPair() }
+        val allFields = derivedFields + template.templateFieldSpecifications.entries.map { it.toPair() }
         val duplicates = allFields.groupingBy { it.first }.eachCount().filter { it.value > 1 }.keys
         if (duplicates.isNotEmpty()) {
             throw IllegalArgumentException("Duplicate names found: $duplicates")
         }
-        for ((name, value) in inheritedFields) {
+        for ((name, value) in derivedFields) {
             template.templateFieldSpecifications[name] = value
         }
     }

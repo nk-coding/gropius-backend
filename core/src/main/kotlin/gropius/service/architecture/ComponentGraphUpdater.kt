@@ -379,18 +379,18 @@ class ComponentGraphUpdater {
         }
         val startTemplate = startNode.relationPartnerTemplate(cache)
         val endTemplate = endNode.relationPartnerTemplate(cache)
-        val inheritanceConditions =
-            mutableMapOf<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>()
+        val derivationConditions =
+            mutableMapOf<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationDerivationCondition>>()
         relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
             if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
-                relationCondition.interfaceSpecificationInheritanceConditions(cache).forEach { condition ->
+                relationCondition.interfaceSpecificationDerivationConditions(cache).forEach { condition ->
                     condition.inheritableInterfaceSpecifications(cache).forEach {
-                        inheritanceConditions.computeIfAbsent(it) { mutableListOf() }.add(condition)
+                        derivationConditions.computeIfAbsent(it) { mutableListOf() }.add(condition)
                     }
                 }
             }
         }
-        return addForUpdatedRelation(startDefinitions, startNode, inheritanceConditions, endTemplate, endNode, relation)
+        return addForUpdatedRelation(startDefinitions, startNode, derivationConditions, endTemplate, endNode, relation)
     }
 
     /**
@@ -404,15 +404,15 @@ class ComponentGraphUpdater {
      *   maybe derive. If not provided, all are evaluated
      * @param startNode the start of the [relation]
      * @param endNode the end of the [relation]
-     * @param inheritanceConditionsByTemplate mapping from [InterfaceSpecification] template
-     *   to [InterfaceSpecificationInheritanceCondition]
+     * @param derivationConditionsByTemplate mapping from [InterfaceSpecification] template
+     *   to [InterfaceSpecificationDerivationCondition]
      * @param endTemplate template of [endNode]
      * @return the derived [InterfaceDefinition]s on the end node, can be used to perform a transitive graph update
      */
     private suspend fun addForUpdatedRelation(
         startDefinitions: Set<InterfaceDefinition>?,
         startNode: ComponentVersion,
-        inheritanceConditionsByTemplate: MutableMap<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>,
+        derivationConditionsByTemplate: MutableMap<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationDerivationCondition>>,
         endTemplate: RelationPartnerTemplate<*, *>,
         endNode: ComponentVersion,
         relation: Relation
@@ -422,7 +422,7 @@ class ComponentGraphUpdater {
             val version = definition.interfaceSpecificationVersion(cache).value
             val interfaceSpecification = version.interfaceSpecification(cache).value
             val interfaceSpecificationTemplate = interfaceSpecification.template(cache).value
-            val conditions = inheritanceConditionsByTemplate[interfaceSpecificationTemplate] ?: emptySet()
+            val conditions = derivationConditionsByTemplate[interfaceSpecificationTemplate] ?: emptySet()
             val canBeVisible = endTemplate in interfaceSpecificationTemplate.canBeVisibleOnComponents(cache)
             val canBeInvisible = endTemplate in interfaceSpecificationTemplate.canBeInvisibleOnComponents(cache)
             conditions.filter {
@@ -444,7 +444,7 @@ class ComponentGraphUpdater {
      * Derives an [interfaceSpecificationVersion] via a [relation] to a [componentVersion]
      * Does not perform a graph update
      *
-     * @param condition the [InterfaceSpecificationInheritanceCondition] allowing the derivation of the
+     * @param condition the [InterfaceSpecificationDerivationCondition] allowing the derivation of the
      *   [interfaceSpecificationVersion]
      * @param canBeInvisible if `true`, [interfaceSpecificationVersion] can be visible on [componentVersion]
      * @param canBeInvisible if `true`, [interfaceSpecificationVersion] can be invisible on [componentVersion]
@@ -454,7 +454,7 @@ class ComponentGraphUpdater {
      * @return updated/created [InterfaceDefinition]s
      */
     private suspend fun deriveInterfaceSpecificationVersion(
-        condition: InterfaceSpecificationInheritanceCondition,
+        condition: InterfaceSpecificationDerivationCondition,
         canBeVisible: Boolean,
         canBeInvisible: Boolean,
         componentVersion: ComponentVersion,
@@ -462,18 +462,18 @@ class ComponentGraphUpdater {
         relation: Relation
     ): Set<InterfaceDefinition> {
         val updatedDefinitions = mutableSetOf<InterfaceDefinition>()
-        if (condition.isVisibleInherited && canBeVisible || condition.isInvisibleInherited && canBeInvisible) {
+        if (condition.isVisibleDerived && canBeVisible || condition.isInvisibleDerived && canBeInvisible) {
             val targetDefinition = getOrCreateInterfaceDefinition(
                 componentVersion, interfaceSpecificationVersion
             )
-            if (condition.isVisibleInherited && targetDefinition.visibleDerivedBy(cache).add(relation)) {
+            if (condition.isVisibleDerived && targetDefinition.visibleDerivedBy(cache).add(relation)) {
                 internalUpdatedNodes += targetDefinition
                 updatedDefinitions += targetDefinition
                 if (!targetDefinition.visibleSelfDefined && targetDefinition.visibleDerivedBy(cache).size == 1) {
                     handleUpdatedInterfaceDefinition(targetDefinition)
                 }
             }
-            if (condition.isInvisibleInherited && targetDefinition.invisibleDerivedBy(cache).add(relation)) {
+            if (condition.isInvisibleDerived && targetDefinition.invisibleDerivedBy(cache).add(relation)) {
                 internalUpdatedNodes += targetDefinition
                 updatedDefinitions += targetDefinition
             }
@@ -732,12 +732,12 @@ class ComponentGraphUpdater {
         private val interfaceDefinition: InterfaceDefinition
     ) {
         /**
-         * already visited [ComponentVersion] for visible inheritance
+         * already visited [ComponentVersion] for visible derivation
          */
         private val checkedVisibleComponentVersions: MutableSet<ComponentVersion> = mutableSetOf()
 
         /**
-         * already visited [ComponentVersion] for invisible inheritance
+         * already visited [ComponentVersion] for invisible derivation
          */
         private val checkedInvisibleComponentVersions: MutableSet<ComponentVersion> = mutableSetOf()
 
@@ -861,9 +861,9 @@ class ComponentGraphUpdater {
             var byInvisibleDerived = false
             relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
                 if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
-                    relationCondition.interfaceSpecificationInheritanceConditions(cache).forEach {
+                    relationCondition.interfaceSpecificationDerivationConditions(cache).forEach {
                         if (it.inheritableInterfaceSpecifications(cache).contains(interfaceSpecificationTemplate)) {
-                            if (it.isVisibleInherited && derivedVisible || it.isInvisibleInherited && !derivedVisible) {
+                            if (it.isVisibleDerived && derivedVisible || it.isInvisibleDerived && !derivedVisible) {
                                 byVisibleDerived = byVisibleDerived || it.inheritsVisibleDerived
                                 byInvisibleDerived = byInvisibleDerived || it.inheritsInvisibleDerived
                                 if (derivedBySelfDefined(startDefinition, it)) {
@@ -886,15 +886,15 @@ class ComponentGraphUpdater {
          * returns `true`, otherwise `false`
          *
          * @param startDefinition [InterfaceSpecificationVersion] on the start of the [Relation] to check for derivation
-         * @param inheritanceCondition [InterfaceSpecificationInheritanceCondition] on the [Relation]
+         * @param derivationCondition [InterfaceSpecificationDerivationCondition] on the [Relation]
          * @return `true` if the [Relation] derives [startDefinition] by self-defined
          */
         private fun derivedBySelfDefined(
-            startDefinition: InterfaceDefinition, inheritanceCondition: InterfaceSpecificationInheritanceCondition
+            startDefinition: InterfaceDefinition, derivationCondition: InterfaceSpecificationDerivationCondition
         ): Boolean {
             return when {
-                startDefinition.visibleSelfDefined && inheritanceCondition.inheritsInvisibleSelfDefined -> true
-                startDefinition.invisibleSelfDefined && inheritanceCondition.inheritsInvisibleSelfDefined -> true
+                startDefinition.visibleSelfDefined && derivationCondition.inheritsInvisibleSelfDefined -> true
+                startDefinition.invisibleSelfDefined && derivationCondition.inheritsInvisibleSelfDefined -> true
                 else -> false
             }
         }

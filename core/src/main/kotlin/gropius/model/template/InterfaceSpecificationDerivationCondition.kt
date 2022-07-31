@@ -8,31 +8,31 @@ import org.springframework.data.annotation.Transient
 
 @DomainNode
 @GraphQLDescription(
-    """Defines which InterfaceSpecifications are inherited under which conditions by a Relation.
+    """Defines which InterfaceSpecifications are derived under which conditions by a Relation.
     Part of a RelationCondition, which is part of RelationTemplates.
     READ is always granted.
     """
 )
 @Authorization(NodePermission.READ, allowAll = true)
-class InterfaceSpecificationInheritanceCondition(
-    @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are inherited")
+class InterfaceSpecificationDerivationCondition(
+    @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are derived")
     @FilterProperty
     val inheritsVisibleSelfDefined: Boolean,
-    @property:GraphQLDescription("If true, invisible self-defined InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, invisible self-defined InterfaceSpecifications are derived")
     @FilterProperty
     val inheritsInvisibleSelfDefined: Boolean,
-    @property:GraphQLDescription("If true, visible derived InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, visible derived InterfaceSpecifications are derived")
     @FilterProperty
     val inheritsVisibleDerived: Boolean,
-    @property:GraphQLDescription("If true, invisible derived InterfaceSpecifications are inherited")
+    @property:GraphQLDescription("If true, invisible derived InterfaceSpecifications are derived")
     @FilterProperty
     val inheritsInvisibleDerived: Boolean,
-    @property:GraphQLDescription("If true InterfaceSpecifications are visible inherited")
+    @property:GraphQLDescription("If true InterfaceSpecifications are visible derived")
     @FilterProperty
-    val isVisibleInherited: Boolean,
-    @property:GraphQLDescription("If true InterfaceSpecifications are invisible inherited")
+    val isVisibleDerived: Boolean,
+    @property:GraphQLDescription("If true InterfaceSpecifications are invisible derived")
     @FilterProperty
-    val isInvisibleInherited: Boolean
+    val isInvisibleDerived: Boolean
 ) : ExtensibleNode() {
 
     companion object {
@@ -47,7 +47,7 @@ class InterfaceSpecificationInheritanceCondition(
     val partOf by NodeProperty<RelationCondition>()
 
     @NodeRelationship(INHERITABLE_INTERFACE_SPECIFICATION, Direction.OUTGOING)
-    @GraphQLDescription("Templates of InterfaceSpecifications which are inherited.")
+    @GraphQLDescription("Templates of InterfaceSpecifications which are derived.")
     @FilterProperty
     @delegate:Transient
     val inheritableInterfaceSpecifications by NodeSetProperty<InterfaceSpecificationTemplate>()

@@ -23,7 +23,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 )
 @Authorization(
     NodePermission.READ,
-    allowFromRelated = ["interfaceSpecification", "definitions"]
+    allowFromRelated = ["interfaceSpecification", "interfaceDefinitions"]
 )
 @Authorization(NodePermission.ADMIN, allowFromRelated = ["interfaceSpecification"])
 class InterfaceSpecificationVersion(
@@ -72,6 +72,6 @@ class InterfaceSpecificationVersion(
     @GraphQLDescription("Defines on which ComponentVersions this InterfaceSpecificationVersion is used")
     @FilterProperty
     @delegate:Transient
-    val definitions by NodeSetProperty<InterfaceDefinition>()
+    val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()
 
 }

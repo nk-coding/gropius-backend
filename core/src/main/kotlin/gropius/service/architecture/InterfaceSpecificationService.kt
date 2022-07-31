@@ -8,10 +8,7 @@ import gropius.dto.input.common.DeleteNodeInput
 import gropius.dto.input.ifPresent
 import gropius.dto.input.isPresent
 import gropius.model.architecture.*
-import gropius.model.template.InterfaceDefinitionTemplate
 import gropius.model.template.InterfaceSpecificationTemplate
-import gropius.model.template.InterfaceSpecificationVersionTemplate
-import gropius.model.template.InterfaceTemplate
 import gropius.model.user.permission.NodePermission
 import gropius.repository.architecture.ComponentRepository
 import gropius.repository.architecture.InterfaceSpecificationRepository
@@ -179,7 +176,7 @@ class InterfaceSpecificationService(
             templatedNodeService.updateTemplatedFields(
                 interfaceSpecificationVersion, input.interfaceSpecificationVersionTemplatedFields, true
             )
-            interfaceSpecificationVersion.definitions().forEach {
+            interfaceSpecificationVersion.interfaceDefinitions().forEach {
                 it.template().value = interfaceDefinitionTemplate
                 templatedNodeService.updateTemplatedFields(it, input.interfaceDefinitionTemplatedFields, true)
                 val visibleInterface = it.visibleInterface().value

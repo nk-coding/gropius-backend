@@ -1,7 +1,10 @@
 package gropius.service.architecture
 
 import gropius.model.architecture.*
-import gropius.model.template.*
+import gropius.model.template.ComponentTemplate
+import gropius.model.template.InterfaceSpecificationDerivationCondition
+import gropius.model.template.InterfaceSpecificationTemplate
+import gropius.model.template.RelationPartnerTemplate
 import io.github.graphglue.model.Node
 import io.github.graphglue.model.property.NodeCache
 
@@ -122,7 +125,7 @@ class ComponentGraphUpdater {
     suspend fun deleteInterfaceSpecificationVersion(interfaceSpecificationVersion: InterfaceSpecificationVersion) {
         cache.add(interfaceSpecificationVersion)
         deletedNodes += interfaceSpecificationVersion
-        interfaceSpecificationVersion.definitions(cache).toSet().forEach {
+        interfaceSpecificationVersion.interfaceDefinitions(cache).toSet().forEach {
             deleteInterfaceDefinition(it)
         }
     }
@@ -164,7 +167,7 @@ class ComponentGraphUpdater {
      */
     suspend fun updateInterfaceSpecificationTemplate(interfaceSpecification: InterfaceSpecification) {
         cache.add(interfaceSpecification)
-        val definitions = interfaceSpecification.versions(cache).flatMap { it.definitions(cache) }
+        val definitions = interfaceSpecification.versions(cache).flatMap { it.interfaceDefinitions(cache) }
         for (definition in definitions) {
             val componentVersion = definition.componentVersion(cache).value
             val template = componentVersion.component(cache).value.template(cache).value
@@ -529,7 +532,7 @@ class ComponentGraphUpdater {
             newDefinition.interfaceSpecificationVersion(cache).value = interfaceSpecificationVersion
             newDefinition.componentVersion(cache).value = componentVersion
             componentVersion.interfaceDefinitions(cache) += newDefinition
-            interfaceSpecificationVersion.definitions(cache) += newDefinition
+            interfaceSpecificationVersion.interfaceDefinitions(cache) += newDefinition
             internalUpdatedNodes += newDefinition
             newDefinition
         }
@@ -571,7 +574,7 @@ class ComponentGraphUpdater {
             if (!definition.invisibleSelfDefined && definition.invisibleDerivedBy(cache).isEmpty()) {
                 deletedNodes += definition
                 definition.componentVersion(cache).value.interfaceDefinitions(cache) -= definition
-                definition.interfaceSpecificationVersion(cache).value.definitions(cache) -= definition
+                definition.interfaceSpecificationVersion(cache).value.interfaceDefinitions(cache) -= definition
             }
         }
     }

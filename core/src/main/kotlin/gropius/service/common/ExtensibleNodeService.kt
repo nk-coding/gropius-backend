@@ -16,8 +16,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ExtensibleNodeService(repository: ExtensibleNodeRepository) :
-    AbstractExtensibleNodeService<ExtensibleNode, ExtensibleNodeRepository>(repository) {
+class ExtensibleNodeService(
+    repository: ExtensibleNodeRepository
+) : AbstractExtensibleNodeService<ExtensibleNode, ExtensibleNodeRepository>(repository) {
 
     /**
      * Gets the [ExtensibleNode] based on the provided [input] and updates the extensionFields accordingly
@@ -28,15 +29,12 @@ class ExtensibleNodeService(repository: ExtensibleNodeRepository) :
      * @return the updated saved [ExtensibleNode]
      */
     suspend fun updateExtensionFields(
-        authorizationContext: GropiusAuthorizationContext,
-        input: UpdateExtensionFieldsInput
+        authorizationContext: GropiusAuthorizationContext, input: UpdateExtensionFieldsInput
     ): ExtensibleNode {
         input.validate()
         val extensibleNode = repository.findById(input.id)
         checkPermission(
-            extensibleNode,
-            Permission(NodePermission.READ, authorizationContext),
-            "Cannot update ExtensibleNode"
+            extensibleNode, Permission(NodePermission.READ, authorizationContext), "Cannot update ExtensibleNode"
         )
         updateExtensibleNode(extensibleNode, input)
         return repository.save(extensibleNode).awaitSingle()

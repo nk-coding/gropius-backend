@@ -1,8 +1,8 @@
 package gropius.repository.common
 
+import gropius.model.common.NamedAuditedNode
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 import org.springframework.stereotype.Repository
-import gropius.model.common.NamedAuditedNode
 
 /**
  * Repository for [NamedAuditedNode]

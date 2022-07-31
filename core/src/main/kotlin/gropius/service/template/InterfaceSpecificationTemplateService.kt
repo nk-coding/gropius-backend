@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service
  */
 @Service
 class InterfaceSpecificationTemplateService(
-    repository: InterfaceSpecificationTemplateRepository, val componentTemplateRepository: ComponentTemplateRepository
+    repository: InterfaceSpecificationTemplateRepository,
+    private val componentTemplateRepository: ComponentTemplateRepository
 ) : RelationPartnerTemplateService<InterfaceSpecificationTemplate, InterfaceSpecificationTemplateRepository>(repository) {
 
     /**

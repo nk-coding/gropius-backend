@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class InterfaceService(
-    repository: InterfaceRepository, val templatedNodeService: TemplatedNodeService
+    repository: InterfaceRepository, private val templatedNodeService: TemplatedNodeService
 ) : RelationPartnerService<Interface, InterfaceRepository>(repository) {
 
     /**

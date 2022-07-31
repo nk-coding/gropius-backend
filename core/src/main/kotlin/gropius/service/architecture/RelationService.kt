@@ -38,11 +38,11 @@ import org.springframework.stereotype.Service
 @Service
 class RelationService(
     repository: RelationRepository,
-    val relationPartnerRepository: RelationPartnerRepository,
-    val relationTemplateRepository: RelationTemplateRepository,
-    val templatedNodeService: TemplatedNodeService,
-    val interfacePartRepository: InterfacePartRepository,
-    val nodeRepository: NodeRepository
+    private val relationPartnerRepository: RelationPartnerRepository,
+    private val relationTemplateRepository: RelationTemplateRepository,
+    private val templatedNodeService: TemplatedNodeService,
+    private val interfacePartRepository: InterfacePartRepository,
+    private val nodeRepository: NodeRepository
 ) : AbstractExtensibleNodeService<Relation, RelationRepository>(repository) {
 
     /**
@@ -59,6 +59,37 @@ class RelationService(
         input.validate()
         val start = relationPartnerRepository.findById(input.start)
         val end = relationPartnerRepository.findById(input.end)
+        checkRelationAuthorization(start, end, authorizationContext)
+        val template = relationTemplateRepository.findById(input.template)
+        validateRelationStartAndEnd(start, end, template)
+        val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
+        val relation = Relation(templatedFields)
+        relation.start().value = start
+        relation.end().value = end
+        input.startParts.ifPresent { relation.startParts() += getInterfaceParts(start, it) }
+        input.endParts.ifPresent { relation.endParts() += getInterfaceParts(end, it) }
+        relation.template().value = template
+        createdExtensibleNode(relation, input)
+        val graphUpdater = ComponentGraphUpdater()
+        graphUpdater.createRelation(relation)
+        nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
+        val updatedNodes = graphUpdater.updatedNodes + relation
+        return nodeRepository.saveAll(updatedNodes).collectList().awaitSingle().first { it == relation } as Relation
+    }
+
+    /**
+     * Checks that the user has the permission to relate from [start] and relate to [end]
+     *
+     * @param start the start of the [Relation]
+     * @param end the end of the [Relation]
+     * @param authorizationContext used to check for the required permission
+     * @throws IllegalArgumentException if the user is missing any of the required permissions
+     */
+    private suspend fun checkRelationAuthorization(
+        start: RelationPartner,
+        end: RelationPartner,
+        authorizationContext: GropiusAuthorizationContext
+        ) {
         checkPermission(
             start,
             Permission(ComponentPermission.RELATE_FROM_COMPONENT, authorizationContext),
@@ -69,25 +100,6 @@ class RelationService(
             Permission(ComponentPermission.RELATE_TO_COMPONENT, authorizationContext),
             "use the specified end in Relations"
         )
-        val template = relationTemplateRepository.findById(input.template)
-        validateRelationStartAndEnd(start, end, template)
-        val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
-        val relation = Relation(templatedFields)
-        relation.start().value = start
-        relation.end().value = end
-        input.startParts.ifPresent {
-            relation.startParts() += getInterfaceParts(start, it)
-        }
-        input.endParts.ifPresent {
-            relation.endParts() += getInterfaceParts(end, it)
-        }
-        relation.template().value = template
-        createdExtensibleNode(relation, input)
-        val graphUpdater = ComponentGraphUpdater()
-        graphUpdater.createRelation(relation)
-        nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
-        val updatedNodes = graphUpdater.updatedNodes + relation
-        return nodeRepository.saveAll(updatedNodes).collectList().awaitSingle().first { it == relation } as Relation
     }
 
     /**
@@ -102,14 +114,14 @@ class RelationService(
      */
     private suspend fun getInterfaceParts(
         relationPartner: RelationPartner, partIds: List<ID>
-    ): List<InterfacePart> {
+    ): Set<InterfacePart> {
         if (partIds.isNotEmpty()) {
             if (relationPartner !is Interface) {
                 throw IllegalArgumentException("InterfaceParts can only be provided if the side of the Relation uses an Interface")
             }
             val interfaceSpecificationVersion =
                 relationPartner.interfaceDefinition().value.interfaceSpecificationVersion().value
-            val parts = partIds.map { interfacePartRepository.findById(it) }
+            val parts = partIds.map { interfacePartRepository.findById(it) }.toSet()
             parts.forEach {
                 if (interfaceSpecificationVersion !in it.activeOn()) {
                     throw IllegalArgumentException("InterfacePart must be active on the used InterfaceSpecificationVersion")
@@ -117,7 +129,7 @@ class RelationService(
             }
             return parts
         }
-        return emptyList()
+        return emptySet()
     }
 
     /**
@@ -151,17 +163,27 @@ class RelationService(
     ): Relation {
         input.validate()
         val relation = repository.findById(input.id)
-        checkPermission(
-            relation.start().value,
-            Permission(ComponentPermission.RELATE_FROM_COMPONENT, authorizationContext),
-            "update the Relation due to missing permission on start"
-        )
-        checkPermission(
-            relation.end().value,
-            Permission(ComponentPermission.RELATE_TO_COMPONENT, authorizationContext),
-            "update the Relation due to missing permission on end"
-        )
+        checkRelationAuthorization(relation.start().value, relation.end().value, authorizationContext)
         val nodesToSave = mutableSetOf<Node>(relation)
+        nodesToSave += updateRelationTemplate(input, relation)
+        input.addedStartParts.ifPresent { relation.startParts() += getInterfaceParts(relation.start().value, it) }
+        input.addedEndParts.ifPresent { relation.endParts() += getInterfaceParts(relation.end().value, it) }
+        input.removedStartParts.ifPresent { relation.startParts() -= getInterfaceParts(relation.start().value, it) }
+        input.removedEndParts.ifPresent { relation.endParts() -= getInterfaceParts(relation.end().value, it) }
+        templatedNodeService.updateTemplatedFields(relation, input, input.template.isPresent)
+        updateExtensibleNode(relation, input)
+        return nodeRepository.saveAll(nodesToSave).collectList().awaitSingle().first { it == relation } as Relation
+    }
+
+    /**
+     * Updates the template of an [relation], if provided via the [input]
+     * Does not check the authorization status
+     *
+     * @param input defines how to update the template
+     * @param relation the [Relation] to update
+     * @return the updated nodes to save
+     */
+    private suspend fun updateRelationTemplate(input: UpdateRelationInput, relation: Relation): Set<Node> {
         input.template.ifPresent { templateId ->
             val template = relationTemplateRepository.findById(templateId)
             validateRelationStartAndEnd(relation.start().value, relation.end().value, template)
@@ -169,23 +191,9 @@ class RelationService(
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateRelationTemplate(relation)
             nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
-            nodesToSave += graphUpdater.updatedNodes
+            return graphUpdater.updatedNodes
         }
-        input.addedStartParts.ifPresent {
-            relation.startParts() += getInterfaceParts(relation.start().value, it)
-        }
-        input.removedStartParts.ifPresent {
-            relation.startParts() -= getInterfaceParts(relation.start().value, it).toSet()
-        }
-        input.addedEndParts.ifPresent {
-            relation.endParts() += getInterfaceParts(relation.end().value, it)
-        }
-        input.removedEndParts.ifPresent {
-            relation.endParts() -= getInterfaceParts(relation.end().value, it).toSet()
-        }
-        templatedNodeService.updateTemplatedFields(relation, input, input.template.isPresent)
-        updateExtensibleNode(relation, input)
-        return nodeRepository.saveAll(nodesToSave).collectList().awaitSingle().first { it == relation } as Relation
+        return emptySet()
     }
 
     /**
@@ -201,11 +209,9 @@ class RelationService(
         input.validate()
         val relation = repository.findById(input.id)
         if (!evaluatePermission(
-                relation.start().value,
-                Permission(ComponentPermission.RELATE_FROM_COMPONENT, authorizationContext)
+                relation.start().value, Permission(ComponentPermission.RELATE_FROM_COMPONENT, authorizationContext)
             ) && !evaluatePermission(
-                relation.end().value,
-                Permission(ComponentPermission.RELATE_TO_COMPONENT, authorizationContext)
+                relation.end().value, Permission(ComponentPermission.RELATE_TO_COMPONENT, authorizationContext)
             )
         ) {
             throw IllegalArgumentException("User does not have permission to delete the Relation")

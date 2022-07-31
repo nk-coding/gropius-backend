@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service
  */
 @Service
 class RelationTemplateService(
-    repository: RelationTemplateRepository, val relationPartnerTemplateRepository: RelationPartnerTemplateRepository
+    repository: RelationTemplateRepository,
+    private val relationPartnerTemplateRepository: RelationPartnerTemplateRepository
 ) : AbstractTemplateService<RelationTemplate, RelationTemplateRepository>(repository) {
 
     /**

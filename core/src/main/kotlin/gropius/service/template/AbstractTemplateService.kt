@@ -15,8 +15,9 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class AbstractTemplateService<T : Template<*, T>, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    BaseTemplateService<T, R>(repository) {
+abstract class AbstractTemplateService<T : Template<*, T>, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : BaseTemplateService<T, R>(repository) {
 
     /**
      * Updates [template] based on [input]

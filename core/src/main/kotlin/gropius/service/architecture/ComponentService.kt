@@ -38,12 +38,12 @@ import org.springframework.stereotype.Service
 @Service
 class ComponentService(
     repository: ComponentRepository,
-    val templatedNodeService: TemplatedNodeService,
-    val componentTemplateRepository: ComponentTemplateRepository,
-    val nodeRepository: NodeRepository,
-    val componentPermissionService: ComponentPermissionService,
-    val interfaceSpecificationService: InterfaceSpecificationService,
-    val componentVersionService: ComponentVersionService
+    private val templatedNodeService: TemplatedNodeService,
+    private val componentTemplateRepository: ComponentTemplateRepository,
+    private val nodeRepository: NodeRepository,
+    private val componentPermissionService: ComponentPermissionService,
+    private val interfaceSpecificationService: InterfaceSpecificationService,
+    private val componentVersionService: ComponentVersionService
 ) : TrackableService<Component, ComponentRepository>(repository) {
 
     /**

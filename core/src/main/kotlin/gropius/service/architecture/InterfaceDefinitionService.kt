@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class InterfaceDefinitionService(
-    repository: InterfaceDefinitionRepository, val templatedNodeService: TemplatedNodeService
+    repository: InterfaceDefinitionRepository, private val templatedNodeService: TemplatedNodeService
 ) : AbstractExtensibleNodeService<InterfaceDefinition, InterfaceDefinitionRepository>(repository) {
 
     /**

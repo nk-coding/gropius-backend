@@ -12,8 +12,9 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NamedNodeService<T : NamedNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    AbstractExtensibleNodeService<T, R>(repository) {
+abstract class NamedNodeService<T : NamedNode, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : AbstractExtensibleNodeService<T, R>(repository) {
 
     /**
      * Updates [node] based on [input]
@@ -24,7 +25,7 @@ abstract class NamedNodeService<T : NamedNode, R : ReactiveNeo4jRepository<T, St
      * @param input defines how to update the provided [node]
      */
     fun updateNamedNode(node: NamedNode, input: UpdateNamedNodeInput) {
-       updateExtensibleNode(node, input)
+        updateExtensibleNode(node, input)
         input.name.ifPresent {
             node.name = it
         }

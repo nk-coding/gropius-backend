@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class ComponentTemplateService(
-    repository: ComponentTemplateRepository, val componentTemplateRepository: ComponentTemplateRepository
+    repository: ComponentTemplateRepository, private val componentTemplateRepository: ComponentTemplateRepository
 ) : RelationPartnerTemplateService<ComponentTemplate, ComponentTemplateRepository>(repository) {
 
     /**

@@ -16,8 +16,9 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    NodeService<T, R>(repository) {
+abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : NodeService<T, R>(repository) {
     /**
      * Injected [ObjectMapper], used to parse [JSONFieldInput]
      */

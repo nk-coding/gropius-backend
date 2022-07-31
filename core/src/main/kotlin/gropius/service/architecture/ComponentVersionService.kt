@@ -31,10 +31,10 @@ import org.springframework.stereotype.Service
 @Service
 class ComponentVersionService(
     repository: ComponentVersionRepository,
-    val interfaceSpecificationVersionRepository: InterfaceSpecificationVersionRepository,
-    val nodeRepository: NodeRepository,
-    val componentRepository: ComponentRepository,
-    val templatedNodeService: TemplatedNodeService,
+    private val interfaceSpecificationVersionRepository: InterfaceSpecificationVersionRepository,
+    private val nodeRepository: NodeRepository,
+    private val componentRepository: ComponentRepository,
+    private val templatedNodeService: TemplatedNodeService,
 ) : RelationPartnerService<ComponentVersion, ComponentVersionRepository>(repository) {
 
     /**

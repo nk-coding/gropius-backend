@@ -11,8 +11,9 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NodePermissionService<T : NodePermission<*>, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    BasePermissionService<T, R>(repository) {
+abstract class NodePermissionService<T : NodePermission<*>, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : BasePermissionService<T, R>(repository) {
 
     /**
      * Creates the default permission on node creation
@@ -24,8 +25,7 @@ abstract class NodePermissionService<T : NodePermission<*>, R : ReactiveNeo4jRep
      * @return the created permission
      */
     protected suspend fun createDefaultPermission(
-        user: GropiusUser,
-        constructor: (String, String, MutableList<String>, Boolean) -> T
+        user: GropiusUser, constructor: (String, String, MutableList<String>, Boolean) -> T
     ): T {
         val permission = constructor(
             "Admin permission",

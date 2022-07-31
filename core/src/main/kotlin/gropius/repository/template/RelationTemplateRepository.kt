@@ -1,8 +1,8 @@
 package gropius.repository.template
 
+import gropius.model.template.RelationTemplate
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 import org.springframework.stereotype.Repository
-import gropius.model.template.RelationTemplate
 
 /**
  * Repository for [RelationTemplate]

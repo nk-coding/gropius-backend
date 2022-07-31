@@ -23,7 +23,6 @@ import io.github.graphglue.model.property.NodeSetPropertyDelegate
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import kotlin.reflect.KProperty0
 
 /**
  * Service for [IntraComponentDependencySpecification]s. Provides functions to create, update and delete
@@ -37,10 +36,10 @@ import kotlin.reflect.KProperty0
 @Service
 class IntraComponentDependencySpecificationService(
     repository: IntraComponentDependencySpecificationRepository,
-    val componentVersionRepository: ComponentVersionRepository,
-    val interfaceRepository: InterfaceRepository,
-    val interfacePartRepository: InterfacePartRepository,
-    val intraComponentDependencyParticipantRepository: IntraComponentDependencyParticipantRepository
+    private val componentVersionRepository: ComponentVersionRepository,
+    private val interfaceRepository: InterfaceRepository,
+    private val interfacePartRepository: InterfacePartRepository,
+    private val intraComponentDependencyParticipantRepository: IntraComponentDependencyParticipantRepository
 ) : NamedNodeService<IntraComponentDependencySpecification, IntraComponentDependencySpecificationRepository>(repository) {
 
     /**
@@ -92,6 +91,22 @@ class IntraComponentDependencySpecificationService(
             "update the IntraComponentDependencySpecification"
         )
         updateNamedNode(intraComponentDependencySpecification, input)
+        updateIntraComponentDependencySpecificationParticipants(input, intraComponentDependencySpecification)
+        return repository.save(intraComponentDependencySpecification).awaitSingle()
+    }
+
+    /**
+     * Updates the incoming and outgoing participants of [intraComponentDependencySpecification] based on [input]
+     * Does not check the authorization status
+     *
+     * @param input defines which participants to add/remove
+     * @param intraComponentDependencySpecification the [IntraComponentDependencySpecification] where to add/remove
+     *   participants
+     */
+    private suspend fun updateIntraComponentDependencySpecificationParticipants(
+        input: UpdateIntraComponentDependencySpecificationInput,
+        intraComponentDependencySpecification: IntraComponentDependencySpecification
+    ) {
         val componentVersion = intraComponentDependencySpecification.componentVersion().value
         input.addedIncomingParticipants.ifPresent { addedInputs ->
             intraComponentDependencySpecification.incomingParticipants() += addedInputs.map {
@@ -109,7 +124,6 @@ class IntraComponentDependencySpecificationService(
         input.removedOutgoingParticipants.ifPresent {
             removeParticipants(intraComponentDependencySpecification.outgoingParticipants(), it, "outgoingParticipants")
         }
-        return repository.save(intraComponentDependencySpecification).awaitSingle()
     }
 
     /**

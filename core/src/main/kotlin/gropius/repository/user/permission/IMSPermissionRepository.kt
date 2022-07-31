@@ -1,8 +1,8 @@
 package gropius.repository.user.permission
 
+import gropius.model.user.permission.IMSPermission
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 import org.springframework.stereotype.Repository
-import gropius.model.user.permission.IMSPermission
 
 /**
  * Repository for [IMSPermission]

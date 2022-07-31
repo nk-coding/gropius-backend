@@ -35,10 +35,10 @@ import org.springframework.stereotype.Service
 @Service
 class IMSProjectService(
     repository: IMSProjectRepository,
-    val imsRepository: IMSRepository,
-    val trackableRepository: TrackableRepository,
-    val imsIssueRepository: IMSIssueRepository,
-    val templatedNodeService: TemplatedNodeService
+    private val imsRepository: IMSRepository,
+    private val trackableRepository: TrackableRepository,
+    private val imsIssueRepository: IMSIssueRepository,
+    private val templatedNodeService: TemplatedNodeService
 ) : AbstractExtensibleNodeService<IMSProject, IMSProjectRepository>(repository) {
 
     /**

@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class TemplateService(repository: TemplateRepository) :
-    BaseTemplateService<Template<*, *>, TemplateRepository>(repository) {
+class TemplateService(
+    repository: TemplateRepository
+) : BaseTemplateService<Template<*, *>, TemplateRepository>(repository) {
 
     /**
      * Gets the [Template] based on the provided [input], and updates the deprecation status accordingly
@@ -26,8 +27,7 @@ class TemplateService(repository: TemplateRepository) :
      * @return the updated saved [Template]
      */
     suspend fun updateTemplateDeprecationStatus(
-        authorizationContext: GropiusAuthorizationContext,
-        input: UpdateTemplateDeprecationStatusInput
+        authorizationContext: GropiusAuthorizationContext, input: UpdateTemplateDeprecationStatusInput
     ): Template<*, *> {
         input.validate()
         val template = repository.findById(input.id)

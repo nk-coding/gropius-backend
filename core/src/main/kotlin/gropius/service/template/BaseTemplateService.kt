@@ -16,8 +16,9 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    NamedNodeService<T, R>(repository) {
+abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : NamedNodeService<T, R>(repository) {
 
     /**
      * Updates [template] based on [input]
@@ -43,9 +44,7 @@ abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepo
     suspend fun checkCreateTemplatePermission(authorizationContext: GropiusAuthorizationContext) {
         val user = getUser(authorizationContext)
         checkPermission(
-            user,
-            Permission(GlobalPermission.CAN_CREATE_TEMPLATES, authorizationContext),
-            "create/update Templates"
+            user, Permission(GlobalPermission.CAN_CREATE_TEMPLATES, authorizationContext), "create/update Templates"
         )
     }
 }

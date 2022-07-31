@@ -13,8 +13,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ArtefactTemplateService(repository: ArtefactTemplateRepository) :
-    AbstractTemplateService<ArtefactTemplate, ArtefactTemplateRepository>(repository) {
+class ArtefactTemplateService(
+    repository: ArtefactTemplateRepository
+) : AbstractTemplateService<ArtefactTemplate, ArtefactTemplateRepository>(repository) {
 
     /**
      * Creates a new [ArtefactTemplate] based on the provided [input]
@@ -25,8 +26,7 @@ class ArtefactTemplateService(repository: ArtefactTemplateRepository) :
      * @return the saved created [ArtefactTemplate]
      */
     suspend fun createArtefactTemplate(
-        authorizationContext: GropiusAuthorizationContext,
-        input: CreateArtefactTemplateInput
+        authorizationContext: GropiusAuthorizationContext, input: CreateArtefactTemplateInput
     ): ArtefactTemplate {
         input.validate()
         checkCreateTemplatePermission(authorizationContext)

@@ -14,8 +14,9 @@ import java.time.OffsetDateTime
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NamedAuditedNodeService<T : NamedAuditedNode, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
-    AuditedNodeService<T, R>(repository) {
+abstract class NamedAuditedNodeService<T : NamedAuditedNode, R : ReactiveNeo4jRepository<T, String>>(
+    repository: R
+) : AuditedNodeService<T, R>(repository) {
 
     /**
      * Updates [node] based on [input]

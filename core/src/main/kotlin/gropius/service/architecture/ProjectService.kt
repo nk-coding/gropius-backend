@@ -31,10 +31,9 @@ import org.springframework.stereotype.Service
 @Service
 class ProjectService(
     repository: ProjectRepository,
-    val projectPermissionService: ProjectPermissionService,
-    val componentVersionRepository: ComponentVersionRepository
-) :
-    TrackableService<Project, ProjectRepository>(repository) {
+    private val projectPermissionService: ProjectPermissionService,
+    private val componentVersionRepository: ComponentVersionRepository
+) : TrackableService<Project, ProjectRepository>(repository) {
 
     /**
      * Creates a new [Project] based on the provided [input]

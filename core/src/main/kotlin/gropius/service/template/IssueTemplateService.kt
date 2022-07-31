@@ -13,8 +13,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class IssueTemplateService(repository: IssueTemplateRepository) :
-    AbstractTemplateService<IssueTemplate, IssueTemplateRepository>(repository) {
+class IssueTemplateService(
+    repository: IssueTemplateRepository
+) : AbstractTemplateService<IssueTemplate, IssueTemplateRepository>(repository) {
 
     /**
      * Creates a new [IssueTemplate] based on the provided [input]
@@ -25,8 +26,7 @@ class IssueTemplateService(repository: IssueTemplateRepository) :
      * @return the saved created [IssueTemplate]
      */
     suspend fun createIssueTemplate(
-        authorizationContext: GropiusAuthorizationContext,
-        input: CreateIssueTemplateInput
+        authorizationContext: GropiusAuthorizationContext, input: CreateIssueTemplateInput
     ): IssueTemplate {
         input.validate()
         checkCreateTemplatePermission(authorizationContext)

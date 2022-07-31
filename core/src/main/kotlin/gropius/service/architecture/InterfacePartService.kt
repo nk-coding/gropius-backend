@@ -28,8 +28,8 @@ import org.springframework.stereotype.Service
 @Service
 class InterfacePartService(
     repository: InterfacePartRepository,
-    val interfaceSpecificationRepository: InterfaceSpecificationRepository,
-    val templatedNodeService: TemplatedNodeService
+    private val interfaceSpecificationRepository: InterfaceSpecificationRepository,
+    private val templatedNodeService: TemplatedNodeService
 ) : AffectedByIssueService<InterfacePart, InterfacePartRepository>(repository) {
 
     /**

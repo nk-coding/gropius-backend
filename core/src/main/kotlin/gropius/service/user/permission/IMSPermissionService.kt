@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class IMSPermissionService(repository: IMSPermissionRepository) :
-    NodePermissionService<IMSPermission, IMSPermissionRepository>(repository) {
+class IMSPermissionService(
+    repository: IMSPermissionRepository
+) : NodePermissionService<IMSPermission, IMSPermissionRepository>(repository) {
 
     /**
      * Creates the default [IMSPermission]

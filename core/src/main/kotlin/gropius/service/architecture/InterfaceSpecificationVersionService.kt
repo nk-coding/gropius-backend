@@ -32,11 +32,11 @@ import org.springframework.stereotype.Service
 @Service
 class InterfaceSpecificationVersionService(
     repository: InterfaceSpecificationVersionRepository,
-    val componentRepository: ComponentRepository,
-    val interfacePartService: InterfacePartService,
-    val templatedNodeService: TemplatedNodeService,
-    val nodeRepository: NodeRepository,
-    val interfaceSpecificationRepository: InterfaceSpecificationRepository
+    private val componentRepository: ComponentRepository,
+    private val interfacePartService: InterfacePartService,
+    private val templatedNodeService: TemplatedNodeService,
+    private val nodeRepository: NodeRepository,
+    private val interfaceSpecificationRepository: InterfaceSpecificationRepository
 ) : AffectedByIssueService<InterfaceSpecificationVersion, InterfaceSpecificationVersionRepository>(
     repository
 ) {
@@ -120,9 +120,7 @@ class InterfaceSpecificationVersionService(
                 interfacePartService.findPartsByIdAndValidatePartOfInterfaceSpecification(it, interfaceSpecification)
             )
         }
-        input.version.ifPresent {
-            interfaceSpecificationVersion.version = it
-        }
+        input.version.ifPresent { interfaceSpecificationVersion.version = it }
         templatedNodeService.updateTemplatedFields(interfaceSpecificationVersion, input, false)
         updateNamedNode(interfaceSpecificationVersion, input)
         return repository.save(interfaceSpecificationVersion).awaitSingle()

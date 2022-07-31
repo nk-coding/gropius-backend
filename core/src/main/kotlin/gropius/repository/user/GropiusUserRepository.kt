@@ -1,8 +1,8 @@
 package gropius.repository.user
 
+import gropius.model.user.GropiusUser
 import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
 import org.springframework.stereotype.Repository
-import gropius.model.user.GropiusUser
 
 /**
  * Repository for [GropiusUser]

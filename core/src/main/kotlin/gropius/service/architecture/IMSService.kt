@@ -29,9 +29,9 @@ import org.springframework.stereotype.Service
 @Service
 class IMSService(
     repository: IMSRepository,
-    val imsPermissionService: IMSPermissionService,
-    val imsTemplateRepository: IMSTemplateRepository,
-    val templatedNodeService: TemplatedNodeService
+    private val imsPermissionService: IMSPermissionService,
+    private val imsTemplateRepository: IMSTemplateRepository,
+    private val templatedNodeService: TemplatedNodeService
 ) : NamedNodeService<IMS, IMSRepository>(repository) {
 
     /**

@@ -12,8 +12,9 @@ import org.springframework.stereotype.Service
  * @param repository the associated repository used for CRUD functionality
  */
 @Service
-class ComponentPermissionService(repository: ComponentPermissionRepository) :
-    TrackablePermissionService<ComponentPermission, ComponentPermissionRepository>(repository) {
+class ComponentPermissionService(
+    repository: ComponentPermissionRepository
+) : TrackablePermissionService<ComponentPermission, ComponentPermissionRepository>(repository) {
 
     /**
      * Creates the default [ComponentPermission]

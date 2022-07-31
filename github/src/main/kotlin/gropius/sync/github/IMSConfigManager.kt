@@ -28,7 +28,17 @@ class IMSConfigManager(
         "type" to arr["null", "string"]
     }.toString(), "last-notification" to obj {
         "\$schema" to schema
-        "type" to arr["null", "string"]
+        "type" to "object"
+        "properties" to {
+            "title" to obj {
+                "type" to "string"
+            }
+            "content" to obj {
+                "type" to "string"
+            }
+        }
+        "required" to arr["title", "content"]
+        "gropius-type" to "notification"
     }.toString())
     private val imsTemplateName = "Github"
     private val imsTemplateFields = mapOf("read-user" to obj {
@@ -54,7 +64,17 @@ class IMSConfigManager(
     private val imsIssueTemplateName = "Github Issue"
     private val imsIssueTemplateFields = mapOf<String, String>("last-notification" to obj {
         "\$schema" to schema
-        "type" to arr["null", "string"]
+        "type" to "object"
+        "properties" to {
+            "title" to obj {
+                "type" to "string"
+            }
+            "content" to obj {
+                "type" to "string"
+            }
+        }
+        "required" to arr["title", "content"]
+        "gropius-type" to "notification"
     }.toString())
 
     /**

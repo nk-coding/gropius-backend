@@ -35,15 +35,15 @@ class InterfaceSpecificationTemplate(
     val canBeInvisibleOnComponents by NodeSetProperty<ComponentTemplate>()
 
     @NodeRelationship(
-        InterfaceSpecificationDerivationCondition.INHERITABLE_INTERFACE_SPECIFICATION, Direction.INCOMING
+        InterfaceSpecificationDerivationCondition.DERIVABLE_INTERFACE_SPECIFICATION, Direction.INCOMING
     )
     @GraphQLDescription(
-        """InterfaceSpecificationDerivationConditions which allow to inherit InterfaceSpecification with this template.
+        """InterfaceSpecificationDerivationConditions which allow to derive InterfaceSpecification with this template.
         """
     )
     @FilterProperty
     @delegate:Transient
-    val inheritableBy by NodeSetProperty<InterfaceSpecificationDerivationCondition>()
+    val derivableBy by NodeSetProperty<InterfaceSpecificationDerivationCondition>()
 
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription(

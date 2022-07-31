@@ -40,7 +40,7 @@ class InterfaceSpecificationTemplateService(
         template.canBeVisibleOnComponents() += template.extends().flatMap { it.canBeVisibleOnComponents() }
         template.canBeInvisibleOnComponents() += componentTemplateRepository.findAllById(input.canBeInvisibleOnComponents)
         template.canBeInvisibleOnComponents() += template.extends().flatMap { it.canBeInvisibleOnComponents() }
-        template.inheritableBy() += template.extends().flatMap { it.inheritableBy() }
+        template.derivableBy() += template.extends().flatMap { it.derivableBy() }
         template.interfaceSpecificationVersionTemplate().value =
             createSubTemplate(::InterfaceSpecificationVersionTemplate, input.interfaceSpecificationVersionTemplate)
         template.interfacePartTemplate().value = createSubTemplate(::InterfacePartTemplate, input.interfacePartTemplate)

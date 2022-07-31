@@ -17,16 +17,16 @@ import org.springframework.data.annotation.Transient
 class InterfaceSpecificationDerivationCondition(
     @property:GraphQLDescription("If true, visible self-defined InterfaceSpecifications are derived")
     @FilterProperty
-    val inheritsVisibleSelfDefined: Boolean,
+    val derivesVisibleSelfDefined: Boolean,
     @property:GraphQLDescription("If true, invisible self-defined InterfaceSpecifications are derived")
     @FilterProperty
-    val inheritsInvisibleSelfDefined: Boolean,
+    val derivesInvisibleSelfDefined: Boolean,
     @property:GraphQLDescription("If true, visible derived InterfaceSpecifications are derived")
     @FilterProperty
-    val inheritsVisibleDerived: Boolean,
+    val derivesVisibleDerived: Boolean,
     @property:GraphQLDescription("If true, invisible derived InterfaceSpecifications are derived")
     @FilterProperty
-    val inheritsInvisibleDerived: Boolean,
+    val derivesInvisibleDerived: Boolean,
     @property:GraphQLDescription("If true InterfaceSpecifications are visible derived")
     @FilterProperty
     val isVisibleDerived: Boolean,
@@ -37,7 +37,7 @@ class InterfaceSpecificationDerivationCondition(
 
     companion object {
         const val PART_OF = "PART_OF"
-        const val INHERITABLE_INTERFACE_SPECIFICATION = "INHERITABLE_INTERFACE_SPECIFICATION"
+        const val DERIVABLE_INTERFACE_SPECIFICATION = "DERIVABLE_INTERFACE_SPECIFICATION"
     }
 
     @NodeRelationship(PART_OF, Direction.OUTGOING)
@@ -46,9 +46,9 @@ class InterfaceSpecificationDerivationCondition(
     @delegate:Transient
     val partOf by NodeProperty<RelationCondition>()
 
-    @NodeRelationship(INHERITABLE_INTERFACE_SPECIFICATION, Direction.OUTGOING)
+    @NodeRelationship(DERIVABLE_INTERFACE_SPECIFICATION, Direction.OUTGOING)
     @GraphQLDescription("Templates of InterfaceSpecifications which are derived.")
     @FilterProperty
     @delegate:Transient
-    val inheritableInterfaceSpecifications by NodeSetProperty<InterfaceSpecificationTemplate>()
+    val derivableInterfaceSpecifications by NodeSetProperty<InterfaceSpecificationTemplate>()
 }

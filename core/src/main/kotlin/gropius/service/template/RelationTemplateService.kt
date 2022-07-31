@@ -60,10 +60,10 @@ class RelationTemplateService(
         val relationCondition = RelationCondition()
         relationCondition.interfaceSpecificationDerivationConditions() += input.interfaceSpecificationDerivationConditions.map {
             InterfaceSpecificationDerivationCondition(
-                it.inheritsVisibleSelfDefined,
-                it.inheritsInvisibleSelfDefined,
-                it.inheritsVisibleDerived,
-                it.inheritsInvisibleDerived,
+                it.derivesVisibleSelfDefined,
+                it.derivesInvisibleSelfDefined,
+                it.derivesVisibleDerived,
+                it.derivesInvisibleDerived,
                 it.isVisibleDerived,
                 it.isInvisibleDerived
             )

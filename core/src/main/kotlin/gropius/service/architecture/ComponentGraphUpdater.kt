@@ -387,7 +387,7 @@ class ComponentGraphUpdater {
         relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
             if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
                 relationCondition.interfaceSpecificationDerivationConditions(cache).forEach { condition ->
-                    condition.inheritableInterfaceSpecifications(cache).forEach {
+                    condition.derivableInterfaceSpecifications(cache).forEach {
                         derivationConditions.computeIfAbsent(it) { mutableListOf() }.add(condition)
                     }
                 }
@@ -429,10 +429,10 @@ class ComponentGraphUpdater {
             val canBeVisible = endTemplate in interfaceSpecificationTemplate.canBeVisibleOnComponents(cache)
             val canBeInvisible = endTemplate in interfaceSpecificationTemplate.canBeInvisibleOnComponents(cache)
             conditions.filter {
-                var derives = it.inheritsVisibleSelfDefined && definition.visibleSelfDefined
-                derives = derives || it.inheritsInvisibleSelfDefined && definition.invisibleSelfDefined
-                derives = derives || it.inheritsVisibleDerived && definition.visibleDerivedBy(cache).isNotEmpty()
-                derives = derives || it.inheritsInvisibleDerived && definition.invisibleDerivedBy(cache).isNotEmpty()
+                var derives = it.derivesVisibleSelfDefined && definition.visibleSelfDefined
+                derives = derives || it.derivesInvisibleSelfDefined && definition.invisibleSelfDefined
+                derives = derives || it.derivesVisibleDerived && definition.visibleDerivedBy(cache).isNotEmpty()
+                derives = derives || it.derivesInvisibleDerived && definition.invisibleDerivedBy(cache).isNotEmpty()
                 derives
             }.forEach {
                 updatedDefinitions += deriveInterfaceSpecificationVersion(
@@ -865,10 +865,10 @@ class ComponentGraphUpdater {
             relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
                 if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
                     relationCondition.interfaceSpecificationDerivationConditions(cache).forEach {
-                        if (it.inheritableInterfaceSpecifications(cache).contains(interfaceSpecificationTemplate)) {
+                        if (it.derivableInterfaceSpecifications(cache).contains(interfaceSpecificationTemplate)) {
                             if (it.isVisibleDerived && derivedVisible || it.isInvisibleDerived && !derivedVisible) {
-                                byVisibleDerived = byVisibleDerived || it.inheritsVisibleDerived
-                                byInvisibleDerived = byInvisibleDerived || it.inheritsInvisibleDerived
+                                byVisibleDerived = byVisibleDerived || it.derivesVisibleDerived
+                                byInvisibleDerived = byInvisibleDerived || it.derivesInvisibleDerived
                                 if (derivedBySelfDefined(startDefinition, it)) {
                                     return true
                                 }
@@ -896,8 +896,8 @@ class ComponentGraphUpdater {
             startDefinition: InterfaceDefinition, derivationCondition: InterfaceSpecificationDerivationCondition
         ): Boolean {
             return when {
-                startDefinition.visibleSelfDefined && derivationCondition.inheritsInvisibleSelfDefined -> true
-                startDefinition.invisibleSelfDefined && derivationCondition.inheritsInvisibleSelfDefined -> true
+                startDefinition.visibleSelfDefined && derivationCondition.derivesInvisibleSelfDefined -> true
+                startDefinition.invisibleSelfDefined && derivationCondition.derivesInvisibleSelfDefined -> true
                 else -> false
             }
         }

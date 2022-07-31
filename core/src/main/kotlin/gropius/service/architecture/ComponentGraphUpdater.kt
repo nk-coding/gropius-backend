@@ -1,16 +1,23 @@
 package gropius.service.architecture
 
 import gropius.model.architecture.*
-import gropius.model.template.ComponentTemplate
-import gropius.model.template.InterfaceSpecificationInheritanceCondition
-import gropius.model.template.InterfaceSpecificationTemplate
-import gropius.model.template.RelationPartnerTemplate
+import gropius.model.template.*
 import io.github.graphglue.model.Node
 import io.github.graphglue.model.property.NodeCache
 
 /**
  * Helper class to handle anything InterfaceSpecification derivation related
- *
+ * When used to update / delete nodes, also handles updating/deleting of the following kinds of nodes.
+ * - [Component]
+ * - [ComponentVersion]
+ * - [InterfaceSpecification]
+ * - [InterfaceSpecificationVersion]
+ * - [InterfacePart]
+ * - [InterfaceDefinition]
+ * - [Interface]
+ * - [Relation]
+ * - [IntraComponentDependencyParticipant]
+ * - [IntraComponentDependencySpecification]
  * After using, nodes from [deletedNodes] must be deleted, and nodes from [updatedNodes] must be saved
  *
  */
@@ -38,9 +45,9 @@ class ComponentGraphUpdater {
     val updatedNodes: Set<Node> get() = internalUpdatedNodes - deletedNodes
 
     /**
-     * Called when a [Component] should be deleted
+     * Deletes a [Component]
      *
-     * Handles the deletion of []
+     * @param component the [Component] to delete
      */
     suspend fun deleteComponent(component: Component) {
         cache.add(component)
@@ -53,6 +60,11 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes a [ComponentVersion]
+     *
+     * @param componentVersion the [ComponentVersion] to delete
+     */
     suspend fun deleteComponentVersion(componentVersion: ComponentVersion) {
         cache.add(componentVersion)
         deletedNodes += componentVersion
@@ -64,6 +76,11 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes a [Relation]
+     *
+     * @param relation the [Relation] to delete
+     */
     suspend fun deleteRelation(relation: Relation) {
         if (relation !in deletedNodes) {
             cache.add(relation)
@@ -83,6 +100,11 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes an [InterfaceSpecification]
+     *
+     * @param interfaceSpecification the [InterfaceSpecification] to delete
+     */
     suspend fun deleteInterfaceSpecification(interfaceSpecification: InterfaceSpecification) {
         cache.add(interfaceSpecification)
         deletedNodes += interfaceSpecification
@@ -92,6 +114,11 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes an [InterfaceSpecificationVersion]
+     *
+     * @param interfaceSpecificationVersion the [InterfaceSpecificationVersion] to delete
+     */
     suspend fun deleteInterfaceSpecificationVersion(interfaceSpecificationVersion: InterfaceSpecificationVersion) {
         cache.add(interfaceSpecificationVersion)
         deletedNodes += interfaceSpecificationVersion
@@ -100,6 +127,13 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Called after the template of a [Component] has been updated
+     * Validates [InterfaceDefinition]s and [Relation]s
+     * Does NOT handle updating SubTemplates
+     *
+     * @param component the [Component] of which the template has been updated
+     */
     suspend fun updateComponentTemplate(component: Component) {
         cache.add(component)
         component.versions(cache).forEach { componentVersion ->
@@ -121,6 +155,13 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Called after the template of an [InterfaceSpecification]
+     * Validates [InterfaceDefinition]s and [Relation]s
+     * oes NOT handle updating SubTemplates
+     *
+     * @param interfaceSpecification the [InterfaceSpecification] of which the template has been updated
+     */
     suspend fun updateInterfaceSpecificationTemplate(interfaceSpecification: InterfaceSpecification) {
         cache.add(interfaceSpecification)
         val definitions = interfaceSpecification.versions(cache).flatMap { it.definitions(cache) }
@@ -135,6 +176,15 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Removes an [InterfaceSpecificationVersion] from a [ComponentVersion]
+     * Updates the [InterfaceDefinition] and deletes it if necessary
+     *
+     * @param interfaceSpecificationVersion the [InterfaceSpecificationVersion] to remove
+     * @param componentVersion the [ComponentVersion] from which to remove [interfaceSpecificationVersion]
+     * @param visible if `true`, [interfaceSpecificationVersion] should no longer be visibleSelfDefined on [componentVersion]
+     * @param invisible if `true`, [interfaceSpecificationVersion] should no longer be invisibleSelfDefined on [componentVersion]
+     */
     suspend fun removeInterfaceSpecificationVersionFromComponentVersion(
         interfaceSpecificationVersion: InterfaceSpecificationVersion,
         componentVersion: ComponentVersion,
@@ -156,9 +206,17 @@ class ComponentGraphUpdater {
             internalUpdatedNodes += definition
             validateRelatedComponentVersions(componentVersion, setOf(interfaceSpecificationVersion))
         }
-
     }
 
+    /**
+     * Adds an [InterfaceSpecificationVersion] to a [ComponentVersion]
+     * Updates the [InterfaceDefinition] and creates it if necessary
+     *
+     * @param interfaceSpecificationVersion the [InterfaceSpecificationVersion] to add
+     * @param componentVersion the [ComponentVersion] to which to add [interfaceSpecificationVersion]
+     * @param visible if `true`, [interfaceSpecificationVersion] should be visibleSelfDefined on [componentVersion] afterwards
+     * @param invisible if `true`, [interfaceSpecificationVersion] should be invisibleSelfDefined on [componentVersion] afterwards
+     */
     suspend fun addInterfaceSpecificationVersionToComponentVersion(
         interfaceSpecificationVersion: InterfaceSpecificationVersion,
         componentVersion: ComponentVersion,
@@ -178,14 +236,27 @@ class ComponentGraphUpdater {
         addForUpdatedComponentVersion(componentVersion, setOf(definition))
     }
 
+    /**
+     * Called after a [Relation] has been created
+     * Handles the derivation of [InterfaceSpecificationVersion]s
+     *
+     * @param relation the [Relation] which was created
+     */
     suspend fun createRelation(relation: Relation) {
         cache.add(relation)
-        updatedRelation(relation)
+        addForUpdatedRelationTransitive(relation)
     }
 
+    /**
+     * Called after a template of a [Relation] has been updated
+     * Updates the derivation of [InterfaceSpecificationVersion]s
+     * Does not validate if the [Relation] can still exist
+     *
+     * @param relation the [Relation] of which the template has been updated
+     */
     suspend fun updateRelationTemplate(relation: Relation) {
         cache.add(relation)
-        updatedRelation(relation)
+        addForUpdatedRelationTransitive(relation)
         val endNode = relation.end(cache).value
         if (endNode is ComponentVersion) {
             validateComponentVersion(endNode)
@@ -229,6 +300,14 @@ class ComponentGraphUpdater {
         return updated
     }
 
+    /**
+     * Validates both incoming and outgoing relations of a [RelationPartner] after the template of said
+     * [RelationPartner] has been updated
+     * Deletes [Relation]s if necessary, and handles updates to [InterfaceSpecificationVersion] derivation
+     * Does NOT validate [InterfaceSpecificationVersion] derivation independent of [Relation] deletion
+     *
+     * @param relationPartner the [RelationPartner] of which the template has been updated
+     */
     private suspend fun validateRelationsAfterTemplateUpdate(
         relationPartner: RelationPartner
     ) {
@@ -241,6 +320,14 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Validates if a [Relation] an still exist after the template of either its start or end has been updated
+     * If not, deletes the relation and handles the resulting graph update
+     *
+     * @param relation the [Relation] to validate
+     * @param startTemplate the template of its start
+     * @param endTemplate the template of its end
+     */
     private suspend fun validateRelation(
         relation: Relation, startTemplate: RelationPartnerTemplate<*, *>, endTemplate: RelationPartnerTemplate<*, *>
     ) {
@@ -251,7 +338,16 @@ class ComponentGraphUpdater {
         }
     }
 
-    private suspend fun updatedRelation(relation: Relation) {
+    /**
+     * Handles the graph update ([InterfaceSpecificationVersion] derivation) after a [Relation] has been
+     * created / updated
+     * Does NOT validate if the [Relation] can still exist
+     * Only ensures derivation of additional [InterfaceSpecificationVersion], but does not validate that no longer
+     * derived [InterfaceSpecificationVersion] are updated/removed
+     *
+     * @param relation the created/updated [Relation]
+     */
+    private suspend fun addForUpdatedRelationTransitive(relation: Relation) {
         val updatedDefinitions = addForUpdatedRelation(relation)
         val endNode = relation.end(cache).value
         if (endNode is ComponentVersion) {
@@ -259,73 +355,141 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Updates the [InterfaceSpecificationVersion] derivation for a single [Relation]
+     * Does NOT perform a graph update
+     * Only derives additional [InterfaceSpecificationVersion], but does not ensure that all already existing
+     * [InterfaceDefinition] on the end of the relation are still derived
+     *
+     * @param relation the [Relation] for which to derive [InterfaceSpecificationVersion]s
+     * @param startDefinitions if provided, a set of [InterfaceDefinition]s on the start of the relation to
+     *   maybe derive. If not provided, all are evaluated
+     * @return the derived [InterfaceDefinition]s on the end node, can be used to perform a transitive graph update
+     */
     private suspend fun addForUpdatedRelation(
         relation: Relation, startDefinitions: Set<InterfaceDefinition>? = null
     ): Set<InterfaceDefinition> {
-        if (relation !in deletedNodes) {
-            val startNode = relation.start(cache).value
-            val endNode = relation.end(cache).value
-            if (startNode !is ComponentVersion || endNode !is ComponentVersion) {
-                return emptySet()
-            }
-            val startTemplate = startNode.relationPartnerTemplate(cache)
-            val endTemplate = endNode.relationPartnerTemplate(cache)
-            val inheritanceConditionsByTemplate =
-                mutableMapOf<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>()
-            relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
-                if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
-                    relationCondition.interfaceSpecificationInheritanceConditions(cache).forEach { condition ->
-                        condition.inheritableInterfaceSpecifications(cache).forEach {
-                            inheritanceConditionsByTemplate.computeIfAbsent(it) {
-                                mutableListOf()
-                            }.add(condition)
-                        }
-                    }
-                }
-            }
-            val updatedDefinitions = mutableSetOf<InterfaceDefinition>()
-            for (definition in startDefinitions ?: startNode.interfaceDefinitions(cache)) {
-                val interfaceSpecificationVersion = definition.interfaceSpecificationVersion(cache).value
-                val interfaceSpecification = interfaceSpecificationVersion.interfaceSpecification(cache).value
-                val interfaceSpecificationTemplate = interfaceSpecification.template(cache).value
-                val conditions = inheritanceConditionsByTemplate[interfaceSpecificationTemplate] ?: emptySet()
-                val canBeVisible = endTemplate in interfaceSpecificationTemplate.canBeVisibleOnComponents(cache)
-                val canBeInvisible = endTemplate in interfaceSpecificationTemplate.canBeInvisibleOnComponents(cache)
-                for (condition in conditions) {
-                    if (condition.inheritsVisibleSelfDefined && definition.visibleSelfDefined || condition.inheritsInvisibleSelfDefined && definition.invisibleSelfDefined || condition.inheritsVisibleDerived && definition.visibleDerivedBy(
-                            cache
-                        ).isNotEmpty() || condition.inheritsInvisibleDerived && definition.invisibleDerivedBy(cache)
-                            .isNotEmpty()
-                    ) {
-                        if (condition.isVisibleInherited && canBeVisible || condition.isInvisibleInherited && canBeInvisible) {
-                            val targetDefinition = getOrCreateInterfaceDefinition(
-                                endNode, interfaceSpecificationVersion
-                            )
-                            if (condition.isVisibleInherited) {
-                                if (targetDefinition.visibleDerivedBy(cache).add(relation)) {
-                                    internalUpdatedNodes += targetDefinition
-                                    updatedDefinitions += targetDefinition
-                                    if (!targetDefinition.visibleSelfDefined && targetDefinition.visibleDerivedBy(cache).size == 1) {
-                                        handleUpdatedInterfaceDefinition(targetDefinition)
-                                    }
-                                }
-                            }
-                            if (condition.isInvisibleInherited) {
-                                if (targetDefinition.invisibleDerivedBy(cache).add(relation)) {
-                                    internalUpdatedNodes += targetDefinition
-                                    updatedDefinitions += targetDefinition
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return updatedDefinitions
-        } else {
+        if (relation in deletedNodes) {
             return emptySet()
         }
+        val startNode = relation.start(cache).value
+        val endNode = relation.end(cache).value
+        if (startNode !is ComponentVersion || endNode !is ComponentVersion) {
+            return emptySet()
+        }
+        val startTemplate = startNode.relationPartnerTemplate(cache)
+        val endTemplate = endNode.relationPartnerTemplate(cache)
+        val inheritanceConditions =
+            mutableMapOf<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>()
+        relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
+            if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
+                relationCondition.interfaceSpecificationInheritanceConditions(cache).forEach { condition ->
+                    condition.inheritableInterfaceSpecifications(cache).forEach {
+                        inheritanceConditions.computeIfAbsent(it) { mutableListOf() }.add(condition)
+                    }
+                }
+            }
+        }
+        return addForUpdatedRelation(startDefinitions, startNode, inheritanceConditions, endTemplate, endNode, relation)
     }
 
+    /**
+     * Updates the [InterfaceSpecificationVersion] derivation for a single [Relation]
+     * Does NOT perform a graph update
+     * Only derives additional [InterfaceSpecificationVersion], but does not ensure that all already existing
+     * [InterfaceDefinition] on the end of the relation are still derived
+     *
+     * @param relation the [Relation] for which to derive [InterfaceSpecificationVersion]s
+     * @param startDefinitions if provided, a set of [InterfaceDefinition]s on the start of the relation to
+     *   maybe derive. If not provided, all are evaluated
+     * @param startNode the start of the [relation]
+     * @param endNode the end of the [relation]
+     * @param inheritanceConditionsByTemplate mapping from [InterfaceSpecification] template
+     *   to [InterfaceSpecificationInheritanceCondition]
+     * @param endTemplate template of [endNode]
+     * @return the derived [InterfaceDefinition]s on the end node, can be used to perform a transitive graph update
+     */
+    private suspend fun addForUpdatedRelation(
+        startDefinitions: Set<InterfaceDefinition>?,
+        startNode: ComponentVersion,
+        inheritanceConditionsByTemplate: MutableMap<InterfaceSpecificationTemplate, MutableList<InterfaceSpecificationInheritanceCondition>>,
+        endTemplate: RelationPartnerTemplate<*, *>,
+        endNode: ComponentVersion,
+        relation: Relation
+    ): MutableSet<InterfaceDefinition> {
+        val updatedDefinitions = mutableSetOf<InterfaceDefinition>()
+        for (definition in startDefinitions ?: startNode.interfaceDefinitions(cache)) {
+            val version = definition.interfaceSpecificationVersion(cache).value
+            val interfaceSpecification = version.interfaceSpecification(cache).value
+            val interfaceSpecificationTemplate = interfaceSpecification.template(cache).value
+            val conditions = inheritanceConditionsByTemplate[interfaceSpecificationTemplate] ?: emptySet()
+            val canBeVisible = endTemplate in interfaceSpecificationTemplate.canBeVisibleOnComponents(cache)
+            val canBeInvisible = endTemplate in interfaceSpecificationTemplate.canBeInvisibleOnComponents(cache)
+            conditions.filter {
+                var derives = it.inheritsVisibleSelfDefined && definition.visibleSelfDefined
+                derives = derives || it.inheritsInvisibleSelfDefined && definition.invisibleSelfDefined
+                derives = derives || it.inheritsVisibleDerived && definition.visibleDerivedBy(cache).isNotEmpty()
+                derives = derives || it.inheritsInvisibleDerived && definition.invisibleDerivedBy(cache).isNotEmpty()
+                derives
+            }.forEach {
+                updatedDefinitions += deriveInterfaceSpecificationVersion(
+                    it, canBeVisible, canBeInvisible, endNode, version, relation
+                )
+            }
+        }
+        return updatedDefinitions
+    }
+
+    /**
+     * Derives an [interfaceSpecificationVersion] via a [relation] to a [componentVersion]
+     * Does not perform a graph update
+     *
+     * @param condition the [InterfaceSpecificationInheritanceCondition] allowing the derivation of the
+     *   [interfaceSpecificationVersion]
+     * @param canBeInvisible if `true`, [interfaceSpecificationVersion] can be visible on [componentVersion]
+     * @param canBeInvisible if `true`, [interfaceSpecificationVersion] can be invisible on [componentVersion]
+     * @param componentVersion the [ComponentVersion] where to possibly create/update the [InterfaceDefinition]
+     * @param interfaceSpecificationVersion the [InterfaceSpecificationVersion] to possibly add to [componentVersion]
+     * @param relation the [Relation] causing the [InterfaceSpecificationVersion] derivation
+     * @return updated/created [InterfaceDefinition]s
+     */
+    private suspend fun deriveInterfaceSpecificationVersion(
+        condition: InterfaceSpecificationInheritanceCondition,
+        canBeVisible: Boolean,
+        canBeInvisible: Boolean,
+        componentVersion: ComponentVersion,
+        interfaceSpecificationVersion: InterfaceSpecificationVersion,
+        relation: Relation
+    ): Set<InterfaceDefinition> {
+        val updatedDefinitions = mutableSetOf<InterfaceDefinition>()
+        if (condition.isVisibleInherited && canBeVisible || condition.isInvisibleInherited && canBeInvisible) {
+            val targetDefinition = getOrCreateInterfaceDefinition(
+                componentVersion, interfaceSpecificationVersion
+            )
+            if (condition.isVisibleInherited && targetDefinition.visibleDerivedBy(cache).add(relation)) {
+                internalUpdatedNodes += targetDefinition
+                updatedDefinitions += targetDefinition
+                if (!targetDefinition.visibleSelfDefined && targetDefinition.visibleDerivedBy(cache).size == 1) {
+                    handleUpdatedInterfaceDefinition(targetDefinition)
+                }
+            }
+            if (condition.isInvisibleInherited && targetDefinition.invisibleDerivedBy(cache).add(relation)) {
+                internalUpdatedNodes += targetDefinition
+                updatedDefinitions += targetDefinition
+            }
+        }
+        return updatedDefinitions
+    }
+
+    /**
+     * derives [InterfaceSpecificationVersion] for a specified [ComponentVersion]
+     * derives via all outgoing [Relation]
+     * Performs a transitive graph update
+     *
+     * @param componentVersion the [ComponentVersion] from which to derive  [InterfaceSpecificationVersion]s
+     * @param updatedDefinitions if provided, the [InterfaceDefinition]s on [componentVersion] to derive
+     *   if not provided, all are derived
+     */
     private suspend fun addForUpdatedComponentVersion(
         componentVersion: ComponentVersion, updatedDefinitions: Set<InterfaceDefinition>
     ) {
@@ -338,6 +502,14 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Gets or creates if non-existing a [InterfaceDefinition] for a [ComponentVersion] and an [InterfaceSpecificationVersion]
+     * If created, adds it to the updated nodes
+     *
+     * @param componentVersion hosts the returned [InterfaceDefinition]
+     * @param interfaceSpecificationVersion associated with the returned [InterfaceDefinition]
+     * @return the [InterfaceDefinition] associated with [componentVersion] and [interfaceSpecificationVersion]
+     */
     private suspend fun getOrCreateInterfaceDefinition(
         componentVersion: ComponentVersion, interfaceSpecificationVersion: InterfaceSpecificationVersion
     ): InterfaceDefinition {
@@ -349,7 +521,9 @@ class ComponentGraphUpdater {
                     cache
                 ).value
             val newDefinition = InterfaceDefinition(
-                false, false, template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
+                visibleSelfDefined = false,
+                invisibleSelfDefined = false,
+                templatedFields = template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
             )
             newDefinition.template(cache).value = template
             newDefinition.interfaceSpecificationVersion(cache).value = interfaceSpecificationVersion
@@ -361,6 +535,11 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes an [InterfaceDefinition]
+     *
+     * @param definition the [InterfaceDefinition] to delete
+     */
     private suspend fun deleteInterfaceDefinition(definition: InterfaceDefinition) {
         definition.visibleSelfDefined = false
         definition.invisibleSelfDefined = false
@@ -369,25 +548,18 @@ class ComponentGraphUpdater {
         handleUpdatedInterfaceDefinition(definition)
     }
 
+    /**
+     * Handles the update of an [InterfaceDefinition].
+     * Creates / deletes the associated [Interface] if necessary
+     * Deletes the provided [InterfaceDefinition] if necessary
+     *
+     * @param definition the [InterfaceDefinition] which was updated
+     */
     private suspend fun handleUpdatedInterfaceDefinition(definition: InterfaceDefinition) {
         internalUpdatedNodes += definition
         if (definition.visibleSelfDefined || definition.visibleDerivedBy(cache).isNotEmpty()) {
             if (definition.visibleInterface(cache).value == null) {
-                val specification = definition.interfaceSpecificationVersion(cache).value
-                val template =
-                    definition.interfaceSpecificationVersion(cache).value.interfaceSpecification(cache).value.template(
-                        cache
-                    ).value.interfaceTemplate(
-                        cache
-                    ).value
-                val newInterface = Interface(
-                    specification.name,
-                    specification.description,
-                    template.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
-                )
-                newInterface.template(cache).value = template
-                internalUpdatedNodes += definition
-                definition.visibleInterface(cache).value = newInterface
+                createInterface(definition)
             }
         }
         if (!definition.visibleSelfDefined && definition.visibleDerivedBy(cache).isEmpty()) {
@@ -404,6 +576,32 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Creates an [Interface] for an [InterfaceDefinition], which has become visible
+     *
+     * @param definition the [InterfaceDefinition] for which to create an [Interface]
+     */
+    private suspend fun createInterface(definition: InterfaceDefinition) {
+        val specificationVersion = definition.interfaceSpecificationVersion(cache).value
+        val template = specificationVersion.interfaceSpecification(cache).value.template(cache).value
+        val interfaceTemplate = template.interfaceTemplate(cache).value
+        val newInterface = Interface(
+            specificationVersion.name,
+            specificationVersion.description,
+            interfaceTemplate.templateFieldSpecifications.mapValues { "null" }.toMutableMap()
+        )
+        newInterface.template(cache).value = interfaceTemplate
+        internalUpdatedNodes += definition
+        definition.visibleInterface(cache).value = newInterface
+    }
+
+    /**
+     * Deletes an [Interface]
+     * Handles deletion of associated [IntraComponentDependencyParticipant]s and, if necessary,
+     * [IntraComponentDependencySpecification]s
+     *
+     * @param node the [Interface] to delete
+     */
     private suspend fun deleteInterface(node: Interface) {
         deletedNodes += node
         deletedNodes += node.incomingRelations(cache)
@@ -426,12 +624,26 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Deletes a [IntraComponentDependencySpecification] and all its associated [IntraComponentDependencyParticipant]s
+     *
+     * @param node the [IntraComponentDependencySpecification] to delete
+     */
     private suspend fun deleteIntraComponentDependencySpecification(node: IntraComponentDependencySpecification) {
         deletedNodes += node
         deletedNodes += node.incomingParticipants(cache)
         deletedNodes += node.outgoingParticipants(cache)
     }
 
+    /**
+     * Validates [InterfaceDefinition]s on [ComponentVersion]s outgoing-related to the provided [componentVersion]
+     * Removes / updates those if [InterfaceSpecificationVersion]s are no longer derived
+     * Performs a graph update
+     *
+     * @param componentVersion used to get outgoing-related [ComponentVersion]s to validate [InterfaceDefinition]s on
+     * @param startInterfaceSpecificationVersions used to identify [InterfaceDefinition] to validate, if not provided
+     *   all are validated
+     */
     private suspend fun validateRelatedComponentVersions(
         componentVersion: ComponentVersion,
         startInterfaceSpecificationVersions: Set<InterfaceSpecificationVersion>? = null
@@ -448,22 +660,40 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Validates [InterfaceDefinition]s on [componentVersion]
+     * Removes / updates those if [InterfaceSpecificationVersion]s are no longer derived
+     * Performs a graph update
+     *
+     * @param componentVersion hosting [InterfaceDefinition]s to validate
+     * @@param startInterfaceSpecificationVersions used to identify [InterfaceDefinition] to validate, if not provided
+     *   all are validated
+     */
     private suspend fun validateComponentVersion(
         componentVersion: ComponentVersion,
         startInterfaceSpecificationVersions: Set<InterfaceSpecificationVersion>? = null
     ) {
         if (startInterfaceSpecificationVersions != null) {
-            validateComponentVersionByInterfaceDefinitions(componentVersion,
+            validateInterfaceDefinitionsOnComponentVersion(componentVersion,
                 componentVersion.interfaceDefinitions(cache)
                     .filter { it.interfaceSpecificationVersion(cache).value in startInterfaceSpecificationVersions }
                     .toSet())
         } else {
-            validateComponentVersionByInterfaceDefinitions(componentVersion)
+            validateInterfaceDefinitionsOnComponentVersion(componentVersion)
         }
 
     }
 
-    private suspend fun validateComponentVersionByInterfaceDefinitions(
+    /**
+     * Validates [InterfaceDefinition]s on a [ComponentVersion]
+     * Removes / updates those if [InterfaceSpecificationVersion]s are no longer derived
+     * Uses [CircularDerivationChecker] to remove despite circular derivation
+     * Performs a graph update
+     *
+     * @param componentVersion hosting [InterfaceDefinition]s to validate
+     * @param startDefinitions if provided, the [InterfaceDefinition]s to validate, otherwise all are validated
+     */
+    private suspend fun validateInterfaceDefinitionsOnComponentVersion(
         componentVersion: ComponentVersion, startDefinitions: Set<InterfaceDefinition>? = null
     ) {
         val nextInterfaceSpecificationVersions = mutableSetOf<InterfaceSpecificationVersion>()
@@ -490,14 +720,45 @@ class ComponentGraphUpdater {
         }
     }
 
+    /**
+     * Helper to validate if the [interfaceDefinition] is still visible/invisible derived
+     * As [InterfaceSpecificationVersion] can be derived in a circle, this helper maintains a set of
+     * already visited nodes to identify circles
+     * A [InterfaceSpecificationVersion] is only derived if a path the origial source is identified
+     *
+     * @param interfaceDefinition the [InterfaceDefinition] to validate
+     */
     inner class CircularDerivationChecker(
         private val interfaceDefinition: InterfaceDefinition
     ) {
+        /**
+         * already visited [ComponentVersion] for visible inheritance
+         */
         private val checkedVisibleComponentVersions: MutableSet<ComponentVersion> = mutableSetOf()
+
+        /**
+         * already visited [ComponentVersion] for invisible inheritance
+         */
         private val checkedInvisibleComponentVersions: MutableSet<ComponentVersion> = mutableSetOf()
+
+        /**
+         * [InterfaceSpecificationVersion] associated with [interfaceDefinition]
+         */
         private lateinit var interfaceSpecificationVersion: InterfaceSpecificationVersion
+
+        /**
+         * [InterfaceSpecificationTemplate] associated with the [InterfaceSpecification]
+         * associated with [interfaceSpecificationVersion]
+         */
         private lateinit var interfaceSpecificationTemplate: InterfaceSpecificationTemplate
 
+        /**
+         * Checks if [interfaceDefinition] is still derived visible/invisible
+         * Only checks, performs no updates!
+         *
+         * @param visible if `true`, checks if [interfaceDefinition] is derived visible, otherwise invisible
+         * @return `true` if still derived, otherwise `false`
+         */
         suspend fun checkIsStillDerived(visible: Boolean): Boolean {
             interfaceSpecificationVersion = interfaceDefinition.interfaceSpecificationVersion(cache).value
             interfaceSpecificationTemplate =
@@ -509,6 +770,13 @@ class ComponentGraphUpdater {
             }
         }
 
+        /**
+         * Checks if [definition] is still derived visible
+         * Only checks, performs no updates!
+         *
+         * @param definition the [InterfaceDefinition] to check if it is still derived
+         * @return `true` if still derived, otherwise `false`
+         */
         private suspend fun checkIsDerivedVisible(definition: InterfaceDefinition): Boolean {
             val componentVersion = definition.componentVersion(cache).value
             if (componentVersion in checkedVisibleComponentVersions) {
@@ -523,6 +791,13 @@ class ComponentGraphUpdater {
             return false
         }
 
+        /**
+         * Checks if [definition] is still derived invisible
+         * Only checks, performs no updates!
+         *
+         * @param definition the [InterfaceDefinition] to check if it is still derived
+         * @return `true` if still derived, otherwise `false`
+         */
         private suspend fun checkIsDerivedInvisible(definition: InterfaceDefinition): Boolean {
             val componentVersion = definition.componentVersion(cache).value
             if (componentVersion in checkedInvisibleComponentVersions) {
@@ -537,49 +812,91 @@ class ComponentGraphUpdater {
             return false
         }
 
+        /**
+         * Checks if a [Relation] still derives [interfaceSpecificationVersion]
+         *
+         * @param relation used to check for derivation
+         * @param derivedVisible if `true`, checks for visible derivation, otherwise for invisible derivation
+         * @return `true` [relation] still derives [interfaceSpecificationVersion]
+         */
         private suspend fun doesRelationStillDerive(
             relation: Relation, derivedVisible: Boolean
         ): Boolean {
-            if (relation in deletedNodes) {
-                throw IllegalArgumentException("found deleted relation")
-            }
+            assert(relation !in deletedNodes)
             val startNode = relation.start(cache).value
             val endNode = relation.end(cache).value
             if (startNode !is ComponentVersion || endNode !is ComponentVersion) {
                 return false
             }
             val startDefinition = startNode.interfaceDefinitions(cache).firstOrNull {
-                if (it in deletedNodes) {
-                    throw IllegalArgumentException("found deleted definition")
-                }
+                assert(it !in deletedNodes)
                 it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
             } ?: return false
 
             val startTemplate = startNode.relationPartnerTemplate(cache)
             val endTemplate = endNode.relationPartnerTemplate(cache)
 
-            var byVisibleSelfDefined = false
+            return doesRelationStillDerive(relation, startTemplate, endTemplate, derivedVisible, startDefinition)
+        }
+
+        /**
+         * Checks if a [Relation] still derives [interfaceSpecificationVersion]
+         *
+         * @param relation used to check for derivation
+         * @param startTemplate the template of the start of [relation]
+         * @param endTemplate the template of the end of [relation]
+         * @param derivedVisible if `true`, checks for visible derivation, otherwise for invisible derivation
+         * @param startDefinition the [InterfaceDefinition] representing [interfaceSpecificationVersion] on the start
+         *   of the [relation]
+         * @return `true` [relation] still derives [interfaceSpecificationVersion]
+         */
+        private suspend fun doesRelationStillDerive(
+            relation: Relation,
+            startTemplate: RelationPartnerTemplate<*, *>,
+            endTemplate: RelationPartnerTemplate<*, *>,
+            derivedVisible: Boolean,
+            startDefinition: InterfaceDefinition
+        ): Boolean {
             var byVisibleDerived = false
-            var byInvisibleSelfDefined = false
             var byInvisibleDerived = false
             relation.template(cache).value.relationConditions(cache).forEach { relationCondition ->
                 if (startTemplate in relationCondition.from(cache) && endTemplate in relationCondition.to(cache)) {
                     relationCondition.interfaceSpecificationInheritanceConditions(cache).forEach {
                         if (it.inheritableInterfaceSpecifications(cache).contains(interfaceSpecificationTemplate)) {
                             if (it.isVisibleInherited && derivedVisible || it.isInvisibleInherited && !derivedVisible) {
-                                byVisibleSelfDefined = byVisibleSelfDefined || it.inheritsVisibleSelfDefined
                                 byVisibleDerived = byVisibleDerived || it.inheritsVisibleDerived
-                                byInvisibleSelfDefined = byInvisibleSelfDefined || it.inheritsInvisibleSelfDefined
                                 byInvisibleDerived = byInvisibleDerived || it.inheritsInvisibleDerived
+                                if (derivedBySelfDefined(startDefinition, it)) {
+                                    return true
+                                }
                             }
                         }
                     }
                 }
             }
+            return when {
+                byVisibleDerived && checkIsDerivedVisible(startDefinition) -> true
+                byInvisibleDerived && checkIsDerivedInvisible(startDefinition) -> true
+                else -> false
+            }
+        }
 
-            return byVisibleSelfDefined && startDefinition.visibleSelfDefined || byInvisibleSelfDefined && startDefinition.invisibleSelfDefined || byVisibleDerived && checkIsDerivedVisible(
-                startDefinition
-            ) || byInvisibleDerived && checkIsDerivedInvisible(startDefinition)
+        /**
+         * If [interfaceDefinition] derives (in)visible by self-defined and [startDefinition] is (in)visibleSelfDefined,
+         * returns `true`, otherwise `false`
+         *
+         * @param startDefinition [InterfaceSpecificationVersion] on the start of the [Relation] to check for derivation
+         * @param inheritanceCondition [InterfaceSpecificationInheritanceCondition] on the [Relation]
+         * @return `true` if the [Relation] derives [startDefinition] by self-defined
+         */
+        private fun derivedBySelfDefined(
+            startDefinition: InterfaceDefinition, inheritanceCondition: InterfaceSpecificationInheritanceCondition
+        ): Boolean {
+            return when {
+                startDefinition.visibleSelfDefined && inheritanceCondition.inheritsInvisibleSelfDefined -> true
+                startDefinition.invisibleSelfDefined && inheritanceCondition.inheritsInvisibleSelfDefined -> true
+                else -> false
+            }
         }
     }
 }

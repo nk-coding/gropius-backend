@@ -39,7 +39,7 @@ abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val
      * @param node the node where the permission must be granted
      * @param permission the permission to check for, none is checked if `null`
      * @param errorMessage the message to throw in case the permission is not granted,
-     *                     appended to "User does not have permission to"
+     *   appended to "User does not have permission to"
      * @throws IllegalArgumentException with the provided [errorMessage] in case the permission is not granted
      */
     suspend fun checkPermission(node: Node, permission: Permission, errorMessage: String) {

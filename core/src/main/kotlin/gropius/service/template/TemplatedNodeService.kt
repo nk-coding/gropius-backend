@@ -32,7 +32,7 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
      * @param node the node to update the templated fields of
      * @param input defines how to update the templated fields
      * @param templateWasUpdated if true, no longer existing templatedFields are removed, and all existing fields
-     *                           are validated
+     *   are validated
      * @throws IllegalArgumentException if the new/old value for a templated field is invalid
      */
     suspend fun updateTemplatedFields(
@@ -52,7 +52,7 @@ class TemplatedNodeService(val objectMapper: ObjectMapper) {
      * @param node the node to update the templated fields of
      * @param templatedFields values to update the templatedFields
      * @param templateWasUpdated if true, no longer existing templatedFields are removed, and all existing fields
-     *                           are validated
+     *   are validated
      * @throws IllegalArgumentException if the new/old value for a templated field is invalid
      */
     suspend fun updateTemplatedFields(

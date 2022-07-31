@@ -21,7 +21,7 @@ abstract class UpdateNamedNodeInput : UpdateExtensibleNodeInput() {
         super.validate()
         name.ifPresent {
             if (it.isBlank()) {
-                throw IllegalStateException("If name is defined, it must not be blank")
+                throw IllegalArgumentException("If name is defined, it must not be blank")
             }
         }
     }

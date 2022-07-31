@@ -30,7 +30,7 @@ class InterfacePartService(
     repository: InterfacePartRepository,
     val interfaceSpecificationRepository: InterfaceSpecificationRepository,
     val templatedNodeService: TemplatedNodeService
-) : ServiceEffectSpecificationLocationService<InterfacePart, InterfacePartRepository>(repository) {
+) : AffectedByIssueService<InterfacePart, InterfacePartRepository>(repository) {
 
     /**
      * Creates a new [InterfacePart] based on the provided [input]
@@ -121,7 +121,7 @@ class InterfacePartService(
      * @param ids the ids of the [InterfacePart]s to get
      * @param interfaceSpecification all returned [InterfacePart]s must be part of this
      * @return the found[InterfacePart]s
-     * @throws IllegalStateException if any [InterfacePart] was not defined by [interfaceSpecification]
+     * @throws IllegalArgumentException if any [InterfacePart] was not defined by [interfaceSpecification]
      */
     suspend fun findPartsByIdAndValidatePartOfInterfaceSpecification(
         ids: Collection<ID>, interfaceSpecification: InterfaceSpecification
@@ -129,7 +129,7 @@ class InterfacePartService(
         val parts = repository.findAllById(ids)
         parts.forEach {
             if (it.definedOn().value != interfaceSpecification) {
-                throw IllegalStateException("InterfacePart ${it.rawId} is not part of ${interfaceSpecification.rawId}")
+                throw IllegalArgumentException("InterfacePart ${it.rawId} is not part of ${interfaceSpecification.rawId}")
             }
         }
         return parts.toSet()

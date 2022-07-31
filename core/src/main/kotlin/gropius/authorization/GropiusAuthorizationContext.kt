@@ -27,7 +27,7 @@ class GropiusAuthorizationContext(val userId: String, val checkPermission: Boole
 val DataFetchingEnvironment.gropiusAuthorizationContext: GropiusAuthorizationContext get() {
     val tempAuthorizationContext = this.authorizationContext
     if (tempAuthorizationContext !is GropiusAuthorizationContext) {
-        throw IllegalStateException("No GropiusAuthorizationContext available")
+        throw IllegalArgumentException("No GropiusAuthorizationContext available")
     }
     return tempAuthorizationContext
 }

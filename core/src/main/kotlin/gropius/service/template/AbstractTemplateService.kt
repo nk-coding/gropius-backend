@@ -33,7 +33,7 @@ abstract class AbstractTemplateService<T : Template<*, T>, R : ReactiveNeo4jRepo
         val allFields = inheritedFields + template.templateFieldSpecifications.entries.map { it.toPair() }
         val duplicates = allFields.groupingBy { it.first }.eachCount().filter { it.value > 1 }.keys
         if (duplicates.isNotEmpty()) {
-            throw IllegalStateException("Duplicate names found: $duplicates")
+            throw IllegalArgumentException("Duplicate names found: $duplicates")
         }
         for ((name, value) in inheritedFields) {
             template.templateFieldSpecifications[name] = value

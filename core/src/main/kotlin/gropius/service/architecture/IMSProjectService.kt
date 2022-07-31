@@ -119,7 +119,7 @@ class IMSProjectService(
                 imsProject.trackable().value, Permission(TrackablePermission.MANAGE_IMS, authorizationContext)
             )
         ) {
-            throw IllegalStateException("User does not have Permission to delete the IMSProject")
+            throw IllegalArgumentException("User does not have Permission to delete the IMSProject")
         }
         deleteIMSProject(imsProject)
     }

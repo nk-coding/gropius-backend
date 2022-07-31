@@ -18,7 +18,7 @@ abstract class CreateNamedNodeInput : CreateExtensibleNodeInput() {
     override fun validate() {
         super.validate()
         if (name.isBlank()) {
-            throw IllegalStateException("Name must not be blank")
+            throw IllegalArgumentException("Name must not be blank")
         }
     }
 

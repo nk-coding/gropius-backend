@@ -37,7 +37,7 @@ class InterfaceSpecificationVersionService(
     val templatedNodeService: TemplatedNodeService,
     val nodeRepository: NodeRepository,
     val interfaceSpecificationRepository: InterfaceSpecificationRepository
-) : ServiceEffectSpecificationLocationService<InterfaceSpecificationVersion, InterfaceSpecificationVersionRepository>(
+) : AffectedByIssueService<InterfaceSpecificationVersion, InterfaceSpecificationVersionRepository>(
     repository
 ) {
 

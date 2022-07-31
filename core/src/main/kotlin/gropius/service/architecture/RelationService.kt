@@ -98,21 +98,21 @@ class RelationService(
      * @param relationPartner the start/end of the relation
      * @param partIds the ids of the [InterfacePart]s
      * @return the list of queried [InterfacePart]s from the [partIds], empty list if no ids are provided
-     * @throws IllegalStateException if any validation fails
+     * @throws IllegalArgumentException if any validation fails
      */
     private suspend fun getInterfaceParts(
         relationPartner: RelationPartner, partIds: List<ID>
     ): List<InterfacePart> {
         if (partIds.isNotEmpty()) {
             if (relationPartner !is Interface) {
-                throw IllegalStateException("InterfaceParts can only be provided if the side of the Relation uses an Interface")
+                throw IllegalArgumentException("InterfaceParts can only be provided if the side of the Relation uses an Interface")
             }
             val interfaceSpecificationVersion =
                 relationPartner.interfaceDefinition().value.interfaceSpecificationVersion().value
             val parts = partIds.map { interfacePartRepository.findById(it) }
             parts.forEach {
                 if (interfaceSpecificationVersion !in it.activeOn()) {
-                    throw IllegalStateException("InterfacePart must be active on the used InterfaceSpecificationVersion")
+                    throw IllegalArgumentException("InterfacePart must be active on the used InterfaceSpecificationVersion")
                 }
             }
             return parts
@@ -126,7 +126,7 @@ class RelationService(
      * @param start the start of the Relation
      * @param end the end of the Relation
      * @param template the template of the Relation
-     * @throws IllegalStateException if the combination is invalid
+     * @throws IllegalArgumentException if the combination is invalid
      */
     private suspend fun validateRelationStartAndEnd(
         start: RelationPartner, end: RelationPartner, template: RelationTemplate
@@ -134,7 +134,7 @@ class RelationService(
         val startTemplate = start.relationPartnerTemplate()
         val endTemplate = end.relationPartnerTemplate()
         if (template.relationConditions().none { startTemplate in it.from() && endTemplate in it.to() }) {
-            throw IllegalStateException("No RelationCondition allows the chosen relationTemplate & start & end combination")
+            throw IllegalArgumentException("No RelationCondition allows the chosen relationTemplate & start & end combination")
         }
     }
 
@@ -208,7 +208,7 @@ class RelationService(
                 Permission(ComponentPermission.RELATE_TO_COMPONENT, authorizationContext)
             )
         ) {
-            throw IllegalStateException("User does not have permission to delete the Relation")
+            throw IllegalArgumentException("User does not have permission to delete the Relation")
         }
         val graphUpdater = ComponentGraphUpdater()
         graphUpdater.deleteRelation(relation)

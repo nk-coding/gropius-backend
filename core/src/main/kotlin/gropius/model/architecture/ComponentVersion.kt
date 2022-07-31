@@ -35,6 +35,10 @@ class ComponentVersion(
     override val templatedFields: MutableMap<String, String>
 ) : RelationPartner(name, description), Versioned, MutableTemplatedNode {
 
+    companion object {
+        const val INTRA_COMPONENT_DEPENDENCY_SPECIFICATION = "INTRA_COMPONENT_DEPENDENCY_SPECIFICATION"
+    }
+
     @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
     @GraphQLDescription("The Template of this ComponentVersion")
     @FilterProperty
@@ -58,6 +62,12 @@ class ComponentVersion(
     @FilterProperty
     @delegate:Transient
     val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()
+
+    @NodeRelationship(INTRA_COMPONENT_DEPENDENCY_SPECIFICATION, Direction.OUTGOING)
+    @GraphQLDescription("IntraComponentDependencySpecifications associated with this ComponentVersion")
+    @FilterProperty
+    @delegate:Transient
+    val intraComponentDependencySpecifications by NodeSetProperty<IntraComponentDependencySpecification>()
 
     @GraphQLIgnore
     override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {

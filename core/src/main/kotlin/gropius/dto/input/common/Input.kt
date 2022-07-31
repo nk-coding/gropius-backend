@@ -8,7 +8,7 @@ abstract class Input {
     /**
      * Validates this input
      *
-     * @throws IllegalStateException if invalid
+     * @throws IllegalArgumentException if invalid
      */
     open fun validate() {}
 

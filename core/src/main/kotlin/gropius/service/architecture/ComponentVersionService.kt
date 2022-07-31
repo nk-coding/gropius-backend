@@ -112,7 +112,7 @@ class ComponentVersionService(
         val interfaceSpecificationVersion = interfaceSpecificationVersionRepository.findById(interfaceSpecificationId)
         val component = componentVersion.component().value
         if (interfaceSpecificationVersion.interfaceSpecification().value.component().value != component) {
-            throw IllegalStateException(
+            throw IllegalArgumentException(
                 "InterfaceSpecificationVersion ${interfaceSpecificationVersion.rawId} is not part of Component ${component.rawId}"
             )
         }

@@ -39,14 +39,14 @@ fun <T> OptionalInput<T>.orElse(value: T): T {
  * Uses the properties to get the name of the properties to generate the failure message
  *
  * @param otherProperty the other property
- * @throws IllegalStateException if both lists are present and not distinct
+ * @throws IllegalArgumentException if both lists are present and not distinct
  */
 infix fun KProperty0<OptionalInput<List<ID>>>.ensureDistinct(otherProperty: KProperty0<OptionalInput<List<ID>>>) {
     this.get().ifPresent { thisIds ->
         otherProperty.get().ifPresent {
             val commonIds = thisIds intersect it.toSet()
             if (commonIds.isNotEmpty()) {
-                throw IllegalStateException("`${this.name}` and `${otherProperty.name}` must be distinct: $commonIds")
+                throw IllegalArgumentException("`${this.name}` and `${otherProperty.name}` must be distinct: $commonIds")
             }
         }
     }

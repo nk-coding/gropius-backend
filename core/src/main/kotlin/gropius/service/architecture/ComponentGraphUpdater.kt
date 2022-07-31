@@ -375,7 +375,9 @@ class ComponentGraphUpdater {
             if (definition.visibleInterface(cache).value == null) {
                 val specification = definition.interfaceSpecificationVersion(cache).value
                 val template =
-                    definition.interfaceSpecificationVersion(cache).value.interfaceSpecification(cache).value.template(cache).value.interfaceTemplate(
+                    definition.interfaceSpecificationVersion(cache).value.interfaceSpecification(cache).value.template(
+                        cache
+                    ).value.interfaceTemplate(
                         cache
                     ).value
                 val newInterface = Interface(
@@ -391,9 +393,7 @@ class ComponentGraphUpdater {
         if (!definition.visibleSelfDefined && definition.visibleDerivedBy(cache).isEmpty()) {
             val visibleInterface = definition.visibleInterface(cache).value
             if (visibleInterface != null) {
-                deletedNodes += visibleInterface
-                deletedNodes += visibleInterface.incomingRelations(cache)
-                deletedNodes += visibleInterface.outgoingRelations(cache)
+                deleteInterface(visibleInterface)
                 definition.visibleInterface(cache).value = null
             }
             if (!definition.invisibleSelfDefined && definition.invisibleDerivedBy(cache).isEmpty()) {
@@ -402,6 +402,34 @@ class ComponentGraphUpdater {
                 definition.interfaceSpecificationVersion(cache).value.definitions(cache) -= definition
             }
         }
+    }
+
+    private suspend fun deleteInterface(node: Interface) {
+        deletedNodes += node
+        deletedNodes += node.incomingRelations(cache)
+        deletedNodes += node.outgoingRelations(cache)
+        val intraComponentDependencyParticipants = node.intraComponentDependencyParticipants(cache)
+        deletedNodes += intraComponentDependencyParticipants
+        for (participant in intraComponentDependencyParticipants) {
+            participant.usedAsIncomingAt(cache).value?.let {
+                it.incomingParticipants(cache) -= participant
+                if (it.incomingParticipants(cache).isEmpty()) {
+                    deleteIntraComponentDependencySpecification(it)
+                }
+            }
+            participant.usedAsOutgoingAt(cache).value?.let {
+                it.outgoingParticipants(cache) -= participant
+                if (it.outgoingParticipants(cache).isEmpty()) {
+                    deleteIntraComponentDependencySpecification(it)
+                }
+            }
+        }
+    }
+
+    private suspend fun deleteIntraComponentDependencySpecification(node: IntraComponentDependencySpecification) {
+        deletedNodes += node
+        deletedNodes += node.incomingParticipants(cache)
+        deletedNodes += node.outgoingParticipants(cache)
     }
 
     private suspend fun validateRelatedComponentVersions(
@@ -513,7 +541,7 @@ class ComponentGraphUpdater {
             relation: Relation, derivedVisible: Boolean
         ): Boolean {
             if (relation in deletedNodes) {
-                throw IllegalStateException("found deleted relation")
+                throw IllegalArgumentException("found deleted relation")
             }
             val startNode = relation.start(cache).value
             val endNode = relation.end(cache).value
@@ -522,7 +550,7 @@ class ComponentGraphUpdater {
             }
             val startDefinition = startNode.interfaceDefinitions(cache).firstOrNull {
                 if (it in deletedNodes) {
-                    throw IllegalStateException("found deleted definition")
+                    throw IllegalArgumentException("found deleted definition")
                 }
                 it.interfaceSpecificationVersion(cache).value == interfaceSpecificationVersion
             } ?: return false

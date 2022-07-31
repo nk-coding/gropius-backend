@@ -27,7 +27,7 @@ class InterfaceSpecification(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(
+) : AffectedByIssue(
     name, description
 ), MutableTemplatedNode {
 

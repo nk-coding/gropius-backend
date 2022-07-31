@@ -36,7 +36,7 @@ class InterfaceSpecificationVersion(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(name, description), Versioned, MutableTemplatedNode {
+) : AffectedByIssue(name, description), Versioned, MutableTemplatedNode {
 
     companion object {
         const val ACTIVE_PART = "ACTIVE_PART"

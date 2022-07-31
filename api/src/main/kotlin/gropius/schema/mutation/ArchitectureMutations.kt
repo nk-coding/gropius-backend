@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * @param componentVersionService used for ComponentVersion-related mutations
  * @param imsService used for IMS-related mutations
  * @param imsProjectService used for IMSProject-related mutations
+ * @param intraComponentDependencySpecificationService used for IntraComponentDependencySpecificationService-related mutations
  */
 @org.springframework.stereotype.Component
 class ArchitectureMutations(
@@ -35,7 +36,8 @@ class ArchitectureMutations(
     private val componentVersionService: ComponentVersionService,
     private val relationService: RelationService,
     private val imsService: IMSService,
-    private val imsProjectService: IMSProjectService
+    private val imsProjectService: IMSProjectService,
+    private val intraComponentDependencySpecificationService: IntraComponentDependencySpecificationService
 ) : Mutation {
 
     @GraphQLDescription(
@@ -428,6 +430,50 @@ class ArchitectureMutations(
         input: DeleteNodeInput, dfe: DataFetchingEnvironment
     ): ID {
         imsProjectService.deleteIMSProject(dfe.gropiusAuthorizationContext, input)
+        return input.id
+    }
+
+    @GraphQLDescription(
+        """Creates a new IntraComponentDependencySpecification, requires ADMIN on the Component associated with the 
+        specified ComponentVersion.
+        """
+    )
+    @AutoPayloadType("The created IntraComponentDependencySpecification")
+    suspend fun createIntraComponentDependencySpecification(
+        @GraphQLDescription("Defines the created IntraComponentDependencySpecification")
+        input: CreateIntraComponentDependencySpecificationInput, dfe: DataFetchingEnvironment
+    ): IntraComponentDependencySpecification {
+        return intraComponentDependencySpecificationService.createIntraComponentDependencySpecification(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Updates the specified IntraComponentDependencySpecification, requires ADMIN on the Component associated with the 
+        IntraComponentDependencySpecification to update."""
+    )
+    @AutoPayloadType("The updated IntraComponentDependencySpecification")
+    suspend fun updateIntraComponentDependencySpecification(
+        @GraphQLDescription("Defines which IntraComponentDependencySpecification to update and how to update it")
+        input: UpdateIntraComponentDependencySpecificationInput, dfe: DataFetchingEnvironment
+    ): IntraComponentDependencySpecification {
+        return intraComponentDependencySpecificationService.updateIntraComponentDependencySpecification(
+            dfe.gropiusAuthorizationContext, input
+        )
+    }
+
+    @GraphQLDescription(
+        """Deletes the specified IntraComponentDependencySpecification, requires ADMIN on the Component associated with the 
+        IntraComponentDependencySpecification to delete."""
+    )
+    @AutoPayloadType("The id of the deleted IntraComponentDependencySpecification")
+    suspend fun deleteIntraComponentDependencySpecification(
+        @GraphQLDescription("Defines which IntraComponentDependencySpecification to delete")
+        input: DeleteNodeInput, dfe: DataFetchingEnvironment
+    ): ID {
+        intraComponentDependencySpecificationService.deleteIntraComponentDependencySpecification(
+            dfe.gropiusAuthorizationContext, input
+        )
         return input.id
     }
 

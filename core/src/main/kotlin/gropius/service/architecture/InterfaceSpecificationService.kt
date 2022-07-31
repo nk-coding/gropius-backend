@@ -45,7 +45,7 @@ class InterfaceSpecificationService(
     val templatedNodeService: TemplatedNodeService,
     val interfaceSpecificationTemplateRepository: InterfaceSpecificationTemplateRepository,
     val nodeRepository: NodeRepository,
-) : ServiceEffectSpecificationLocationService<InterfaceSpecification, InterfaceSpecificationRepository>(repository) {
+) : AffectedByIssueService<InterfaceSpecification, InterfaceSpecificationRepository>(repository) {
 
     /**
      * Creates a new [InterfaceSpecification] based on the provided [input]

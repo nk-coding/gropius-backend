@@ -46,6 +46,12 @@ class Interface(
     @delegate:Transient
     val interfaceDefinition by NodeProperty<InterfaceDefinition>()
 
+    @NodeRelationship(IntraComponentDependencyParticipant.INCLUDED_PART, Direction.INCOMING)
+    @GraphQLDescription("Participants of IntraComponentDependencySpecifications where this is used.")
+    @FilterProperty
+    @delegate:Transient
+    val intraComponentDependencyParticipants by NodeSetProperty<IntraComponentDependencyParticipant>()
+
     @GraphQLIgnore
     override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {
         val interfaceSpecificationVersion = interfaceDefinition(cache).value.interfaceSpecificationVersion(cache).value

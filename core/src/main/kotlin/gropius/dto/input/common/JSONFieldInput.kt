@@ -15,11 +15,11 @@ class JSONFieldInput(
 /**
  * Ensures that a List of [JSONFieldInput] does not contain duplicate names
  *
- * @throws IllegalStateException if there are duplicate names
+ * @throws IllegalArgumentException if there are duplicate names
  */
 fun List<JSONFieldInput>.ensureNoDuplicates() {
     val duplicates = this.groupingBy { it.name }.eachCount().filter { it.value > 1 }.keys
     if (duplicates.isNotEmpty()) {
-        throw IllegalStateException("Duplicate names found: $duplicates")
+        throw IllegalArgumentException("Duplicate names found: $duplicates")
     }
 }

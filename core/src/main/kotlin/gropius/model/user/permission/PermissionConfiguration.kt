@@ -250,14 +250,14 @@ class PermissionConfiguration {
      * @param description the description of the enum type
      * @param entryCollections used to build enum entries, must not contain duplicate names
      * @return the generated enum type
-     * @throws IllegalStateException if duplicate names are found
+     * @throws IllegalArgumentException if duplicate names are found
      */
     private fun generatePermissionEntryEnum(
         name: String, description: String, entryCollections: List<PermissionEntryCollection<*>>
     ): GraphQLEnumType {
         val entries = entryCollections.flatMap { it.entries }
         entries.groupBy { it.name }.entries.firstOrNull { it.value.size > 1 }?.also {
-            throw IllegalStateException("Duplicate name ${it.key} found for entries for $name")
+            throw IllegalArgumentException("Duplicate name ${it.key} found for entries for $name")
         }
         val builder = GraphQLEnumType.newEnum().name(name).description(description)
         for (entry in entries) {

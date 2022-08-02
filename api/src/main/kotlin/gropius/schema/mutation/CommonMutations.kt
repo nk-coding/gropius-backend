@@ -11,11 +11,14 @@ import gropius.model.common.ExtensibleNode
 import gropius.service.common.ExtensibleNodeService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Contains all mutations not related to a specific subgroup of mutations
  */
 @Component
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 class CommonMutations : Mutation {
 
     @GraphQLDescription("Updates extensionFields of the specified ExtensibleNode. Requires READ")

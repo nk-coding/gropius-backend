@@ -12,6 +12,8 @@ import gropius.graphql.AutoPayloadType
 import gropius.model.architecture.*
 import gropius.service.architecture.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * Contains all architecture-related mutations
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired
  * @param intraComponentDependencySpecificationService used for IntraComponentDependencySpecificationService-related mutations
  */
 @org.springframework.stereotype.Component
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 class ArchitectureMutations(
     private val componentService: ComponentService,
     private val projectService: ProjectService,

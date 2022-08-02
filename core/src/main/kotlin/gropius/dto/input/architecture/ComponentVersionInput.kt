@@ -10,7 +10,7 @@ import kotlin.properties.Delegates
 @GraphQLDescription("Input to create a ComponentVersion")
 open class ComponentVersionInput : CreateNamedNodeInput(), CreateTemplatedNodeInput {
 
-    @GraphQLDescription("The version of the created InterfaceSpecificationVersion")
+    @GraphQLDescription("The version of the created ComponentVersion")
     var version: String by Delegates.notNull()
 
     @GraphQLDescription("Initial values for all templatedFields")

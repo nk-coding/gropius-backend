@@ -83,7 +83,7 @@ abstract class Grabber<T : Any> {
      * Increase the number of failed attempts for a node in the cache
      * @param node Node id to increase the number on (not mongo id)
      */
-    protected abstract suspend fun increasedFailedCache(node: String)
+    protected abstract suspend fun increaseFailedCache(node: String)
 
     /**
      * Get the id from a node
@@ -93,7 +93,7 @@ abstract class Grabber<T : Any> {
     protected abstract fun nodeId(node: T): String
 
     /**
-     * Handle the resuöts of a step response (currently inserting into cache)
+     * Handle the results of a step response (currently inserting into cache)
      * @param response the response
      */
     private suspend fun handleStepResponse(response: Grabber.StepResponse<T>) {
@@ -129,7 +129,7 @@ abstract class Grabber<T : Any> {
     suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?) {
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {
-            increasedFailedCache(nodeId(node))
+            increaseFailedCache(nodeId(node))
             val newMaxTime = callback(node)
             if (newMaxTime != null) {
                 times.add(newMaxTime)

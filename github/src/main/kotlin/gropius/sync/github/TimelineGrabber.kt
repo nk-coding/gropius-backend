@@ -88,7 +88,7 @@ class TimelineGrabber(
         ).awaitSingle()
     }
 
-    override suspend fun increasedFailedCache(node: String) {
+    override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<TimelineItemDataCache>().matching(Query.query(Criteria.where("data.id").`is`(node)))
             .apply(Update().inc(TimelineItemDataCache::attempts.name, 1)).firstAndAwait()
     }

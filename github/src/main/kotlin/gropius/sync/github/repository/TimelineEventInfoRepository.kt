@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
 
 /**
- * Mapping of a single timeline event from neo4j to github
+ * Repository for mapping of a single timeline event from neo4j to github
  */
 @Repository
 interface TimelineEventInfoRepository : ReactiveMongoRepository<TimelineEventInfo, ObjectId> {

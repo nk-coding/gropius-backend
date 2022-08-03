@@ -102,7 +102,7 @@ class IssueGrabber(
         ).awaitSingle()
     }
 
-    override suspend fun increasedFailedCache(node: String) {
+    override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<IssueDataCache>().matching(Query.query(Criteria.where("data.id").`is`(node)))
             .apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
     }

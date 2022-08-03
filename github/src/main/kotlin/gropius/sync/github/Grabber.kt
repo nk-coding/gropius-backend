@@ -93,7 +93,7 @@ abstract class Grabber<T : Any> {
     protected abstract fun nodeId(node: T): String
 
     /**
-     * Handle the resuöts of a step response (currently inserting into cache)
+     * Handle the results of a step response (currently inserting into cache)
      * @param response the response
      */
     private suspend fun handleStepResponse(response: Grabber.StepResponse<T>) {

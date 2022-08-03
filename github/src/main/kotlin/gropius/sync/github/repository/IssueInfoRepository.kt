@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
 
 /**
- * Mapping of a single issue from neo4j to github
+ * Repository for mapping of a single issue from neo4j to github
  */
 @Repository
 interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {

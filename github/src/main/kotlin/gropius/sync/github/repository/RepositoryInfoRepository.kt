@@ -17,4 +17,5 @@ interface RepositoryInfoRepository : ReactiveMongoRepository<RepositoryInfo, Obj
      * @return result of database operation
      */
     suspend fun findByUserAndRepo(user: String, repo: String): RepositoryInfo?
+    suspend fun findByIMSProject(imsProject: String): RepositoryInfo?
 }

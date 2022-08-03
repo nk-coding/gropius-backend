@@ -86,8 +86,8 @@ class Incoming(
      * @param info The full dataset of an issue
      * @return The DateTime the issue was last changed
      */
-    suspend fun issueModified(info: IssueDataExtensive): OffsetDateTime {
-        val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(info)
+    suspend fun issueModified(imsProjectConfig: IMSProjectConfig, info: IssueDataExtensive): OffsetDateTime {
+        val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(imsProjectConfig.imsProject, info)
         mongoOperations.updateFirst(
             Query(where("_id").`is`(mongoIssue.id!!)), Update().set(IssueInfo::dirty.name, true), IssueInfo::class.java
         ).awaitSingle()
@@ -160,22 +160,39 @@ class Incoming(
     }
 
     suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
-        val issueGrabber = IssueGrabber(imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient)
+        imsProjectConfig.imsProject.trackable().value
+        val issueGrabber = IssueGrabber(
+            imsProjectConfig.repo,
+            repositoryInfoRepository,
+            mongoOperations,
+            apolloClient,
+            imsProjectConfig.imsProject.rawId!!
+        )
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
-            issueModified(it)
+            issueModified(imsProjectConfig, it)
         }
-        for (issue in issueInfoRepository.findByDirtyIsTrue().toList()) {
-            val timelineGrabber = TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId, apolloClient)
+        for (issue in issueInfoRepository.findByProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!).toList()) {
+            val timelineGrabber = TimelineGrabber(
+                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
+            )
             timelineGrabber.requestNewNodes()
         }
         for (issueId in mongoOperations.query<TimelineItemDataCache>().matching(
-            Query.query(Criteria.where(TimelineItemDataCache::attempts.name).not().gte(7))
+            Query.query(
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProjectConfig.imsProject.rawId!!)
+                    .`and`(TimelineItemDataCache::attempts.name).not().gte(7)
+            )
         ).all().asFlow().map { it.issue }.toSet()) {
-            val issue = issueInfoRepository.findByGithubId(issueId)!!
+            val issue = issueInfoRepository.findByIMSProjectAndGithubId(imsProjectConfig.imsProject.rawId!!, issueId)!!
             try {
-                val timelineGrabber =
-                    TimelineGrabber(issueInfoRepository, mongoOperations, issue.githubId, apolloClient)
+                val timelineGrabber = TimelineGrabber(
+                    issueInfoRepository,
+                    mongoOperations,
+                    issue.githubId,
+                    apolloClient,
+                    imsProjectConfig.imsProject.rawId!!
+                )
                 timelineGrabber.iterate {
                     handleTimelineEvent(issue, it)
                 }
@@ -186,8 +203,7 @@ class Incoming(
                     IssueInfo::class.java
                 ).awaitSingle()
             } catch (e: SyncNotificator.NotificatedError) {
-                TODO("Create IMSIssue")
-                /*
+                TODO("Create IMSIssue")/*
                 syncNotificator.sendNotification(
                     issue, SyncNotificator.NotificationDummy(e)
                 )

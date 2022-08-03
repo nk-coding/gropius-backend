@@ -36,7 +36,8 @@ class IssueGrabber(
      * Reference for the spring instance of ReactiveMongoOperations
      */
     private val mongoOperations: ReactiveMongoOperations,
-   private val apolloClient: ApolloClient
+    private val apolloClient: ApolloClient,
+    private val imsProject: String
 ) : Grabber<IssueDataExtensive>() {
     /**
      * The response of a single issue grabbing step
@@ -45,7 +46,8 @@ class IssueGrabber(
         /**
          * The raw github response
          */
-        val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {
+        val content: IssueReadQuery.Data
+    ) : StepResponse<IssueDataExtensive> {
         override val metaData get() = content.metaData()!!
         override val nodes get() = content.repository!!.issues.nodes!!.filterNotNull()
         override val totalCount get() = content.repository!!.issues.totalCount
@@ -54,49 +56,50 @@ class IssueGrabber(
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<RepositoryInfo>().matching(
-            query(where(RepositoryInfo::user.name).`is`(remote.owner)).addCriteria(
-                where(RepositoryInfo::repo.name).`is`(
-                    remote.owner
-                )
-            )
+            query(where(RepositoryInfo::imsProject.name).`is`(imsProject))
         ).apply(
             Update().max(RepositoryInfo::lastAccess.name, time)
         ).upsertAndAwait()
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return repositoryInfoRepository.findByUserAndRepo(remote.owner, remote.repo)?.lastAccess
+        return repositoryInfoRepository.findByIMSProject(imsProject)?.lastAccess
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
-        return mongoOperations.update<IssueDataCache>()
-            .matching(query(where(IssueDataCache::githubId.name).`is`(node.id))).apply(
-                update(IssueDataCache::data.name, node).set(IssueDataCache::repo.name, remote.repo)
-                    .set(IssueDataCache::user.name, remote.owner)
-            ).withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify()
-            .awaitSingle().id!!
+        return mongoOperations.update<IssueDataCache>().matching(
+            query(
+                where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::imsProject.name).`is`(imsProject)
+            )
+        ).apply(
+            update(IssueDataCache::data.name, node)
+        ).withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify().awaitSingle().id!!
     }
 
     override suspend fun iterateCache(): Flow<IssueDataExtensive> {
         return mongoOperations.query<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::user.name).`is`(remote.owner)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(remote.repo))
-                .addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
+                where(IssueDataCache::githubId.name).`is`(imsProject)
+            ).addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
 
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<IssueDataCache>(
             query(
-                where(IssueDataCache::user.name).`is`(remote.owner)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(remote.repo)).addCriteria(where("data.id").`is`(node))
+                where(IssueDataCache::imsProject.name).`is`(
+                    imsProject
+                )
+            ).addCriteria(where("data.id").`is`(node))
         ).awaitSingle()
     }
 
     override suspend fun increaseFailedCache(node: String) {
-        mongoOperations.update<IssueDataCache>().matching(Query.query(Criteria.where("data.id").`is`(node)))
-            .apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
+        mongoOperations.update<IssueDataCache>().matching(
+            Query.query(
+                Criteria.where("data.id").`is`(node).and(IssueDataCache::imsProject.name).`is`(imsProject)
+            )
+        ).apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
     }
 
     override fun nodeId(node: IssueDataExtensive): String {

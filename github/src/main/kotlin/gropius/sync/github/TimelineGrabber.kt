@@ -36,8 +36,7 @@ class TimelineGrabber(
     /**
      * github id of the issue
      */
-    private val id: String,
-    private val apolloClient: ApolloClient
+    private val id: String, private val apolloClient: ApolloClient, private val imsProject: String
 ) : Grabber<TimelineItemData>() {
 
     /**
@@ -57,27 +56,35 @@ class TimelineGrabber(
     }
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
-        mongoOperations.update<IssueInfo>().matching(Query.query(Criteria.where(IssueInfo::githubId.name).`is`(id)))
-            .apply(
-                Update().max(IssueInfo::lastAccess.name, time)
-            ).firstAndAwait()
+        mongoOperations.update<IssueInfo>().matching(
+            Query.query(
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject).`and`(IssueInfo::githubId.name)
+                    .`is`(id)
+            )
+        ).apply(
+            Update().max(IssueInfo::lastAccess.name, time)
+        ).firstAndAwait()
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return issueInfoRepository.findByGithubId(id)?.lastAccess
+        return issueInfoRepository.findByIMSProjectAndGithubId(imsProject, id)?.lastAccess
     }
 
     override suspend fun addToCache(node: TimelineItemData): ObjectId {
-        return mongoOperations.update<TimelineItemDataCache>()
-            .matching(Query.query(Criteria.where(TimelineItemDataCache::githubId.name).`is`(node.asNode()!!.id)))
-            .apply(Update.update(TimelineItemDataCache::data.name, node).set(TimelineItemDataCache::issue.name, id))
+        return mongoOperations.update<TimelineItemDataCache>().matching(
+            Query.query(
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                    .`and`(TimelineItemDataCache::githubId.name).`is`(node.asNode()!!.id)
+            )
+        ).apply(Update.update(TimelineItemDataCache::data.name, node).set(TimelineItemDataCache::issue.name, id))
             .withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify().awaitSingle().id!!
     }
 
     override suspend fun iterateCache(): Flow<TimelineItemData> {
         return mongoOperations.query<TimelineItemDataCache>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::issue.name).`is`(id)
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                    .`and`(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
@@ -85,14 +92,18 @@ class TimelineGrabber(
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<TimelineItemDataCache>(
             Query.query(
-                Criteria.where(TimelineItemDataCache::issue.name).`is`(id)
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                    .`and`(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::githubId.name).`is`(node))
         ).awaitSingle()
     }
 
     override suspend fun increaseFailedCache(node: String) {
-        mongoOperations.update<TimelineItemDataCache>().matching(Query.query(Criteria.where("data.id").`is`(node)))
-            .apply(Update().inc(TimelineItemDataCache::attempts.name, 1)).firstAndAwait()
+        mongoOperations.update<TimelineItemDataCache>().matching(
+            Query.query(
+                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject).`and`("data.id").`is`(node)
+            )
+        ).apply(Update().inc(TimelineItemDataCache::attempts.name, 1)).firstAndAwait()
     }
 
     override fun nodeId(node: TimelineItemData): String {

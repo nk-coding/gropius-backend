@@ -27,7 +27,8 @@ data class TimelineItemDataCache(
     /**
      * Number of attempts to sync into gropius database
      */
-    var attempts: Int?
+    var attempts: Int?,
+    val imsProject: String
 ) {
     /**
      * MongoDB ID

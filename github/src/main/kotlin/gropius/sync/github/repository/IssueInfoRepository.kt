@@ -13,23 +13,26 @@ import org.springframework.stereotype.Repository
 interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
     /**
      * Find all issues that have outstanding changes
+     * @param imsProject IMSProject syncing currently
      * @return result of database operation
      */
-    suspend fun findByDirtyIsTrue(): Flow<IssueInfo>
+    suspend fun findByProjectAndDirtyIsTrue(project: String): Flow<IssueInfo>
 
     /**
      * Lookup to find the mapping given a neo4j id
+     * @param imsProject IMSProject syncing currently
      * @param neo4jId Database query param
      * @return result of database operation
      */
-    suspend fun findByNeo4jId(neo4jId: String): IssueInfo?
+    suspend fun findByIMSProjectAndNeo4jId(imsProject: String, neo4jId: String): IssueInfo?
 
     /**
      * Lookup to find the mapping given a github id
+     * @param imsProject IMSProject syncing currently
      * @param githubId Database query param
      * @return result of database operation
      */
-    suspend fun findByGithubId(githubId: String): IssueInfo?
+    suspend fun findByIMSProjectAndGithubId(imsProject: String, githubId: String): IssueInfo?
 }
 
 

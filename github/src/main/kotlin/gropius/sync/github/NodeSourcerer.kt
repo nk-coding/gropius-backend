@@ -1,5 +1,6 @@
 package gropius.sync.github
 
+import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
@@ -100,8 +101,8 @@ class NodeSourcerer(
      * @param info The issue to created this body for
      * @return The gropius issue and the mongodb issue mapping
      */
-    suspend fun ensureIssue(info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByGithubId(info.id)
+    suspend fun ensureIssue(imsProject: IMSProject, info: IssueData): Pair<Issue, IssueInfo> {
+        val issueInfo = issueInfoRepository.findByIMSProjectAndGithubId(imsProject.rawId!!, info.id)
         if (issueInfo == null) {
             var issue = Issue(
                 info.createdAt,
@@ -123,8 +124,13 @@ class NodeSourcerer(
             issue.lastModifiedBy().value = user
             issue.type().value = ensureGithubType()
             issue.template().value = ensureGithubTemplate()
+            issue.trackables().add(imsProject.trackable().value)
             issue = neoOperations.save(issue).awaitSingle()
-            return Pair(issue, issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null)).awaitSingle())
+            return Pair(
+                issue,
+                issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null, imsProject.rawId!!))
+                    .awaitSingle()
+            )
         } else {
             return Pair(neoOperations.findById<Issue>(issueInfo.neo4jId)!!, issueInfo)
         }

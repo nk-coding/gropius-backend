@@ -31,7 +31,8 @@ data class IssueInfo(
     /**
      * Time of the last accessed timeline item
      */
-    var lastAccess: OffsetDateTime?
+    var lastAccess: OffsetDateTime?,
+    val imsProject: String
 ) {
     /**
      * MongoDB ID

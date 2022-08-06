@@ -52,7 +52,7 @@ object DefaultSchemaGeneratorHooks : SchemaGeneratorHooks {
             val payloadType =
                 GraphQLObjectType.newObject().name(fieldDefinition.name.replaceFirstChar(Char::titlecase) + "Payload")
                     .field {
-                        it.name(fieldName).description(description).type(fieldDefinition.type)
+                        it.name(fieldName).description(description).type(fieldDefinition.type.nullable)
                     }.build()
             codeRegistry.dataFetcher(
                 FieldCoordinates.coordinates(payloadType, fieldName),
@@ -73,6 +73,18 @@ object DefaultSchemaGeneratorHooks : SchemaGeneratorHooks {
             val pattern = "^[A-Z]+".toRegex()
             return pattern.replace(unwrappedName) {
                 it.value.map(Char::lowercase).joinToString("")
+            }
+        }
+
+    /**
+     * Gets a nullable version of the type
+     */
+    private val GraphQLOutputType.nullable: GraphQLOutputType
+        get() {
+            return if (this is GraphQLNonNull) {
+                this.originalWrappedType as GraphQLOutputType
+            } else {
+                this
             }
         }
 

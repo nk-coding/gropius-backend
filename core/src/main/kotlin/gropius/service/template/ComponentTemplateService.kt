@@ -4,6 +4,7 @@ import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.template.CreateComponentTemplateInput
 import gropius.model.template.ComponentTemplate
 import gropius.model.template.ComponentVersionTemplate
+import gropius.model.template.SubTemplate
 import gropius.repository.template.ComponentTemplateRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
@@ -13,10 +14,13 @@ import org.springframework.stereotype.Service
  *
  * @param repository the associated repository used for CRUD functionality
  * @param componentTemplateRepository used to get [ComponentTemplate]s
+ * @param subTemplateService used to create [SubTemplate]s
  */
 @Service
 class ComponentTemplateService(
-    repository: ComponentTemplateRepository, private val componentTemplateRepository: ComponentTemplateRepository
+    repository: ComponentTemplateRepository,
+    private val componentTemplateRepository: ComponentTemplateRepository,
+    private val subTemplateService: SubTemplateService
 ) : RelationPartnerTemplateService<ComponentTemplate, ComponentTemplateRepository>(repository) {
 
     /**
@@ -34,8 +38,9 @@ class ComponentTemplateService(
         checkCreateTemplatePermission(authorizationContext)
         val template = ComponentTemplate(input.name, input.description, mutableMapOf(), false)
         createdRelationPartnerTemplate(template, input)
-        template.componentVersionTemplate().value =
-            createSubTemplate(::ComponentVersionTemplate, input.componentVersionTemplate)
+        template.componentVersionTemplate().value = subTemplateService.createSubTemplate(::ComponentVersionTemplate,
+            input.componentVersionTemplate,
+            template.extends().map { it.componentVersionTemplate().value })
         template.possibleVisibleInterfaceSpecifications() += template.extends().flatMap {
             it.possibleVisibleInterfaceSpecifications()
         }

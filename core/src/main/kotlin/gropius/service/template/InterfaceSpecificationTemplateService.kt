@@ -14,11 +14,13 @@ import org.springframework.stereotype.Service
  *
  * @param repository the associated repository used for CRUD functionality
  * @param componentTemplateRepository used to get [ComponentTemplate]s
+ * @param subTemplateService used to create [SubTemplate]s
  */
 @Service
 class InterfaceSpecificationTemplateService(
     repository: InterfaceSpecificationTemplateRepository,
-    private val componentTemplateRepository: ComponentTemplateRepository
+    private val componentTemplateRepository: ComponentTemplateRepository,
+    private val subTemplateService: SubTemplateService
 ) : RelationPartnerTemplateService<InterfaceSpecificationTemplate, InterfaceSpecificationTemplateRepository>(repository) {
 
     /**
@@ -41,13 +43,40 @@ class InterfaceSpecificationTemplateService(
         template.canBeInvisibleOnComponents() += componentTemplateRepository.findAllById(input.canBeInvisibleOnComponents)
         template.canBeInvisibleOnComponents() += template.extends().flatMap { it.canBeInvisibleOnComponents() }
         template.derivableBy() += template.extends().flatMap { it.derivableBy() }
-        template.interfaceSpecificationVersionTemplate().value =
-            createSubTemplate(::InterfaceSpecificationVersionTemplate, input.interfaceSpecificationVersionTemplate)
-        template.interfacePartTemplate().value = createSubTemplate(::InterfacePartTemplate, input.interfacePartTemplate)
-        template.interfaceTemplate().value = createSubTemplate(::InterfaceTemplate, input.interfaceTemplate)
-        template.interfaceDefinitionTemplate().value =
-            createSubTemplate(::InterfaceDefinitionTemplate, input.interfaceDefinitionTemplate)
+        initSubTemplates(template, input)
         return repository.save(template).awaitSingle()
+    }
+
+    /**
+     * Initializes the [SubTemplate]s of a created [InterfaceSpecificationTemplate]
+     *
+     * @param template the newly created [InterfaceSpecificationTemplate]
+     * @param input used to create [template], defines the [SubTemplate]s to create
+     */
+    private suspend fun initSubTemplates(
+        template: InterfaceSpecificationTemplate, input: CreateInterfaceSpecificationTemplateInput
+    ) {
+        val extendedTemplates = template.extends()
+        template.interfaceSpecificationVersionTemplate().value = subTemplateService.createSubTemplate(
+            ::InterfaceSpecificationVersionTemplate,
+            input.interfaceSpecificationVersionTemplate,
+            extendedTemplates.map { it.interfaceSpecificationVersionTemplate().value }
+        )
+        template.interfacePartTemplate().value = subTemplateService.createSubTemplate(
+            ::InterfacePartTemplate,
+            input.interfacePartTemplate,
+            extendedTemplates.map { it.interfacePartTemplate().value }
+        )
+        template.interfaceTemplate().value = subTemplateService.createSubTemplate(
+            ::InterfaceTemplate,
+            input.interfaceTemplate,
+            extendedTemplates.map { it.interfaceTemplate().value }
+        )
+        template.interfaceDefinitionTemplate().value = subTemplateService.createSubTemplate(
+            ::InterfaceDefinitionTemplate,
+            input.interfaceDefinitionTemplate,
+            extendedTemplates.map { it.interfaceDefinitionTemplate().value }
+        )
     }
 
 }

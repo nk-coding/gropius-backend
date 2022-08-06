@@ -27,36 +27,9 @@ abstract class AbstractTemplateService<T : Template<*, T>, R : ReactiveNeo4jRepo
      * @param input specifies templateFieldSpecifications, extended templates
      */
     suspend fun createdTemplate(template: T, input: CreateTemplateInput) {
-        createdBaseTemplate(template, input)
         val extendedTemplates = repository.findAllById(input.extends.orElse(emptyList()))
         template.extends().addAll(extendedTemplates)
-        val derivedFields = extendedTemplates.flatMap { it.templateFieldSpecifications.entries }.map { it.toPair() }
-        val allFields = derivedFields + template.templateFieldSpecifications.entries.map { it.toPair() }
-        val duplicates = allFields.groupingBy { it.first }.eachCount().filter { it.value > 1 }.keys
-        if (duplicates.isNotEmpty()) {
-            throw IllegalArgumentException("Duplicate names found: $duplicates")
-        }
-        for ((name, value) in derivedFields) {
-            template.templateFieldSpecifications[name] = value
-        }
-    }
-
-    /**
-     * Creates a [SubTemplate] based on the provided [constructor] and [input]
-     * Does not check authorization status and does not save the created [SubTemplate]
-     *
-     * @param T the specific subtype of [SubTemplate] to create
-     * @param constructor function used to create the [SubTemplate] subtype instance, usually the constructor
-     * @param input used to get name, description and templateFieldSpecifications
-     * @return the created [SubTemplate]
-     */
-    fun <T : SubTemplate<*, *, *>> createSubTemplate(
-        constructor: (String, String, MutableMap<String, String>) -> T, input: SubTemplateInput
-    ): T {
-        val fields = input.extensionFields.orElse(emptyList()).associate {
-            it.name to objectMapper.writeValueAsString(it.value)
-        }.toMutableMap()
-        return constructor(input.name, input.description, fields)
+        createdBaseTemplate(template, input, extendedTemplates)
     }
 
 }

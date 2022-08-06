@@ -18,7 +18,11 @@ import kotlin.properties.Delegates
  */
 abstract class CreateBaseTemplateInput : CreateNamedNodeInput() {
 
-    @GraphQLDescription("The initial value of the templateFieldSpecifications, should be a JSON schema JSON")
+    @GraphQLDescription(
+        """Additional initial templateFieldSpecifications, should be a JSON schema JSON.
+        Must be distinct with templateFieldSpecifications of templates this template extends.
+        """
+    )
     var templateFieldSpecifications: OptionalInput<List<JSONFieldInput>> by Delegates.notNull()
 
     override fun validate() {
@@ -40,5 +44,5 @@ abstract class CreateBaseTemplateInput : CreateNamedNodeInput() {
      * @param schema the JSON schema to validate
      * @param name the name of the field
      */
-    open fun validateJsonSchema(schema: JsonSchema, name: String) { }
+    open fun validateJsonSchema(schema: JsonSchema, name: String) {}
 }

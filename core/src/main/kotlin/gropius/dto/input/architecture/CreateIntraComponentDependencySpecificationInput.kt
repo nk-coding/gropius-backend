@@ -5,7 +5,7 @@ import com.expediagroup.graphql.generator.scalars.ID
 import gropius.dto.input.common.CreateNamedNodeInput
 import java.lang.IllegalArgumentException
 
-@GraphQLDescription("Input for the createIntroComponentDependencySpecification mutation")
+@GraphQLDescription("Input for the createIntraComponentDependencySpecification mutation")
 class CreateIntraComponentDependencySpecificationInput(
     @GraphQLDescription("The id of the ComponentVersion the created IntraComponentDependencySpecification is part of")
     val componentVersion: ID,

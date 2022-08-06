@@ -27,5 +27,8 @@ class CreateComponentInput(
         interfaceSpecifications.ifPresent {
             it.forEach(Input::validate)
         }
+        versions.ifPresent {
+            it.forEach(Input::validate)
+        }
     }
 }

@@ -1,13 +1,17 @@
 package gropius.schema.mutation
 
+import GropiusUserService
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.scalars.ID
 import com.expediagroup.graphql.server.operations.Mutation
 import graphql.schema.DataFetchingEnvironment
 import gropius.authorization.gropiusAuthorizationContext
 import gropius.dto.input.common.DeleteNodeInput
+import gropius.dto.input.user.UpdateGropiusUserInput
 import gropius.dto.input.user.permission.*
 import gropius.graphql.AutoPayloadType
+import gropius.model.user.GropiusUser
 import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.GlobalPermission
 import gropius.model.user.permission.IMSPermission
@@ -16,6 +20,7 @@ import gropius.service.user.permission.ComponentPermissionService
 import gropius.service.user.permission.GlobalPermissionService
 import gropius.service.user.permission.IMSPermissionService
 import gropius.service.user.permission.ProjectPermissionService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
 /**
@@ -33,6 +38,23 @@ class UserMutations(
     private val imsPermissionService: IMSPermissionService,
     private val globalPermissionService: GlobalPermissionService
 ) : Mutation {
+
+    @GraphQLDescription(
+        """Updates a GropiusUser. Only the same user and admin users can update a GropiusUser.
+        Only admin users can update isAdmin
+        """
+    )
+    @AutoPayloadType("The updated GropiusUser")
+    suspend fun updateGropiusUser(
+        @GraphQLDescription("Defines which GropiusUser to update and how to update it")
+        input: UpdateGropiusUserInput,
+        dfe: DataFetchingEnvironment,
+        @GraphQLIgnore
+        @Autowired
+        gropiusUserService: GropiusUserService
+    ): GropiusUser {
+        return gropiusUserService.updateGropiusUser(dfe.gropiusAuthorizationContext, input)
+    }
 
     @GraphQLDescription(
         """Creates a new ComponentPermission, requires ADMIN on all Components which should be added to the created

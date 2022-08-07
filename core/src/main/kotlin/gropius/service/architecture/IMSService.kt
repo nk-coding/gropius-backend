@@ -75,6 +75,9 @@ class IMSService(
             ims, Permission(NodePermission.ADMIN, authorizationContext), "update the IMS"
         )
         templatedNodeService.updateTemplatedFields(ims, input, false)
+        imsPermissionService.updatePermissionsOfNode(
+            ims, input.addedPermissions, input.removedPermissions, authorizationContext
+        )
         updateExtensibleNode(ims, input)
         return repository.save(ims).awaitSingle()
     }

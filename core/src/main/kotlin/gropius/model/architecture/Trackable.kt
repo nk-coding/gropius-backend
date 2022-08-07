@@ -66,7 +66,7 @@ abstract class Trackable(
     @property:GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
     @FilterProperty
     var repositoryURL: URI?
-) : AffectedByIssue(name, description) {
+) : AffectedByIssue(name, description){
 
     companion object {
         const val ISSUE = "ISSUE"

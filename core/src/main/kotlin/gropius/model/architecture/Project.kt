@@ -3,6 +3,7 @@ package gropius.model.architecture
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.authorization.RELATED_TO_NODE_PERMISSION_RULE
 import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.NodeWithPermissions
 import gropius.model.user.permission.ProjectPermission
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
@@ -18,9 +19,12 @@ import java.net.URI
     """
 )
 @Authorization(
-    ProjectPermission.MANAGE_COMPONENTS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    ProjectPermission.MANAGE_COMPONENTS,
+    allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
-class Project(name: String, description: String, repositoryURL: URI?) : Trackable(name, description, repositoryURL) {
+class Project(
+    name: String, description: String, repositoryURL: URI?
+) : Trackable(name, description, repositoryURL), NodeWithPermissions<ProjectPermission> {
 
     companion object {
         const val COMPONENT = "COMPONENT"
@@ -36,5 +40,5 @@ class Project(name: String, description: String, repositoryURL: URI?) : Trackabl
     @GraphQLDescription("Permissions for this Project.")
     @FilterProperty
     @delegate:Transient
-    val permissions by NodeSetProperty<ProjectPermission>()
+    override val permissions by NodeSetProperty<ProjectPermission>()
 }

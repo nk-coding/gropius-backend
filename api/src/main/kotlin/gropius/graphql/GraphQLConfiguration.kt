@@ -2,28 +2,32 @@ package gropius.graphql
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.generator.hooks.SchemaGeneratorHooks
+import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
 import com.fasterxml.jackson.databind.ObjectMapper
-import graphql.scalars.datetime.DateTimeScalar
 import graphql.scalars.regex.RegexScalar
-import graphql.schema.DataFetcherFactory
-import graphql.schema.GraphQLScalarType
-import graphql.schema.GraphQLType
-import graphql.schema.GraphQLTypeReference
+import graphql.schema.*
+import gropius.authorization.GropiusAuthorizationContext
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
+import gropius.model.user.permission.NodePermission
+import gropius.repository.user.GropiusUserRepository
+import io.github.graphglue.authorization.AuthorizationContext
+import io.github.graphglue.authorization.Permission
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
+import kotlinx.coroutines.reactor.awaitSingle
+import org.neo4j.driver.Driver
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
+import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
+import org.springframework.web.reactive.function.server.ServerRequest
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
 import kotlin.reflect.KFunction
-import kotlin.reflect.KType
 import kotlin.reflect.full.createType
-import kotlin.reflect.full.findAnnotation
 
 /**
  * Contains bean necessary for GraphQL configuration
@@ -31,6 +35,48 @@ import kotlin.reflect.full.findAnnotation
  */
 @Configuration
 class GraphQLConfiguration {
+
+    /**
+     * Generates the GraphQL context map
+     * TODO: use authentication as soon as available
+     *
+     * @param gropiusUserRepository used to get the user
+     * @return the generated context factory
+     */
+    @Bean
+    fun contextFactory(gropiusUserRepository: GropiusUserRepository) = object : DefaultSpringGraphQLContextFactory() {
+        override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
+            //TODO use authentication as soon as available
+            val userId = request.headers().firstHeader("Authorization")
+            val additionalContextEntries = if (userId == null) {
+                emptyMap()
+            } else {
+                val user = gropiusUserRepository.findById(userId).awaitSingle()
+                val context = GropiusAuthorizationContext(userId, !user.isAdmin)
+                if (user.isAdmin) {
+                    mapOf(AuthorizationContext::class to context)
+                } else {
+                    mapOf(Permission::class to Permission(NodePermission.READ, context))
+                }
+
+            }
+            return super.generateContextMap(request) + additionalContextEntries
+        }
+    }
+
+    /**
+     * Necessary transaction manager
+     *
+     * @param driver used Neo4j driver
+     * @param databaseNameProvider Neo4j database provider
+     * @return the generated transaction manager
+     */
+    @Bean
+    fun reactiveTransactionManager(
+        driver: Driver, databaseNameProvider: ReactiveDatabaseSelectionProvider
+    ): ReactiveNeo4jTransactionManager {
+        return ReactiveNeo4jTransactionManager(driver, databaseNameProvider)
+    }
 
     /**
      * JSON scalar which can be used by annotating a function / property with `@GraphQLType("JSON")`
@@ -58,23 +104,10 @@ class GraphQLConfiguration {
      * - [OffsetDateTime] -> DateTime
      * - [URI] -> Url
      * - Duration -> Duration
+     * Handles the automatic generation of payload types for mutations annotated with [AutoPayloadType]
      */
     @Bean
-    fun schemaGeneratorHooks() = object : SchemaGeneratorHooks {
-        override fun willGenerateGraphQLType(type: KType): GraphQLType? {
-            val typeAnnotation = type.findAnnotation<TypeGraphQLType>()
-            return if (typeAnnotation != null) {
-                GraphQLTypeReference.typeRef(typeAnnotation.name)
-            } else {
-                when (type.classifier) {
-                    OffsetDateTime::class -> DateTimeScalar.INSTANCE
-                    URI::class -> URLScalar
-                    Duration::class -> DurationScalar
-                    else -> null
-                }
-            }
-        }
-    }
+    fun schemaGeneratorHooks() = DefaultSchemaGeneratorHooks
 
     /**
      * Filter factory for [OffsetDateTime] properties
@@ -134,7 +167,7 @@ class GraphQLConfiguration {
     fun kotlinDataFetcherFactory(applicationContext: ApplicationContext): KotlinDataFetcherFactoryProvider =
         object : SimpleKotlinDataFetcherFactoryProvider() {
             override fun functionDataFetcherFactory(target: Any?, kFunction: KFunction<*>) = DataFetcherFactory {
-                JSONAwareFunctionDataFetcher(target, kFunction, applicationContext)
+                GropiusFunctionDataFetcher(target, kFunction, applicationContext)
             }
         }
 

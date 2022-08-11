@@ -15,7 +15,7 @@ import org.springframework.data.annotation.Transient
     Defines possible IssueTypes and IssuePriorities for Issues with this Template,
     possible AssignmentTypes for Assignments to Issues with this template, and possible 
     RelationTypes for outgoing IssueRelations for Issues with this template.
-    All those are inherited, if this Template extends another IssueTemplate.
+    All those are derived, if this Template extends another IssueTemplate.
     """
 )
 class IssueTemplate(

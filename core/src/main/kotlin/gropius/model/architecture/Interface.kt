@@ -1,12 +1,12 @@
 package gropius.model.architecture
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.model.template.*
+import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
-import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.model.template.BaseTemplate
-import gropius.model.template.InterfaceTemplate
-import gropius.model.template.MutableTemplatedNode
+import io.github.graphglue.model.property.NodeCache
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -15,10 +15,13 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """An interface which is part of a specific ComponentVersion.
     Its semantics depend on the InterfaceSpecification it is specified by, e.g. an Interface can represent a REST API.
     Can be used in Relations and affected by Issues.
-    READ is granted if READ is granted on `component`.
+    READ is granted if READ is granted on `interfaceDefinition`.
     """
 )
-@Authorization(NodePermission.READ, allowFromRelated = ["component"])
+@Authorization(NodePermission.READ, allowFromRelated = ["interfaceDefinition"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["interfaceDefinition"])
+@Authorization(ComponentPermission.RELATE_TO_COMPONENT, allowFromRelated = ["interfaceDefinition"])
+@Authorization(ComponentPermission.RELATE_FROM_COMPONENT, allowFromRelated = ["interfaceDefinition"])
 class Interface(
     name: String,
     description: String,
@@ -28,25 +31,30 @@ class Interface(
 ) : RelationPartner(name, description), MutableTemplatedNode {
 
     companion object {
-        const val COMPONENT = "COMPONENT"
-        const val SPECIFICATION = "SPECIFICATION"
+        const val DEFINITION = "DEFINITION"
     }
 
     @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
     @GraphQLDescription("The Template of this Interface.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfaceTemplate>()
+    override val template by NodeProperty<InterfaceTemplate>()
 
-    @NodeRelationship(COMPONENT, Direction.OUTGOING)
-    @GraphQLDescription("The ComponentVersion this Interface is part of.")
+    @NodeRelationship(DEFINITION, Direction.OUTGOING)
+    @GraphQLDescription("The definition of this interface.")
     @FilterProperty
     @delegate:Transient
-    val component by NodeProperty<ComponentVersion>()
+    val interfaceDefinition by NodeProperty<InterfaceDefinition>()
 
-    @NodeRelationship(SPECIFICATION, Direction.OUTGOING)
-    @GraphQLDescription("The InterfaceSpecification which specifies this Interface and thereby defines its semantics.")
+    @NodeRelationship(IntraComponentDependencyParticipant.INCLUDED_PART, Direction.INCOMING)
+    @GraphQLDescription("Participants of IntraComponentDependencySpecifications where this is used.")
     @FilterProperty
     @delegate:Transient
-    val specification by NodeProperty<InterfaceSpecificationVersion>()
+    val intraComponentDependencyParticipants by NodeSetProperty<IntraComponentDependencyParticipant>()
+
+    @GraphQLIgnore
+    override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {
+        val interfaceSpecificationVersion = interfaceDefinition(cache).value.interfaceSpecificationVersion(cache).value
+        return interfaceSpecificationVersion.interfaceSpecification(cache).value.template(cache).value
+    }
 }

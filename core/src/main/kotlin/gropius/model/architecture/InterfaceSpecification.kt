@@ -20,13 +20,14 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["component", "versions"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["component"])
 class InterfaceSpecification(
     name: String,
     description: String,
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(
+) : AffectedByIssue(
     name, description
 ), MutableTemplatedNode {
 
@@ -39,7 +40,7 @@ class InterfaceSpecification(
     @GraphQLDescription("The Template of this InterfaceSpecification.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfaceSpecificationTemplate>()
+    override val template by NodeProperty<InterfaceSpecificationTemplate>()
 
     @NodeRelationship(VERSION, Direction.OUTGOING)
     @GraphQLDescription("Versions of this InterfaceSpecification.")

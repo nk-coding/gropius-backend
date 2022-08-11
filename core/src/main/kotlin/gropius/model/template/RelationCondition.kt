@@ -11,7 +11,7 @@ import org.springframework.data.annotation.Transient
     """Condition which defines if a Relation can use a RelationTemplate.
     A relation can only use the Template, if the start of the Relation has a template in from,
     and the end of the Relation has a template in to.
-    Also defines which InterfaceSpecifications are inherited via the Relation.
+    Also defines which InterfaceSpecifications are derived via the Relation.
     Part of a RelationTemplate.
     READ is always granted.
     """
@@ -25,11 +25,11 @@ class RelationCondition : ExtensibleNode() {
         const val TO = "TO"
     }
 
-    @NodeRelationship(InterfaceSpecificationInheritanceCondition.PART_OF, Direction.INCOMING)
-    @GraphQLDescription("Defines which InterfaceSpecifications are inherited via the Relation.")
+    @NodeRelationship(InterfaceSpecificationDerivationCondition.PART_OF, Direction.INCOMING)
+    @GraphQLDescription("Defines which InterfaceSpecifications are derived via the Relation.")
     @FilterProperty
     @delegate:Transient
-    val interfaceSpecificationInheritanceConditions by NodeSetProperty<InterfaceSpecificationInheritanceCondition>()
+    val interfaceSpecificationDerivationConditions by NodeSetProperty<InterfaceSpecificationDerivationCondition>()
 
     @NodeRelationship(PART_OF, Direction.OUTGOING)
     @GraphQLDescription("The RelationTemplates this is part of.")

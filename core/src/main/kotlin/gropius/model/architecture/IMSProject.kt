@@ -42,7 +42,7 @@ class IMSProject(
     @GraphQLDescription("The Template of this Component.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<IMSProjectTemplate>()
+    override val template by NodeProperty<IMSProjectTemplate>()
 
     @NodeRelationship(Trackable.SYNCS_TO, Direction.INCOMING)
     @GraphQLDescription("The trackable which is synced.")

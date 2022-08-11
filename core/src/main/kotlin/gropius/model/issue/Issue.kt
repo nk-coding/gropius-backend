@@ -89,7 +89,7 @@ class Issue(
     @GraphQLDescription("The Template of this Issue.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<IssueTemplate>()
+    override val template by NodeProperty<IssueTemplate>()
 
     @NodeRelationship(AFFECTS, Direction.OUTGOING)
     @GraphQLDescription("Entities which are in some regard affected by this Issue.")

@@ -1,0 +1,45 @@
+package gropius.model.architecture
+
+import com.expediagroup.graphql.generator.annotations.GraphQLDescription
+import gropius.model.common.NamedNode
+import gropius.model.user.permission.NodePermission
+import io.github.graphglue.model.*
+import org.springframework.data.annotation.Transient
+
+@DomainNode
+@GraphQLDescription(
+    """Describes a dependency between Interfaces of a Component.
+    Both ends can optionally affected InterfaceParts.
+    Semantically, any InterfaceSpecification(Version) in `outgoing` depends on any InterfaceSpecification(Version) in 
+    `incoming`.
+    This can result in a propagation of Issues, if any location in `in` is in some regard affected by an Issue,
+    all locations in `out` are affected by this Issue, too.
+    """
+)
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["componentVersion"])
+class IntraComponentDependencySpecification(name: String, description: String) : NamedNode(name, description) {
+
+    companion object {
+        const val INCOMING_PARTICIPANT = "INCOMING_PARTICIPANT"
+        const val OUTGOING_PARTICIPANT = "OUTGOING_PARTICIPANT"
+    }
+
+    @NodeRelationship(ComponentVersion.INTRA_COMPONENT_DEPENDENCY_SPECIFICATION, Direction.INCOMING)
+    @GraphQLDescription("The ComponentVersion this is part of")
+    @FilterProperty
+    @delegate:Transient
+    val componentVersion by NodeProperty<ComponentVersion>()
+
+    @NodeRelationship(INCOMING_PARTICIPANT, Direction.OUTGOING)
+    @GraphQLDescription("The incoming Interfaces of this ServiceEffectSpecification.")
+    @FilterProperty
+    @delegate:Transient
+    val incomingParticipants by NodeSetProperty<IntraComponentDependencyParticipant>()
+
+    @NodeRelationship(OUTGOING_PARTICIPANT, Direction.OUTGOING)
+    @GraphQLDescription("The outgoing Interfaces of this ServiceEffectSpecification.")
+    @FilterProperty
+    @delegate:Transient
+    val outgoingParticipants by NodeSetProperty<IntraComponentDependencyParticipant>()
+
+}

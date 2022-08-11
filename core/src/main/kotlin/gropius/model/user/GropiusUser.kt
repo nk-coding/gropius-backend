@@ -2,12 +2,10 @@ package gropius.model.user
 
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import gropius.authorization.RELATED_TO_GLOBAL_PERMISSION_RULE
 import gropius.model.user.permission.BasePermission
 import gropius.model.user.permission.GlobalPermission
-import io.github.graphglue.model.Direction
-import io.github.graphglue.model.DomainNode
-import io.github.graphglue.model.FilterProperty
-import io.github.graphglue.model.NodeRelationship
+import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 
 @DomainNode
@@ -21,6 +19,9 @@ import org.springframework.data.annotation.Transient
     linked IMSUsers and their Assignments etc.
     """
 )
+@Authorization(GlobalPermission.CAN_CREATE_COMPONENTS, allow = [Rule(RELATED_TO_GLOBAL_PERMISSION_RULE)])
+@Authorization(GlobalPermission.CAN_CREATE_PROJECTS, allow = [Rule(RELATED_TO_GLOBAL_PERMISSION_RULE)])
+@Authorization(GlobalPermission.CAN_CREATE_TEMPLATES, allow = [Rule(RELATED_TO_GLOBAL_PERMISSION_RULE)])
 class GropiusUser(
     displayName: String,
     email: String?,

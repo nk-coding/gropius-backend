@@ -42,7 +42,7 @@ class IMS(
     @GraphQLDescription("The Template of this Component.")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<IMSTemplate>()
+    override val template by NodeProperty<IMSTemplate>()
 
     @NodeRelationship(PROJECT, Direction.OUTGOING)
     @GraphQLDescription("Projects which are synced to this IMS.")

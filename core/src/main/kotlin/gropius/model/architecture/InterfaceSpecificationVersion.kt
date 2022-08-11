@@ -17,14 +17,15 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     Can be both visible (generates an Interface) and invisible (does not generate an Interface)
     on different Components.
     Can be derived by Relations, and affected by Issues.
-    READ is granted if READ is granted on `interfaceSpecification`, any ComponentVersion in`visibleDerivedOn`,
-    or any ComponentVersion in `invisibleDerivedOn`.
+    READ is granted if READ is granted on `interfaceSpecification`,
+    or any InterfaceDefinition in `definitions`
     """
 )
 @Authorization(
     NodePermission.READ,
-    allowFromRelated = ["interfaceSpecification", "visibleDerivedOn", "invisibleDerivedOn"]
+    allowFromRelated = ["interfaceSpecification", "interfaceDefinitions"]
 )
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["interfaceSpecification"])
 class InterfaceSpecificationVersion(
     name: String,
     description: String,
@@ -35,7 +36,7 @@ class InterfaceSpecificationVersion(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(name, description), Versioned, MutableTemplatedNode {
+) : AffectedByIssue(name, description), Versioned, MutableTemplatedNode {
 
     companion object {
         const val ACTIVE_PART = "ACTIVE_PART"
@@ -45,7 +46,7 @@ class InterfaceSpecificationVersion(
     @GraphQLDescription("The Template of this InterfaceSpecificationVersion")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfaceSpecificationVersionTemplate>()
+    override val template by NodeProperty<InterfaceSpecificationVersionTemplate>()
 
     @NodeRelationship(ACTIVE_PART, Direction.OUTGOING)
     @GraphQLDescription(
@@ -64,34 +65,13 @@ class InterfaceSpecificationVersion(
     @delegate:Transient
     val interfaceSpecification by NodeProperty<InterfaceSpecification>()
 
-    @NodeRelationship(Interface.SPECIFICATION, Direction.INCOMING)
-    @GraphQLDescription("Interfaces this InterfaceSpecificationVersion defines.")
+    @NodeRelationship(
+        InterfaceDefinition.INTERFACE_SPECIFICATION_VERSION,
+        Direction.INCOMING
+    )
+    @GraphQLDescription("Defines on which ComponentVersions this InterfaceSpecificationVersion is used")
     @FilterProperty
     @delegate:Transient
-    val interfaces by NodeSetProperty<Interface>()
-
-    @NodeRelationship(ComponentVersion.VISIBLE_SELF_DEFINED, Direction.INCOMING)
-    @GraphQLDescription("ComponentVersions where this is visible and self-defined")
-    @FilterProperty
-    @delegate:Transient
-    val visibleSelfDefinedOn by NodeSetProperty<ComponentVersion>()
-
-    @NodeRelationship(ComponentVersion.INVISIBLE_SELF_DEFINED, Direction.INCOMING)
-    @GraphQLDescription("ComponentVersions where this is invisible and self-defined")
-    @FilterProperty
-    @delegate:Transient
-    val invisibleSelfDefinedOn by NodeSetProperty<ComponentVersion>()
-
-    @NodeRelationship(ComponentVersion.VISIBLE_DERIVED, Direction.INCOMING)
-    @GraphQLDescription("ComponentVersions where this is visible and derived via a Relation")
-    @FilterProperty
-    @delegate:Transient
-    val visibleDerivedOn by NodeSetProperty<ComponentVersion>()
-
-    @NodeRelationship(ComponentVersion.INVISIBLE_DERIVED, Direction.INCOMING)
-    @GraphQLDescription("ComponentVersions where this is invisible and derived via a Relation")
-    @FilterProperty
-    @delegate:Transient
-    val invisibleDerivedOn by NodeSetProperty<ComponentVersion>()
+    val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()
 
 }

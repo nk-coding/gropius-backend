@@ -85,6 +85,10 @@ class PermissionConfiguration {
             TrackablePermission.EXPORT_ISSUES, """
                 Allows adding Issues on this Trackable to other Trackables.
             """.trimIndent()
+        ), PermissionEntry(
+            TrackablePermission.EXPORT_LABELS, """
+                Allows adding Labels on this Trackable to other Trackables.
+            """.trimIndent()
         )
     )
 
@@ -104,6 +108,11 @@ class PermissionConfiguration {
             PermissionEntry(
                 GlobalPermission.CAN_CREATE_COMPONENTS, """
                     Allows to create new Components.
+                """.trimIndent()
+            ),
+            PermissionEntry(
+                GlobalPermission.CAN_CREATE_IMSS, """
+                    Allows to create new IMSs.
                 """.trimIndent()
             ),
             PermissionEntry(
@@ -151,6 +160,12 @@ class PermissionConfiguration {
                     as start.
                     Note: as these Relations cannot cause new Interfaces on this Component, this can be granted
                     more permissively compared to `RELATE_TO_COMPONENT`.
+                """.trimIndent()
+            ), PermissionEntry(
+                ComponentPermission.ADD_TO_PROJECTS, """
+                    Allows to add the Component to Projects
+                    Note: this should be handled very carefully, as adding a Component to a Project gives
+                    all users with READ access to the Project READ access to the Component
                 """.trimIndent()
             )
         )
@@ -235,14 +250,14 @@ class PermissionConfiguration {
      * @param description the description of the enum type
      * @param entryCollections used to build enum entries, must not contain duplicate names
      * @return the generated enum type
-     * @throws IllegalStateException if duplicate names are found
+     * @throws IllegalArgumentException if duplicate names are found
      */
     private fun generatePermissionEntryEnum(
         name: String, description: String, entryCollections: List<PermissionEntryCollection<*>>
     ): GraphQLEnumType {
         val entries = entryCollections.flatMap { it.entries }
         entries.groupBy { it.name }.entries.firstOrNull { it.value.size > 1 }?.also {
-            throw IllegalStateException("Duplicate name ${it.key} found for entries for $name")
+            throw IllegalArgumentException("Duplicate name ${it.key} found for entries for $name")
         }
         val builder = GraphQLEnumType.newEnum().name(name).description(description)
         for (entry in entries) {

@@ -79,7 +79,7 @@ class IssueGrabber(
     override suspend fun iterateCache(): Flow<IssueDataExtensive> {
         return mongoOperations.query<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::githubId.name).`is`(imsProject)
+                where(IssueDataCache::imsProject.name).`is`(imsProject)
             ).addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }

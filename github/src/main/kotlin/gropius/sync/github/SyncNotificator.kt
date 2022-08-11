@@ -36,22 +36,22 @@ class SyncNotificator(
     }
 
     private suspend fun sendNotification(node: ExtensibleNode, dummy: NotificationDummy) {
-        val node = neoOperations.findById<MutableTemplatedNode>(node.rawId!!)
-        if (node != null) {
+        println("Send Notification: $dummy")
+        if (node is MutableTemplatedNode) {
             node.templatedFields["last-notification"] = helper.objectMapper.writeValueAsString(dummy)
+            neoOperations.save(node).awaitSingle()
         }
-        neoOperations.save(node).awaitSingle()
     }
 
     suspend fun sendNotification(ims: IMS, dummy: NotificationDummy) {
-        sendNotification(ims, dummy)
+        sendNotification(ims as ExtensibleNode, dummy)
     }
 
     suspend fun sendNotification(imsProject: IMSProject, dummy: NotificationDummy) {
-        sendNotification(imsProject, dummy)
+        sendNotification(imsProject as ExtensibleNode, dummy)
     }
 
     suspend fun sendNotification(imsIssue: IMSIssue, dummy: NotificationDummy) {
-        sendNotification(imsIssue, dummy)
+        sendNotification(imsIssue as ExtensibleNode, dummy)
     }
 }

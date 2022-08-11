@@ -48,7 +48,7 @@ class IMSConfigManager(
         "\$schema" to schema
         "type" to arr["null", obj {
             "type" to "string"
-            "gropius-node" to "IMSUser"
+            "gropius-node" to "GropiusUser"
             "gropius-type" to "github-user"
         }]
     }.toString()) + commonTemplateFields

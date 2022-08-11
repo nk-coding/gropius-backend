@@ -1,6 +1,8 @@
 package gropius.sync.github
 
 import com.apollographql.apollo3.ApolloClient
+import gropius.model.architecture.IMS
+import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import gropius.sync.IssueCleaner
 import gropius.sync.github.generated.fragment.IssueDataExtensive
@@ -101,9 +103,7 @@ class Incoming(
      * @return The time of the event or null for error
      */
     suspend fun handleTimelineEvent(
-        imsProjectConfig: IMSProjectConfig,
-        issue: IssueInfo,
-        event: TimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
         return if ((dbEntry != null) && !((event.asIssueComment()?.lastEditedAt != null) && (event.asIssueComment()!!.lastEditedAt!! > dbEntry.lastModifiedAt))) {
@@ -139,17 +139,21 @@ class Incoming(
         }
     }
 
-    suspend fun getGithubUserToken(imsUser: IMSUser): String {
-        return System.getenv("GITHUB_DUMMY_PAT")!!//TODO: @modellbahnfreak!!
+    suspend fun getGithubUserToken(ims: IMS, gropiusUser: GropiusUser): String? {
+        return System.getenv("GITHUB_DUMMY_PAT")//TODO: @modellbahnfreak!!
     }
 
     suspend fun syncIMS(imsConfig: IMSConfig) {
-        val readUser = neoOperations.findById<IMSUser>(imsConfig.readUser)!!
-        if (readUser.ims().value != imsConfig.ims) {
-            throw SyncNotificator.NotificatedError("SYNC_GITHUB_USER_INVALID_IMS");
-        }
+        val readUser = neoOperations.findById<GropiusUser>(imsConfig.readUser)
+            ?: throw SyncNotificator.NotificatedError(
+                "SYNC_GITHUB_USER_NOT_FOUND"
+            )
+        val token = getGithubUserToken(imsConfig.ims, readUser)
+            ?: throw SyncNotificator.NotificatedError(
+                "SYNC_GITHUB_USER_NO_TOKEN"
+            )
         val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
-            .addHttpHeader("Authorization", "bearer " + getGithubUserToken(readUser)).build()
+            .addHttpHeader("Authorization", "bearer $token").build()
         for (project in imsConfig.ims.projects()) {
             try {
                 val imsProjectConfig = IMSProjectConfig(helper, imsConfig, project)
@@ -175,6 +179,7 @@ class Incoming(
         )
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
+            println(it)
             issueModified(imsProjectConfig, it)
         }
         for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)

@@ -122,6 +122,7 @@ class Incoming(
      * Sync github to gropius
      */
     suspend fun sync() {
+        imsConfigManager.findTemplates()
         for (imsTemplate in imsConfigManager.findTemplates()) {
             for (ims in imsTemplate.usedIn()) {
                 try {

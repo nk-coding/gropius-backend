@@ -8,6 +8,7 @@ import gropius.model.template.IMSProjectTemplate
 import gropius.model.template.IMSTemplate
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findAll
@@ -28,29 +29,34 @@ class IMSConfigManager(
         "type" to arr["null", "string"]
     }.toString(), "last-notification" to obj {
         "\$schema" to schema
-        "type" to "object"
-        "properties" to {
-            "title" to obj {
-                "type" to "string"
+        "type" to arr["null", obj {
+            "type" to "object"
+            "properties" to obj {
+                "title" to obj {
+                    "type" to "string"
+                }
+                "content" to obj {
+                    "type" to "string"
+                }
             }
-            "content" to obj {
-                "type" to "string"
-            }
-        }
-        "required" to arr["title", "content"]
-        "gropius-type" to "notification"
+            "required" to arr["title", "content"]
+            "gropius-type" to "notification"
+        }]
     }.toString())
     private val imsTemplateName = "Github"
     private val imsTemplateFields = mapOf("read-user" to obj {
         "\$schema" to schema
-        "type" to "string"
-        "gropius-node" to "IMSUser"
+        "type" to arr["null", obj {
+            "type" to "string"
+            "gropius-node" to "IMSUser"
+            "gropius-type" to "github-user"
+        }]
     }.toString()) + commonTemplateFields
     private val imsProjectTemplateName = "Github"
     private val imsProjectTemplateFields = mapOf("repo" to obj {
         "\$schema" to schema
         "type" to "object"
-        "properties" to {
+        "properties" to obj {
             "owner" to obj {
                 "type" to "string"
             }
@@ -59,22 +65,24 @@ class IMSConfigManager(
             }
         }
         "required" to arr["owner", "repo"]
-        "gropius-type" to "github-user"
+        "gropius-type" to "github-owner"
     }.toString()) + commonTemplateFields
     private val imsIssueTemplateName = "Github Issue"
     private val imsIssueTemplateFields = mapOf<String, String>("last-notification" to obj {
         "\$schema" to schema
-        "type" to "object"
-        "properties" to {
-            "title" to obj {
-                "type" to "string"
+        "type" to arr["null", obj {
+            "type" to "object"
+            "properties" to obj {
+                "title" to obj {
+                    "type" to "string"
+                }
+                "content" to obj {
+                    "type" to "string"
+                }
             }
-            "content" to obj {
-                "type" to "string"
-            }
-        }
-        "required" to arr["title", "content"]
-        "gropius-type" to "notification"
+            "required" to arr["title", "content"]
+            "gropius-type" to "notification"
+        }]
     }.toString())
 
     /**
@@ -107,7 +115,7 @@ class IMSConfigManager(
                 IMSProjectTemplate(imsProjectTemplateName, "", imsProjectTemplateFields.toMutableMap())
             imsTemplate.imsIssueTemplate().value =
                 IMSIssueTemplate(imsIssueTemplateName, "", imsIssueTemplateFields.toMutableMap())
-            acceptableTemplates.plus(neoOperations.save(imsTemplate))
+            acceptableTemplates.plus(neoOperations.save(imsTemplate).awaitSingle())
         }
         return acceptableTemplates
     }

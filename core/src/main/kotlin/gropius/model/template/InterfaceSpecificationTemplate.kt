@@ -35,15 +35,15 @@ class InterfaceSpecificationTemplate(
     val canBeInvisibleOnComponents by NodeSetProperty<ComponentTemplate>()
 
     @NodeRelationship(
-        InterfaceSpecificationInheritanceCondition.INHERITABLE_INTERFACE_SPECIFICATION, Direction.INCOMING
+        InterfaceSpecificationDerivationCondition.DERIVABLE_INTERFACE_SPECIFICATION, Direction.INCOMING
     )
     @GraphQLDescription(
-        """InterfaceSpecificationInheritanceConditions which allow to inherit InterfaceSpecification with this template.
+        """InterfaceSpecificationDerivationConditions which allow to derive InterfaceSpecification with this template.
         """
     )
     @FilterProperty
     @delegate:Transient
-    val inheritableBy by NodeSetProperty<InterfaceSpecificationInheritanceCondition>()
+    val derivableBy by NodeSetProperty<InterfaceSpecificationDerivationCondition>()
 
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription(
@@ -55,6 +55,14 @@ class InterfaceSpecificationTemplate(
 
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription(
+        """SubTemplate applied to all InterfaceParts of InterfaceSpecifications with this Template.
+        """
+    )
+    @delegate:Transient
+    val interfacePartTemplate by NodeProperty<InterfacePartTemplate>()
+
+    @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
+    @GraphQLDescription(
         """SubTemplate applied to all Interfaces of InterfaceSpecifications with this Template.
         """
     )
@@ -63,10 +71,10 @@ class InterfaceSpecificationTemplate(
 
     @NodeRelationship(SubTemplate.PART_OF, Direction.INCOMING)
     @GraphQLDescription(
-        """SubTemplate applied to all InterfaceParts of InterfaceSpecifications with this Template.
+        """SubTemplate applied to all InterfaceDefinitions of InterfaceSpecifications with this Template.
         """
     )
     @delegate:Transient
-    val interfacePartTemplate by NodeProperty<InterfacePartTemplate>()
+    val interfaceDefinitionTemplate by NodeProperty<InterfaceDefinitionTemplate>()
 
 }

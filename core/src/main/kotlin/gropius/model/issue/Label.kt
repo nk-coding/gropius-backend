@@ -20,6 +20,7 @@ import java.time.OffsetDateTime
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["trackables"])
 @Authorization(TrackablePermission.MANAGE_LABELS, allowFromRelated = ["trackables"])
+@Authorization(TrackablePermission.EXPORT_LABELS, allowFromRelated = ["trackables"])
 class Label(
     createdAt: OffsetDateTime,
     lastModifiedAt: OffsetDateTime,

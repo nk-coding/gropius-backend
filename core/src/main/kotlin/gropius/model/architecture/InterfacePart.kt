@@ -21,13 +21,14 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["definedOn"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["definedOn"])
 class InterfacePart(
     name: String,
     description: String,
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : ServiceEffectSpecificationLocation(name, description), MutableTemplatedNode {
+) : AffectedByIssue(name, description), MutableTemplatedNode {
 
     companion object {
         const val DEFINED_ON = "DEFINED_ON"
@@ -37,7 +38,7 @@ class InterfacePart(
     @GraphQLDescription("The Template of this InterfacePart")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<InterfacePartTemplate>()
+    override val template by NodeProperty<InterfacePartTemplate>()
 
     @NodeRelationship(Relation.START_PART, Direction.INCOMING)
     @GraphQLDescription("Relations which include this InterfacePart at the start of the Relation")
@@ -50,6 +51,12 @@ class InterfacePart(
     @FilterProperty
     @delegate:Transient
     val includingIncomingRelations by NodeSetProperty<Relation>()
+
+    @NodeRelationship(IntraComponentDependencyParticipant.INTERFACE, Direction.INCOMING)
+    @GraphQLDescription("Participants of IntraComponentDependencySpecifications where this is used as included part.")
+    @FilterProperty
+    @delegate:Transient
+    val includingIntraComponentDependencyParticipants by NodeSetProperty<IntraComponentDependencyParticipant>()
 
     @NodeRelationship(InterfaceSpecificationVersion.ACTIVE_PART, Direction.INCOMING)
     @GraphQLDescription("InterfaceSpecificationVersions where this InterfacePart is active.")

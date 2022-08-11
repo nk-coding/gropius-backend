@@ -5,6 +5,8 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.annotations.GraphQLType
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.github.graphglue.model.property.LazyLoadingDelegate
+import io.github.graphglue.model.property.NodePropertyDelegate
 import org.springframework.beans.factory.annotation.Autowired
 
 @GraphQLDescription("Interface for all types which support templates.")
@@ -15,6 +17,12 @@ interface TemplatedNode {
      */
     @GraphQLIgnore
     val templatedFields: MutableMap<String, String>
+
+    /**
+     * Template associated with the TemplatedNode
+     */
+    @GraphQLIgnore
+    val template: LazyLoadingDelegate<out BaseTemplate<*, *>, out NodePropertyDelegate<out BaseTemplate<*, *>>.NodeProperty>
 
     @GraphQLDescription("Value of a field defined by the template. Error if such a field is not defined.")
     @GraphQLType("JSON")

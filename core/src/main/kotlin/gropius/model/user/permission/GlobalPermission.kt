@@ -4,6 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.graphql.TypeGraphQLType
 import gropius.model.architecture.Component
 import gropius.model.architecture.Project
+import gropius.model.architecture.IMS
 import gropius.model.template.Template
 import io.github.graphglue.model.DomainNode
 
@@ -33,6 +34,11 @@ class GlobalPermission(
          * Permission to check if a user can (globally) create [Component]s
          */
         const val CAN_CREATE_COMPONENTS = "CAN_CREATE_COMPONENTS"
+
+        /**
+         * Permission to check if a user can (globally) create [IMS]s
+         */
+        const val CAN_CREATE_IMSS = "CAN_CREATE_IMSS"
 
         /**
          * Permission to check if a user can (globally) create [Template]s

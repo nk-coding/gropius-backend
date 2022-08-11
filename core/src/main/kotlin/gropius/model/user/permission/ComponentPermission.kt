@@ -4,6 +4,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.graphql.TypeGraphQLType
 import gropius.model.architecture.Component
 import gropius.model.architecture.Interface
+import gropius.model.architecture.Project
 import gropius.model.architecture.Relation
 import io.github.graphglue.model.DomainNode
 
@@ -30,6 +31,11 @@ class ComponentPermission(
          * or an [Interface] of the [Component] as start
          */
         const val RELATE_FROM_COMPONENT = "RELATE_FROM_COMPONENT"
+
+        /**
+         * Permission to add the Component to [Project]s
+         */
+        const val ADD_TO_PROJECTS = "ADD_TO_PROJECTS"
     }
 
     @GraphQLDescription(ENTRIES_DESCRIPTION)

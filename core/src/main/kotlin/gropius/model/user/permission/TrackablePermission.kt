@@ -3,6 +3,7 @@ package gropius.model.user.permission
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.architecture.IMSProject
 import gropius.model.architecture.Trackable
+import gropius.model.architecture.Project
 import gropius.model.issue.Artefact
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
@@ -87,6 +88,11 @@ abstract class TrackablePermission<T : Trackable>(
          * Permission to check if the user can add [Issue]s on the [Trackable] to other [Trackable]s
          */
         const val EXPORT_ISSUES = "EXPORT_ISSUES"
+
+        /**
+         * Permission to check if the user can add [Label]s on the [Trackable] to other [Trackable]s
+         */
+        const val EXPORT_LABELS = "EXPORT_LABELS"
     }
 
 }

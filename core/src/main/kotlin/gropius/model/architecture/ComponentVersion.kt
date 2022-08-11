@@ -4,9 +4,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import gropius.model.user.permission.NodePermission
 import io.github.graphglue.model.*
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
-import gropius.model.template.BaseTemplate
-import gropius.model.template.ComponentVersionTemplate
-import gropius.model.template.MutableTemplatedNode
+import gropius.model.template.*
+import gropius.model.user.permission.ComponentPermission
+import io.github.graphglue.model.property.NodeCache
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 
@@ -19,6 +19,10 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
     """
 )
 @Authorization(NodePermission.READ, allowFromRelated = ["component", "includingProjects"])
+@Authorization(NodePermission.ADMIN, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.RELATE_TO_COMPONENT, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.RELATE_FROM_COMPONENT, allowFromRelated = ["component"])
+@Authorization(ComponentPermission.ADD_TO_PROJECTS, allowFromRelated = ["component"])
 class ComponentVersion(
     name: String,
     description: String,
@@ -32,17 +36,14 @@ class ComponentVersion(
 ) : RelationPartner(name, description), Versioned, MutableTemplatedNode {
 
     companion object {
-        const val VISIBLE_SELF_DEFINED = "VISIBLE_SELF_DEFINED"
-        const val INVISIBLE_SELF_DEFINED = "INVISIBLE_SELF_DEFINED"
-        const val VISIBLE_DERIVED = "VISIBLE_DERIVED"
-        const val INVISIBLE_DERIVED = "INVISIBLE_DERIVED"
+        const val INTRA_COMPONENT_DEPENDENCY_SPECIFICATION = "INTRA_COMPONENT_DEPENDENCY_SPECIFICATION"
     }
 
     @NodeRelationship(BaseTemplate.USED_IN, Direction.INCOMING)
     @GraphQLDescription("The Template of this ComponentVersion")
     @FilterProperty
     @delegate:Transient
-    val template by NodeProperty<ComponentVersionTemplate>()
+    override val template by NodeProperty<ComponentVersionTemplate>()
 
     @NodeRelationship(Component.VERSION, Direction.INCOMING)
     @GraphQLDescription("The Component which defines this ComponentVersions")
@@ -50,55 +51,26 @@ class ComponentVersion(
     @delegate:Transient
     val component by NodeProperty<Component>()
 
-    @NodeRelationship(Interface.COMPONENT, Direction.INCOMING)
-    @GraphQLDescription("Interfaces created by visible InterfaceSpecifications, can be used in Relations.")
-    @FilterProperty
-    @delegate:Transient
-    val interfaces by NodeSetProperty<Interface>()
-
     @NodeRelationship(Project.COMPONENT, Direction.INCOMING)
     @GraphQLDescription("Projects which include this ComponentVersion")
     @FilterProperty
     @delegate:Transient
     val includingProjects by NodeSetProperty<Project>()
 
-    @NodeRelationship(VISIBLE_SELF_DEFINED, Direction.OUTGOING)
-    @GraphQLDescription(
-        """InterfaceSpecifications which are defined by this Component(Version), and result in
-        visible Interfaces on this ComponentVersion
-        """
-    )
+    @NodeRelationship(InterfaceDefinition.COMPONENT_VERSION, Direction.INCOMING)
+    @GraphQLDescription("InterfaceSpecificationVersions on this ComponentVersion.")
     @FilterProperty
     @delegate:Transient
-    val visibleSelfDefinedInterfaceSpecificationVersions by NodeSetProperty<InterfaceSpecificationVersion>()
+    val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()
 
-    @NodeRelationship(INVISIBLE_SELF_DEFINED, Direction.OUTGOING)
-    @GraphQLDescription(
-        """InterfaceSpecifications which are defined by this Component(Version),
-        but can only be inherited and do not result in Interfaces on this ComponentVersion
-        """
-    )
+    @NodeRelationship(INTRA_COMPONENT_DEPENDENCY_SPECIFICATION, Direction.OUTGOING)
+    @GraphQLDescription("IntraComponentDependencySpecifications associated with this ComponentVersion")
     @FilterProperty
     @delegate:Transient
-    val invisibleSelfDefinedInterfaceSpecificationVersions by NodeSetProperty<InterfaceSpecificationVersion>()
+    val intraComponentDependencySpecifications by NodeSetProperty<IntraComponentDependencySpecification>()
 
-    @NodeRelationship(VISIBLE_DERIVED, Direction.OUTGOING)
-    @GraphQLDescription(
-        """InterfaceSpecifications which are derived from other Components via a
-        Relation and result in visible Interfaces on this ComponentVersion
-        """
-    )
-    @FilterProperty
-    @delegate:Transient
-    val visibleDerivedInterfaceSpecificationVersions by NodeSetProperty<InterfaceSpecificationVersion>()
-
-    @NodeRelationship(INVISIBLE_DERIVED, Direction.OUTGOING)
-    @GraphQLDescription(
-        """InterfaceSpecifications which are derived from other Components via a Relation,
-        but can only be inherited and do not result in Interfaces on this ComponentVersion
-        """
-    )
-    @FilterProperty
-    @delegate:Transient
-    val invisibleDerivedInterfaceSpecificationVersions by NodeSetProperty<InterfaceSpecificationVersion>()
+    @GraphQLIgnore
+    override suspend fun relationPartnerTemplate(cache: NodeCache?): RelationPartnerTemplate<*, *> {
+        return component(cache).value.template(cache).value
+    }
 }

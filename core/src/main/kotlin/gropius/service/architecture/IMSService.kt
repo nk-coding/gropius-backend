@@ -53,6 +53,7 @@ class IMSService(
         val template = imsTemplateRepository.findById(input.template)
         val templatedFields = templatedNodeService.validateInitialTemplatedFields(template, input)
         val ims = IMS(input.name, input.description, templatedFields)
+        ims.template().value = template
         createdExtensibleNode(ims, input)
         imsPermissionService.createDefaultPermission(user, ims)
         return repository.save(ims).awaitSingle()

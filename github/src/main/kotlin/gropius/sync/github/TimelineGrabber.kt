@@ -67,7 +67,7 @@ class TimelineGrabber(
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return issueInfoRepository.findByIMSProjectAndGithubId(imsProject, id)?.lastAccess
+        return issueInfoRepository.findByImsProjectAndGithubId(imsProject, id)?.lastAccess
     }
 
     override suspend fun addToCache(node: TimelineItemData): ObjectId {

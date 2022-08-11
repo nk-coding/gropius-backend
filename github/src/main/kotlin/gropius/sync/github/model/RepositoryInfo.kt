@@ -15,12 +15,12 @@ data class RepositoryInfo(
      * user/orga on github
      */
     @Indexed
-    val userINVALID: String,
+    val user: String,
     /**
      * repo on github
      */
     @Indexed
-    val repoINVALID: String,
+    val repo: String,
     @Indexed
     val imsProject: String,
     /**

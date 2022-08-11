@@ -102,7 +102,7 @@ class NodeSourcerer(
      * @return The gropius issue and the mongodb issue mapping
      */
     suspend fun ensureIssue(imsProject: IMSProject, info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByIMSProjectAndGithubId(imsProject.rawId!!, info.id)
+        val issueInfo = issueInfoRepository.findByImsProjectAndGithubId(imsProject.rawId!!, info.id)
         if (issueInfo == null) {
             var issue = Issue(
                 info.createdAt,

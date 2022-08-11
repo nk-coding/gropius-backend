@@ -17,3 +17,5 @@ logging:
   level:
     org.springframework.data.neo4j: ERROR
     io.github.graphglue: ERROR
+server:
+  port: 0

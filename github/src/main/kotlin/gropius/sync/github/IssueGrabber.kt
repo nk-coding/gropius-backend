@@ -63,7 +63,7 @@ class IssueGrabber(
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return repositoryInfoRepository.findByIMSProject(imsProject)?.lastAccess
+        return repositoryInfoRepository.findByImsProject(imsProject)?.lastAccess
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {

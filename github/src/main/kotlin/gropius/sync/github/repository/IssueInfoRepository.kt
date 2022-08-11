@@ -16,7 +16,7 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
      * @param imsProject IMSProject syncing currently
      * @return result of database operation
      */
-    suspend fun findByProjectAndDirtyIsTrue(project: String): Flow<IssueInfo>
+    suspend fun findByImsProjectAndDirtyIsTrue(project: String): Flow<IssueInfo>
 
     /**
      * Lookup to find the mapping given a neo4j id
@@ -24,7 +24,7 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
      * @param neo4jId Database query param
      * @return result of database operation
      */
-    suspend fun findByIMSProjectAndNeo4jId(imsProject: String, neo4jId: String): IssueInfo?
+    suspend fun findByImsProjectAndNeo4jId(imsProject: String, neo4jId: String): IssueInfo?
 
     /**
      * Lookup to find the mapping given a github id
@@ -32,7 +32,7 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
      * @param githubId Database query param
      * @return result of database operation
      */
-    suspend fun findByIMSProjectAndGithubId(imsProject: String, githubId: String): IssueInfo?
+    suspend fun findByImsProjectAndGithubId(imsProject: String, githubId: String): IssueInfo?
 }
 
 

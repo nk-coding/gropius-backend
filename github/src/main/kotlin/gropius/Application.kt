@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 import org.springframework.stereotype.Component
+import kotlin.system.exitProcess
 
 @Configuration
 class SyncApplication(
@@ -20,6 +21,7 @@ class SyncApplication(
         runBlocking {
             incoming.sync()
         }
+        exitProcess(0);
     }
 }
 

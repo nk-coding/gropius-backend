@@ -100,12 +100,16 @@ class Incoming(
      * @param event a single timeline item
      * @return The time of the event or null for error
      */
-    suspend fun handleTimelineEvent(issue: IssueInfo, event: TimelineItemData): OffsetDateTime? {
+    suspend fun handleTimelineEvent(
+        imsProjectConfig: IMSProjectConfig,
+        issue: IssueInfo,
+        event: TimelineItemData
+    ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
         return if ((dbEntry != null) && !((event.asIssueComment()?.lastEditedAt != null) && (event.asIssueComment()!!.lastEditedAt!! > dbEntry.lastModifiedAt))) {
             dbEntry.lastModifiedAt
         } else {
-            val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(issue, event)
+            val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issue, event)
             if (time != null) {
                 timelineEventInfoRepository.save(TimelineEventInfo(event.asNode()!!.id, neoId, time, event.__typename))
                     .awaitSingle()
@@ -172,7 +176,8 @@ class Incoming(
         issueGrabber.iterate {
             issueModified(imsProjectConfig, it)
         }
-        for (issue in issueInfoRepository.findByProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!).toList()) {
+        for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
+            .toList()) {
             val timelineGrabber = TimelineGrabber(
                 issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
             )
@@ -184,7 +189,7 @@ class Incoming(
                     .`and`(TimelineItemDataCache::attempts.name).not().gte(7)
             )
         ).all().asFlow().map { it.issue }.toSet()) {
-            val issue = issueInfoRepository.findByIMSProjectAndGithubId(imsProjectConfig.imsProject.rawId!!, issueId)!!
+            val issue = issueInfoRepository.findByImsProjectAndGithubId(imsProjectConfig.imsProject.rawId!!, issueId)!!
             try {
                 val timelineGrabber = TimelineGrabber(
                     issueInfoRepository,
@@ -194,7 +199,7 @@ class Incoming(
                     imsProjectConfig.imsProject.rawId!!
                 )
                 timelineGrabber.iterate {
-                    handleTimelineEvent(issue, it)
+                    handleTimelineEvent(imsProjectConfig, issue, it)
                 }
                 issueCleaner.cleanIssue(issue.neo4jId)
                 mongoOperations.updateFirst(

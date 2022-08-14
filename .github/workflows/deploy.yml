@@ -46,13 +46,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: website
-      - name: Build website
-        run: npm run build
-        working-directory: website
       - name: Update graphql documentation
         run: |
           chmod +x ./website/scripts/update-graphql-doc.sh
           ./website/scripts/update-graphql-doc.sh
+      - name: Build website
+        run: npm run build
+        working-directory: website
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
       - name: Deploy to GitHub Pages

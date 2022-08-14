@@ -6,6 +6,5 @@ plugins {
 }
 
 dependencies {
-    implementation(project(path = ":core"))
-    implementation("io.github.graphglue", "graphglue", graphglueVersion)
+    implementation(project(path = ":api-common"))
 }

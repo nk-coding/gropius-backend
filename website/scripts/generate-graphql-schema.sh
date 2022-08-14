@@ -1,5 +1,5 @@
 mkdir -p ./website/schemas
-./gradlew api:bootRun &
+./gradlew api-public:bootRun &
 gradlew_pid=$!
 schema_endpoint="http://localhost:8080/sdl"
 c=0

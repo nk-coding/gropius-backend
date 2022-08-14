@@ -36,7 +36,8 @@ jobs:
           src: "build/dokka/htmlMultiModule"
           modules: |
             core
-            api
+            api-common
+            api-public
             sync
             github
           dest: "website/docs"

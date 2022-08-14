@@ -19,6 +19,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Execute Gradle build
         run: ./gradlew build dokkaHtmlMultiModule
+      - name: Save graphql schemas
+        run: |
+          chmod +x ./website/scripts/generate-graphql-schema.sh
+          ./website/scripts/generate-graphql-schema.sh
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -41,6 +45,10 @@ jobs:
       - name: Build website
         run: npm run build
         working-directory: website
+      - name: Update graphql documentation
+        run: |
+          chmod +x ./website/scripts/update-graphql-doc.sh
+          ./website/scripts/update-graphql-doc.sh
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
       - name: Deploy to GitHub Pages

@@ -11,6 +11,7 @@ import java.time.OffsetDateTime
 
 /**
  * Mapping of a single issue from neo4j to github
+ * @param imsProject IMSProject of the repo
  */
 @Document
 data class IssueInfo(
@@ -39,6 +40,10 @@ data class IssueInfo(
      */
     @Id
     var id: ObjectId? = null
+
+    /**
+     * Turn the IssueInfo into a gropius Issue
+     */
     suspend fun load(neoOperations: ReactiveNeo4jOperations): Issue {
         return neoOperations.findById<Issue>(neo4jId)!!
     }

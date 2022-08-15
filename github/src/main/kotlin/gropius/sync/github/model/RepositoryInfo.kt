@@ -8,6 +8,7 @@ import java.time.OffsetDateTime
 
 /**
  * Mapping of a single repository from neo4j to github
+ * @param imsProject IMSProject of the repo
  */
 @Document
 data class RepositoryInfo(

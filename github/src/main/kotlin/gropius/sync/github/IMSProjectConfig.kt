@@ -9,6 +9,11 @@ data class IMSProjectConfig(
     val readUser: String,
     val repo: RepoDescription
 ) {
+    /**
+     * @param imsProject the gropius IMSProject to use as input
+     * @param helper Reference for the spring instance of JsonHelper
+     * @param imsConfig the config of the parent IMS
+     */
     constructor(
         helper: JsonHelper, imsConfig: IMSConfig, imsProject: IMSProject
     ) : this(

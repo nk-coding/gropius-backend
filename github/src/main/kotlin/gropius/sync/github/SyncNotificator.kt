@@ -7,6 +7,7 @@ import gropius.model.architecture.IMSProject
 import gropius.model.common.ExtensibleNode
 import gropius.model.template.MutableTemplatedNode
 import kotlinx.coroutines.reactor.awaitSingle
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
@@ -22,6 +23,11 @@ class SyncNotificator(
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations, private val helper: JsonHelper
 ) {
+    /**
+     * Logger used to print notifications
+     */
+    private val logger = LoggerFactory.getLogger(SyncNotificator::class.java)
+
     class NotificatedError(val code: String, vararg args: String) : Exception(code) {
         val args = args.asList()
     }
@@ -36,7 +42,7 @@ class SyncNotificator(
     }
 
     private suspend fun sendNotification(node: ExtensibleNode, dummy: NotificationDummy) {
-        println("Send Notification: $dummy")
+        logger.info("Send Notification: $dummy")
         if (node is MutableTemplatedNode) {
             node.templatedFields["last-notification"] = helper.objectMapper.writeValueAsString(dummy)
             neoOperations.save(node).awaitSingle()

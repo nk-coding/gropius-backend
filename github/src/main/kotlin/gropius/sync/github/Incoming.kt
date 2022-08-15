@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.mongodb.core.query
@@ -84,6 +85,11 @@ class Incoming(
 ) {
 
     /**
+     * Logger used to print notifications
+     */
+    private val logger = LoggerFactory.getLogger(Incoming::class.java)
+
+    /**
      * Mark issue as dirty
      * @param info The full dataset of an issue
      * @return The DateTime the issue was last changed
@@ -133,25 +139,34 @@ class Incoming(
                         ims, SyncNotificator.NotificationDummy(e)
                     )
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logger.warn("Error in global sync", e)
                 }
             }
         }
     }
 
+    /**
+     * Request an user token from the auth service
+     * @param ims IMS the token is requested for
+     * @param gropiusUser The user the token should be for
+     * @return token if available
+     */
     suspend fun getGithubUserToken(ims: IMS, gropiusUser: GropiusUser): String? {
         return System.getenv("GITHUB_DUMMY_PAT")//TODO: @modellbahnfreak!!
     }
 
+    /**
+     * Sync one IMS
+     * @param imsConfig the config of the IMS
+     */
     suspend fun syncIMS(imsConfig: IMSConfig) {
-        val readUser = neoOperations.findById<GropiusUser>(imsConfig.readUser)
-            ?: throw SyncNotificator.NotificatedError(
+        val readUser =
+            neoOperations.findById<GropiusUser>(imsConfig.readUser) ?: throw SyncNotificator.NotificatedError(
                 "SYNC_GITHUB_USER_NOT_FOUND"
             )
-        val token = getGithubUserToken(imsConfig.ims, readUser)
-            ?: throw SyncNotificator.NotificatedError(
-                "SYNC_GITHUB_USER_NO_TOKEN"
-            )
+        val token = getGithubUserToken(imsConfig.ims, readUser) ?: throw SyncNotificator.NotificatedError(
+            "SYNC_GITHUB_USER_NO_TOKEN"
+        )
         val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
             .addHttpHeader("Authorization", "bearer $token").build()
         for (project in imsConfig.ims.projects()) {
@@ -163,11 +178,16 @@ class Incoming(
                     project, SyncNotificator.NotificationDummy(e)
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
+                logger.warn("Error in IMS sync", e)
             }
         }
     }
 
+    /**
+     * Sync one IMSProject
+     * @param imsProjectConfig the config of the IMSProject
+     * @param apolloClient the client to use4 for grpahql queries
+     */
     suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         imsProjectConfig.imsProject.trackable().value
         val issueGrabber = IssueGrabber(
@@ -179,7 +199,6 @@ class Incoming(
         )
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
-            println(it)
             issueModified(imsProjectConfig, it)
         }
         for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
@@ -219,6 +238,8 @@ class Incoming(
                     issue, SyncNotificator.NotificationDummy(e)
                 )
                 */
+            } catch (e: Exception) {
+                logger.warn("Error in issue sync", e)
             }
         }
     }

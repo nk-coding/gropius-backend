@@ -22,8 +22,14 @@ class IMSConfigManager(
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations,
 ) {
+    /**
+     * JSON schema version to include
+     */
     private val schema = "https://json-schema.org/draft/2020-12/schema"
 
+    /**
+     * Template fields for IMSTemplate and IMSProjectTemplate
+     */
     private val commonTemplateFields = mapOf("bot-user" to obj {
         "\$schema" to schema
         "type" to arr["null", "string"]
@@ -43,7 +49,15 @@ class IMSConfigManager(
             "gropius-type" to "notification"
         }]
     }.toString())
+
+    /**
+     * Name of the requested IMSTemplate
+     */
     private val imsTemplateName = "Github"
+
+    /**
+     * Fields of the requestes IMSTemplate
+     */
     private val imsTemplateFields = mapOf("read-user" to obj {
         "\$schema" to schema
         "type" to arr["null", obj {
@@ -52,7 +66,15 @@ class IMSConfigManager(
             "gropius-type" to "github-user"
         }]
     }.toString()) + commonTemplateFields
+
+    /**
+     * Name of requested IMSProjectTemplate
+     */
     private val imsProjectTemplateName = "Github"
+
+    /**
+     * Fields of the requestes IMSProjectTemplate
+     */
     private val imsProjectTemplateFields = mapOf("repo" to obj {
         "\$schema" to schema
         "type" to "object"
@@ -67,7 +89,15 @@ class IMSConfigManager(
         "required" to arr["owner", "repo"]
         "gropius-type" to "github-owner"
     }.toString()) + commonTemplateFields
+
+    /**
+     * Name of the ensured IMSIssueTemplate
+     */
     private val imsIssueTemplateName = "Github Issue"
+
+    /**
+     * Fields of the required IMSIssueTemplate
+     */
     private val imsIssueTemplateFields = mapOf<String, String>("last-notification" to obj {
         "\$schema" to schema
         "type" to arr["null", obj {
@@ -99,6 +129,10 @@ class IMSConfigManager(
         return (possibleTemplate.name == referenceName) && (possibleTemplate.templateFieldSpecifications == referenceType)
     }
 
+    /**
+     * Find a matching set of IMSTemplate, IMSProjectTemplate and IMSIssueTemplate
+     * @return the set of templates
+     */
     suspend fun findTemplates(): Set<IMSTemplate> {
         val acceptableTemplates = neoOperations.findAll<IMSTemplate>().filter {
             (!it.isDeprecated) && isContentCompatible(

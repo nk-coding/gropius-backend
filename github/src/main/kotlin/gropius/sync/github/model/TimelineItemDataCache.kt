@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 /**
  * Cache for unprocessed timeline items
+ * @param imsProject IMSProject of the repo
  */
 @Document
 data class TimelineItemDataCache(

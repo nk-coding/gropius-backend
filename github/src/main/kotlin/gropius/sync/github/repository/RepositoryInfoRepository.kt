@@ -17,5 +17,11 @@ interface RepositoryInfoRepository : ReactiveMongoRepository<RepositoryInfo, Obj
      * @return result of database operation
      */
     suspend fun findByUserAndRepo(user: String, repo: String): RepositoryInfo?
+
+    /**
+     * Lookup to find the mapping given a IMSProject
+     * @param imsProject Database query param
+     * @return result of database operation
+     */
     suspend fun findByImsProject(imsProject: String): RepositoryInfo?
 }

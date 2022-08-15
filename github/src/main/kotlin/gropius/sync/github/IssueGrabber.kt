@@ -58,7 +58,8 @@ class IssueGrabber(
         mongoOperations.update<RepositoryInfo>().matching(
             query(where(RepositoryInfo::imsProject.name).`is`(imsProject))
         ).apply(
-            Update().max(RepositoryInfo::lastAccess.name, time)
+            Update().max(RepositoryInfo::lastAccess.name, time).set(RepositoryInfo::user.name, remote.owner)
+                .set(RepositoryInfo::repo.name, remote.repo)
         ).upsertAndAwait()
     }
 

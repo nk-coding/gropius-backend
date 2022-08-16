@@ -217,7 +217,7 @@ class ArchitectureMutations(
     )
     @AutoPayloadType("The updated Interface ")
     suspend fun updateInterface(
-        @GraphQLDescription("Defines which Interface  to update and how to update it")
+        @GraphQLDescription("Defines which Interface to update and how to update it")
         input: UpdateInterfaceInput,
         dfe: DataFetchingEnvironment,
         @GraphQLIgnore
@@ -234,7 +234,7 @@ class ArchitectureMutations(
     )
     @AutoPayloadType("The updated InterfaceDefinition ")
     suspend fun updateInterfaceDefinition(
-        @GraphQLDescription("Defines which InterfaceDefinition  to update and how to update it")
+        @GraphQLDescription("Defines which InterfaceDefinition to update and how to update it")
         input: UpdateInterfaceDefinitionInput,
         dfe: DataFetchingEnvironment,
         @GraphQLIgnore

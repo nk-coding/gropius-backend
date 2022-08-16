@@ -146,7 +146,11 @@ class ArchitectureMutations(
         )
     }
 
-    @GraphQLDescription("Updates the specified InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecificationVersion to update")
+    @GraphQLDescription(
+        """Updates the specified InterfaceSpecificationVersion,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfaceSpecificationVersion to update
+        """
+    )
     @AutoPayloadType("The updated InterfaceSpecificationVersion")
     suspend fun updateInterfaceSpecificationVersion(
         @GraphQLDescription("Defines which InterfaceSpecificationVersion to update and how to update it")
@@ -157,7 +161,11 @@ class ArchitectureMutations(
         )
     }
 
-    @GraphQLDescription("Deletes the specified InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecificationVersion to delete")
+    @GraphQLDescription(
+        """Deletes the specified InterfaceSpecificationVersion,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfaceSpecificationVersion to delete
+        """
+    )
     @AutoPayloadType("The id of the deleted InterfaceSpecificationVersion")
     suspend fun deleteInterfaceSpecificationVersion(
         @GraphQLDescription("Defines which InterfaceSpecificationVersion to delete")

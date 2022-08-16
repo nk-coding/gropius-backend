@@ -175,7 +175,7 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Creates a new InterfacePart, requires ADMIN on the Component.")
+    @GraphQLDescription("Creates a new InterfacePart, requires ADMIN on the Component of the InterfaceSpecification.")
     @AutoPayloadType("The created InterfacePart")
     suspend fun createInterfacePart(
         @GraphQLDescription("Defines the created InterfacePart")
@@ -184,7 +184,11 @@ class ArchitectureMutations(
         return interfacePartService.createInterfacePart(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Updates the specified InterfacePart, requires ADMIN on the Component of the InterfacePart to update")
+    @GraphQLDescription(
+        """Updates the specified InterfacePart,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfacePart to update
+        """
+    )
     @AutoPayloadType("The updated InterfacePart")
     suspend fun updateInterfacePart(
         @GraphQLDescription("Defines which InterfacePart to update and how to update it")
@@ -193,7 +197,10 @@ class ArchitectureMutations(
         return interfacePartService.updateInterfacePart(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Deletes the specified InterfacePart, requires ADMIN on the Component of the InterfacePart to delete")
+    @GraphQLDescription(
+        """Deletes the specified InterfacePart,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfacePart to delete"""
+    )
     @AutoPayloadType("The id of the deleted InterfacePart")
     suspend fun deleteInterfacePart(
         @GraphQLDescription("Defines which InterfacePart to delete")

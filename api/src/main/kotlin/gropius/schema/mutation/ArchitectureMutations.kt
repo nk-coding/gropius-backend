@@ -135,7 +135,7 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Creates a new InterfaceSpecificationVersion, requires ADMIN on the Component.")
+    @GraphQLDescription("Creates a new InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecification.")
     @AutoPayloadType("The created InterfaceSpecificationVersion")
     suspend fun createInterfaceSpecificationVersion(
         @GraphQLDescription("Defines the created InterfaceSpecificationVersion")

@@ -22,7 +22,7 @@ class IntraComponentDependencyParticipant : ExtensibleNode() {
     }
 
     @NodeRelationship(INTERFACE, Direction.OUTGOING)
-    @GraphQLDescription("The Interface this  IntraComponentDependencyParticipant refers to")
+    @GraphQLDescription("The Interface this IntraComponentDependencyParticipant refers to")
     @FilterProperty
     @delegate:Transient
     val `interface` by NodeProperty<Interface>()

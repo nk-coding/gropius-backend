@@ -68,6 +68,7 @@ class IssueGrabber(
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
+        println(node)
         return mongoOperations.update<IssueDataCache>().matching(
             query(
                 where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::imsProject.name).`is`(imsProject)
@@ -110,11 +111,11 @@ class IssueGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<IssueDataExtensive>? {
-        val response = apolloClient.query(
-            IssueReadQuery(
-                repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
-            )
-        ).execute()
+        val query = IssueReadQuery(
+            repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
+        )
+        val response = apolloClient.query(query)
+            .execute()
         return if (response.data?.repository?.issues?.nodes != null) {
             IssueStepResponse(response.data!!)
         } else {

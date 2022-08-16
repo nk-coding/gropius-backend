@@ -60,11 +60,18 @@ class IMSConfigManager(
      */
     private val imsTemplateFields = mapOf("read-user" to obj {
         "\$schema" to schema
-        "type" to arr["null", obj {
-            "type" to "string"
-            "gropius-node" to "GropiusUser"
-            "gropius-type" to "github-user"
-        }]
+        "type" to arr[
+                "null",
+                obj {
+                    "type" to "string"
+                    "gropius-node" to "GropiusUser"
+                    "gropius-type" to "github-user"
+                },
+        ]
+    }.toString(), "graphql-url" to obj {
+        "\$schema" to schema
+        "type" to "string"
+        "format" to "uri"
     }.toString()) + commonTemplateFields
 
     /**

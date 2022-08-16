@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.bson.types.ObjectId
+import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.*
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -113,11 +114,14 @@ class TimelineGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<TimelineItemData>? {
+        val query = TimelineReadQuery(
+            issue = id, since = since, cursor = cursor, issueCount = count
+        )
+        println(query)
         val response = apolloClient.query(
-            TimelineReadQuery(
-                issue = id, since = since, cursor = cursor, issueCount = count
-            )
+            query
         ).execute()
+        println(response.data)
         return if (response.data?.node?.asIssue()?.timelineItems?.nodes != null) {
             TimelineGrabber.TimelineStepResponse(response.data!!)
         } else {

@@ -112,7 +112,16 @@ class Incoming(
         imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
-        return if ((dbEntry != null) && !((event.asIssueComment()?.lastEditedAt != null) && (event.asIssueComment()!!.lastEditedAt!! > dbEntry.lastModifiedAt))) {
+        return if (event.asIssueComment() != null) {
+            val (neoId, time) = timelineItemHandler.handleIssueComment(
+                imsProjectConfig, issue, event.asIssueComment()!!, dbEntry?.neo4jId
+            )
+            if (time != null) {
+                timelineEventInfoRepository.save(TimelineEventInfo(event.asNode()!!.id, neoId, time, event.__typename))
+                    .awaitSingle()
+            }
+            time
+        } else if ((dbEntry != null)) {
             dbEntry.lastModifiedAt
         } else {
             val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issue, event)
@@ -167,7 +176,7 @@ class Incoming(
         val token = getGithubUserToken(imsConfig.ims, readUser) ?: throw SyncNotificator.NotificatedError(
             "SYNC_GITHUB_USER_NO_TOKEN"
         )
-        val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
+        val apolloClient = ApolloClient.Builder().serverUrl(imsConfig.graphQLUrl.toString())
             .addHttpHeader("Authorization", "bearer $token").build()
         for (project in imsConfig.ims.projects()) {
             try {
@@ -207,14 +216,6 @@ class Incoming(
                 issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
             )
             timelineGrabber.requestNewNodes()
-        }
-        for (issueId in mongoOperations.query<TimelineItemDataCache>().matching(
-            Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProjectConfig.imsProject.rawId!!)
-                    .`and`(TimelineItemDataCache::attempts.name).not().gte(7)
-            )
-        ).all().asFlow().map { it.issue }.toSet()) {
-            val issue = issueInfoRepository.findByImsProjectAndGithubId(imsProjectConfig.imsProject.rawId!!, issueId)!!
             try {
                 val timelineGrabber = TimelineGrabber(
                     issueInfoRepository,
@@ -223,19 +224,22 @@ class Incoming(
                     apolloClient,
                     imsProjectConfig.imsProject.rawId!!
                 )
-                timelineGrabber.iterate {
+                val errorInserting = timelineGrabber.iterate {
                     handleTimelineEvent(imsProjectConfig, issue, it)
                 }
                 issueCleaner.cleanIssue(issue.neo4jId)
-                mongoOperations.updateFirst(
-                    Query(where("_id").`is`(issue.id)),
-                    Update().set(IssueInfo::dirty.name, false),
-                    IssueInfo::class.java
-                ).awaitSingle()
+                if (!errorInserting) {
+                    logger.info("Finished issue: " + issue.id!!.toHexString())
+                    mongoOperations.updateFirst(
+                        Query(where("_id").`is`(issue.id)),
+                        Update().set(IssueInfo::dirty.name, false),
+                        IssueInfo::class.java
+                    ).awaitSingle()
+                }
             } catch (e: SyncNotificator.NotificatedError) {
                 TODO("Create IMSIssue")/*
                 syncNotificator.sendNotification(
-                    issue, SyncNotificator.NotificationDummy(e)
+                    imsIssue, SyncNotificator.NotificationDummy(e)
                 )
                 */
             } catch (e: Exception) {

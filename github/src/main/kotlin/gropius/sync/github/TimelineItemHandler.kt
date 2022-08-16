@@ -4,8 +4,10 @@ import gropius.model.issue.timeline.*
 import gropius.sync.github.generated.fragment.*
 import gropius.sync.github.model.IssueInfo
 import kotlinx.coroutines.reactor.awaitSingle
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
+import org.springframework.data.neo4j.core.findById
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
@@ -25,16 +27,37 @@ class TimelineItemHandler(
     private val neoOperations: ReactiveNeo4jOperations,
 ) {
     /**
+     * Logger used to print notifications
+     */
+    private val logger = LoggerFactory.getLogger(TimelineItemHandler::class.java)
+
+    /**
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
-    private suspend fun handleIssueComment(
-        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: IssueCommentTimelineItemData
+    public suspend fun handleIssueComment(
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: IssueCommentTimelineItemData, neo4jID: String?
     ): Pair<String?, OffsetDateTime?> {
-        //TODO
-        return Pair(null, event.updatedAt)
+        var commentEvent: IssueComment
+        if (neo4jID == null) {
+            commentEvent = IssueComment(event.createdAt, OffsetDateTime.now(), "", event.createdAt, false)
+            commentEvent.issue().value = issue.load(neoOperations)
+            commentEvent.createdBy().value = nodeSourcerer.ensureUser(event.author!!)
+        } else {
+            commentEvent = neoOperations.findById<IssueComment>(neo4jID)!!
+            if (commentEvent.bodyLastEditedAt > event.updatedAt) {
+                return Pair(commentEvent.rawId, event.updatedAt)
+            }
+        }
+        commentEvent.body = event.body
+        commentEvent.bodyLastEditedAt = event.updatedAt
+        commentEvent.bodyLastEditedBy().value = nodeSourcerer.ensureUser(event.editor ?: event.author!!)
+        commentEvent.lastModifiedAt = event.updatedAt
+        commentEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.editor ?: event.author!!)
+        commentEvent = neoOperations.save(commentEvent).awaitSingle()
+        return Pair(commentEvent.rawId, event.updatedAt)
     }
 
     /**
@@ -134,8 +157,8 @@ class TimelineItemHandler(
     suspend fun handleIssueModifiedItem(
         imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
     ): Pair<String?, OffsetDateTime?> {
+        logger.trace(event.toString())
         return when (event) {
-            is IssueCommentTimelineItemData -> handleIssueComment(imsProjectConfig, issue, event)
             is ClosedEventTimelineItemData -> handleIssueClosed(imsProjectConfig, issue, event)
             is ReopenedEventTimelineItemData -> handleIssueReopen(imsProjectConfig, issue, event)
             is LabeledEventTimelineItemData -> handleIssueLabeled(imsProjectConfig, issue, event)

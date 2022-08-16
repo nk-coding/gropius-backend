@@ -45,7 +45,7 @@ class ArchitectureMutations(
 
     @GraphQLDescription(
         """Creates a new Component, requires CAN_CREATE_COMPONENTS.
-        Automatically generates a default ComponentPermission which grants the user READ and ADMIN
+        Automatically generates a default ComponentPermission which grants the authenticated user READ and ADMIN
         """
     )
     @AutoPayloadType("The created Component")
@@ -77,7 +77,7 @@ class ArchitectureMutations(
 
     @GraphQLDescription(
         """Creates a new Project, requires CAN_CREATE_PROJECTS.
-        Automatically generates a default ProjectPermission which grants the user READ and ADMIN
+        Automatically generates a default ProjectPermission which grants the authorized user READ and ADMIN
         """
     )
     @AutoPayloadType("The created Project")
@@ -377,7 +377,11 @@ class ArchitectureMutations(
         return projectService.removeComponentVersionFromProject(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Creates a new IMS, requires CAN_CREATE_IMSS.")
+    @GraphQLDescription(
+        """Creates a new IMS, requires CAN_CREATE_IMSS.
+        Automatically generates a default IMSPermission which grants the authorized user READ and ADMIN
+        """
+    )
     @AutoPayloadType("The created IMS")
     suspend fun createIMS(
         @GraphQLDescription("Defines the created IMS")

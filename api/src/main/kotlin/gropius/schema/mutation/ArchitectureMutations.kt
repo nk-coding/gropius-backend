@@ -210,7 +210,7 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Updates the specified Interface , requires ADMIN on the Component of the Interface  to update")
+    @GraphQLDescription("Updates the specified Interface, requires ADMIN on the Component of the Interface to update")
     @AutoPayloadType("The updated Interface ")
     suspend fun updateInterface(
         @GraphQLDescription("Defines which Interface to update and how to update it")

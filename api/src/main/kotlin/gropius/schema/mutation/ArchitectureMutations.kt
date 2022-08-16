@@ -223,7 +223,7 @@ class ArchitectureMutations(
         return interfaceService.updateInterface(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Updates the specified InterfaceDefinition , requires ADMIN on the Component of the InterfaceDefinition  to update")
+    @GraphQLDescription("Updates the specified InterfaceDefinition, requires ADMIN on the Component of the InterfaceDefinition to update")
     @AutoPayloadType("The updated InterfaceDefinition ")
     suspend fun updateInterfaceDefinition(
         @GraphQLDescription("Defines which InterfaceDefinition  to update and how to update it")

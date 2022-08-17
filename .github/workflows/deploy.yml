@@ -39,6 +39,7 @@ jobs:
             core
             api-common
             api-public
+            api-internal
             sync
             github
           dest: "website/docs"

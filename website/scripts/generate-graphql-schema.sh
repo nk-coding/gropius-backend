@@ -18,9 +18,9 @@ curl -s -o ./website/schemas/api-public.gql $schema_endpoint
 echo "Stopping graphql server"
 kill $gradlew_pid
 
-./gradlew api-internal:bootRun &
+./gradlew api-internal:bootRun --args="--server.port=8081" &
 gradlew_pid=$!
-schema_endpoint="http://localhost:8080/sdl"
+schema_endpoint="http://localhost:8081/sdl"
 c=0
 until curl -s -f -o /dev/null $schema_endpoint
 do

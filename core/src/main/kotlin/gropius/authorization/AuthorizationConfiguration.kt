@@ -1,9 +1,12 @@
 package gropius.authorization
 
-import gropius.model.architecture.*
+import gropius.model.architecture.Component
+import gropius.model.architecture.IMS
+import gropius.model.architecture.Project
 import gropius.model.common.AuditedNode
 import gropius.model.user.GropiusUser
-import gropius.model.user.permission.*
+import gropius.model.user.permission.GlobalPermission
+import gropius.model.user.permission.NodePermission
 import io.github.graphglue.authorization.AllowRuleGenerator
 import io.github.graphglue.authorization.DisallowRuleGenerator
 import io.github.graphglue.definition.NodeDefinition
@@ -26,6 +29,12 @@ const val RELATED_TO_ADMIN_NODE_PERMISSION_RULE = "relatedToAdminNodePermission"
  * The name of the [IsDeletedRuleGenerator] used to check that an [AuditedNode] is deleted
  */
 const val IS_DELETED_RULE = "isDeletedRule"
+
+/**
+ * The name of the [RelatedToGlobalPermissionRuleGenerator] used to check if a [GropiusUser] is related to a
+ * [GlobalPermission]
+ */
+const val RELATED_TO_GLOBAL_PERMISSION_RULE = "relatedToGlobalPermission"
 
 /**
  * Provides Authorization related beans which are necessary to check for permissions
@@ -69,6 +78,17 @@ class AuthorizationConfiguration {
             nodeDefinitionCollection.getNodeDefinition<NodePermission<*>>(),
             nodeDefinitionCollection.getNodeDefinition<GropiusUser>()
         )
+    }
+
+    /**
+     * Creates a new [RelatedToGlobalPermissionRuleGenerator] which can be used to check for permission on [GropiusUser]
+     *
+     * @param nodeDefinitionCollection used to get [NodeDefinition]s for [GlobalPermission]
+     * @return the generated [RelatedToGlobalPermissionRuleGenerator]
+     */
+    @Bean(RELATED_TO_GLOBAL_PERMISSION_RULE)
+    fun relatedToGlobalPermissionRule(nodeDefinitionCollection: NodeDefinitionCollection): RelatedToGlobalPermissionRuleGenerator {
+        return RelatedToGlobalPermissionRuleGenerator(nodeDefinitionCollection.getNodeDefinition<GlobalPermission>())
     }
 
 }

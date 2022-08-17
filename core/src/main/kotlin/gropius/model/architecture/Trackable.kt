@@ -57,6 +57,9 @@ import java.net.URI
 @Authorization(
     TrackablePermission.EXPORT_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
+@Authorization(
+    TrackablePermission.EXPORT_LABELS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+)
 abstract class Trackable(
     name: String,
     description: String,

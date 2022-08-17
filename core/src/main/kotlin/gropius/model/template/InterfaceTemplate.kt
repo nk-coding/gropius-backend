@@ -9,6 +9,7 @@ import io.github.graphglue.model.DomainNode
     """SubTemplate for Interface.
     Part of a InterfaceSpecificationTemplate.
     Defines templated fields with specific types (defined using JSON schema).
+    All templatedFieldSpecifications must allow `null` as value.
     """
 )
 class InterfaceTemplate(

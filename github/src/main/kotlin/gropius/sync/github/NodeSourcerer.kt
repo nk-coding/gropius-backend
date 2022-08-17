@@ -89,7 +89,7 @@ class NodeSourcerer(
     private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
         val user = ensureUser(imsProjectConfig, info.author!!)
         val issueBody = Body(
-            info.createdAt, OffsetDateTime.now(), (info as? IssueDataExtensive)?.body ?: "", info.createdAt
+            info.createdAt, info.createdAt, (info as? IssueDataExtensive)?.body ?: "", info.createdAt
         )
         issueBody.createdBy().value = user
         issueBody.lastModifiedBy().value = user
@@ -106,6 +106,7 @@ class NodeSourcerer(
     suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
         var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
         var issue: Issue
+        var needSave = false
         if (issueInfo == null) {
             issue = Issue(
                 info.createdAt,
@@ -130,11 +131,25 @@ class NodeSourcerer(
         } else {
             issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
         }
+        if (info is IssueDataExtensive) {
+            val user = ensureUser(imsProjectConfig, (info.editor ?: info.author)!!)
+            val issueBody = issue.body().value
+            if (issueBody.lastModifiedAt < (info.lastEditedAt ?: info.createdAt)) {
+                issueBody.lastModifiedAt = (info.lastEditedAt ?: info.createdAt)
+                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, (info.lastEditedAt ?: info.createdAt))
+                issueBody.bodyLastEditedAt = (info.lastEditedAt ?: info.createdAt)
+                issueBody.lastModifiedBy().value = user
+                issueBody.bodyLastEditedBy().value = user
+                issueBody.body = info.body
+                needSave = true
+            }
+            issue.body().value = issueBody
+        }
         issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
         issue = neoOperations.save(issue).awaitSingle()
-        if (issueInfo == null) {
+        if ((issueInfo == null) || needSave) {
             issueInfo = issueInfoRepository.save(
-                IssueInfo(
+                issueInfo ?: IssueInfo(
                     info.id, issue.rawId!!, true, null, imsProjectConfig.url
                 )
             ).awaitSingle()
@@ -145,6 +160,7 @@ class NodeSourcerer(
     /**
      * Ensure the user with the given UserData is inserted in the database
      * @param info The GraphQL user data
+     * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
     suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, info: UserData) =
@@ -153,6 +169,7 @@ class NodeSourcerer(
     /**
      * Ensure a user with the given username is in the database
      * @param username The github username string
+     * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
     suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, username: String): User {
@@ -170,6 +187,7 @@ class NodeSourcerer(
     /**
      * Ensure a given label is in the database
      * @param info The GraphQL data for this label
+     * @param imsProjectConfig Config of the active project
      * @return a gropius label
      */
     suspend fun ensureLabel(

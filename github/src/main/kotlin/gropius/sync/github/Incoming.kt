@@ -2,8 +2,8 @@ package gropius.sync.github
 
 import com.apollographql.apollo3.ApolloClient
 import gropius.model.architecture.IMS
+import gropius.model.issue.Issue
 import gropius.model.user.GropiusUser
-import gropius.model.user.IMSUser
 import gropius.sync.IssueCleaner
 import gropius.sync.github.generated.fragment.IssueDataExtensive
 import gropius.sync.github.generated.fragment.TimelineItemData
@@ -11,18 +11,12 @@ import gropius.sync.github.generated.fragment.TimelineItemData.Companion.asIssue
 import gropius.sync.github.generated.fragment.TimelineItemData.Companion.asNode
 import gropius.sync.github.model.IssueInfo
 import gropius.sync.github.model.TimelineEventInfo
-import gropius.sync.github.model.TimelineItemDataCache
 import gropius.sync.github.repository.*
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.toSet
-import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
-import org.springframework.data.mongodb.core.query
-import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
@@ -92,6 +86,7 @@ class Incoming(
     /**
      * Mark issue as dirty
      * @param info The full dataset of an issue
+     * @param imsProjectConfig Config of the active project
      * @return The DateTime the issue was last changed
      */
     suspend fun issueModified(imsProjectConfig: IMSProjectConfig, info: IssueDataExtensive): OffsetDateTime {
@@ -104,17 +99,18 @@ class Incoming(
 
     /**
      * Save a single timeline event into the database
-     * @param issue the issue the timeline belongs to
+     * @param issueInfo the issue the timeline belongs to
      * @param event a single timeline item
+     * @param imsProjectConfig Config of the active project
      * @return The time of the event or null for error
      */
     suspend fun handleTimelineEvent(
-        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
+        imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, event.asNode()!!.id)
         return if (event.asIssueComment() != null) {
             val (neoId, time) = timelineItemHandler.handleIssueComment(
-                imsProjectConfig, issue, event.asIssueComment()!!, dbEntry?.neo4jId
+                imsProjectConfig, issueInfo, event.asIssueComment()!!, dbEntry?.neo4jId
             )
             if (time != null) {
                 timelineEventInfoRepository.save(
@@ -122,18 +118,24 @@ class Incoming(
                         event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
                     )
                 ).awaitSingle()
+                var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
+                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
+                issue = neoOperations.save(issue).awaitSingle()
             }
             time
         } else if (dbEntry != null) {
             dbEntry.lastModifiedAt
         } else {
-            val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issue, event)
+            val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issueInfo, event)
             if (time != null) {
                 timelineEventInfoRepository.save(
                     TimelineEventInfo(
                         event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
                     )
                 ).awaitSingle()
+                var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
+                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
+                issue = neoOperations.save(issue).awaitSingle()
             }
             time
         }

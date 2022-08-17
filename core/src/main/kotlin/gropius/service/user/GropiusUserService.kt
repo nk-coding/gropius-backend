@@ -1,3 +1,5 @@
+package gropius.service.user
+
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.ifPresent
 import gropius.dto.input.user.UpdateGropiusUserInput

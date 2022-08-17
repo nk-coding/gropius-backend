@@ -1,6 +1,5 @@
 package gropius.schema.mutation
 
-import GropiusUserService
 import com.expediagroup.graphql.generator.annotations.GraphQLDescription
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.expediagroup.graphql.generator.scalars.ID
@@ -16,6 +15,7 @@ import gropius.model.user.permission.ComponentPermission
 import gropius.model.user.permission.GlobalPermission
 import gropius.model.user.permission.IMSPermission
 import gropius.model.user.permission.ProjectPermission
+import gropius.service.user.GropiusUserService
 import gropius.service.user.permission.ComponentPermissionService
 import gropius.service.user.permission.GlobalPermissionService
 import gropius.service.user.permission.IMSPermissionService

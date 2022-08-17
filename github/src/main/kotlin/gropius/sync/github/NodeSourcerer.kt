@@ -104,9 +104,10 @@ class NodeSourcerer(
      * @return The gropius issue and the mongodb issue mapping
      */
     suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
+        var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
+        var issue: Issue
         if (issueInfo == null) {
-            var issue = Issue(
+            issue = Issue(
                 info.createdAt,
                 OffsetDateTime.now(),
                 mutableMapOf<String, String>(),
@@ -126,18 +127,19 @@ class NodeSourcerer(
             issue.lastModifiedBy().value = user
             issue.type().value = ensureGithubType()
             issue.template().value = ensureGithubTemplate()
-            issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
-            issue = neoOperations.save(issue).awaitSingle()
-            return Pair(
-                issue, issueInfoRepository.save(
-                    IssueInfo(
-                        info.id, issue.rawId!!, true, null, imsProjectConfig.url
-                    )
-                ).awaitSingle()
-            )
         } else {
-            return Pair(neoOperations.findById<Issue>(issueInfo.neo4jId)!!, issueInfo)
+            issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
         }
+        issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
+        issue = neoOperations.save(issue).awaitSingle()
+        if (issueInfo == null) {
+            issueInfo = issueInfoRepository.save(
+                IssueInfo(
+                    info.id, issue.rawId!!, true, null, imsProjectConfig.url
+                )
+            ).awaitSingle()
+        }
+        return Pair(issue, issueInfo!!)
     }
 
     /**

@@ -107,6 +107,18 @@ const config = {
                 }
             },
         ],
+        [
+            "@edno/docusaurus2-graphql-doc-generator",
+            {
+                id: "api-internal",
+                schema: "./schemas/api-internal.gql",
+                rootPath: "./docs",
+                baseURL: "graphql/api-internal",
+                docOptions: {
+                    index: true
+                }
+            },
+        ],
     ]
 };
 

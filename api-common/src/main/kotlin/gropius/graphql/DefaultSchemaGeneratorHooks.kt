@@ -20,6 +20,7 @@ import kotlin.reflect.full.hasAnnotation
  * - [OffsetDateTime] -> DateTime
  * - [URI] -> Url
  * - Duration -> Duration
+ * 
  * Handles the automatic generation of payload types for mutations annotated with [AutoPayloadType]
  */
 object DefaultSchemaGeneratorHooks : SchemaGeneratorHooks {

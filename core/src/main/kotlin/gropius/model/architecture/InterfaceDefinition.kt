@@ -14,7 +14,7 @@ import org.springframework.data.neo4j.core.schema.CompositeProperty
 
 @DomainNode
 @GraphQLDescription(
-    """InterfaceSpecificationVersion on a ComponentVersion
+    """InterfaceDefinition on a ComponentVersion
     Specifies if it is visible/invisible self-defined.
     Specifies if it is visible/invisible derived (and by which Relations)
     READ is granted if READ is granted on `componentVersion`

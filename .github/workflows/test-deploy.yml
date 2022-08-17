@@ -1,0 +1,48 @@
+name: Test deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '42 14 * * 3' # every thursday at 2:42 pm
+
+env:
+  NODE_OPTIONS: '--max_old_space_size=4096'
+
+jobs:
+  test-deploy:
+    name: Test deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Execute Gradle build
+        run: ./gradlew build dokkaHtmlMultiModule
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Modify Dokka output
+        uses: graphglue/dokka-html-mdx-transform@v1.7.10
+        with:
+          src: "build/dokka/htmlMultiModule"
+          modules: |
+            core
+            api
+            sync
+            github
+          dest: "website/docs"
+          folder: "api"
+      - name: Install dependencies
+        run: npm ci
+        working-directory: website
+      - name: Build website
+        run: npm run build
+        working-directory: website

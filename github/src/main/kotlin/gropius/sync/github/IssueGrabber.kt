@@ -68,7 +68,6 @@ class IssueGrabber(
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
-        println(node)
         return mongoOperations.update<IssueDataCache>().matching(
             query(
                 where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::url.name).`is`(imsProjectConfig.url)

@@ -117,11 +117,9 @@ class TimelineGrabber(
         val query = TimelineReadQuery(
             issue = id, since = since, cursor = cursor, issueCount = count
         )
-        println(query)
         val response = apolloClient.query(
             query
         ).execute()
-        println(response.data)
         return if (response.data?.node?.asIssue()?.timelineItems?.nodes != null) {
             TimelineGrabber.TimelineStepResponse(response.data!!)
         } else {

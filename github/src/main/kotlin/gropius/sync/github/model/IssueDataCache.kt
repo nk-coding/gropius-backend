@@ -5,9 +5,11 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import java.net.URI
 
 /**
  * Cache for unprocessed issues
+ * @param url API URL of IMS of the repo
  */
 @Document
 data class IssueDataCache(
@@ -15,11 +17,7 @@ data class IssueDataCache(
      * ID on github
      */
     @Indexed(unique = true)
-    var githubId: String,
-    /**
-     * IMSProject of the repo
-     */
-    val imsProject: String,
+    var githubId: String, val url: URI,
     /**
      * Data from github api
      */

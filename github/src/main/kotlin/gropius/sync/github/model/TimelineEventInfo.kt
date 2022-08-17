@@ -4,10 +4,12 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import java.net.URI
 import java.time.OffsetDateTime
 
 /**
  * Mapping of a single timeline event from neo4j to github
+ * @param url API URL of IMS of the repo
  */
 @Document
 data class TimelineEventInfo(
@@ -28,7 +30,7 @@ data class TimelineEventInfo(
     /**
      * Github __typename of this event
      */
-    val type: String?
+    val type: String?, val url: URI
 ) {
     /**
      * MongoDB ID

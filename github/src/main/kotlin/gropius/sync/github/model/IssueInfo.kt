@@ -7,11 +7,12 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
+import java.net.URI
 import java.time.OffsetDateTime
 
 /**
  * Mapping of a single issue from neo4j to github
- * @param imsProject IMSProject of the repo
+ * @param url API URL of IMS of the repo
  */
 @Document
 data class IssueInfo(
@@ -33,7 +34,7 @@ data class IssueInfo(
      * Time of the last accessed timeline item
      */
     var lastAccess: OffsetDateTime?,
-    val imsProject: String
+    val url: URI
 ) {
     /**
      * MongoDB ID

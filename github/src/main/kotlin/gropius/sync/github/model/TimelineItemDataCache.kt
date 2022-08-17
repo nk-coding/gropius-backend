@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 /**
  * Cache for unprocessed timeline items
- * @param imsProject IMSProject of the repo
+ * @param url API URL of IMS of the repo
  */
 @Document
 data class TimelineItemDataCache(
@@ -29,7 +29,7 @@ data class TimelineItemDataCache(
      * Number of attempts to sync into gropius database
      */
     var attempts: Int?,
-    val imsProject: String
+    val url: String
 ) {
     /**
      * MongoDB ID

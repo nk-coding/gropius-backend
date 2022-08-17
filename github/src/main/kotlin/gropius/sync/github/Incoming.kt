@@ -95,7 +95,7 @@ class Incoming(
      * @return The DateTime the issue was last changed
      */
     suspend fun issueModified(imsProjectConfig: IMSProjectConfig, info: IssueDataExtensive): OffsetDateTime {
-        val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(imsProjectConfig.imsProject, info)
+        val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(imsProjectConfig, info)
         mongoOperations.updateFirst(
             Query(where("_id").`is`(mongoIssue.id!!)), Update().set(IssueInfo::dirty.name, true), IssueInfo::class.java
         ).awaitSingle()
@@ -111,23 +111,29 @@ class Incoming(
     suspend fun handleTimelineEvent(
         imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
-        val dbEntry = timelineEventInfoRepository.findByGithubId(event.asNode()!!.id)
+        val dbEntry = timelineEventInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, event.asNode()!!.id)
         return if (event.asIssueComment() != null) {
             val (neoId, time) = timelineItemHandler.handleIssueComment(
                 imsProjectConfig, issue, event.asIssueComment()!!, dbEntry?.neo4jId
             )
             if (time != null) {
-                timelineEventInfoRepository.save(TimelineEventInfo(event.asNode()!!.id, neoId, time, event.__typename))
-                    .awaitSingle()
+                timelineEventInfoRepository.save(
+                    TimelineEventInfo(
+                        event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
+                    )
+                ).awaitSingle()
             }
             time
-        } else if ((dbEntry != null)) {
+        } else if (dbEntry != null) {
             dbEntry.lastModifiedAt
         } else {
             val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issue, event)
             if (time != null) {
-                timelineEventInfoRepository.save(TimelineEventInfo(event.asNode()!!.id, neoId, time, event.__typename))
-                    .awaitSingle()
+                timelineEventInfoRepository.save(
+                    TimelineEventInfo(
+                        event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
+                    )
+                ).awaitSingle()
             }
             time
         }
@@ -200,30 +206,18 @@ class Incoming(
     suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         imsProjectConfig.imsProject.trackable().value
         val issueGrabber = IssueGrabber(
-            imsProjectConfig.repo,
-            repositoryInfoRepository,
-            mongoOperations,
-            apolloClient,
-            imsProjectConfig.imsProject.rawId!!
+            imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient, imsProjectConfig
         )
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
             issueModified(imsProjectConfig, it)
         }
-        for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
-            .toList()) {
+        for (issue in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
             val timelineGrabber = TimelineGrabber(
-                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
+                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig
             )
             timelineGrabber.requestNewNodes()
             try {
-                val timelineGrabber = TimelineGrabber(
-                    issueInfoRepository,
-                    mongoOperations,
-                    issue.githubId,
-                    apolloClient,
-                    imsProjectConfig.imsProject.rawId!!
-                )
                 val errorInserting = timelineGrabber.iterate {
                     handleTimelineEvent(imsProjectConfig, issue, it)
                 }

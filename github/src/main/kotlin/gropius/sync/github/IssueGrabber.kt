@@ -37,7 +37,7 @@ class IssueGrabber(
      */
     private val mongoOperations: ReactiveMongoOperations,
     private val apolloClient: ApolloClient,
-    private val imsProject: String
+    private val imsProjectConfig: IMSProjectConfig
 ) : Grabber<IssueDataExtensive>() {
     /**
      * The response of a single issue grabbing step
@@ -56,7 +56,7 @@ class IssueGrabber(
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<RepositoryInfo>().matching(
-            query(where(RepositoryInfo::imsProject.name).`is`(imsProject))
+            query(where(RepositoryInfo::url.name).`is`(imsProjectConfig.url))
         ).apply(
             Update().max(RepositoryInfo::lastAccess.name, time).set(RepositoryInfo::user.name, remote.owner)
                 .set(RepositoryInfo::repo.name, remote.repo)
@@ -64,14 +64,14 @@ class IssueGrabber(
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return repositoryInfoRepository.findByImsProject(imsProject)?.lastAccess
+        return repositoryInfoRepository.findByUrl(imsProjectConfig.url)?.lastAccess
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
         println(node)
         return mongoOperations.update<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::imsProject.name).`is`(imsProject)
+                where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::url.name).`is`(imsProjectConfig.url)
             )
         ).apply(
             update(IssueDataCache::data.name, node)
@@ -81,7 +81,7 @@ class IssueGrabber(
     override suspend fun iterateCache(): Flow<IssueDataExtensive> {
         return mongoOperations.query<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::imsProject.name).`is`(imsProject)
+                where(IssueDataCache::url.name).`is`(imsProjectConfig.url)
             ).addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
@@ -89,8 +89,8 @@ class IssueGrabber(
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<IssueDataCache>(
             query(
-                where(IssueDataCache::imsProject.name).`is`(
-                    imsProject
+                where(IssueDataCache::url.name).`is`(
+                    imsProjectConfig.url
                 )
             ).addCriteria(where("data.id").`is`(node))
         ).awaitSingle()
@@ -99,7 +99,7 @@ class IssueGrabber(
     override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<IssueDataCache>().matching(
             Query.query(
-                Criteria.where("data.id").`is`(node).and(IssueDataCache::imsProject.name).`is`(imsProject)
+                Criteria.where("data.id").`is`(node).and(IssueDataCache::url.name).`is`(imsProjectConfig.url)
             )
         ).apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
     }

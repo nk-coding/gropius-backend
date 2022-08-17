@@ -35,6 +35,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     public suspend fun handleIssueComment(
@@ -44,7 +45,7 @@ class TimelineItemHandler(
         if (neo4jID == null) {
             commentEvent = IssueComment(event.createdAt, OffsetDateTime.now(), "", event.createdAt, false)
             commentEvent.issue().value = issue.load(neoOperations)
-            commentEvent.createdBy().value = nodeSourcerer.ensureUser(event.author!!)
+            commentEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.author!!)
         } else {
             commentEvent = neoOperations.findById<IssueComment>(neo4jID)!!
             if (commentEvent.bodyLastEditedAt > event.updatedAt) {
@@ -53,9 +54,10 @@ class TimelineItemHandler(
         }
         commentEvent.body = event.body
         commentEvent.bodyLastEditedAt = event.updatedAt
-        commentEvent.bodyLastEditedBy().value = nodeSourcerer.ensureUser(event.editor ?: event.author!!)
+        commentEvent.bodyLastEditedBy().value =
+            nodeSourcerer.ensureUser(imsProjectConfig, event.editor ?: event.author!!)
         commentEvent.lastModifiedAt = event.updatedAt
-        commentEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.editor ?: event.author!!)
+        commentEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.editor ?: event.author!!)
         commentEvent = neoOperations.save(commentEvent).awaitSingle()
         return Pair(commentEvent.rawId, event.updatedAt)
     }
@@ -64,6 +66,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueClosed(
@@ -71,8 +74,8 @@ class TimelineItemHandler(
     ): Pair<String?, OffsetDateTime?> {
         var closedEvent = ClosedEvent(event.createdAt, OffsetDateTime.now())
         closedEvent.issue().value = issue.load(neoOperations)
-        closedEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        closedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        closedEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
+        closedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
         closedEvent = neoOperations.save(closedEvent).awaitSingle()
         return Pair(closedEvent.rawId, event.createdAt)
     }
@@ -81,6 +84,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueReopen(
@@ -88,8 +92,8 @@ class TimelineItemHandler(
     ): Pair<String?, OffsetDateTime?> {
         var reopenedEvent = ReopenedEvent(event.createdAt, OffsetDateTime.now())
         reopenedEvent.issue().value = issue.load(neoOperations)
-        reopenedEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        reopenedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        reopenedEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
+        reopenedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
         reopenedEvent = neoOperations.save(reopenedEvent).awaitSingle()
         return Pair(reopenedEvent.rawId, event.createdAt)
     }
@@ -98,6 +102,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueLabeled(
@@ -105,8 +110,8 @@ class TimelineItemHandler(
     ): Pair<String?, OffsetDateTime?> {
         var addedLabelEvent = AddedLabelEvent(event.createdAt, OffsetDateTime.now())
         addedLabelEvent.issue().value = issue.load(neoOperations)
-        addedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        addedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        addedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
+        addedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
         addedLabelEvent.addedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         addedLabelEvent = neoOperations.save(addedLabelEvent).awaitSingle()
         return Pair(addedLabelEvent.rawId, event.createdAt)
@@ -116,6 +121,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueUnlabeled(
@@ -123,8 +129,8 @@ class TimelineItemHandler(
     ): Pair<String?, OffsetDateTime?> {
         var removedLabelEvent = RemovedLabelEvent(event.createdAt, OffsetDateTime.now())
         removedLabelEvent.issue().value = issue.load(neoOperations)
-        removedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        removedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        removedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
+        removedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
         removedLabelEvent.removedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         removedLabelEvent = neoOperations.save(removedLabelEvent).awaitSingle()
         return Pair(removedLabelEvent.rawId, event.createdAt)
@@ -134,6 +140,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueRenamedTitle(
@@ -142,8 +149,8 @@ class TimelineItemHandler(
         var titleChangedEvent =
             TitleChangedEvent(event.createdAt, OffsetDateTime.now(), event.previousTitle, event.currentTitle)
         titleChangedEvent.issue().value = issue.load(neoOperations)
-        titleChangedEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        titleChangedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
+        titleChangedEvent.createdBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
+        titleChangedEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(imsProjectConfig, event.actor!!)
         titleChangedEvent = neoOperations.save(titleChangedEvent).awaitSingle()
         return Pair(titleChangedEvent.rawId, event.createdAt)
     }
@@ -152,6 +159,7 @@ class TimelineItemHandler(
      * Save a non-comment timeline item to the database
      * @param issue The mongo info for the the issue
      * @param event a GrqphQL timeline issue
+     * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     suspend fun handleIssueModifiedItem(

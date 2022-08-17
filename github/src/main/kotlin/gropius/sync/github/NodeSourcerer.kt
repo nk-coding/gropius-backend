@@ -83,10 +83,11 @@ class NodeSourcerer(
     /**
      * Create an issuebody for the given issue is in the database
      * @param info The issue to created this body for
+     * @param imsProjectConfig Config of the active project
      * @return The finished body
      */
-    private suspend fun createIssueBody(info: IssueData): Body {
-        val user = ensureUser(info.author!!)
+    private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
+        val user = ensureUser(imsProjectConfig, info.author!!)
         val issueBody = Body(
             info.createdAt, OffsetDateTime.now(), (info as? IssueDataExtensive)?.body ?: "", info.createdAt
         )
@@ -99,10 +100,11 @@ class NodeSourcerer(
     /**
      * Ensure a given issue is in the database
      * @param info The issue to created this body for
+     * @param imsProjectConfig Config of the active project
      * @return The gropius issue and the mongodb issue mapping
      */
-    suspend fun ensureIssue(imsProject: IMSProject, info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByImsProjectAndGithubId(imsProject.rawId!!, info.id)
+    suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
+        val issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
         if (issueInfo == null) {
             var issue = Issue(
                 info.createdAt,
@@ -116,20 +118,22 @@ class NodeSourcerer(
                 null,
                 null
             )
-            val user = ensureUser(info.author!!)
-            val issueBody = createIssueBody(info)
+            val user = ensureUser(imsProjectConfig, info.author!!)
+            val issueBody = createIssueBody(imsProjectConfig, info)
             issue.body().value = issueBody
             issueBody.issue().value = issue
             issue.createdBy().value = user
             issue.lastModifiedBy().value = user
             issue.type().value = ensureGithubType()
             issue.template().value = ensureGithubTemplate()
-            issue.trackables().add(imsProject.trackable().value)
+            issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
             issue = neoOperations.save(issue).awaitSingle()
             return Pair(
-                issue,
-                issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null, imsProject.rawId!!))
-                    .awaitSingle()
+                issue, issueInfoRepository.save(
+                    IssueInfo(
+                        info.id, issue.rawId!!, true, null, imsProjectConfig.url
+                    )
+                ).awaitSingle()
             )
         } else {
             return Pair(neoOperations.findById<Issue>(issueInfo.neo4jId)!!, issueInfo)
@@ -141,19 +145,20 @@ class NodeSourcerer(
      * @param info The GraphQL user data
      * @return a gropius user
      */
-    suspend fun ensureUser(info: UserData) = ensureUser(info.login)
+    suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, info: UserData) =
+        ensureUser(imsProjectConfig, info.login)
 
     /**
      * Ensure a user with the given username is in the database
      * @param username The github username string
      * @return a gropius user
      */
-    suspend fun ensureUser(username: String): User {
-        val userInfo = userInfoRepository.findByLogin(username)
+    suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, username: String): User {
+        val userInfo = userInfoRepository.findByUrlAndLogin(imsProjectConfig.url, username)
         return if (userInfo == null) {
             var user = GropiusUser(username, null, username, false)
             user = neoOperations.save(user).awaitSingle()
-            userInfoRepository.save(UserInfo(username, user.rawId!!)).awaitSingle()
+            userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
             user
         } else {
             neoOperations.findById<User>(userInfo.neo4jId)!!
@@ -165,8 +170,10 @@ class NodeSourcerer(
      * @param info The GraphQL data for this label
      * @return a gropius label
      */
-    suspend fun ensureLabel(imsProjectConfig: IMSProjectConfig, info: LabelData): Label {
-        val labelInfo = labelInfoRepository.findByGithubId(info.id)
+    suspend fun ensureLabel(
+        imsProjectConfig: IMSProjectConfig, info: LabelData
+    ): Label {
+        val labelInfo = labelInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
         return if (labelInfo == null) {
             var label = Label(
                 info.createdAt!!,
@@ -175,10 +182,10 @@ class NodeSourcerer(
                 (info as? LabelDataExtensive)?.description ?: "",
                 (info as? LabelDataExtensive)?.color ?: "#000000"
             )
-            label.createdBy().value = ensureUser(imsProjectConfig.botUser)
-            label.lastModifiedBy().value = ensureUser(imsProjectConfig.botUser)
+            label.createdBy().value = ensureUser(imsProjectConfig, imsProjectConfig.botUser)
+            label.lastModifiedBy().value = ensureUser(imsProjectConfig, imsProjectConfig.botUser)
             label = neoOperations.save(label).awaitSingle()
-            labelInfoRepository.save(LabelInfo(info.id, label.rawId!!)).awaitSingle()
+            labelInfoRepository.save(LabelInfo(info.id, label.rawId!!, imsProjectConfig.url)).awaitSingle()
             label
         } else {
             neoOperations.findById<Label>(labelInfo.neo4jId)!!

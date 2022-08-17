@@ -1,5 +1,8 @@
+package gropius.service.user
+
 import gropius.authorization.GropiusAuthorizationContext
 import gropius.dto.input.ifPresent
+import gropius.dto.input.user.CreateGropiusUserInput
 import gropius.dto.input.user.UpdateGropiusUserInput
 import gropius.model.user.GropiusUser
 import gropius.repository.findById
@@ -9,7 +12,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 /**
- * Service for [GropiusUser]s. Provides functions to create, update and delete
+ * Service for [GropiusUser]s. Provides functions to create and update
  *
  * @param repository the associated repository used for CRUD functionality
  */
@@ -45,6 +48,25 @@ class GropiusUserService(
             gropiusUser.isAdmin = it
         }
         updateExtensibleNode(gropiusUser, input)
+        return repository.save(gropiusUser).awaitSingle()
+    }
+
+    /**
+     * Creates a new [GropiusUser] based on the provided [input]
+     * Does not check the authorization status
+     * Checks that no [GropiusUser] with the same username exists
+     * This MUST NOT be exposed via the public API
+     *
+     * @param input defines the [GropiusUser]
+     * @return the created [GropiusUser]
+     */
+    suspend fun createGropiusUser(input: CreateGropiusUserInput): GropiusUser {
+        input.validate()
+        if (repository.existsByUsername(input.username)) {
+            throw IllegalArgumentException("A GropiusUser with the specified username already exists")
+        }
+        val gropiusUser = GropiusUser(input.displayName, input.email, input.username, input.isAdmin)
+        createdExtensibleNode(gropiusUser, input)
         return repository.save(gropiusUser).awaitSingle()
     }
 

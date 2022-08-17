@@ -27,3 +27,4 @@ schemas/
 
 # generated graphql documentation
 docs/graphql/api-public/
+docs/graphql/api-internal/

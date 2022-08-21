@@ -33,6 +33,7 @@ data class IssueInfo(
     /**
      * Turn the IssueInfo into a gropius Issue
      * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
+     * @return the freshly loaded Issue object
      */
     suspend fun load(neoOperations: ReactiveNeo4jOperations): Issue {
         return neoOperations.findById<Issue>(neo4jId)!!

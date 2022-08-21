@@ -184,30 +184,11 @@ class Incoming(
     }
 
     /**
-     * Sync one IMSProject
+     * Sync issues of one IMSProject
      * @param imsProjectConfig the config of the IMSProject
      * @param apolloClient the client to use4 for grpahql queries
      */
-    suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
-        imsProjectConfig.imsProject.trackable().value
-        val issueGrabber = IssueGrabber(
-            imsProjectConfig.repo,
-            repositoryInfoRepository,
-            mongoOperations,
-            apolloClient,
-            imsProjectConfig.imsProject.rawId!!
-        )
-        issueGrabber.requestNewNodes()
-        issueGrabber.iterate {
-            issueModified(imsProjectConfig, it)
-        }
-        for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
-            .toList()) {
-            val timelineGrabber = TimelineGrabber(
-                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
-            )
-            timelineGrabber.requestNewNodes()
-        }
+    suspend fun syncIssues(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         for (issueId in mongoOperations.query<TimelineItemDataCache>().matching(
             Query.query(
                 Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProjectConfig.imsProject.rawId!!)
@@ -242,5 +223,33 @@ class Incoming(
                 logger.warn("Error in issue sync", e)
             }
         }
+    }
+
+    /**
+     * Sync one IMSProject
+     * @param imsProjectConfig the config of the IMSProject
+     * @param apolloClient the client to use4 for grpahql queries
+     */
+    suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
+        imsProjectConfig.imsProject.trackable().value
+        val issueGrabber = IssueGrabber(
+            imsProjectConfig.repo,
+            repositoryInfoRepository,
+            mongoOperations,
+            apolloClient,
+            imsProjectConfig.imsProject.rawId!!
+        )
+        issueGrabber.requestNewNodes()
+        issueGrabber.iterate {
+            issueModified(imsProjectConfig, it)
+        }
+        for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
+            .toList()) {
+            val timelineGrabber = TimelineGrabber(
+                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
+            )
+            timelineGrabber.requestNewNodes()
+        }
+        syncIssues(imsProjectConfig, apolloClient)
     }
 }

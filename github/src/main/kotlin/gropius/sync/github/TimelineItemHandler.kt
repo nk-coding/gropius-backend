@@ -11,16 +11,12 @@ import java.time.OffsetDateTime
 
 /**
  * Save a github timeline item into a gropius timeline item
+ * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
+ * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
  */
 @Component
 class TimelineItemHandler(
-    /**
-     * Reference for the spring instance of NodeSourcerer
-     */
     private val nodeSourcerer: NodeSourcerer,
-    /**
-     * Reference for the spring instance of ReactiveNeo4jOperations
-     */
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations,
 ) {
@@ -28,6 +24,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config to use
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueComment(
@@ -39,6 +36,7 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
@@ -56,6 +54,7 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
@@ -73,6 +72,7 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
@@ -91,6 +91,7 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
@@ -109,6 +110,7 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
@@ -127,6 +129,7 @@ class TimelineItemHandler(
 
     /**
      * Save a non-comment timeline item to the database
+     * @param imsProjectConfig Config to use
      * @param issue The mongo info for the the issue
      * @param event a GrqphQL timeline issue
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item

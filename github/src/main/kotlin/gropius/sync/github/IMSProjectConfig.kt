@@ -2,6 +2,13 @@ package gropius.sync.github
 
 import gropius.model.architecture.IMSProject
 
+/**
+ * @param imsProject the gropius IMSProject to use as input
+ * @param imsConfig the config of the parent IMS
+ * @param botUser bot user name
+ * @param readUser read user name
+ * @param repo repository url
+ */
 data class IMSProjectConfig(
     val imsProject: IMSProject,
     val imsConfig: IMSConfig,

@@ -28,19 +28,38 @@ class SyncNotificator(
      */
     private val logger = LoggerFactory.getLogger(SyncNotificator::class.java)
 
+    /**
+     * Error that is allowed to be presented to the user and does not contain harmful information
+     * @param code Translation file key
+     * @param args Arguments to replace in the translation
+     */
     class NotificatedError(val code: String, vararg args: String) : Exception(code) {
         val args = args.asList()
     }
 
+    /**
+     * Stub for a future notification
+     * @param title Title to display
+     * @param content Content to display
+     */
     data class NotificationDummy(
         @JsonProperty("title")
         val title: String,
         @JsonProperty("content")
         val content: String
     ) {
+        /**
+         * Construct new NotificationDummy from an NotificatedError
+         * @param error Error to construct the NotificationDummy from
+         */
         constructor(error: NotificatedError) : this("Sync Error", error.code + ": " + error.args.joinToString(", ")) {}
     }
 
+    /**
+     * Send notification
+     * @param node Node of which the users should receive the notification from
+     * @param dummy MotificationDummy containing the content
+     */
     private suspend fun sendNotification(node: ExtensibleNode, dummy: NotificationDummy) {
         logger.info("Send Notification: $dummy")
         if (node is MutableTemplatedNode) {
@@ -49,14 +68,29 @@ class SyncNotificator(
         }
     }
 
+    /**
+     * Send notification
+     * @param ims Node of which the users should receive the notification from
+     * @param dummy MotificationDummy containing the content
+     */
     suspend fun sendNotification(ims: IMS, dummy: NotificationDummy) {
         sendNotification(ims as ExtensibleNode, dummy)
     }
 
+    /**
+     * Send notification
+     * @param imsProject Node of which the users should receive the notification from
+     * @param dummy MotificationDummy containing the content
+     */
     suspend fun sendNotification(imsProject: IMSProject, dummy: NotificationDummy) {
         sendNotification(imsProject as ExtensibleNode, dummy)
     }
 
+    /**
+     * Send notification
+     * @param imsIssue Node of which the users should receive the notification from
+     * @param dummy MotificationDummy containing the content
+     */
     suspend fun sendNotification(imsIssue: IMSIssue, dummy: NotificationDummy) {
         sendNotification(imsIssue as ExtensibleNode, dummy)
     }

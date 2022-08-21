@@ -6,7 +6,7 @@ val kosonVersion: String by project
 plugins {
     id("org.springframework.boot")
     kotlin("plugin.spring")
-    id("com.apollographql.apollo3").version("3.5.0")
+    id("com.apollographql.apollo3")
 }
 
 dependencies {

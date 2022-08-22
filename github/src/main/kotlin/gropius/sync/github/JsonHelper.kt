@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Component
 
 /**
- * Spring component containing helper function for github sync related json operations
+ * Spring component containing helper function for GitHub sync related json operations
  * @param objectMapper Reference for the spring instance of ObjectMapper
  */
 @Component

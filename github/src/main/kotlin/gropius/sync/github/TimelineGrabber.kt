@@ -35,7 +35,7 @@ class TimelineGrabber(
      */
     private val mongoOperations: ReactiveMongoOperations,
     /**
-     * github id of the issue
+     * GitHub id of the issue
      */
     private val id: String, private val apolloClient: ApolloClient, private val imsProjectConfig: IMSProjectConfig
 ) : Grabber<TimelineItemData>() {
@@ -45,7 +45,7 @@ class TimelineGrabber(
      */
     class TimelineStepResponse(
         /**
-         * The raw github response
+         * The raw GitHub response
          */
         val content: TimelineReadQuery.Data
     ) : StepResponse<TimelineItemData> {

@@ -39,7 +39,7 @@ class IssueGrabber(
 ) : Grabber<IssueDataExtensive>() {
     /**
      * The response of a single issue grabbing step
-     * @param content The raw github response
+     * @param content The raw GitHub response
      */
     class IssueStepResponse(
         val content: IssueReadQuery.Data

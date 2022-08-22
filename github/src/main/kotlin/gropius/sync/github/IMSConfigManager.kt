@@ -120,7 +120,15 @@ class IMSConfigManager(
                 "required" to arr["title", "content"]
                 "gropius-type" to "notification"
             }]
-        }.toString())
+        }.toString(), "url" to obj {
+            "\$schema" to Companion.SCHEMA
+            "type" to "string"
+            "format" to "uri"
+        }.toString(), "id" to obj {
+            "\$schema" to Companion.SCHEMA
+            "type" to "number"
+        }.toString()
+        )
     }
 
     /**

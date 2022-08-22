@@ -82,6 +82,7 @@ class Incoming(
      * @param imsProjectConfig Config of the active project
      * @return The time of the event or null for error
      */
+    @Suppress("UNUSED_VALUE")
     private suspend fun handleTimelineEvent(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
@@ -120,7 +121,7 @@ class Incoming(
     }
 
     /**
-     * Sync github to gropius
+     * Sync GitHub to gropius
      */
     suspend fun sync() {
         imsConfigManager.findTemplates()

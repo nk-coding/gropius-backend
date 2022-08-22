@@ -10,21 +10,19 @@ import java.net.URI
 /**
  * Cache for unprocessed issues
  * @param url API URL of IMS of the repo
+ * @param githubId ID on GitHub
+ * @param data Data from GitHub api
+ * @param attempts Number of attempts tried to insert into db
  */
 @Document
 data class IssueDataCache(
-    /**
-     * ID on github
-     */
     @Indexed(unique = true)
-    var githubId: String, val url: URI,
-    /**
-     * Data from github api
-     */
+    var githubId: String,
+    @Indexed
+    val url: URI,
+    @Indexed
     val data: IssueDataExtensive,
-    /**
-     * Number of attempts tried to insert into db
-     */
+    @Indexed
     var attempts: Int?
 ) {
     /**

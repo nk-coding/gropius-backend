@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
 /**
- * Save a github timeline item into a gropius timeline item
+ * Save a GitHub timeline item into a gropius timeline item
  * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
  * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
  */
@@ -30,7 +30,7 @@ class TimelineItemHandler(
     /**
      * Save timeline item to database
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
@@ -62,7 +62,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param imsProjectConfig Config to use
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
@@ -81,7 +81,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param imsProjectConfig Config to use
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
@@ -100,7 +100,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param imsProjectConfig Config to use
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
@@ -120,7 +120,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param imsProjectConfig Config to use
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
@@ -140,7 +140,7 @@ class TimelineItemHandler(
      * Save timeline item to database
      * @param imsProjectConfig Config to use
      * @param issue Affected issue
-     * @param event raw github timeline item
+     * @param event raw GitHub timeline item
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */

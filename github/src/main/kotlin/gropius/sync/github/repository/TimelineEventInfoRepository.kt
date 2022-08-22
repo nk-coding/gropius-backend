@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 import java.net.URI
 
 /**
- * Repository for mapping of a single timeline event from neo4j to github
+ * Repository for mapping of a single timeline event from neo4j to GitHub
  */
 @Repository
 interface TimelineEventInfoRepository : ReactiveMongoRepository<TimelineEventInfo, ObjectId> {
@@ -19,7 +19,7 @@ interface TimelineEventInfoRepository : ReactiveMongoRepository<TimelineEventInf
     suspend fun findByNeo4jId(neo4jId: String): TimelineEventInfo?
 
     /**
-     * Lookup to find the mapping given a github id
+     * Lookup to find the mapping given a GitHub id
      * @param githubId Database query param
      * @param url Database query param
      * @return result of database operation

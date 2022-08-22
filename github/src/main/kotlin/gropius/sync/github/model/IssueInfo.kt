@@ -11,19 +11,24 @@ import java.net.URI
 import java.time.OffsetDateTime
 
 /**
- * Mapping of a single issue from neo4j to github
+ * Mapping of a single issue from neo4j to GitHub
  * @param url API URL of IMS of the repo
- * @param githubId ID on github
+ * @param githubId ID on GitHub
  * @param neo4jId ID in gropius database
  * @param dirty True if changed after last access and has to be queried
  * @param lastAccess Time of the last accessed timeline item
  */
 @Document
 data class IssueInfo(
-    @Indexed(unique = true)
+    @Indexed
     var githubId: String,
+    @Indexed
     val url: URI,
-    var neo4jId: String, val dirty: Boolean, var lastAccess: OffsetDateTime?
+    @Indexed
+    var neo4jId: String,
+    @Indexed
+    val dirty: Boolean,
+    var lastAccess: OffsetDateTime?
 ) {
     /**
      * MongoDB ID
@@ -37,6 +42,6 @@ data class IssueInfo(
      * @return the freshly loaded Issue object
      */
     suspend fun load(neoOperations: ReactiveNeo4jOperations): Issue {
-        return neoOperations.findById<Issue>(neo4jId)!!
+        return neoOperations.findById(neo4jId)!!
     }
 }

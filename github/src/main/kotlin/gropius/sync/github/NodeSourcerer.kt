@@ -7,6 +7,7 @@ import gropius.model.issue.timeline.Body
 import gropius.model.template.IssueTemplate
 import gropius.model.template.IssueType
 import gropius.model.user.GropiusUser
+import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.sync.github.generated.fragment.*
 import gropius.sync.github.model.IssueInfo
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
 /**
- * Save github nodes as gropius nodes into the database
+ * Save GitHub nodes as gropius nodes into the database
  */
 @Component
 class NodeSourcerer(
@@ -48,8 +49,8 @@ class NodeSourcerer(
     private val labelInfoRepository: LabelInfoRepository
 ) {
     /**
-     * Ensure the default github issue type with the default template is in the database
-     * @return The default type for github issues
+     * Ensure the default GitHub issue type with the default template is in the database
+     * @return The default type for GitHub issues
      */
     suspend fun ensureGithubType(): IssueType {
         val types = neoOperations.findAll<IssueType>().toList()
@@ -58,15 +59,15 @@ class NodeSourcerer(
                 return type
             }
         }
-        var type = IssueType("github-issue", "Issue synced from github")
+        var type = IssueType("github-issue", "Issue synced from GitHub")
         type.partOf() += ensureGithubTemplate()
         type = neoOperations.save(type).awaitSingle()
         return type
     }
 
     /**
-     * Ensure the default github template is in the databse
-     * @return The default template for github issues
+     * Ensure the default GitHub template is in the databse
+     * @return The default template for GitHub issues
      */
     suspend fun ensureGithubTemplate(): IssueTemplate {
         val types = neoOperations.findAll<IssueTemplate>().toList()
@@ -168,14 +169,15 @@ class NodeSourcerer(
 
     /**
      * Ensure a user with the given username is in the database
-     * @param username The github username string
+     * @param username The GitHub username string
      * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
     suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, username: String): User {
         val userInfo = userInfoRepository.findByUrlAndLogin(imsProjectConfig.url, username)
         return if (userInfo == null) {
-            var user = GropiusUser(username, null, username, false)
+            var user = IMSUser(username, null, username)
+            user.ims().value = imsProjectConfig.imsConfig.ims
             user = neoOperations.save(user).awaitSingle()
             userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
             user

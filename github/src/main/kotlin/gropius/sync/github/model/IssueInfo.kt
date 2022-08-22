@@ -13,28 +13,17 @@ import java.time.OffsetDateTime
 /**
  * Mapping of a single issue from neo4j to github
  * @param url API URL of IMS of the repo
+ * @param githubId ID on github
+ * @param neo4jId ID in gropius database
+ * @param dirty True if changed after last access and has to be queried
+ * @param lastAccess Time of the last accessed timeline item
  */
 @Document
 data class IssueInfo(
-    /**
-     * ID on github
-     */
     @Indexed(unique = true)
     var githubId: String,
-    /**
-     * ID in gropius database
-     */
-    @Indexed(unique = true)
-    var neo4jId: String,
-    /**
-     * True if changed after last access and has to be queried
-     */
-    val dirty: Boolean,
-    /**
-     * Time of the last accessed timeline item
-     */
-    var lastAccess: OffsetDateTime?,
-    val url: URI
+    val url: URI,
+    var neo4jId: String, val dirty: Boolean, var lastAccess: OffsetDateTime?
 ) {
     /**
      * MongoDB ID
@@ -44,6 +33,8 @@ data class IssueInfo(
 
     /**
      * Turn the IssueInfo into a gropius Issue
+     * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
+     * @return the freshly loaded Issue object
      */
     suspend fun load(neoOperations: ReactiveNeo4jOperations): Issue {
         return neoOperations.findById<Issue>(neo4jId)!!

@@ -6,22 +6,27 @@ import kotlinx.coroutines.runBlocking
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.runApplication
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
-import org.springframework.stereotype.Component
-import kotlin.system.exitProcess
 
+/**
+ * @param incoming Reference for the spring instance of Incoming
+ * @param configurableApplicationContext Reference for the spring instance of ConfigurableApplicationContext
+ */
 @Configuration
 class SyncApplication(
-    val incoming: Incoming
+    val incoming: Incoming, val configurableApplicationContext: ConfigurableApplicationContext
 ) {
     @EventListener(ApplicationReadyEvent::class)
     fun doSomethingAfterStartup() {
-        runBlocking {
-            incoming.sync()
+        configurableApplicationContext.use {
+            runBlocking {
+                incoming.sync()
+            }
         }
-        exitProcess(0);
     }
 }
 

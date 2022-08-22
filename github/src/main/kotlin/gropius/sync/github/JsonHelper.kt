@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component
 
 /**
  * Spring component containing helper function for github sync related json operations
+ * @param objectMapper Reference for the spring instance of ObjectMapper
  */
 @Component
 class JsonHelper(
@@ -16,8 +17,9 @@ class JsonHelper(
      * @return null if invalid
      */
     fun parseString(input: String?): String? {
-        if (input == null)
-            return null;
+        if (input == null) {
+            return null
+        }
         return objectMapper.readTree(input).textValue()
     }
 }

@@ -58,7 +58,7 @@ class ComponentVersion(
     val includingProjects by NodeSetProperty<Project>()
 
     @NodeRelationship(InterfaceDefinition.COMPONENT_VERSION, Direction.INCOMING)
-    @GraphQLDescription("InterfaceSpecificationVersions on this ComponentVersion.")
+    @GraphQLDescription("InterfaceDefinitions on this ComponentVersion.")
     @FilterProperty
     @delegate:Transient
     val interfaceDefinitions by NodeSetProperty<InterfaceDefinition>()

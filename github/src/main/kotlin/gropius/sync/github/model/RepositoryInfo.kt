@@ -10,24 +10,18 @@ import java.time.OffsetDateTime
 /**
  * Mapping of a single repository from neo4j to github
  * @param url API URL of IMS of the repo
+ * @param user user/orga on github
+ * @param repo repo on github
+ * @param lastAccess Time of the last item of the last issue query
  */
 @Document
 data class RepositoryInfo(
-    /**
-     * user/orga on github
-     */
     @Indexed
     val user: String,
-    /**
-     * repo on github
-     */
     @Indexed
     val repo: String,
     @Indexed
     val url: URI,
-    /**
-     * Time of the last item of the last issue query
-     */
     var lastAccess: OffsetDateTime
 ) {
     /**

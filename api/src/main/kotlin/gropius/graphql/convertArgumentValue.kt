@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * This is a modified version
+ * This is a modified version, for license see LICENSES
  */
 
 package gropius.graphql

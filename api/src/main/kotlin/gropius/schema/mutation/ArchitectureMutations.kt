@@ -45,7 +45,7 @@ class ArchitectureMutations(
 
     @GraphQLDescription(
         """Creates a new Component, requires CAN_CREATE_COMPONENTS.
-        Automatically generates a default ComponentPermission which grants the user READ and ADMIN
+        Automatically generates a default ComponentPermission which grants the authenticated user READ and ADMIN
         """
     )
     @AutoPayloadType("The created Component")
@@ -77,7 +77,7 @@ class ArchitectureMutations(
 
     @GraphQLDescription(
         """Creates a new Project, requires CAN_CREATE_PROJECTS.
-        Automatically generates a default ProjectPermission which grants the user READ and ADMIN
+        Automatically generates a default ProjectPermission which grants the authorized user READ and ADMIN
         """
     )
     @AutoPayloadType("The created Project")
@@ -135,7 +135,7 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Creates a new InterfaceSpecificationVersion, requires ADMIN on the Component.")
+    @GraphQLDescription("Creates a new InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecification.")
     @AutoPayloadType("The created InterfaceSpecificationVersion")
     suspend fun createInterfaceSpecificationVersion(
         @GraphQLDescription("Defines the created InterfaceSpecificationVersion")
@@ -146,7 +146,11 @@ class ArchitectureMutations(
         )
     }
 
-    @GraphQLDescription("Updates the specified InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecificationVersion to update")
+    @GraphQLDescription(
+        """Updates the specified InterfaceSpecificationVersion,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfaceSpecificationVersion to update
+        """
+    )
     @AutoPayloadType("The updated InterfaceSpecificationVersion")
     suspend fun updateInterfaceSpecificationVersion(
         @GraphQLDescription("Defines which InterfaceSpecificationVersion to update and how to update it")
@@ -157,7 +161,11 @@ class ArchitectureMutations(
         )
     }
 
-    @GraphQLDescription("Deletes the specified InterfaceSpecificationVersion, requires ADMIN on the Component of the InterfaceSpecificationVersion to delete")
+    @GraphQLDescription(
+        """Deletes the specified InterfaceSpecificationVersion,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfaceSpecificationVersion to delete
+        """
+    )
     @AutoPayloadType("The id of the deleted InterfaceSpecificationVersion")
     suspend fun deleteInterfaceSpecificationVersion(
         @GraphQLDescription("Defines which InterfaceSpecificationVersion to delete")
@@ -167,7 +175,7 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Creates a new InterfacePart, requires ADMIN on the Component.")
+    @GraphQLDescription("Creates a new InterfacePart, requires ADMIN on the Component of the InterfaceSpecification.")
     @AutoPayloadType("The created InterfacePart")
     suspend fun createInterfacePart(
         @GraphQLDescription("Defines the created InterfacePart")
@@ -176,7 +184,11 @@ class ArchitectureMutations(
         return interfacePartService.createInterfacePart(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Updates the specified InterfacePart, requires ADMIN on the Component of the InterfacePart to update")
+    @GraphQLDescription(
+        """Updates the specified InterfacePart,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfacePart to update
+        """
+    )
     @AutoPayloadType("The updated InterfacePart")
     suspend fun updateInterfacePart(
         @GraphQLDescription("Defines which InterfacePart to update and how to update it")
@@ -185,7 +197,10 @@ class ArchitectureMutations(
         return interfacePartService.updateInterfacePart(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Deletes the specified InterfacePart, requires ADMIN on the Component of the InterfacePart to delete")
+    @GraphQLDescription(
+        """Deletes the specified InterfacePart,
+        requires ADMIN on the Component of the InterfaceSpecification of the InterfacePart to delete"""
+    )
     @AutoPayloadType("The id of the deleted InterfacePart")
     suspend fun deleteInterfacePart(
         @GraphQLDescription("Defines which InterfacePart to delete")
@@ -195,10 +210,14 @@ class ArchitectureMutations(
         return input.id
     }
 
-    @GraphQLDescription("Updates the specified Interface , requires ADMIN on the Component of the Interface  to update")
+    @GraphQLDescription(
+        """Updates the specified Interface,
+        requires ADMIN on the Component of the ComponentVersion of the InterfaceDefinition of the Interface  to update
+        """
+    )
     @AutoPayloadType("The updated Interface ")
     suspend fun updateInterface(
-        @GraphQLDescription("Defines which Interface  to update and how to update it")
+        @GraphQLDescription("Defines which Interface to update and how to update it")
         input: UpdateInterfaceInput,
         dfe: DataFetchingEnvironment,
         @GraphQLIgnore
@@ -208,10 +227,14 @@ class ArchitectureMutations(
         return interfaceService.updateInterface(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Updates the specified InterfaceDefinition , requires ADMIN on the Component of the InterfaceDefinition  to update")
+    @GraphQLDescription(
+        """Updates the specified InterfaceDefinition,
+        requires ADMIN on the Component of the ComponentVersion of the InterfaceDefinition to update
+        """
+    )
     @AutoPayloadType("The updated InterfaceDefinition ")
     suspend fun updateInterfaceDefinition(
-        @GraphQLDescription("Defines which InterfaceDefinition  to update and how to update it")
+        @GraphQLDescription("Defines which InterfaceDefinition to update and how to update it")
         input: UpdateInterfaceDefinitionInput,
         dfe: DataFetchingEnvironment,
         @GraphQLIgnore
@@ -354,7 +377,11 @@ class ArchitectureMutations(
         return projectService.removeComponentVersionFromProject(dfe.gropiusAuthorizationContext, input)
     }
 
-    @GraphQLDescription("Creates a new IMS, requires CAN_CREATE_IMSS.")
+    @GraphQLDescription(
+        """Creates a new IMS, requires CAN_CREATE_IMSS.
+        Automatically generates a default IMSPermission which grants the authorized user READ and ADMIN
+        """
+    )
     @AutoPayloadType("The created IMS")
     suspend fun createIMS(
         @GraphQLDescription("Defines the created IMS")

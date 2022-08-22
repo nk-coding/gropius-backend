@@ -24,28 +24,24 @@ import java.time.OffsetDateTime
 
 /**
  * Implementation of Grabber to retrieve issues and cache them in the database
+ * @param remote URL and name of the repo
+ * @param imsProject ID of the IMSProject to filter for
  * @param apolloClient Apollo Client to use
+ * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
+ * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
  */
 class IssueGrabber(
     private val remote: RepoDescription,
-    /**
-     * Reference for the spring instance of RepositoryInfoRepository
-     */
     private val repositoryInfoRepository: RepositoryInfoRepository,
-    /**
-     * Reference for the spring instance of ReactiveMongoOperations
-     */
     private val mongoOperations: ReactiveMongoOperations,
     private val apolloClient: ApolloClient,
     private val imsProjectConfig: IMSProjectConfig
 ) : Grabber<IssueDataExtensive>() {
     /**
      * The response of a single issue grabbing step
+     * @param content The raw github response
      */
     class IssueStepResponse(
-        /**
-         * The raw github response
-         */
         val content: IssueReadQuery.Data
     ) : StepResponse<IssueDataExtensive> {
         override val metaData get() = content.metaData()!!

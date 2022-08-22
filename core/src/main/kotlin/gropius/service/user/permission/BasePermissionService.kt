@@ -2,7 +2,7 @@ package gropius.service.user.permission
 
 import gropius.model.user.permission.BasePermission
 import gropius.service.common.NodeService
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [BasePermission]
@@ -11,6 +11,6 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class BasePermissionService<T : BasePermission, R : ReactiveNeo4jRepository<T, String>>(
+abstract class BasePermissionService<T : BasePermission, R : GropiusRepository<T, String>>(
     repository: R
 ) : NodeService<T, R>(repository)

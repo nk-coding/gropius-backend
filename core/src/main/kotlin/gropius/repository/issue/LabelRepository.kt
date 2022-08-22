@@ -1,11 +1,11 @@
 package gropius.repository.issue
 
 import gropius.model.issue.Label
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
  * Repository for [Label]
  */
 @Repository
-interface LabelRepository : ReactiveNeo4jRepository<Label, String>
+interface LabelRepository : GropiusRepository<Label, String>

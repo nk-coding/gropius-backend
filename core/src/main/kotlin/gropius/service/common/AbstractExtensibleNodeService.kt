@@ -7,7 +7,7 @@ import gropius.dto.input.common.UpdateExtensibleNodeInput
 import gropius.dto.input.orElse
 import gropius.model.common.ExtensibleNode
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [ExtensibleNode]
@@ -16,7 +16,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : ReactiveNeo4jRepository<T, String>>(
+abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : GropiusRepository<T, String>>(
     repository: R
 ) : NodeService<T, R>(repository) {
     /**

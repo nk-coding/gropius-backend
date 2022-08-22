@@ -4,7 +4,7 @@ import gropius.dto.input.common.UpdateNamedNodeInput
 import gropius.dto.input.ifPresent
 import gropius.model.common.NamedAuditedNode
 import gropius.model.user.User
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import java.time.OffsetDateTime
 
 /**
@@ -14,7 +14,7 @@ import java.time.OffsetDateTime
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NamedAuditedNodeService<T : NamedAuditedNode, R : ReactiveNeo4jRepository<T, String>>(
+abstract class NamedAuditedNodeService<T : NamedAuditedNode, R : GropiusRepository<T, String>>(
     repository: R
 ) : AuditedNodeService<T, R>(repository) {
 

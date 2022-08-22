@@ -19,6 +19,7 @@ import java.time.OffsetDateTime
  * @param neo4jId ID in gropius database
  * @param dirty True if changed after last access and has to be queried
  * @param lastAccess Time of the last accessed timeline item
+ * @param lastOutgoingSync lastUpdatedAt when the last outgoing sync was successful
  */
 @Document
 data class IssueInfo(
@@ -29,7 +30,7 @@ data class IssueInfo(
     @Indexed
     var neo4jId: String,
     @Indexed
-    val dirty: Boolean, var lastAccess: OffsetDateTime?, val issueData: IssueData
+    val dirty: Boolean, var lastAccess: OffsetDateTime?, val issueData: IssueData, var lastOutgoingSync: OffsetDateTime?
 ) {
     /**
      * MongoDB ID

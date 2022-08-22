@@ -151,7 +151,7 @@ class NodeSourcerer(
         if ((issueInfo == null) || needSave) {
             issueInfo = issueInfoRepository.save(
                 issueInfo ?: IssueInfo(
-                    info.id, imsProjectConfig.url, issue.rawId!!, true, null, info
+                    info.id, imsProjectConfig.url, issue.rawId!!, true, null, info, null
                 )
             ).awaitSingle()
         }

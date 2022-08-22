@@ -20,6 +20,13 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
     suspend fun findByUrlAndDirtyIsTrue(url: URI): Flow<IssueInfo>
 
     /**
+     * Find all issues
+     * @param url API URL syncing currently
+     * @return result of database operation
+     */
+    suspend fun findByUrl(url: URI): Flow<IssueInfo>
+
+    /**
      * Lookup to find the mapping given a neo4j id
      * @param url API URL syncing currently
      * @param neo4jId Database query param

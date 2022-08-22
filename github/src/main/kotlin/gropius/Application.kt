@@ -11,6 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.event.EventListener
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
+import kotlin.system.exitProcess
 
 /**
  * @param incoming Reference for the spring instance of Incoming
@@ -27,6 +28,7 @@ class SyncApplication(
                 incoming.sync()
             }
         }
+        exitProcess(0)
     }
 }
 

@@ -251,20 +251,15 @@ class Incoming(
     suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         imsProjectConfig.imsProject.trackable().value
         val issueGrabber = IssueGrabber(
-            imsProjectConfig.repo,
-            repositoryInfoRepository,
-            mongoOperations,
-            apolloClient,
-            imsProjectConfig.imsProject.rawId!!
+            imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient, imsProjectConfig
         )
         issueGrabber.requestNewNodes()
         issueGrabber.iterate {
             issueModified(imsProjectConfig, it)
         }
-        for (issue in issueInfoRepository.findByImsProjectAndDirtyIsTrue(imsProjectConfig.imsProject.rawId!!)
-            .toList()) {
+        for (issue in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
             val timelineGrabber = TimelineGrabber(
-                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig.imsProject.rawId!!
+                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig
             )
             timelineGrabber.requestNewNodes()
         }

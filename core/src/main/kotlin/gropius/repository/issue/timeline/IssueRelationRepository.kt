@@ -1,11 +1,11 @@
 package gropius.repository.issue.timeline
 
 import gropius.model.issue.timeline.IssueRelation
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
  * Repository for [IssueRelation]
  */
 @Repository
-interface IssueRelationRepository : ReactiveNeo4jRepository<IssueRelation, String>
+interface IssueRelationRepository : GropiusRepository<IssueRelation, String>

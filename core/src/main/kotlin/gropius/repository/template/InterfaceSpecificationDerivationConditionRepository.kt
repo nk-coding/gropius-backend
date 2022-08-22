@@ -1,7 +1,7 @@
 package gropius.repository.template
 
 import gropius.model.template.InterfaceSpecificationDerivationCondition
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
@@ -9,4 +9,4 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 interface InterfaceSpecificationDerivationConditionRepository :
-    ReactiveNeo4jRepository<InterfaceSpecificationDerivationCondition, String>
+    GropiusRepository<InterfaceSpecificationDerivationCondition, String>

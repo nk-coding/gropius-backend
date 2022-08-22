@@ -7,14 +7,14 @@ import gropius.repository.issue.ArtefactRepository
 import gropius.repository.issue.LabelRepository
 import gropius.service.issue.IssueService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [Trackable]
  *
  * @param repository the associated repository used for CRUD functionality
  */
-abstract class TrackableService<T : Trackable, R : ReactiveNeo4jRepository<T, String>>(
+abstract class TrackableService<T : Trackable, R : GropiusRepository<T, String>>(
     repository: R
 ) : AffectedByIssueService<T, R>(repository) {
 

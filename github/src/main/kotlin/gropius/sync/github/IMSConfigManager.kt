@@ -127,6 +127,9 @@ class IMSConfigManager(
         }.toString(), "id" to obj {
             "\$schema" to Companion.SCHEMA
             "type" to "number"
+        }.toString(), "number" to obj {
+            "\$schema" to Companion.SCHEMA
+            "type" to "number"
         }.toString()
         )
     }

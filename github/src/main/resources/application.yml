@@ -15,7 +15,8 @@ spring:
       "auto-index-creation": true
 logging:
   level:
-    org.springframework.data.neo4j: ERROR
+    #org.springframework.data.neo4j: ERROR
+    org.springframework.data.neo4j: TRACE
     io.github.graphglue: ERROR
     gropius.sync: TRACE
 server:

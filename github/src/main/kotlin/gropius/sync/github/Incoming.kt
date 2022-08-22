@@ -1,8 +1,13 @@
 package gropius.sync.github
 
 import com.apollographql.apollo3.ApolloClient
+import gropius.model.architecture.IMS
+import gropius.model.architecture.IMSIssue
+import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
+import gropius.repository.architecture.IMSIssueRepository
 import gropius.sync.IssueCleaner
+import gropius.sync.github.generated.fragment.IssueData
 import gropius.sync.github.generated.fragment.IssueDataExtensive
 import gropius.sync.github.generated.fragment.TimelineItemData
 import gropius.sync.github.generated.fragment.TimelineItemData.Companion.asIssueComment
@@ -12,6 +17,8 @@ import gropius.sync.github.model.TimelineEventInfo
 import gropius.sync.github.repository.*
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingle
+import org.neo4j.cypherdsl.core.Condition
+import org.neo4j.cypherdsl.core.Cypher
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
@@ -19,8 +26,10 @@ import org.springframework.data.mongodb.core.query.Criteria.where
 import org.springframework.data.mongodb.core.query.Query
 import org.springframework.data.mongodb.core.query.Update
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
+import org.springframework.data.neo4j.core.deleteAllById
 import org.springframework.data.neo4j.core.findById
 import org.springframework.stereotype.Component
+import reactor.core.publisher.toFlux
 import java.lang.Exception
 import java.time.OffsetDateTime
 
@@ -38,6 +47,7 @@ import java.time.OffsetDateTime
  * @param issueCleaner Reference for the spring instance of IssueCleaner
  * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
  * @param timelineItemHandler Reference for the spring instance of TimelineItemHandler
+ * @param imsIssueRepository Reference for the spring instance of IMSIssueRepository
  */
 @Component
 class Incoming(
@@ -53,7 +63,8 @@ class Incoming(
     private val helper: JsonHelper,
     private val imsConfigManager: IMSConfigManager,
     private val syncNotificator: SyncNotificator,
-    private val tokenManager: TokenManager
+    private val tokenManager: TokenManager,
+    private val imsIssueRepository: IMSIssueRepository
 ) {
 
     /**
@@ -128,7 +139,7 @@ class Incoming(
         for (imsTemplate in imsConfigManager.findTemplates()) {
             for (ims in imsTemplate.usedIn()) {
                 try {
-                    val imsConfig = IMSConfig(helper, ims)
+                    val imsConfig = IMSConfig(helper, ims, imsTemplate)
                     syncIMS(imsConfig)
                 } catch (e: SyncNotificator.NotificatedError) {
                     syncNotificator.sendNotification(
@@ -176,34 +187,63 @@ class Incoming(
         issueGrabber.iterate {
             issueModified(imsProjectConfig, it)
         }
-        for (issue in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
+        for (issueInfo in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
+            val issue = neoOperations.findById<Issue>(issueInfo.neo4jId!!)!!
+            val imsIssue = ensureIMSIssue(imsProjectConfig, issue, issueInfo.issueData)
             val timelineGrabber = TimelineGrabber(
-                issueInfoRepository, mongoOperations, issue.githubId, apolloClient, imsProjectConfig
+                issueInfoRepository, mongoOperations, issueInfo.githubId, apolloClient, imsProjectConfig
             )
             timelineGrabber.requestNewNodes()
             try {
                 val errorInserting = timelineGrabber.iterate {
-                    handleTimelineEvent(imsProjectConfig, issue, it)
+                    handleTimelineEvent(imsProjectConfig, issueInfo, it)
                 }
-                issueCleaner.cleanIssue(issue.neo4jId)
+                issueCleaner.cleanIssue(issueInfo.neo4jId)
                 if (!errorInserting) {
-                    logger.info("Finished issue: " + issue.id!!.toHexString())
+                    logger.info("Finished issue: " + issueInfo.id!!.toHexString())
                     mongoOperations.updateFirst(
-                        Query(where("_id").`is`(issue.id)),
+                        Query(where("_id").`is`(issueInfo.id)),
                         Update().set(IssueInfo::dirty.name, false),
                         IssueInfo::class.java
                     ).awaitSingle()
                 }
             } catch (e: SyncNotificator.NotificatedError) {
-                TODO("Create IMSIssue")/*
                 syncNotificator.sendNotification(
                     imsIssue, SyncNotificator.NotificationDummy(e)
                 )
-                */
             } catch (e: Exception) {
                 logger.warn("Error in issue sync", e)
             }
         }
+    }
+
+    private suspend fun ensureIMSIssue(
+        imsProjectConfig: IMSProjectConfig, issue: Issue, issueData: IssueData
+    ): IMSIssue {
+        val node = Cypher.node(IMSIssue::class.simpleName).named("iMSIssue")
+        val imsProjectNode = Cypher.node(IMSProject::class.simpleName)
+            .withProperties(mapOf("id" to Cypher.anonParameter(imsProjectConfig.imsProject.rawId!!)))
+        val issueNode =
+            Cypher.node(Issue::class.simpleName).withProperties(mapOf("id" to Cypher.anonParameter(issue.rawId!!)))
+        val imsProjectCondition = node.relationshipTo(imsProjectNode, IMSIssue.PROJECT).asCondition()
+        val issueCondition = node.relationshipTo(issueNode, IMSIssue.ISSUE).asCondition()
+        val imsIssueList =
+            imsIssueRepository.findAll(imsProjectCondition.and(issueCondition)).collectList().awaitSingle()
+        var imsIssue: IMSIssue
+        if (imsIssueList.size == 0) {
+            imsIssue = IMSIssue(mutableMapOf<String, String>())
+            imsIssue.issue().value = issue
+            imsIssue.imsProject().value = imsProjectConfig.imsProject
+        } else {
+            imsIssue = imsIssueList.removeFirst()
+            neoOperations.deleteAllById<IMSIssue>(imsIssueList.map { it.rawId!! }).awaitSingle()
+        }
+        imsIssue.templatedFields["url"] = helper.objectMapper.writeValueAsString(issueData.url)
+        imsIssue.templatedFields["id"] = helper.objectMapper.writeValueAsString(issueData.number)
+        imsIssue.templatedFields["number"] = helper.objectMapper.writeValueAsString(issueData.number)
+        imsIssue.template().value = imsProjectConfig.imsConfig.imsTemplate.imsIssueTemplate().value
+        imsIssue = neoOperations.save(imsIssue).awaitSingle()
+        return imsIssue
     }
 
     /**

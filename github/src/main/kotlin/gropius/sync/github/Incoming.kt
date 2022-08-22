@@ -1,9 +1,7 @@
 package gropius.sync.github
 
 import com.apollographql.apollo3.ApolloClient
-import gropius.model.architecture.IMS
 import gropius.model.issue.Issue
-import gropius.model.user.GropiusUser
 import gropius.sync.IssueCleaner
 import gropius.sync.github.generated.fragment.IssueDataExtensive
 import gropius.sync.github.generated.fragment.TimelineItemData
@@ -32,50 +30,30 @@ import java.time.OffsetDateTime
  * @param imsConfigManager Reference for the spring instance of IMSConfigManager
  * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
  * @param syncNotificator Reference for the spring instance of SyncNotificator
+ * @param tokenManager Reference for the spring instance of TokenManager
+ * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
+ * @param issueInfoRepository Reference for the spring instance of IssueInfoRepository
+ * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
+ * @param timelineEventInfoRepository Reference for the spring instance of TimelineEventInfoRepository
+ * @param issueCleaner Reference for the spring instance of IssueCleaner
+ * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
+ * @param timelineItemHandler Reference for the spring instance of TimelineItemHandler
  */
 @Component
 class Incoming(
-    /**
-     * Reference for the spring instance of RepositoryInfoRepository
-     */
     private val repositoryInfoRepository: RepositoryInfoRepository,
-    /**
-     * Reference for the spring instance of IssueInfoRepository
-     */
     private val issueInfoRepository: IssueInfoRepository,
-    /**
-     * Reference for the spring instance of UserInfoRepository
-     */
-    private val userInfoRepository: UserInfoRepository,
-    /**
-     * Reference for the spring instance of LabelInfoRepository
-     */
-    private val labelInfoRepository: LabelInfoRepository,
-    /**
-     * Reference for the spring instance of ReactiveMongoOperations
-     */
     private val mongoOperations: ReactiveMongoOperations,
-    /**
-     * Reference for the spring instance of ReactiveMongoOperations
-     */
     private val timelineEventInfoRepository: TimelineEventInfoRepository,
-    /**
-     * Reference for the spring instance of IssueCleaner
-     */
     private val issueCleaner: IssueCleaner,
-    /**
-     * Reference for the spring instance of NodeSourcerer
-     */
     private val nodeSourcerer: NodeSourcerer,
-    /**
-     * Reference for the spring instance of TimelineItemHandler
-     */
     private val timelineItemHandler: TimelineItemHandler,
     @Qualifier("graphglueNeo4jOperations")
     private val neoOperations: ReactiveNeo4jOperations,
     private val helper: JsonHelper,
     private val imsConfigManager: IMSConfigManager,
-    private val syncNotificator: SyncNotificator
+    private val syncNotificator: SyncNotificator,
+    private val tokenManager: TokenManager
 ) {
 
     /**
@@ -89,8 +67,8 @@ class Incoming(
      * @param imsProjectConfig Config of the active project
      * @return The DateTime the issue was last changed
      */
-    suspend fun issueModified(imsProjectConfig: IMSProjectConfig, info: IssueDataExtensive): OffsetDateTime {
-        val (neoIssue, mongoIssue) = nodeSourcerer.ensureIssue(imsProjectConfig, info)
+    private suspend fun issueModified(imsProjectConfig: IMSProjectConfig, info: IssueDataExtensive): OffsetDateTime {
+        val (_, mongoIssue) = nodeSourcerer.ensureIssue(imsProjectConfig, info)
         mongoOperations.updateFirst(
             Query(where("_id").`is`(mongoIssue.id!!)), Update().set(IssueInfo::dirty.name, true), IssueInfo::class.java
         ).awaitSingle()
@@ -104,7 +82,7 @@ class Incoming(
      * @param imsProjectConfig Config of the active project
      * @return The time of the event or null for error
      */
-    suspend fun handleTimelineEvent(
+    private suspend fun handleTimelineEvent(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, event.asNode()!!.id)
@@ -163,27 +141,11 @@ class Incoming(
     }
 
     /**
-     * Request an user token from the auth service
-     * @param ims IMS the token is requested for
-     * @param gropiusUser The user the token should be for
-     * @return token if available
-     */
-    suspend fun getGithubUserToken(ims: IMS, gropiusUser: GropiusUser): String? {
-        return System.getenv("GITHUB_DUMMY_PAT")//TODO: @modellbahnfreak!!
-    }
-
-    /**
      * Sync one IMS
      * @param imsConfig the config of the IMS
      */
-    suspend fun syncIMS(imsConfig: IMSConfig) {
-        val readUser =
-            neoOperations.findById<GropiusUser>(imsConfig.readUser) ?: throw SyncNotificator.NotificatedError(
-                "SYNC_GITHUB_USER_NOT_FOUND"
-            )
-        val token = getGithubUserToken(imsConfig.ims, readUser) ?: throw SyncNotificator.NotificatedError(
-            "SYNC_GITHUB_USER_NO_TOKEN"
-        )
+    private suspend fun syncIMS(imsConfig: IMSConfig) {
+        val token = tokenManager.getTokenForUser(imsConfig, null)
         val apolloClient = ApolloClient.Builder().serverUrl(imsConfig.graphQLUrl.toString())
             .addHttpHeader("Authorization", "bearer $token").build()
         for (project in imsConfig.ims.projects()) {
@@ -205,7 +167,7 @@ class Incoming(
      * @param imsProjectConfig the config of the IMSProject
      * @param apolloClient the client to use4 for grpahql queries
      */
-    suspend fun syncIssues(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
+    private suspend fun syncIssues(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         val issueGrabber = IssueGrabber(
             imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient, imsProjectConfig
         )
@@ -248,8 +210,7 @@ class Incoming(
      * @param imsProjectConfig the config of the IMSProject
      * @param apolloClient the client to use4 for grpahql queries
      */
-    suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
-        imsProjectConfig.imsProject.trackable().value
+    private suspend fun syncProject(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
         val issueGrabber = IssueGrabber(
             imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient, imsProjectConfig
         )

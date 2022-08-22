@@ -31,10 +31,12 @@ import java.net.URI
     )]
 )
 @Authorization(
-    TrackablePermission.LINK_TO_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.LINK_TO_ISSUES,
+    allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.LINK_FROM_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.LINK_FROM_ISSUES,
+    allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
     TrackablePermission.MODERATOR, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
@@ -49,7 +51,8 @@ import java.net.URI
     TrackablePermission.MANAGE_LABELS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
-    TrackablePermission.MANAGE_ARTEFACTS, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
+    TrackablePermission.MANAGE_ARTEFACTS,
+    allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
 )
 @Authorization(
     TrackablePermission.MANAGE_ISSUES, allow = [Rule(RELATED_TO_NODE_PERMISSION_RULE, options = [NodePermission.ADMIN])]
@@ -66,7 +69,7 @@ abstract class Trackable(
     @property:GraphQLDescription("If existing, the URL of the repository (e.g. a GitHub repository).")
     @FilterProperty
     var repositoryURL: URI?
-) : AffectedByIssue(name, description){
+) : AffectedByIssue(name, description) {
 
     companion object {
         const val ISSUE = "ISSUE"

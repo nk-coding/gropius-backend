@@ -14,10 +14,10 @@ import gropius.model.user.permission.NodeWithPermissions
 import gropius.repository.findAllById
 import gropius.repository.findById
 import io.github.graphglue.authorization.Permission
-import io.github.graphglue.model.Node
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
+import io.github.graphglue.model.Node
 
 /**
  * Base class for services for subclasses of [NodePermission]
@@ -26,7 +26,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NodePermissionService<T : NodePermission<V>, V, R : ReactiveNeo4jRepository<T, String>>(
+abstract class NodePermissionService<T : NodePermission<V>, V, R : GropiusRepository<T, String>>(
     repository: R
 ) : BasePermissionService<T, R>(repository) where V : Node, V : NodeWithPermissions<T> {
 

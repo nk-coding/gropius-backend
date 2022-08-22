@@ -1,11 +1,11 @@
 package gropius.repository.template
 
 import gropius.model.template.AssignmentType
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
  * Repository for [AssignmentType]
  */
 @Repository
-interface AssignmentTypeRepository : ReactiveNeo4jRepository<AssignmentType, String>
+interface AssignmentTypeRepository : GropiusRepository<AssignmentType, String>

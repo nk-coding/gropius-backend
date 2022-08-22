@@ -9,7 +9,7 @@ import gropius.model.template.Template
 import gropius.model.user.permission.GlobalPermission
 import gropius.service.common.NamedNodeService
 import io.github.graphglue.authorization.Permission
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [BaseTemplate]
@@ -18,7 +18,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : ReactiveNeo4jRepository<T, String>>(
+abstract class BaseTemplateService<T : BaseTemplate<*, *>, R : GropiusRepository<T, String>>(
     repository: R
 ) : NamedNodeService<T, R>(repository) {
 

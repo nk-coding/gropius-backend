@@ -4,7 +4,7 @@ import gropius.dto.input.common.CreateExtensibleNodeInput
 import gropius.dto.input.common.UpdateExtensibleNodeInput
 import gropius.model.common.AuditedNode
 import gropius.model.user.User
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import java.time.OffsetDateTime
 
 /**
@@ -14,7 +14,7 @@ import java.time.OffsetDateTime
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class AuditedNodeService<T : AuditedNode, R : ReactiveNeo4jRepository<T, String>>(
+abstract class AuditedNodeService<T : AuditedNode, R : GropiusRepository<T, String>>(
     repository: R
 ) : AbstractExtensibleNodeService<T, R>(repository) {
 

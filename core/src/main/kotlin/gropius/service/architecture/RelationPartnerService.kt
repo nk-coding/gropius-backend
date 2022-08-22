@@ -1,7 +1,7 @@
 package gropius.service.architecture
 
 import gropius.model.architecture.RelationPartner
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [RelationPartner]
@@ -10,6 +10,6 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class RelationPartnerService<T : RelationPartner, R : ReactiveNeo4jRepository<T, String>>(
+abstract class RelationPartnerService<T : RelationPartner, R : GropiusRepository<T, String>>(
     repository: R
 ) : AffectedByIssueService<T, R>(repository)

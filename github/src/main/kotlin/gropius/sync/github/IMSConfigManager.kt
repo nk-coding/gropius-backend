@@ -69,10 +69,10 @@ class IMSConfigManager(
                 "gropius-type" to "github-user"
             }]
         }.toString(), "graphql-url" to obj {
-        "\$schema" to schema
-        "type" to "string"
-        "format" to "uri"
-    }.toString()) + Companion.COMMON_TEMPLATE_FIELDS
+            "\$schema" to schema
+            "type" to "string"
+            "format" to "uri"
+        }.toString()) + Companion.COMMON_TEMPLATE_FIELDS
 
         /**
          * Name of requested IMSProjectTemplate

@@ -133,7 +133,7 @@ abstract class Grabber<T : Any> {
      * @param callback Iterate through all nodes in the cache. Has to return a new date time if successful and null if failed and should be retried
      * @return true if one item could not be saved
      */
-    suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?):Boolean {
+    suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?): Boolean {
         var repeat = false;
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {

@@ -11,7 +11,7 @@ import io.github.graphglue.model.DomainNode
 /**
  * The name of the IMSPermissionEntry GraphQL enum
  */
-const val PERMISSION_ENTRY_NAME = "PermissionEntry"
+const val GLOBAL_PERMISSION_ENTRY_NAME = "PermissionEntry"
 
 @DomainNode
 @GraphQLDescription(
@@ -47,6 +47,6 @@ class GlobalPermission(
     }
 
     @GraphQLDescription(ENTRIES_DESCRIPTION)
-    override val entries: MutableList<@TypeGraphQLType(PERMISSION_ENTRY_NAME) String>
+    override val entries: MutableList<@TypeGraphQLType(GLOBAL_PERMISSION_ENTRY_NAME) String>
         get() = super.entries
 }

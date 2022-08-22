@@ -1,8 +1,12 @@
 package gropius.service.user.permission
 
+import gropius.authorization.GropiusAuthorizationContext
+import gropius.dto.input.user.permission.CreateComponentPermissionInput
 import gropius.model.architecture.Component
 import gropius.model.user.GropiusUser
 import gropius.model.user.permission.ComponentPermission
+import gropius.repository.architecture.ComponentRepository
+import gropius.repository.findAllById
 import gropius.repository.user.permission.ComponentPermissionRepository
 import org.springframework.stereotype.Service
 
@@ -10,11 +14,12 @@ import org.springframework.stereotype.Service
  * Service for [ComponentPermission]s. Provides functions to create, update and delete
  *
  * @param repository the associated repository used for CRUD functionality
+ * @param componentRepository used to get [Component]s by id
  */
 @Service
 class ComponentPermissionService(
-    repository: ComponentPermissionRepository
-) : TrackablePermissionService<ComponentPermission, ComponentPermissionRepository>(repository) {
+    repository: ComponentPermissionRepository, private val componentRepository: ComponentRepository
+) : TrackablePermissionService<ComponentPermission, Component, ComponentPermissionRepository>(repository) {
 
     /**
      * Creates the default [ComponentPermission]
@@ -28,6 +33,25 @@ class ComponentPermissionService(
         user: GropiusUser, component: Component
     ) {
         component.permissions() += createDefaultPermission(user, ::ComponentPermission)
+    }
+
+    /**
+     * Creates a new [ComponentPermission] based on the provided [input]
+     * Checks the authorization status
+     *
+     * @param authorizationContext used to check for the required permission
+     * @param input defines the [ComponentPermission]
+     * @return the saved created [ComponentPermission]
+     */
+    suspend fun createComponentPermission(
+        authorizationContext: GropiusAuthorizationContext, input: CreateComponentPermissionInput
+    ): ComponentPermission {
+        return createNodePermission(
+            authorizationContext,
+            input,
+            componentRepository.findAllById(input.nodesWithPermission),
+            ::ComponentPermission
+        )
     }
 
 }

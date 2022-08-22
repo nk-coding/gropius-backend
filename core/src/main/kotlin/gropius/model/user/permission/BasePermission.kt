@@ -30,7 +30,7 @@ abstract class BasePermission(
     override var description: String,
     @GraphQLIgnore
     open val entries: MutableList<String>,
-    @property:GraphQLDescription("If `true`, the permission is granted to all users. Use with caution.")
+    @property:GraphQLDescription("If, the permission is granted to all users. Use with caution.")
     @property:FilterProperty
     @property:OrderProperty
     var allUsers: Boolean,

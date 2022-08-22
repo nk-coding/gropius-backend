@@ -189,7 +189,7 @@ class PermissionConfiguration {
 
     /**
      * [GlobalPermission] entry enum generator
-     * Generates the enum with name [PERMISSION_ENTRY_NAME]
+     * Generates the enum with name [GLOBAL_PERMISSION_ENTRY_NAME]
      *
      * @param entryCollections all permission entry defining collections
      * @return the generated enum type
@@ -197,7 +197,7 @@ class PermissionConfiguration {
     @Bean
     fun permissionEntryType(entryCollections: List<PermissionEntryCollection<GlobalPermission>>): GraphQLEnumType {
         return generatePermissionEntryEnum(
-            PERMISSION_ENTRY_NAME, "Permission entry enum type.", entryCollections
+            GLOBAL_PERMISSION_ENTRY_NAME, "Permission entry enum type.", entryCollections
         )
     }
 

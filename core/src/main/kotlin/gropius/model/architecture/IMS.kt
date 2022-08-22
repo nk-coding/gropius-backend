@@ -11,6 +11,7 @@ import gropius.model.template.MutableTemplatedNode
 import gropius.model.user.IMSUser
 import gropius.model.user.permission.IMSPermission
 import gropius.model.user.permission.NodePermission
+import gropius.model.user.permission.NodeWithPermissions
 import io.github.graphglue.model.*
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
@@ -31,7 +32,7 @@ class IMS(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : NamedNode(name, description), MutableTemplatedNode {
+) : NamedNode(name, description), MutableTemplatedNode, NodeWithPermissions<IMSPermission> {
 
     companion object {
         const val PROJECT = "PROJECT"
@@ -60,6 +61,6 @@ class IMS(
     @GraphQLDescription("Permissions for this IMS.")
     @FilterProperty
     @delegate:Transient
-    val permissions by NodeSetProperty<IMSPermission>()
+    override val permissions by NodeSetProperty<IMSPermission>()
 
 }

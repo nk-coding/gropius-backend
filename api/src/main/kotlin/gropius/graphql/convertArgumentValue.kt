@@ -148,7 +148,7 @@ private fun <T : Any> mapToKotlinObject(input: Map<String, *>, targetClass: KCla
     // filter parameters that are actually in the input in order to rely on parameters default values
     // in target constructor
     val constructorParametersInInput = constructorParameters.filter { parameter ->
-        input.containsKey(parameter.getGraphQLName()) || parameter.type.isOptionalInputType
+        input.containsKey(parameter.getGraphQLName() ?: parameter.name) || parameter.type.isOptionalInputType
     }
     val constructorArguments = constructorParametersInInput.associateWith { parameter ->
         convertArgumentValueFromParam(parameter, input)

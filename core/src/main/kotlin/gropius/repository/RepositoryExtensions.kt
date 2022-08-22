@@ -2,7 +2,7 @@ package gropius.repository
 
 import com.expediagroup.graphql.generator.scalars.ID
 import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
 
 /**
@@ -12,7 +12,7 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository
  * @param id the id of the node to find
  * @return the found node
  */
-suspend fun <T> ReactiveNeo4jRepository<T, String>.findById(id: ID): T {
+suspend fun <T> GropiusRepository<T, String>.findById(id: ID): T {
     return findById(id.value).awaitSingle()
 }
 
@@ -23,6 +23,6 @@ suspend fun <T> ReactiveNeo4jRepository<T, String>.findById(id: ID): T {
  * @param ids the ids of the nodes to find
  * @return the found nodes
  */
-suspend fun <T> ReactiveNeo4jRepository<T, String>.findAllById(ids: Iterable<ID>): List<T> {
+suspend fun <T> GropiusRepository<T, String>.findAllById(ids: Iterable<ID>): List<T> {
     return findAllById(ids.map { it.value }).collectList().awaitSingle()
 }

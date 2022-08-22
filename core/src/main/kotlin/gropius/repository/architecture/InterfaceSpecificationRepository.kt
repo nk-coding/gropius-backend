@@ -1,11 +1,11 @@
 package gropius.repository.architecture
 
 import gropius.model.architecture.InterfaceSpecification
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
  * Repository for [InterfaceSpecification]
  */
 @Repository
-interface InterfaceSpecificationRepository : ReactiveNeo4jRepository<InterfaceSpecification, String>
+interface InterfaceSpecificationRepository : GropiusRepository<InterfaceSpecification, String>

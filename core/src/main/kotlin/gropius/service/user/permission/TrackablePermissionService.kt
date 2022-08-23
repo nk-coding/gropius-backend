@@ -1,5 +1,7 @@
 package gropius.service.user.permission
 
+import gropius.model.architecture.Trackable
+import gropius.model.user.permission.NodeWithPermissions
 import gropius.model.user.permission.TrackablePermission
 import gropius.repository.GropiusRepository
 
@@ -10,6 +12,6 @@ import gropius.repository.GropiusRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class TrackablePermissionService<T : TrackablePermission<*>, R : GropiusRepository<T, String>>(
+abstract class TrackablePermissionService<T : TrackablePermission<V>, V, R : GropiusRepository<T, String>>(
     repository: R
-) : NodePermissionService<T, R>(repository)
+) : NodePermissionService<T, V, R>(repository) where V : Trackable, V : NodeWithPermissions<T>

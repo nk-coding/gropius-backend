@@ -10,6 +10,7 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import gropius.model.template.BaseTemplate
 import gropius.model.template.ComponentTemplate
 import gropius.model.template.MutableTemplatedNode
+import gropius.model.user.permission.NodeWithPermissions
 import org.springframework.data.annotation.Transient
 import org.springframework.data.neo4j.core.schema.CompositeProperty
 import java.net.URI
@@ -45,7 +46,7 @@ class Component(
     @property:GraphQLIgnore
     @CompositeProperty
     override val templatedFields: MutableMap<String, String>
-) : Trackable(name, description, repositoryURL), MutableTemplatedNode {
+) : Trackable(name, description, repositoryURL), MutableTemplatedNode, NodeWithPermissions<ComponentPermission> {
 
     companion object {
         const val VERSION = "VERSION"
@@ -77,6 +78,6 @@ class Component(
     @GraphQLDescription("Permissions for this Component.")
     @FilterProperty
     @delegate:Transient
-    val permissions by NodeSetProperty<ComponentPermission>()
+    override val permissions by NodeSetProperty<ComponentPermission>()
 
 }

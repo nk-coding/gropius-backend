@@ -98,6 +98,27 @@ class ComponentService(
             component, Permission(NodePermission.ADMIN, authorizationContext), "update the Component"
         )
         val nodesToSave = mutableSetOf<Node>(component)
+        nodesToSave += updateComponentTemplate(input, component)
+        templatedNodeService.updateTemplatedFields(component, input, input.template.isPresent)
+        componentPermissionService.updatePermissionsOfNode(
+            component, input.addedPermissions, input.removedPermissions, authorizationContext
+        )
+        updateTrackable(component, input)
+        return nodeRepository.saveAll(nodesToSave).collectList().awaitSingle().first { it == component } as Component
+    }
+
+    /**
+     * Updates the template of a [Component], if a new is defined
+     * Does not check the authorization status
+     *
+     * @param input maybe defines a new template
+     * @param component the [Component] to update
+     * @return a set of updated nodes, must be saved
+     */
+    private suspend fun updateComponentTemplate(
+        input: UpdateComponentInput,
+        component: Component
+    ): Set<Node> {
         input.template.ifPresent { templateId ->
             component.template().value = componentTemplateRepository.findById(templateId)
             val componentVersionTemplate = component.template().value.componentVersionTemplate().value
@@ -108,11 +129,9 @@ class ComponentService(
             val graphUpdater = ComponentGraphUpdater()
             graphUpdater.updateComponentTemplate(component)
             nodeRepository.deleteAll(graphUpdater.deletedNodes).awaitSingleOrNull()
-            nodesToSave += graphUpdater.updatedNodes
+            return graphUpdater.updatedNodes
         }
-        templatedNodeService.updateTemplatedFields(component, input, input.template.isPresent)
-        updateTrackable(component, input)
-        return nodeRepository.saveAll(nodesToSave).collectList().awaitSingle().first { it == component } as Component
+        return emptySet()
     }
 
     /**

@@ -34,14 +34,14 @@ fun <T> OptionalInput<T>.orElse(value: T): T {
 }
 
 /**
- * Helper function to ensure that two optional lists of ids are distinct
+ * Helper function to ensure that two optional lists are distinct
  * Typically used in an add/remove update context
  * Uses the properties to get the name of the properties to generate the failure message
  *
  * @param otherProperty the other property
  * @throws IllegalArgumentException if both lists are present and not distinct
  */
-infix fun KProperty0<OptionalInput<List<ID>>>.ensureDistinct(otherProperty: KProperty0<OptionalInput<List<ID>>>) {
+infix fun KProperty0<OptionalInput<List<*>>>.ensureDistinct(otherProperty: KProperty0<OptionalInput<List<*>>>) {
     this.get().ifPresent { thisIds ->
         otherProperty.get().ifPresent {
             val commonIds = thisIds intersect it.toSet()

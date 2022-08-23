@@ -49,6 +49,18 @@ abstract class NodeService<T : Node, R : GropiusRepository<T, String>>(val repos
     }
 
     /**
+     * Checks if the user defined by [authorizationContext] is a global admin
+     *
+     * @param authorizationContext defines the user to check for isAdmin
+     * @throws IllegalArgumentException if checkPermission is `true` and the user is not an admin
+     */
+    suspend fun checkIsAdmin(authorizationContext: GropiusAuthorizationContext, errorMessage: String) {
+        if (authorizationContext.checkPermission && !getUser(authorizationContext).isAdmin) {
+            throw IllegalArgumentException("Uses does not have permission to $errorMessage")
+        }
+    }
+
+    /**
      * Evaluates if the [permission] is granted on [node]
      * If checkPermission on the `permission.context` is `false`, no permission is evaluated
      * Does not handle the case that the user is an admin

@@ -73,6 +73,9 @@ class ProjectService(
         checkPermission(
             project, Permission(NodePermission.ADMIN, authorizationContext), "update the Project"
         )
+        projectPermissionService.updatePermissionsOfNode(
+            project, input.addedPermissions, input.removedPermissions, authorizationContext
+        )
         updateTrackable(project, input)
         return repository.save(project).awaitSingle()
     }

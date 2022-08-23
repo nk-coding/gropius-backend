@@ -109,36 +109,59 @@ class Incoming(
     ): OffsetDateTime? {
         val dbEntry = timelineEventInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, event.asNode()!!.id)
         return if (event.asIssueComment() != null) {
-            val (neoId, time) = timelineItemHandler.handleIssueComment(
-                imsProjectConfig, issueInfo, event.asIssueComment()!!, dbEntry?.neo4jId
-            )
-            if (time != null) {
-                timelineEventInfoRepository.save(
-                    TimelineEventInfo(
-                        event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
-                    )
-                ).awaitSingle()
-                var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
-                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
-                issue = neoOperations.save(issue).awaitSingle()
-            }
-            time
-        } else if (dbEntry != null) {
-            dbEntry.lastModifiedAt
-        } else {
-            val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issueInfo, event)
-            if (time != null) {
-                timelineEventInfoRepository.save(
-                    TimelineEventInfo(
-                        event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
-                    )
-                ).awaitSingle()
-                var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
-                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
-                issue = neoOperations.save(issue).awaitSingle()
-            }
-            time
+            handleTimelineEventIssueComment(imsProjectConfig, issueInfo, event, dbEntry)
+        } else dbEntry?.lastModifiedAt ?: handleTimelineEventNonIssueComment(imsProjectConfig, issueInfo, event)
+    }
+
+    /**
+     * Save any timeline item except issue comment into the database
+     * @param issueInfo the issue the timeline belongs to
+     * @param event a single timeline item
+     * @param imsProjectConfig Config of the active project
+     * @return The time of the event or null for error
+     */
+    private suspend fun handleTimelineEventNonIssueComment(
+        imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData
+    ): OffsetDateTime? {
+        val (neoId, time) = timelineItemHandler.handleIssueModifiedItem(imsProjectConfig, issueInfo, event)
+        if (time != null) {
+            timelineEventInfoRepository.save(
+                TimelineEventInfo(
+                    event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
+                )
+            ).awaitSingle()
+            var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
+            issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
+            issue = neoOperations.save(issue).awaitSingle()
         }
+        return time
+    }
+
+    /**
+     * Save an issue comment of the timeline into the database
+     * @param issueInfo the issue the timeline belongs to
+     * @param event a single timeline item
+     * @param imsProjectConfig Config of the active project
+     * @param dbEntry Possible existing match in the mongodb of previous sync
+     * @return The time of the event or null for error
+     */
+    private suspend fun handleTimelineEventIssueComment(
+        imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData, dbEntry: TimelineEventInfo?
+    ): OffsetDateTime? {
+        val (neoId, time) = timelineItemHandler.handleIssueComment(
+            imsProjectConfig, issueInfo, event.asIssueComment()!!, dbEntry?.neo4jId
+        )
+        if (time != null) {
+            timelineEventInfoRepository.save(
+                TimelineEventInfo(
+                    event.asNode()!!.id, neoId, time, event.__typename, imsProjectConfig.url
+                )
+            ).awaitSingle()
+            var issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
+            issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, time)
+            issue = neoOperations.save(issue).awaitSingle()
+        }
+        return time
     }
 
     /**

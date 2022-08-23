@@ -25,7 +25,7 @@ import java.time.OffsetDateTime
 /**
  * Implementation of Grabber to retrieve issues and cache them in the database
  * @param remote URL and name of the repo
- * @param imsProject ID of the IMSProject to filter for
+ * @param imsProjectConfig Config for the IMSProject
  * @param apolloClient Apollo Client to use
  * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
  * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
@@ -110,8 +110,7 @@ class IssueGrabber(
         val query = IssueReadQuery(
             repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
         )
-        val response = apolloClient.query(query)
-            .execute()
+        val response = apolloClient.query(query).execute()
         return if (response.data?.repository?.issues?.nodes != null) {
             IssueStepResponse(response.data!!)
         } else {

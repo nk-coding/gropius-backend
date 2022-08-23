@@ -10,27 +10,17 @@ import java.time.OffsetDateTime
 /**
  * Mapping of a single timeline event from neo4j to github
  * @param url API URL of IMS of the repo
+ * @param githubId ID on github
+ * @param neo4jId ID in gropius database
+ * @param lastModifiedAt Time of the last interaction with this timeline item
+ * @param type Github __typename of this event
  */
 @Document
 data class TimelineEventInfo(
-    /**
-     * ID on github
-     */
-    @Indexed(unique = true)
-    val githubId: String,
-    /**
-     * ID in gropius database
-     */
     @Indexed
-    val neo4jId: String?,
-    /**
-     * Time of the last interaction with this timeline item
-     */
-    val lastModifiedAt: OffsetDateTime,
-    /**
-     * Github __typename of this event
-     */
-    val type: String?, val url: URI
+    val githubId: String,
+    @Indexed
+    val neo4jId: String?, val lastModifiedAt: OffsetDateTime, val type: String?, val url: URI
 ) {
     /**
      * MongoDB ID

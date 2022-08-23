@@ -9,17 +9,13 @@ import java.net.URI
 /**
  * Mapping of a single label from neo4j to github
  * @param url API URL of IMS of the repo
+ * @param githubId ID on GitHub
+ * @param neo4jId ID in gropius database
  */
 @Document
 data class LabelInfo(
-    /**
-     * ID on github
-     */
-    @Indexed(unique = true)
+    @Indexed
     val githubId: String,
-    /**
-     * ID in gropius database
-     */
     @Indexed(unique = true)
     val neo4jId: String, val url: URI
 ) {

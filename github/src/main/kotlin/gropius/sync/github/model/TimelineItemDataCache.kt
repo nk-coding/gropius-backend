@@ -16,8 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 data class TimelineItemDataCache(
-    val url: String,
-    var githubId: String, val issue: String, val data: TimelineItemData, var attempts: Int?
+    val url: String, var githubId: String, val issue: String, val data: TimelineItemData, var attempts: Int?
 ) {
     /**
      * MongoDB ID

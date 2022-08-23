@@ -9,17 +9,13 @@ import java.net.URI
 /**
  * Mapping of a single user from neo4j to github
  * @param url API URL of IMS of the repo
+ * @param login username on github
+ * @param neo4jId IMSUser ID in gropius database
  */
 @Document
 data class UserInfo(
-    /**
-     * username on github
-     */
-    @Indexed(unique = true)
+    @Indexed
     val login: String,
-    /**
-     * ID in gropius database
-     */
     @Indexed(unique = true)
     val neo4jId: String, val url: URI
 ) {

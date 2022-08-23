@@ -167,7 +167,7 @@ class NodeSourcerer(
         } else {
             neoOperations.findById(issueInfo.neo4jId)!!
         }
-        val bodyChanged< = fillIssueBodyAndSave(imsProjectConfig, info, issue)
+        val bodyChanged = fillIssueBodyAndSave(imsProjectConfig, info, issue)
         if ((issueInfo == null) || bodyChanged) {
             issueInfo = issueInfoRepository.save(
                 issueInfo ?: IssueInfo(

@@ -34,7 +34,7 @@ class TimelineItemHandler(
      * @param imsProjectConfig Config of the active project
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
-    public suspend fun handleIssueComment(
+    suspend fun handleIssueComment(
         imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: IssueCommentTimelineItemData, neo4jID: String?
     ): Pair<String?, OffsetDateTime?> {
         var commentEvent: IssueComment

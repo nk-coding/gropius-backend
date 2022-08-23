@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
 
 /**
  * Mapping of a single issue from neo4j to github
- * @param url API URL of IMS of the repo
+ * @param url API URL of the IMS of the repo
  * @param githubId ID on github
  * @param neo4jId ID in gropius database
  * @param dirty True if changed after last access and has to be queried

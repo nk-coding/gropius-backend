@@ -76,7 +76,7 @@ class NodeSourcerer(
                 return type
             }
         }
-        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf<String, String>(), false)
+        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf(), false)
         template = neoOperations.save(template).awaitSingle()
         return template
     }
@@ -112,7 +112,7 @@ class NodeSourcerer(
             issue = Issue(
                 info.createdAt,
                 OffsetDateTime.now(),
-                mutableMapOf<String, String>(),
+                mutableMapOf(),
                 info.title,
                 info.createdAt,
                 true,
@@ -130,7 +130,7 @@ class NodeSourcerer(
             issue.type().value = ensureGithubType()
             issue.template().value = ensureGithubTemplate()
         } else {
-            issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
+            issue = neoOperations.findById(issueInfo.neo4jId)!!
         }
         if (info is IssueDataExtensive) {
             val user = ensureUser(imsProjectConfig, (info.editor ?: info.author)!!)
@@ -182,7 +182,7 @@ class NodeSourcerer(
             userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
             user
         } else {
-            neoOperations.findById<User>(userInfo.neo4jId)!!
+            neoOperations.findById(userInfo.neo4jId)!!
         }
     }
 
@@ -210,7 +210,7 @@ class NodeSourcerer(
             labelInfoRepository.save(LabelInfo(info.id, label.rawId!!, imsProjectConfig.url)).awaitSingle()
             label
         } else {
-            neoOperations.findById<Label>(labelInfo.neo4jId)!!
+            neoOperations.findById(labelInfo.neo4jId)!!
         }
     }
 

@@ -52,7 +52,7 @@ class SyncNotificator(
          * Construct new NotificationDummy from an NotificatedError
          * @param error Error to construct the NotificationDummy from
          */
-        constructor(error: NotificatedError) : this("Sync Error", error.code + ": " + error.args.joinToString(", ")) {}
+        constructor(error: NotificatedError) : this("Sync Error", error.code + ": " + error.args.joinToString(", "))
     }
 
     /**

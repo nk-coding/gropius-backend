@@ -25,7 +25,7 @@ import java.time.OffsetDateTime
 /**
  * Implementation of Grabber to retrieve issues and cache them in the database
  * @param remote URL and name of the repo
- * @param imsProject ID of the IMSProject to filter for
+ * @param imsProjectConfig Config of the IMSProject to filter for
  * @param apolloClient Apollo Client to use
  * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
  * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
@@ -94,8 +94,8 @@ class IssueGrabber(
 
     override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<IssueDataCache>().matching(
-            Query.query(
-                Criteria.where("data.id").`is`(node).and(IssueDataCache::url.name).`is`(imsProjectConfig.url)
+            query(
+                where("data.id").`is`(node).and(IssueDataCache::url.name).`is`(imsProjectConfig.url)
             )
         ).apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
     }

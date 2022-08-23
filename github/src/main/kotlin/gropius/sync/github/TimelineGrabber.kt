@@ -60,7 +60,7 @@ class TimelineGrabber(
         mongoOperations.update<IssueInfo>().matching(
             Query.query(
                 Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
-                    .`and`(IssueInfo::githubId.name).`is`(id)
+                    .and(IssueInfo::githubId.name).`is`(id)
             )
         ).apply(
             Update().max(IssueInfo::lastAccess.name, time)
@@ -75,7 +75,7 @@ class TimelineGrabber(
         return mongoOperations.update<TimelineItemDataCache>().matching(
             Query.query(
                 Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
-                    .`and`(TimelineItemDataCache::githubId.name).`is`(node.asNode()!!.id)
+                    .and(TimelineItemDataCache::githubId.name).`is`(node.asNode()!!.id)
             )
         ).apply(Update.update(TimelineItemDataCache::data.name, node).set(TimelineItemDataCache::issue.name, id))
             .withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify().awaitSingle().id!!
@@ -85,7 +85,7 @@ class TimelineGrabber(
         return mongoOperations.query<TimelineItemDataCache>().matching(
             Query.query(
                 Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
-                    .`and`(TimelineItemDataCache::issue.name).`is`(id)
+                    .and(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
@@ -94,7 +94,7 @@ class TimelineGrabber(
         mongoOperations.remove<TimelineItemDataCache>(
             Query.query(
                 Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
-                    .`and`(TimelineItemDataCache::issue.name).`is`(id)
+                    .and(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::githubId.name).`is`(node))
         ).awaitSingle()
     }
@@ -102,7 +102,7 @@ class TimelineGrabber(
     override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<TimelineItemDataCache>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url).`and`("data.id").`is`(node)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url).and("data.id").`is`(node)
             )
         ).apply(Update().inc(TimelineItemDataCache::attempts.name, 1)).firstAndAwait()
     }
@@ -121,7 +121,7 @@ class TimelineGrabber(
             query
         ).execute()
         return if (response.data?.node?.asIssue()?.timelineItems?.nodes != null) {
-            TimelineGrabber.TimelineStepResponse(response.data!!)
+            TimelineStepResponse(response.data!!)
         } else {
             null
         }

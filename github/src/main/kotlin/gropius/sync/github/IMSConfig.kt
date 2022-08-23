@@ -9,7 +9,7 @@ import java.net.URI
  * @param ims the gropius ims to use as input
  * @param botUser the bot user string extracted from the template
  * @param readUser the read user string extracted from the template
- * @param url the read url extracted from the template
+ * @param graphQLUrl the read url extracted from the template
  * @param imsTemplate the template of the current IMS
  */
 data class IMSConfig(

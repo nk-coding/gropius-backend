@@ -34,10 +34,10 @@ class IMSConfigManager(
          * Template fields for IMSTemplate and IMSProjectTemplate
          */
         private val COMMON_TEMPLATE_FIELDS = mapOf("bot-user" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to arr["null", "string"]
         }.toString(), "last-notification" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to arr["null", obj {
                 "type" to "object"
                 "properties" to obj {
@@ -59,20 +59,20 @@ class IMSConfigManager(
         private const val IMS_TEMPLATE_NAME = "Github"
 
         /**
-         * Fields of the requestes IMSTemplate
+         * Fields of the requested IMSTemplate
          */
         private val IMS_TEMPLATE_FIELDS = mapOf("read-user" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to arr["null", obj {
                 "type" to "string"
                 "gropius-node" to "GropiusUser"
                 "gropius-type" to "github-user"
             }]
         }.toString(), "graphql-url" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to "string"
             "format" to "uri"
-        }.toString()) + Companion.COMMON_TEMPLATE_FIELDS
+        }.toString()) + COMMON_TEMPLATE_FIELDS
 
         /**
          * Name of requested IMSProjectTemplate
@@ -80,10 +80,10 @@ class IMSConfigManager(
         private const val IMS_PROJECT_TEMPLATE_NAME = "Github"
 
         /**
-         * Fields of the requestes IMSProjectTemplate
+         * Fields of the requested IMSProjectTemplate
          */
         private val IMS_PROJECT_TEMPLATE_FIELDS = mapOf("repo" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to "object"
             "properties" to obj {
                 "owner" to obj {
@@ -95,7 +95,7 @@ class IMSConfigManager(
             }
             "required" to arr["owner", "repo"]
             "gropius-type" to "github-owner"
-        }.toString()) + Companion.COMMON_TEMPLATE_FIELDS
+        }.toString()) + COMMON_TEMPLATE_FIELDS
 
         /**
          * Name of the ensured IMSIssueTemplate
@@ -105,8 +105,8 @@ class IMSConfigManager(
         /**
          * Fields of the required IMSIssueTemplate
          */
-        private val IMS_ISSUE_TEMPLATE_FIELDS = mapOf<String, String>("last-notification" to obj {
-            "\$schema" to Companion.SCHEMA
+        private val IMS_ISSUE_TEMPLATE_FIELDS = mapOf("last-notification" to obj {
+            "\$schema" to SCHEMA
             "type" to arr["null", obj {
                 "type" to "object"
                 "properties" to obj {
@@ -121,14 +121,14 @@ class IMSConfigManager(
                 "gropius-type" to "notification"
             }]
         }.toString(), "url" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to "string"
             "format" to "uri"
         }.toString(), "id" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to "number"
         }.toString(), "number" to obj {
-            "\$schema" to Companion.SCHEMA
+            "\$schema" to SCHEMA
             "type" to "number"
         }.toString()
         )
@@ -155,23 +155,20 @@ class IMSConfigManager(
     suspend fun findTemplates(): Set<IMSTemplate> {
         val acceptableTemplates = neoOperations.findAll<IMSTemplate>().filter {
             (!it.isDeprecated) && isContentCompatible(
-                it, Companion.IMS_TEMPLATE_NAME, Companion.IMS_TEMPLATE_FIELDS
+                it, IMS_TEMPLATE_NAME, IMS_TEMPLATE_FIELDS
             ) && isContentCompatible(
-                it.imsProjectTemplate().value,
-                Companion.IMS_PROJECT_TEMPLATE_NAME,
-                Companion.IMS_PROJECT_TEMPLATE_FIELDS
+                it.imsProjectTemplate().value, IMS_PROJECT_TEMPLATE_NAME, IMS_PROJECT_TEMPLATE_FIELDS
             ) && isContentCompatible(
-                it.imsIssueTemplate().value, Companion.IMS_ISSUE_TEMPLATE_NAME, Companion.IMS_ISSUE_TEMPLATE_FIELDS
+                it.imsIssueTemplate().value, IMS_ISSUE_TEMPLATE_NAME, IMS_ISSUE_TEMPLATE_FIELDS
             )
         }.toSet()
         if (acceptableTemplates.isEmpty()) {
-            val imsTemplate =
-                IMSTemplate(Companion.IMS_TEMPLATE_NAME, "", Companion.IMS_TEMPLATE_FIELDS.toMutableMap(), false)
+            val imsTemplate = IMSTemplate(IMS_TEMPLATE_NAME, "", IMS_TEMPLATE_FIELDS.toMutableMap(), false)
             imsTemplate.imsProjectTemplate().value = IMSProjectTemplate(
-                Companion.IMS_PROJECT_TEMPLATE_NAME, "", Companion.IMS_PROJECT_TEMPLATE_FIELDS.toMutableMap()
+                IMS_PROJECT_TEMPLATE_NAME, "", IMS_PROJECT_TEMPLATE_FIELDS.toMutableMap()
             )
             imsTemplate.imsIssueTemplate().value = IMSIssueTemplate(
-                Companion.IMS_ISSUE_TEMPLATE_NAME, "", Companion.IMS_ISSUE_TEMPLATE_FIELDS.toMutableMap()
+                IMS_ISSUE_TEMPLATE_NAME, "", IMS_ISSUE_TEMPLATE_FIELDS.toMutableMap()
             )
             acceptableTemplates.plus(neoOperations.save(imsTemplate).awaitSingle())
         }

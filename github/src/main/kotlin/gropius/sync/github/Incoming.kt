@@ -153,7 +153,7 @@ class Incoming(
             imsIssueRepository.findAll(imsProjectCondition.and(issueCondition)).collectList().awaitSingle()
         var imsIssue: IMSIssue
         if (imsIssueList.size == 0) {
-            imsIssue = IMSIssue(mutableMapOf<String, String>())
+            imsIssue = IMSIssue(mutableMapOf())
             imsIssue.issue().value = issue
             imsIssue.imsProject().value = imsProjectConfig.imsProject
         } else {
@@ -203,7 +203,7 @@ class Incoming(
             issueModified(imsProjectConfig, it)
         }
         for (issueInfo in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
-            val issue = neoOperations.findById<Issue>(issueInfo.neo4jId!!)!!
+            val issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
             val imsIssue = ensureIMSIssue(imsProjectConfig, issue, issueInfo.issueData)
             try {
                 val timelineGrabber = TimelineGrabber(
@@ -217,7 +217,7 @@ class Incoming(
                 if (!errorInserting) {
                     logger.info("Finished issue: " + issueInfo.id!!.toHexString())
                     mongoOperations.updateFirst(
-                        Query(Criteria.where("_id").`is`(issueInfo.id)),
+                        Query(where("_id").`is`(issueInfo.id)),
                         Update().set(IssueInfo::dirty.name, false),
                         IssueInfo::class.java
                     ).awaitSingle()

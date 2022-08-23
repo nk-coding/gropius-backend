@@ -128,6 +128,12 @@ class NodeSourcerer(
         return needSave
     }
 
+    /**
+     * Fills the direct part an Issue structure with the data from info
+     * @param imsProjectConfig the config to use while processing the issue
+     * @param info the data from the GitHub api
+     * @return the resulting Issue
+     */
     private suspend fun prepareIssueFromIssueData(imsProjectConfig: IMSProjectConfig, info: IssueData): Issue {
         val issue = Issue(
             info.createdAt,

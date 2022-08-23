@@ -17,13 +17,9 @@ data class IssueDataCache(
     @Indexed(unique = true)
     var githubId: String,
     /**
-     * Owner of the parent repo
+     * IMSProject of the repo
      */
-    val user: String,
-    /**
-     * Parent repo
-     */
-    val repo: String,
+    val imsProject: String,
     /**
      * Data from github api
      */

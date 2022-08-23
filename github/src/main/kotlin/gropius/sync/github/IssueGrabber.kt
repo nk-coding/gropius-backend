@@ -24,36 +24,26 @@ import java.time.OffsetDateTime
 
 /**
  * Implementation of Grabber to retrieve issues and cache them in the database
+ * @param remote URL and name of the repo
+ * @param imsProject ID of the IMSProject to filter for
+ * @param apolloClient Apollo Client to use
+ * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
+ * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
  */
 class IssueGrabber(
-    /**
-     * Reference for the spring instance of RepositoryInfoRepository
-     */
+    private val remote: RepoDescription,
     private val repositoryInfoRepository: RepositoryInfoRepository,
-    /**
-     * Reference for the spring instance of ReactiveMongoOperations
-     */
-    private val mongoOperations: ReactiveMongoOperations
+    private val mongoOperations: ReactiveMongoOperations,
+    private val apolloClient: ApolloClient,
+    private val imsProject: String
 ) : Grabber<IssueDataExtensive>() {
-
-    /**
-     * test repository user
-     */
-    val user = "espressif"
-
-    /**
-     * test repository name
-     */
-    val repo = "idf-component-manager" //"llvm-project"
-
     /**
      * The response of a single issue grabbing step
+     * @param content The raw github response
      */
     class IssueStepResponse(
-        /**
-         * The raw github response
-         */
-        val content: IssueReadQuery.Data) : StepResponse<IssueDataExtensive> {
+        val content: IssueReadQuery.Data
+    ) : StepResponse<IssueDataExtensive> {
         override val metaData get() = content.metaData()!!
         override val nodes get() = content.repository!!.issues.nodes!!.filterNotNull()
         override val totalCount get() = content.repository!!.issues.totalCount
@@ -62,49 +52,51 @@ class IssueGrabber(
 
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<RepositoryInfo>().matching(
-            query(where(RepositoryInfo::user.name).`is`(user)).addCriteria(
-                where(RepositoryInfo::repo.name).`is`(
-                    repo
-                )
-            )
+            query(where(RepositoryInfo::imsProject.name).`is`(imsProject))
         ).apply(
-            Update().max(RepositoryInfo::lastAccess.name, time)
+            Update().max(RepositoryInfo::lastAccess.name, time).set(RepositoryInfo::user.name, remote.owner)
+                .set(RepositoryInfo::repo.name, remote.repo)
         ).upsertAndAwait()
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return repositoryInfoRepository.findByUserAndRepo(user, repo)?.lastAccess
+        return repositoryInfoRepository.findByImsProject(imsProject)?.lastAccess
     }
 
     override suspend fun addToCache(node: IssueDataExtensive): ObjectId {
-        return mongoOperations.update<IssueDataCache>()
-            .matching(query(where(IssueDataCache::githubId.name).`is`(node.id))).apply(
-                update(IssueDataCache::data.name, node).set(IssueDataCache::repo.name, repo)
-                    .set(IssueDataCache::user.name, user)
-            ).withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify()
-            .awaitSingle().id!!
+        return mongoOperations.update<IssueDataCache>().matching(
+            query(
+                where(IssueDataCache::githubId.name).`is`(node.id).and(IssueDataCache::imsProject.name).`is`(imsProject)
+            )
+        ).apply(
+            update(IssueDataCache::data.name, node)
+        ).withOptions(FindAndModifyOptions.options().upsert(true).returnNew(true)).findAndModify().awaitSingle().id!!
     }
 
     override suspend fun iterateCache(): Flow<IssueDataExtensive> {
         return mongoOperations.query<IssueDataCache>().matching(
             query(
-                where(IssueDataCache::user.name).`is`(user)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(repo))
-                .addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
+                where(IssueDataCache::imsProject.name).`is`(imsProject)
+            ).addCriteria(where(IssueDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
     }
 
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<IssueDataCache>(
             query(
-                where(IssueDataCache::user.name).`is`(user)
-            ).addCriteria(where(IssueDataCache::repo.name).`is`(repo)).addCriteria(where("data.id").`is`(node))
+                where(IssueDataCache::imsProject.name).`is`(
+                    imsProject
+                )
+            ).addCriteria(where("data.id").`is`(node))
         ).awaitSingle()
     }
 
     override suspend fun increaseFailedCache(node: String) {
-        mongoOperations.update<IssueDataCache>().matching(Query.query(Criteria.where("data.id").`is`(node)))
-            .apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
+        mongoOperations.update<IssueDataCache>().matching(
+            Query.query(
+                Criteria.where("data.id").`is`(node).and(IssueDataCache::imsProject.name).`is`(imsProject)
+            )
+        ).apply(Update().inc(IssueDataCache::attempts.name, 1)).firstAndAwait()
     }
 
     override fun nodeId(node: IssueDataExtensive): String {
@@ -114,12 +106,9 @@ class IssueGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<IssueDataExtensive>? {
-        //TODO: Pool the clients by accessing user
-        val apolloClient = ApolloClient.Builder().serverUrl("https://api.github.com/graphql")
-            .addHttpHeader("Authorization", "bearer " + System.getenv("GITHUB_DUMMY_PAT")!!).build()
         val response = apolloClient.query(
             IssueReadQuery(
-                repoOwner = user, repoName = repo, since = since, cursor = cursor, issueCount = count
+                repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
             )
         ).execute()
         return if (response.data?.repository?.issues?.nodes != null) {

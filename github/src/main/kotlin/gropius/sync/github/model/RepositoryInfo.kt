@@ -8,23 +8,19 @@ import java.time.OffsetDateTime
 
 /**
  * Mapping of a single repository from neo4j to github
+ * @param imsProject IMSProject of the repo
+ * @param user user/orga on github
+ * @param repo repo on github
+ * @param Time of the last item of the last issue query
  */
 @Document
 data class RepositoryInfo(
-    /**
-     * user/orga on github
-     */
     @Indexed
     val user: String,
-    /**
-     * repo on github
-     */
     @Indexed
     val repo: String,
-    /**
-     * Time of the last item of the last issue query
-     */
-    var lastAccess: OffsetDateTime
+    @Indexed
+    val imsProject: String, var lastAccess: OffsetDateTime
 ) {
     /**
      * MongoDB ID

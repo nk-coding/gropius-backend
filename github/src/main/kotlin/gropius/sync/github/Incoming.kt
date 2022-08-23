@@ -110,7 +110,9 @@ class Incoming(
         val dbEntry = timelineEventInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, event.asNode()!!.id)
         return if (event.asIssueComment() != null) {
             handleTimelineEventIssueComment(imsProjectConfig, issueInfo, event, dbEntry)
-        } else dbEntry?.lastModifiedAt ?: handleTimelineEventNonIssueComment(imsProjectConfig, issueInfo, event)
+        } else {
+            dbEntry?.lastModifiedAt ?: handleTimelineEventNonIssueComment(imsProjectConfig, issueInfo, event)
+        }
     }
 
     /**

@@ -1,6 +1,5 @@
 package gropius.sync.github
 
-import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
@@ -108,7 +107,7 @@ class NodeSourcerer(
     private suspend fun fillIssueBodyAndSave(
         imsProjectConfig: IMSProjectConfig, info: IssueData, issue: Issue
     ): Boolean {
-        var needSave = false
+        var bodyChanged = false
         if (info is IssueDataExtensive) {
             val user = ensureUser(imsProjectConfig, (info.editor ?: info.author)!!)
             val issueBody = issue.body().value
@@ -119,13 +118,13 @@ class NodeSourcerer(
                 issueBody.lastModifiedBy().value = user
                 issueBody.bodyLastEditedBy().value = user
                 issueBody.body = info.body
-                needSave = true
+                bodyChanged = true
             }
             issue.body().value = issueBody
         }
         issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
         neoOperations.save(issue).awaitSingle()
-        return needSave
+        return bodyChanged
     }
 
     /**
@@ -163,14 +162,13 @@ class NodeSourcerer(
      */
     suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
         var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
-        val issue: Issue
-        if (issueInfo == null) {
-            issue = prepareIssueFromIssueData(imsProjectConfig, info)
+        val issue: Issue = if (issueInfo == null) {
+            prepareIssueFromIssueData(imsProjectConfig, info)
         } else {
-            issue = neoOperations.findById(issueInfo.neo4jId)!!
+            neoOperations.findById(issueInfo.neo4jId)!!
         }
-        val needSave = fillIssueBodyAndSave(imsProjectConfig, info, issue)
-        if ((issueInfo == null) || needSave) {
+        val bodyChanged< = fillIssueBodyAndSave(imsProjectConfig, info, issue)
+        if ((issueInfo == null) || bodyChanged) {
             issueInfo = issueInfoRepository.save(
                 issueInfo ?: IssueInfo(
                     info.id, imsProjectConfig.url, issue.rawId!!, true, null,

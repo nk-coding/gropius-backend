@@ -11,27 +11,24 @@ import java.time.OffsetDateTime
 
 /**
  * Save a github timeline item into a gropius timeline item
+ * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
+ * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
  */
 @Component
 class TimelineItemHandler(
-    /**
-     * Reference for the spring instance of NodeSourcerer
-     */
     private val nodeSourcerer: NodeSourcerer,
-    /**
-     * Reference for the spring instance of ReactiveNeo4jOperations
-     */
     @Qualifier("graphglueNeo4jOperations")
-    private val neoOperations: ReactiveNeo4jOperations
+    private val neoOperations: ReactiveNeo4jOperations,
 ) {
     /**
      * Save timeline item to database
      * @param issue Affected issue
      * @param event raw github timeline item
+     * @param imsProjectConfig Config to use
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueComment(
-        issue: IssueInfo, event: IssueCommentTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: IssueCommentTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         //TODO
         return Pair(null, event.updatedAt)
@@ -39,12 +36,13 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueClosed(
-        issue: IssueInfo, event: ClosedEventTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: ClosedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         var closedEvent = ClosedEvent(event.createdAt, OffsetDateTime.now())
         closedEvent.issue().value = issue.load(neoOperations)
@@ -56,12 +54,13 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueReopen(
-        issue: IssueInfo, event: ReopenedEventTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: ReopenedEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         var reopenedEvent = ReopenedEvent(event.createdAt, OffsetDateTime.now())
         reopenedEvent.issue().value = issue.load(neoOperations)
@@ -73,48 +72,51 @@ class TimelineItemHandler(
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueLabeled(
-        issue: IssueInfo, event: LabeledEventTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: LabeledEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         var addedLabelEvent = AddedLabelEvent(event.createdAt, OffsetDateTime.now())
         addedLabelEvent.issue().value = issue.load(neoOperations)
         addedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
         addedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        addedLabelEvent.addedLabel().value = nodeSourcerer.ensureLabel(event.label)
+        addedLabelEvent.addedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         addedLabelEvent = neoOperations.save(addedLabelEvent).awaitSingle()
         return Pair(addedLabelEvent.rawId, event.createdAt)
     }
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueUnlabeled(
-        issue: IssueInfo, event: UnlabeledEventTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: UnlabeledEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         var removedLabelEvent = RemovedLabelEvent(event.createdAt, OffsetDateTime.now())
         removedLabelEvent.issue().value = issue.load(neoOperations)
         removedLabelEvent.createdBy().value = nodeSourcerer.ensureUser(event.actor!!)
         removedLabelEvent.lastModifiedBy().value = nodeSourcerer.ensureUser(event.actor!!)
-        removedLabelEvent.removedLabel().value = nodeSourcerer.ensureLabel(event.label)
+        removedLabelEvent.removedLabel().value = nodeSourcerer.ensureLabel(imsProjectConfig, event.label)
         removedLabelEvent = neoOperations.save(removedLabelEvent).awaitSingle()
         return Pair(removedLabelEvent.rawId, event.createdAt)
     }
 
     /**
      * Save timeline item to database
+     * @param imsProjectConfig Config to use
      * @param issue Affected issue
      * @param event raw github timeline item
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
     private suspend fun handleIssueRenamedTitle(
-        issue: IssueInfo, event: RenamedTitleEventTimelineItemData
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: RenamedTitleEventTimelineItemData
     ): Pair<String?, OffsetDateTime?> {
         var titleChangedEvent =
             TitleChangedEvent(event.createdAt, OffsetDateTime.now(), event.previousTitle, event.currentTitle)
@@ -127,18 +129,21 @@ class TimelineItemHandler(
 
     /**
      * Save a non-comment timeline item to the database
+     * @param imsProjectConfig Config to use
      * @param issue The mongo info for the the issue
      * @param event a GrqphQL timeline issue
      * @return the neo4j-id for the created item (if created) and the last DateTime concerning this item
      */
-    suspend fun handleIssueModifiedItem(issue: IssueInfo, event: TimelineItemData): Pair<String?, OffsetDateTime?> {
+    suspend fun handleIssueModifiedItem(
+        imsProjectConfig: IMSProjectConfig, issue: IssueInfo, event: TimelineItemData
+    ): Pair<String?, OffsetDateTime?> {
         return when (event) {
-            is IssueCommentTimelineItemData -> handleIssueComment(issue, event)
-            is ClosedEventTimelineItemData -> handleIssueClosed(issue, event)
-            is ReopenedEventTimelineItemData -> handleIssueReopen(issue, event)
-            is LabeledEventTimelineItemData -> handleIssueLabeled(issue, event)
-            is UnlabeledEventTimelineItemData -> handleIssueUnlabeled(issue, event)
-            is RenamedTitleEventTimelineItemData -> handleIssueRenamedTitle(issue, event)
+            is IssueCommentTimelineItemData -> handleIssueComment(imsProjectConfig, issue, event)
+            is ClosedEventTimelineItemData -> handleIssueClosed(imsProjectConfig, issue, event)
+            is ReopenedEventTimelineItemData -> handleIssueReopen(imsProjectConfig, issue, event)
+            is LabeledEventTimelineItemData -> handleIssueLabeled(imsProjectConfig, issue, event)
+            is UnlabeledEventTimelineItemData -> handleIssueUnlabeled(imsProjectConfig, issue, event)
+            is RenamedTitleEventTimelineItemData -> handleIssueRenamedTitle(imsProjectConfig, issue, event)
             is AssignedEventTimelineItemData -> Pair(null, event.createdAt)
             is CommentDeletedEventTimelineItemData -> Pair(null, event.createdAt)
             is DemilestonedEventTimelineItemData -> Pair(null, event.createdAt)

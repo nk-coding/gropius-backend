@@ -8,7 +8,7 @@ import io.github.graphglue.authorization.Permission
 import io.github.graphglue.model.Node
 import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [Node]
@@ -17,7 +17,7 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class NodeService<T : Node, R : ReactiveNeo4jRepository<T, String>>(val repository: R) {
+abstract class NodeService<T : Node, R : GropiusRepository<T, String>>(val repository: R) {
 
     /**
      * Injected, used for the [checkPermission] function

@@ -1,7 +1,7 @@
 package gropius.repository.architecture
 
 import gropius.model.architecture.IntraComponentDependencyParticipant
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 import org.springframework.stereotype.Repository
 
 /**
@@ -9,4 +9,4 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 interface IntraComponentDependencyParticipantRepository :
-    ReactiveNeo4jRepository<IntraComponentDependencyParticipant, String>
+    GropiusRepository<IntraComponentDependencyParticipant, String>

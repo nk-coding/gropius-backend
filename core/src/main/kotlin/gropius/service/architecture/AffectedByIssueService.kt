@@ -2,7 +2,7 @@ package gropius.service.architecture
 
 import gropius.model.architecture.AffectedByIssue
 import gropius.service.common.NamedNodeService
-import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
+import gropius.repository.GropiusRepository
 
 /**
  * Base class for services for subclasses of [AffectedByIssue]
@@ -11,5 +11,5 @@ import org.springframework.data.neo4j.repository.ReactiveNeo4jRepository
  * @param T the type of Node this service is used for
  * @param R Repository type associated with [T]
  */
-abstract class AffectedByIssueService<T : AffectedByIssue, R : ReactiveNeo4jRepository<T, String>>(repository: R) :
+abstract class AffectedByIssueService<T : AffectedByIssue, R : GropiusRepository<T, String>>(repository: R) :
     NamedNodeService<T, R>(repository)

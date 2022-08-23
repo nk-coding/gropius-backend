@@ -142,7 +142,9 @@ abstract class Grabber<T : Any> {
             if (newMaxTime != null) {
                 times.add(newMaxTime)
                 removeFromCache(nodeId(node))
-            } else repeat = true;
+            } else {
+                repeat = true;
+            }
         }
         if (times.size > 0) {
             writeTimestamp(times.maxOrNull()!!)

@@ -49,7 +49,7 @@ abstract class NodeService<T : Node, R : GropiusRepository<T, String>>(val repos
     }
 
     /**
-     * Checks if the user defined by [authorizationContext] is an admin
+     * Checks if the user defined by [authorizationContext] is a global admin
      *
      * @param authorizationContext defines the user to check for isAdmin
      * @throws IllegalArgumentException if checkPermission is `true` and the user is not an admin

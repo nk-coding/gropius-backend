@@ -25,6 +25,12 @@ class TokenManager(
         return System.getenv("GITHUB_DUMMY_PAT")//TODO: @modellbahnfreak!!
     }
 
+    /**
+     * Load the token of from the login service
+     * @param imsConfig config for the IMS the user has to belong to
+     * @param imsUser user to ask the token for
+     * @return GitHub auth token
+     */
     suspend fun getTokenForIMSUser(imsConfig: IMSConfig, imsUser: IMSUser?): String {
         return System.getenv("GITHUB_DUMMY_PAT")//TODO: Login service
 

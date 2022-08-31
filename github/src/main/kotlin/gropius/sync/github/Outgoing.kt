@@ -142,50 +142,64 @@ class Outgoing(
 
     private suspend fun githubReopenIssue(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, userList: Iterable<User>
-    ) {
-        val client = createClient(imsProjectConfig, userList)
-        val response = client.mutation(MutateReopenIssueMutation(issueInfo.githubId)).execute()
-        val item = response.data?.closeIssue?.issue?.timelineItems?.nodes?.lastOrNull()
-        if (item != null) {
-            incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+    ): List<suspend () -> Unit> {
+        return listOf {
+            val client = createClient(imsProjectConfig, userList)
+            val response = client.mutation(MutateReopenIssueMutation(issueInfo.githubId)).execute()
+            val item = response.data?.closeIssue?.issue?.timelineItems?.nodes?.lastOrNull()
+            if (item != null) {
+                incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+            }
         }
     }
 
     private suspend fun githubCloseIssue(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, userList: Iterable<User>
-    ) {
-        val client = createClient(imsProjectConfig, userList)
-        val response = client.mutation(MutateCloseIssueMutation(issueInfo.githubId)).execute()
-        val item = response.data?.closeIssue?.issue?.timelineItems?.nodes?.lastOrNull()
-        if (item != null) {
-            incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+    ): List<suspend () -> Unit> {
+        return listOf {
+            val client = createClient(imsProjectConfig, userList)
+            val response = client.mutation(MutateCloseIssueMutation(issueInfo.githubId)).execute()
+            val item = response.data?.closeIssue?.issue?.timelineItems?.nodes?.lastOrNull()
+            if (item != null) {
+                incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+            }
         }
     }
 
     private suspend fun pushReopenClose(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
-    ) {
+    ): List<suspend () -> Unit> {
         val relevantTimeline = timeline.filter { (it is ReopenedEvent) || (it is ClosedEvent) }
         if (relevantTimeline.isEmpty()) {
-            return
+            return listOf()
         }
         val finalBlock = findFinalTypeBlock(relevantTimeline)
         for (item in finalBlock) {
             if (timelineEventInfoRepository.findByNeo4jId(item.rawId!!) != null) {
-                return
+                return listOf()
             }
         }
+        val collectedMutations = mutableListOf<suspend () -> Unit>()
         if (relevantTimeline.last() is ReopenedEvent) {
-            githubReopenIssue(imsProjectConfig, issueInfo, finalBlock.map { it.lastModifiedBy().value })
+            collectedMutations += githubReopenIssue(imsProjectConfig,
+                issueInfo,
+                finalBlock.map { it.lastModifiedBy().value })
         }
         if (relevantTimeline.last() is ClosedEvent) {
-            githubCloseIssue(imsProjectConfig, issueInfo, finalBlock.map { it.lastModifiedBy().value })
+            collectedMutations += githubCloseIssue(imsProjectConfig,
+                issueInfo,
+                finalBlock.map { it.lastModifiedBy().value })
         }
+        return collectedMutations
     }
 
-    suspend fun issueModified(imsProjectConfig: IMSProjectConfig, issue: Issue, issueInfo: IssueInfo) {
+    suspend fun issueModified(
+        imsProjectConfig: IMSProjectConfig, issue: Issue, issueInfo: IssueInfo
+    ): List<suspend () -> Unit> {
+        val collectedMutations = mutableListOf<suspend () -> Unit>()
         val timeline = issue.timelineItems().toList().sortedBy { it.lastModifiedAt }
-        pushReopenClose(imsProjectConfig, issueInfo, timeline)
+        collectedMutations += pushReopenClose(imsProjectConfig, issueInfo, timeline)
+        return collectedMutations
     }
 
     /**
@@ -193,13 +207,20 @@ class Outgoing(
      * @param imsProjectConfig the config of the IMSProject
      */
     suspend fun syncIssues(imsProjectConfig: IMSProjectConfig) {
+        val collectedMutations = mutableListOf<suspend () -> Unit>()
         for (issueInfo in issueInfoRepository.findByUrl(imsProjectConfig.url).toSet()) {
             val issue = issueRepository.findById(issueInfo.neo4jId).awaitSingle()
             if ((issueInfo.lastOutgoingSync == null) || (issue.lastUpdatedAt != issueInfo.lastOutgoingSync)) {
-                issueModified(imsProjectConfig, issue, issueInfo)
+                collectedMutations += issueModified(imsProjectConfig, issue, issueInfo)
                 issueInfo.lastOutgoingSync = issue.lastUpdatedAt
                 issueInfoRepository.save(issueInfo).awaitSingle()
             }
+        }
+        if (collectedMutations.size > 100) {//TODO: Config
+            throw SyncNotificator.NotificatedError("SYNC_GITHUB_TOO_MANY_MUTATIONS")
+        }
+        for (mutation in collectedMutations) {
+            mutation()
         }
     }
 }

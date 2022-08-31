@@ -223,33 +223,12 @@ class Incoming(
      * @param apolloClient the client to use4 for grpahql queries
      */
     suspend fun syncIssues(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
-        val issueGrabber = IssueGrabber(
-            imsProjectConfig.repo, repositoryInfoRepository, mongoOperations, apolloClient, imsProjectConfig
-        )
-        issueGrabber.requestNewNodes()
-        issueGrabber.iterate {
-            issueModified(imsProjectConfig, it)
-        }
+        syncProject(imsProjectConfig, apolloClient)
         for (issueInfo in issueInfoRepository.findByUrlAndDirtyIsTrue(imsProjectConfig.url).toList()) {
             val issue = neoOperations.findById<Issue>(issueInfo.neo4jId)!!
             val imsIssue = ensureIMSIssue(imsProjectConfig, issue, issueInfo.issueData)
             try {
-                val timelineGrabber = TimelineGrabber(
-                    issueInfoRepository, mongoOperations, issueInfo.githubId, apolloClient, imsProjectConfig
-                )
-                timelineGrabber.requestNewNodes()
-                val errorInserting = timelineGrabber.iterate {
-                    handleTimelineEvent(imsProjectConfig, issueInfo, it)
-                }
-                issueCleaner.cleanIssue(issueInfo.neo4jId)
-                if (!errorInserting) {
-                    logger.info("Finished issue: " + issueInfo.id!!.toHexString())
-                    mongoOperations.updateFirst(
-                        Query(where("_id").`is`(issueInfo.id)),
-                        Update().set(IssueInfo::dirty.name, false),
-                        IssueInfo::class.java
-                    ).awaitSingle()
-                }
+                grabIssueTimelineItems(issueInfo, apolloClient, imsProjectConfig)
             } catch (e: SyncNotificator.NotificatedError) {
                 syncNotificator.sendNotification(
                     imsIssue, SyncNotificator.NotificationDummy(e)
@@ -257,6 +236,32 @@ class Incoming(
             } catch (e: Exception) {
                 logger.warn("Error in issue sync", e)
             }
+        }
+    }
+
+    /**
+     * Sync issues of one IMSProject
+     * @param imsProjectConfig the config of the IMSProject
+     * @param apolloClient the client to use4 for grpahql queries
+     * @param issueInfo The info of the issue to sync
+     */
+    private suspend fun grabIssueTimelineItems(
+        issueInfo: IssueInfo, apolloClient: ApolloClient, imsProjectConfig: IMSProjectConfig
+    ) {
+        val timelineGrabber = TimelineGrabber(
+            issueInfoRepository, mongoOperations, issueInfo.githubId, apolloClient, imsProjectConfig
+        )
+        val errorInserting = timelineGrabber.iterate {
+            handleTimelineEvent(imsProjectConfig, issueInfo, it)
+        }
+        issueCleaner.cleanIssue(issueInfo.neo4jId)
+        if (!errorInserting) {
+            logger.info("Finished issue: " + issueInfo.id!!.toHexString())
+            mongoOperations.updateFirst(
+                Query(where("_id").`is`(issueInfo.id)),
+                Update().set(IssueInfo::dirty.name, false),
+                IssueInfo::class.java
+            ).awaitSingle()
         }
     }
 }

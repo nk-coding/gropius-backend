@@ -110,8 +110,7 @@ class IssueGrabber(
         val query = IssueReadQuery(
             repoOwner = remote.owner, repoName = remote.repo, since = since, cursor = cursor, issueCount = count
         )
-        val response = apolloClient.query(query)
-            .execute()
+        val response = apolloClient.query(query).execute()
         return if (response.data?.repository?.issues?.nodes != null) {
             IssueStepResponse(response.data!!)
         } else {

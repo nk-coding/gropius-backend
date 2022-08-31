@@ -5,6 +5,7 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const apiSidebar = require('./sidebars').apiSidebar
+const graphqlSidebar = require('./sidebars').graphqlSidebar
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -54,7 +55,13 @@ const config = {
                     docId: apiSidebar[0]?.items[0]?.id ?? apiSidebar[0]?.items[0]?.link?.id ?? "docs/docs",
                     position: 'left',
                     label: 'API',
-                  },
+                },
+                {
+                    type: 'doc',
+                    docId: 'graphql/api-public',
+                    position: 'left',
+                    label: "GraphQL"
+                },
                 {
                     href: 'https://github.com/ccims/gropius-backend',
                     label: 'GitHub',
@@ -87,7 +94,19 @@ const config = {
                     ]
                 }
             })
-        })
+        }),
+        [
+            "@edno/docusaurus2-graphql-doc-generator",
+            {
+                id: "api-public",
+                schema: "./schemas/api-public.gql",
+                rootPath: "./docs",
+                baseURL: "graphql/api-public",
+                docOptions: {
+                    index: true
+                }
+            },
+        ],
     ]
 };
 

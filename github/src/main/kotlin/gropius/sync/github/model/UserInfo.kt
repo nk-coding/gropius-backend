@@ -10,7 +10,7 @@ import java.net.URI
  * Mapping of a single user from neo4j to GitHub
  * @param url API URL of IMS of the repo
  * @param login username on GitHub
- * @param neo4jId ID in gropius database
+ * @param neo4jId IMSUser ID in gropius database
  */
 @Document
 data class UserInfo(

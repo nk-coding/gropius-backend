@@ -1,6 +1,5 @@
 package gropius.sync.github
 
-import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
@@ -89,49 +88,27 @@ class NodeSourcerer(
      */
     private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
         val user = ensureUser(imsProjectConfig, info.author!!)
-        val issueBody = Body(
+        var issueBody = Body(
             info.createdAt, info.createdAt, (info as? IssueDataExtensive)?.body ?: "", info.createdAt
         )
         issueBody.createdBy().value = user
         issueBody.lastModifiedBy().value = user
         issueBody.bodyLastEditedBy().value = user
+        issueBody = neoOperations.save(issueBody).awaitSingle()
         return issueBody
     }
 
     /**
-     * Ensure a given issue is in the database
-     * @param info The issue to created this body for
-     * @param imsProjectConfig Config of the active project
-     * @return The gropius issue and the mongodb issue mapping
+     * Fills the body of the issue with the data from info and save the resulting issue
+     * @param imsProjectConfig the config to use while processing the issue
+     * @param info the data from the GitHub api
+     * @param issue the issue to start working with
+     * @return true if the content of the issue has been changed
      */
-    suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
-        var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
-        var issue: Issue
-        var needSave = false
-        if (issueInfo == null) {
-            issue = Issue(
-                info.createdAt,
-                OffsetDateTime.now(),
-                mutableMapOf(),
-                info.title,
-                info.createdAt,
-                true,
-                null,
-                null,
-                null,
-                null
-            )
-            val user = ensureUser(imsProjectConfig, info.author!!)
-            val issueBody = createIssueBody(imsProjectConfig, info)
-            issue.body().value = issueBody
-            issueBody.issue().value = issue
-            issue.createdBy().value = user
-            issue.lastModifiedBy().value = user
-            issue.type().value = ensureGithubType()
-            issue.template().value = ensureGithubTemplate()
-        } else {
-            issue = neoOperations.findById(issueInfo.neo4jId)!!
-        }
+    private suspend fun fillIssueBodyAndSave(
+        imsProjectConfig: IMSProjectConfig, info: IssueData, issue: Issue
+    ): Boolean {
+        var bodyChanged = false
         if (info is IssueDataExtensive) {
             val user = ensureUser(imsProjectConfig, (info.editor ?: info.author)!!)
             val issueBody = issue.body().value
@@ -142,13 +119,57 @@ class NodeSourcerer(
                 issueBody.lastModifiedBy().value = user
                 issueBody.bodyLastEditedBy().value = user
                 issueBody.body = info.body
-                needSave = true
+                bodyChanged = true
             }
             issue.body().value = issueBody
         }
         issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
-        issue = neoOperations.save(issue).awaitSingle()
-        if ((issueInfo == null) || needSave) {
+        neoOperations.save(issue).awaitSingle()
+        return bodyChanged
+    }
+
+    /**
+     * Fills the direct part an Issue structure with the data from info
+     * @param imsProjectConfig the config to use while processing the issue
+     * @param info the data from the GitHub api
+     * @return the resulting Issue
+     */
+    private suspend fun prepareIssueFromIssueData(imsProjectConfig: IMSProjectConfig, info: IssueData): Issue {
+        val issue = Issue(
+            info.createdAt,
+            OffsetDateTime.now(),
+            mutableMapOf(),
+            info.title,
+            info.createdAt,
+            true,
+            null,
+            null,
+            null,
+            null
+        )
+        issue.body().value = createIssueBody(imsProjectConfig, info)
+        issue.createdBy().value = ensureUser(imsProjectConfig, info.author!!)
+        issue.lastModifiedBy().value = ensureUser(imsProjectConfig, info.author!!)
+        issue.type().value = ensureGithubType()
+        issue.template().value = ensureGithubTemplate()
+        return issue
+    }
+
+    /**
+     * Ensure a given issue is in the database
+     * @param info The issue to created this body for
+     * @param imsProjectConfig Config of the active project
+     * @return The gropius issue and the mongodb issue mapping
+     */
+    suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
+        var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
+        val issue: Issue = if (issueInfo == null) {
+            prepareIssueFromIssueData(imsProjectConfig, info)
+        } else {
+            neoOperations.findById(issueInfo.neo4jId)!!
+        }
+        val bodyChanged = fillIssueBodyAndSave(imsProjectConfig, info, issue)
+        if ((issueInfo == null) || bodyChanged) {
             issueInfo = issueInfoRepository.save(
                 issueInfo ?: IssueInfo(
                     info.id, imsProjectConfig.url, issue.rawId!!, true, null, info, null

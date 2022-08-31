@@ -1,14 +1,14 @@
 package gropius
 
-import gropius.sync.github.Incoming
 import gropius.sync.github.SyncSelector
 import io.github.graphglue.data.repositories.EnableGraphglueRepositories
 import kotlinx.coroutines.runBlocking
 import org.neo4j.driver.Driver
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.runApplication
-import org.springframework.context.ApplicationContext
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -19,12 +19,11 @@ import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionM
 import kotlin.system.exitProcess
 
 /**
- * @param incoming Reference for the spring instance of Incoming
  * @param configurableApplicationContext Reference for the spring instance of ConfigurableApplicationContext
  */
 @Configuration
 class SyncApplication(
-    val syncSelector: SyncSelector, val configurableApplicationContext: ConfigurableApplicationContext
+    val configurableApplicationContext: ConfigurableApplicationContext
 ) {
     /**
      * Necessary transaction manager
@@ -39,22 +38,24 @@ class SyncApplication(
     ): ReactiveNeo4jTransactionManager {
         return ReactiveNeo4jTransactionManager(driver, databaseNameProvider)
     }
-
-    @EventListener(ApplicationReadyEvent::class)
-    fun doSomethingAfterStartup() {
-        configurableApplicationContext.use {
-            runBlocking {
-                syncSelector.sync()
-            }
-        }
-        exitProcess(0)
-    }
 }
 
+/**
+ * Main Application
+ * @param syncSelector Reference for the spring instance of SyncSelector
+ */
 @SpringBootApplication
 @EnableGraphglueRepositories
 @EnableReactiveMongoRepositories
-class Application
+class Application : CommandLineRunner {
+    @Autowired
+    lateinit var syncSelector: SyncSelector
+    override fun run(vararg args: String?) {
+        runBlocking {
+            syncSelector.sync()
+        }
+    }
+}
 
 fun main(args: Array<String>) {
     runApplication<Application>(*args)

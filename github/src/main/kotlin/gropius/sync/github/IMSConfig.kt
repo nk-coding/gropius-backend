@@ -18,14 +18,15 @@ data class IMSConfig(
     /**
      * @param ims the gropius ims to use as input
      * @param helper Reference for the spring instance of JsonHelper
+     * @param imsTemplate the template of the current IMS
      */
     constructor(
-        helper: JsonHelper, ims: IMS, template: IMSTemplate
+        helper: JsonHelper, ims: IMS, imsTemplate: IMSTemplate
     ) : this(
         ims,
         helper.parseString(ims.templatedFields["bot-user"]) ?: "github-bot",
         helper.parseString(ims.templatedFields["read-user"])!!,
         URI(helper.parseString(ims.templatedFields["graphql-url"])!!),
-        template
+        imsTemplate
     )
 }

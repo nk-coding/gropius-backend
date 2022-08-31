@@ -5,29 +5,19 @@ import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import java.net.URI
 
 /**
  * Cache for unprocessed issues
+ * @param url API URL of IMS of the repo
+ * @param githubId ID on GitHub
+ * @param data Data from github api
+ * @param attempts Number of attempts tried to insert into db
  */
 @Document
 data class IssueDataCache(
-    /**
-     * ID on github
-     */
     @Indexed(unique = true)
-    var githubId: String,
-    /**
-     * IMSProject of the repo
-     */
-    val imsProject: String,
-    /**
-     * Data from github api
-     */
-    val data: IssueDataExtensive,
-    /**
-     * Number of attempts tried to insert into db
-     */
-    var attempts: Int?
+    var githubId: String, val url: URI, val data: IssueDataExtensive, var attempts: Int?
 ) {
     /**
      * MongoDB ID

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.reactive.asFlow
 import kotlinx.coroutines.reactor.awaitSingle
 import org.bson.types.ObjectId
+import org.slf4j.LoggerFactory
 import org.springframework.data.mongodb.core.*
 import org.springframework.data.mongodb.core.query.Criteria
 import org.springframework.data.mongodb.core.query.Query
@@ -36,7 +37,7 @@ class TimelineGrabber(
     /**
      * github id of the issue
      */
-    private val id: String, private val apolloClient: ApolloClient, private val imsProject: String
+    private val id: String, private val apolloClient: ApolloClient, private val imsProjectConfig: IMSProjectConfig
 ) : Grabber<TimelineItemData>() {
 
     /**
@@ -58,8 +59,8 @@ class TimelineGrabber(
     override suspend fun writeTimestamp(time: OffsetDateTime) {
         mongoOperations.update<IssueInfo>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject).`and`(IssueInfo::githubId.name)
-                    .`is`(id)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
+                    .`and`(IssueInfo::githubId.name).`is`(id)
             )
         ).apply(
             Update().max(IssueInfo::lastAccess.name, time)
@@ -67,13 +68,13 @@ class TimelineGrabber(
     }
 
     override suspend fun readTimestamp(): OffsetDateTime? {
-        return issueInfoRepository.findByImsProjectAndGithubId(imsProject, id)?.lastAccess
+        return issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, id)?.lastAccess
     }
 
     override suspend fun addToCache(node: TimelineItemData): ObjectId {
         return mongoOperations.update<TimelineItemDataCache>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
                     .`and`(TimelineItemDataCache::githubId.name).`is`(node.asNode()!!.id)
             )
         ).apply(Update.update(TimelineItemDataCache::data.name, node).set(TimelineItemDataCache::issue.name, id))
@@ -83,7 +84,7 @@ class TimelineGrabber(
     override suspend fun iterateCache(): Flow<TimelineItemData> {
         return mongoOperations.query<TimelineItemDataCache>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
                     .`and`(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::attempts.name).not().gte(7))
         ).all().asFlow().map { it.data }
@@ -92,7 +93,7 @@ class TimelineGrabber(
     override suspend fun removeFromCache(node: String) {
         mongoOperations.remove<TimelineItemDataCache>(
             Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url)
                     .`and`(TimelineItemDataCache::issue.name).`is`(id)
             ).addCriteria(Criteria.where(TimelineItemDataCache::githubId.name).`is`(node))
         ).awaitSingle()
@@ -101,7 +102,7 @@ class TimelineGrabber(
     override suspend fun increaseFailedCache(node: String) {
         mongoOperations.update<TimelineItemDataCache>().matching(
             Query.query(
-                Criteria.where(TimelineItemDataCache::imsProject.name).`is`(imsProject).`and`("data.id").`is`(node)
+                Criteria.where(TimelineItemDataCache::url.name).`is`(imsProjectConfig.url).`and`("data.id").`is`(node)
             )
         ).apply(Update().inc(TimelineItemDataCache::attempts.name, 1)).firstAndAwait()
     }
@@ -113,10 +114,11 @@ class TimelineGrabber(
     override suspend fun grabStep(
         since: OffsetDateTime?, cursor: String?, count: Int
     ): StepResponse<TimelineItemData>? {
+        val query = TimelineReadQuery(
+            issue = id, since = since, cursor = cursor, issueCount = count
+        )
         val response = apolloClient.query(
-            TimelineReadQuery(
-                issue = id, since = since, cursor = cursor, issueCount = count
-            )
+            query
         ).execute()
         return if (response.data?.node?.asIssue()?.timelineItems?.nodes != null) {
             TimelineGrabber.TimelineStepResponse(response.data!!)

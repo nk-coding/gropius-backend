@@ -66,6 +66,9 @@ fragment TimelineItemData on IssueTimelineItems {
     ...on IssueComment {
         id
         createdAt
+        author {
+            ...UserData
+        }
         body
         lastEditedAt
         updatedAt

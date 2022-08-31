@@ -4,6 +4,7 @@ import gropius.sync.github.model.RepositoryInfo
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository
 import org.springframework.stereotype.Repository
+import java.net.URI
 
 /**
  * Repository for mapping of a single repository from neo4j to github
@@ -14,14 +15,15 @@ interface RepositoryInfoRepository : ReactiveMongoRepository<RepositoryInfo, Obj
      * Lookup to find the mapping given a github id
      * @param user Database query param
      * @param repo Database query param
+     * @param url Database query param
      * @return result of database operation
      */
-    suspend fun findByUserAndRepo(user: String, repo: String): RepositoryInfo?
+    suspend fun findByUrlAndUserAndRepo(url: URI, user: String, repo: String): RepositoryInfo?
 
     /**
      * Lookup to find the mapping given a IMSProject
-     * @param imsProject Database query param
+     * @param url Database query param
      * @return result of database operation
      */
-    suspend fun findByImsProject(imsProject: String): RepositoryInfo?
+    suspend fun findByUrl(url: URI): RepositoryInfo?
 }

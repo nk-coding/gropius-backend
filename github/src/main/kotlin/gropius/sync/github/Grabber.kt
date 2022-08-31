@@ -131,8 +131,10 @@ abstract class Grabber<T : Any> {
     /**
      * Iterate through all nodes that have not yet been done
      * @param callback Iterate through all nodes in the cache. Has to return a new date time if successful and null if failed and should be retried
+     * @return true if one item could not be saved
      */
-    suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?) {
+    suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?): Boolean {
+        var repeat = false;
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {
             increaseFailedCache(nodeId(node))
@@ -140,10 +142,13 @@ abstract class Grabber<T : Any> {
             if (newMaxTime != null) {
                 times.add(newMaxTime)
                 removeFromCache(nodeId(node))
+            } else {
+                repeat = true;
             }
         }
         if (times.size > 0) {
             writeTimestamp(times.maxOrNull()!!)
         }
+        return repeat;
     }
 }

@@ -4,6 +4,9 @@ fragment IssueDataExtensive on Issue {
     body
     lastEditedAt
     updatedAt
+    editor {
+        ...UserData
+    }
 }
 query IssueRead($repoOwner: String!, $repoName: String!, $since: DateTime, $issueCount: Int!,$cursor:String) {
     ...MetaData

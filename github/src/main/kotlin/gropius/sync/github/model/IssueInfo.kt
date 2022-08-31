@@ -7,11 +7,12 @@ import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
+import java.net.URI
 import java.time.OffsetDateTime
 
 /**
  * Mapping of a single issue from neo4j to github
- * @param imsProject IMSProject of the repo
+ * @param url API URL of the IMS of the repo
  * @param githubId ID on github
  * @param neo4jId ID in gropius database
  * @param dirty True if changed after last access and has to be queried
@@ -21,8 +22,8 @@ import java.time.OffsetDateTime
 data class IssueInfo(
     @Indexed(unique = true)
     var githubId: String,
-    @Indexed(unique = true)
-    var neo4jId: String, val dirty: Boolean, var lastAccess: OffsetDateTime?, val imsProject: String
+    val url: URI,
+    var neo4jId: String, val dirty: Boolean, var lastAccess: OffsetDateTime?
 ) {
     /**
      * MongoDB ID

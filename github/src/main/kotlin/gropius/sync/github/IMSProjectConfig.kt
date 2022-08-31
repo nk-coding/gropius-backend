@@ -1,6 +1,7 @@
 package gropius.sync.github
 
 import gropius.model.architecture.IMSProject
+import java.net.URI
 
 /**
  * @param imsProject the gropius IMSProject to use as input
@@ -24,11 +25,14 @@ data class IMSProjectConfig(
     constructor(
         helper: JsonHelper, imsConfig: IMSConfig, imsProject: IMSProject
     ) : this(
-        imsProject, imsConfig,
+        imsProject,
+        imsConfig,
         helper.parseString(imsProject.templatedFields["bot-user"]) ?: imsConfig.botUser,
         imsConfig.readUser,
         helper.objectMapper.readValue<RepoDescription>(
             imsProject.templatedFields["repo"]!!, RepoDescription::class.java
         )
     )
+
+    val url get() = imsConfig.graphQLUrl
 }

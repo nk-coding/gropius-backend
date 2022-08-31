@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 /**
  * Cache for unprocessed timeline items
- * @param imsProject IMSProject of the repo
+ * @param url API URL of IMS of the repo
  * @param githubId ID on github
  * @param issue Github ID of the associated issue
  * @param data Raw Github API data
@@ -16,8 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document
  */
 @Document
 data class TimelineItemDataCache(
-    @Indexed(unique = true)
-    var githubId: String, val issue: String, val data: TimelineItemData, var attempts: Int?, val imsProject: String
+    val url: String, var githubId: String, val issue: String, val data: TimelineItemData, var attempts: Int?
 ) {
     /**
      * MongoDB ID

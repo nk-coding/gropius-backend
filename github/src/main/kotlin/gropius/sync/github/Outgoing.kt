@@ -72,16 +72,29 @@ class Outgoing(
      */
     private val logger = LoggerFactory.getLogger(Outgoing::class.java)
 
+    /**
+     * Find the last consecutive list of blocks of the same close/reopen type
+     * @param relevantTimeline List of timeline items filtered for issue and sorted by date
+     * @return Consecutive same type timeline items
+     */
     private fun findFinalTypeBlock(relevantTimeline: List<TimelineItem>): List<TimelineItem> {
         val lastItem = relevantTimeline.last()
         val finalItems = mutableListOf<TimelineItem>()
         for (item in relevantTimeline.reversed()) {
-            if ((item is ReopenedEvent) != (lastItem is ReopenedEvent)) break;
+            if ((item is ReopenedEvent) != (lastItem is ReopenedEvent)) {
+                break
+            }
             finalItems += item
         }
         return finalItems
     }
 
+    /**
+     * Find token for an IMSUser or an IMSUser on the same IMS with same username
+     * @param user user to search token for
+     * @param imsProjectConfig active config
+     * @return string if token found, null otherwise
+     */
     private suspend fun extractIMSUserToken(imsProjectConfig: IMSProjectConfig, user: IMSUser): String? {
         if (user.ims().value == imsProjectConfig.imsConfig.ims) {
             val token = tokenManager.getGithubUserToken(user)
@@ -107,6 +120,12 @@ class Outgoing(
         return null
     }
 
+    /**
+     * Find token for a User or any similar enough user
+     * @param user user to search token for
+     * @param imsProjectConfig active config
+     * @return string if token found, null otherwise
+     */
     private suspend fun extractUser(imsProjectConfig: IMSProjectConfig, user: User): String? {
         var activeGropiusUser: GropiusUser
         if (user is IMSUser) {
@@ -127,6 +146,12 @@ class Outgoing(
         return null
     }
 
+    /**
+     * Create client to mutate on GitHub working as one of the users or the fallback
+     * @param imsProjectConfig active config
+     * @param userList List of users which have provided changes
+     * @return the client initialized with a token for writing
+     */
     private suspend fun createClient(imsProjectConfig: IMSProjectConfig, userList: Iterable<User>): ApolloClient {
         var token: String? = null
         for (user in userList) {
@@ -139,6 +164,13 @@ class Outgoing(
             .addHttpHeader("Authorization", "bearer $token").build()
     }
 
+    /**
+     * Mutate an ReopenIssue upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param userList users that have contributed to the event
+     * @return List of functions that contain the actual mutation executors
+     */
     private suspend fun githubReopenIssue(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, userList: Iterable<User>
     ): List<suspend () -> Unit> {
@@ -152,6 +184,13 @@ class Outgoing(
         }
     }
 
+    /**
+     * Mutate an CloseIssue upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param userList users that have contributed to the event
+     * @return List of functions that contain the actual mutation executors
+     */
     private suspend fun githubCloseIssue(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, userList: Iterable<User>
     ): List<suspend () -> Unit> {
@@ -165,6 +204,13 @@ class Outgoing(
         }
     }
 
+    /**
+     * Mutate the open/close state of an issue upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param timeline TimelineItems for this issue
+     * @return List of functions that contain the actual mutation executors
+     */
     private suspend fun pushReopenClose(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
     ): List<suspend () -> Unit> {
@@ -192,6 +238,12 @@ class Outgoing(
         return collectedMutations
     }
 
+    /**
+     * Check a modified issue for mutateable changes
+     * @param issue Issue to check
+     * @param imsProjectConfig active config
+     * @param issueInfo IssueInfo containing the IssueInfo used for writing updates back to mongo
+     */
     suspend fun issueModified(
         imsProjectConfig: IMSProjectConfig, issue: Issue, issueInfo: IssueInfo
     ): List<suspend () -> Unit> {

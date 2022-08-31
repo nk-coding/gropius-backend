@@ -1,5 +1,6 @@
 package gropius.sync.github
 
+import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
@@ -100,8 +101,8 @@ class NodeSourcerer(
      * @param info The issue to created this body for
      * @return The gropius issue and the mongodb issue mapping
      */
-    suspend fun ensureIssue(info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByGithubId(info.id)
+    suspend fun ensureIssue(imsProject: IMSProject, info: IssueData): Pair<Issue, IssueInfo> {
+        val issueInfo = issueInfoRepository.findByImsProjectAndGithubId(imsProject.rawId!!, info.id)
         if (issueInfo == null) {
             var issue = Issue(
                 info.createdAt,
@@ -123,25 +124,24 @@ class NodeSourcerer(
             issue.lastModifiedBy().value = user
             issue.type().value = ensureGithubType()
             issue.template().value = ensureGithubTemplate()
+            issue.trackables().add(imsProject.trackable().value)
             issue = neoOperations.save(issue).awaitSingle()
-            return Pair(issue, issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null)).awaitSingle())
+            return Pair(
+                issue,
+                issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null, imsProject.rawId!!))
+                    .awaitSingle()
+            )
         } else {
             return Pair(neoOperations.findById<Issue>(issueInfo.neo4jId)!!, issueInfo)
         }
     }
 
     /**
-     * Ensure the user with the given UserData is insertzied in the database
+     * Ensure the user with the given UserData is inserted in the database
      * @param info The GraphQL user data
      * @return a gropius user
      */
     suspend fun ensureUser(info: UserData) = ensureUser(info.login)
-
-    /**
-     * Ensure the fallback user for actions unknown origin is in the database
-     * @return a gropius user
-     */
-    suspend fun ensureBotUser() = ensureUser("github-bot")//TODO: Read from template
 
     /**
      * Ensure a user with the given username is in the database
@@ -165,7 +165,7 @@ class NodeSourcerer(
      * @param info The GraphQL data for this label
      * @return a gropius label
      */
-    suspend fun ensureLabel(info: LabelData): Label {
+    suspend fun ensureLabel(imsProjectConfig: IMSProjectConfig, info: LabelData): Label {
         val labelInfo = labelInfoRepository.findByGithubId(info.id)
         return if (labelInfo == null) {
             var label = Label(
@@ -175,8 +175,8 @@ class NodeSourcerer(
                 (info as? LabelDataExtensive)?.description ?: "",
                 (info as? LabelDataExtensive)?.color ?: "#000000"
             )
-            label.createdBy().value = ensureBotUser()
-            label.lastModifiedBy().value = ensureBotUser()
+            label.createdBy().value = ensureUser(imsProjectConfig.botUser)
+            label.lastModifiedBy().value = ensureUser(imsProjectConfig.botUser)
             label = neoOperations.save(label).awaitSingle()
             labelInfoRepository.save(LabelInfo(info.id, label.rawId!!)).awaitSingle()
             label

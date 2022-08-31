@@ -1,3 +1,5 @@
+#/bin/bash
+
 mkdir -p ./website/schemas
 
 ./gradlew api-public:bootRun &

@@ -1,3 +1,6 @@
+#/bin/bash
+set -e
+
 cd website
 npx docusaurus graphql-to-doc:api-public -f
 npx docusaurus graphql-to-doc:api-internal -f

@@ -5,6 +5,7 @@ import gropius.sync.github.generated.fragment.PageInfoData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.bson.types.ObjectId
+import org.slf4j.LoggerFactory
 import java.time.OffsetDateTime
 
 /**
@@ -38,6 +39,11 @@ abstract class Grabber<T : Any> {
          */
         val pageInfoData: PageInfoData
     }
+
+    /**
+     * Logger used to print notifications
+     */
+    private val logger = LoggerFactory.getLogger(Grabber::class.java)
 
     /**
      * Request a single step from github
@@ -109,12 +115,12 @@ abstract class Grabber<T : Any> {
         var githubCursor: String? = null
         var remaining = 1
         do {
-            println("Stepping " + (remaining.coerceIn(1, 100)) + " nodes from " + githubCursor)
+            logger.trace("Stepping " + (remaining.coerceIn(1, 100)) + " nodes from " + githubCursor)
             val response = grabStep(readTimestamp(), githubCursor, remaining.coerceIn(1, 100))
             if (response != null) {
                 if (githubCursor == null) {
                     remaining = response.totalCount //TODO: Should be subtracted with the number of known nodes
-                    println("Requesting $remaining nodes")
+                    logger.trace("Requesting $remaining nodes")
                 }
                 githubCursor = response.pageInfoData?.endCursor
                 handleStepResponse(response);

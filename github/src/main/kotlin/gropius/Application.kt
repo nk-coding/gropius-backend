@@ -42,12 +42,14 @@ class SyncConfiguration(
 
 /**
  * Main Application
- * @param syncSelector Reference for the spring instance of SyncSelector
  */
 @SpringBootApplication
 @EnableGraphglueRepositories
 @EnableReactiveMongoRepositories
 class Application : CommandLineRunner {
+    /**
+     * Reference for the spring instance of SyncSelector
+     */
     @Autowired
     lateinit var syncSelector: SyncSelector
     override fun run(vararg args: String?) {

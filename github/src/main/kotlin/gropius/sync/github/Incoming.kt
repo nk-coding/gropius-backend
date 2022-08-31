@@ -115,6 +115,7 @@ class Incoming(
      * @param imsProjectConfig Config of the active project
      * @return The time of the event or null for error
      */
+    @Suppress("UNUSED_VALUE")
     private suspend fun handleTimelineEventNonIssueComment(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData
     ): OffsetDateTime? {
@@ -140,6 +141,7 @@ class Incoming(
      * @param dbEntry Possible existing match in the mongodb of previous sync
      * @return The time of the event or null for error
      */
+    @Suppress("UNUSED_VALUE")
     private suspend fun handleTimelineEventIssueComment(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, event: TimelineItemData, dbEntry: TimelineEventInfo?
     ): OffsetDateTime? {

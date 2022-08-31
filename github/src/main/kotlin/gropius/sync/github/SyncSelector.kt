@@ -104,7 +104,7 @@ class SyncSelector(
      * @param apolloClient the client to use4 for grpahql queries
      */
     private suspend fun syncIssues(imsProjectConfig: IMSProjectConfig, apolloClient: ApolloClient) {
-        //incoming.syncIssues(imsProjectConfig, apolloClient)
+        incoming.syncIssues(imsProjectConfig, apolloClient)
         outgoing.syncIssues(imsProjectConfig)
     }
 

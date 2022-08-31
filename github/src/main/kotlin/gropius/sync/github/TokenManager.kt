@@ -26,7 +26,7 @@ class TokenManager(
     }
 
     suspend fun getTokenForIMSUser(imsConfig: IMSConfig, imsUser: IMSUser?): String {
-        return System.getenv("GITHUB_DUMMY_PAT")
+        return System.getenv("GITHUB_DUMMY_PAT")//TODO: Login service
 
         val readUser =
             imsUser ?: neoOperations.findById<IMSUser>(imsConfig.readUser) ?: throw SyncNotificator.NotificatedError(

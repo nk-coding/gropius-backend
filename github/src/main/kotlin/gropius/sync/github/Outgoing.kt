@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.mongodb.core.ReactiveMongoOperations
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 
 /**
  * Stateless component for the incoming part of the sync
@@ -99,9 +98,9 @@ class Outgoing(
             val usernameCondition = node.property("username").eq(Cypher.anonParameter(user.username))
             for (imsUser in imsUserRepository.findAll(imsCondition.and(usernameCondition)).collectList()
                 .awaitSingle()) {
-                val token = tokenManager.getGithubUserToken(imsUser)
-                if (token != null) {
-                    return token
+                val imsUserToken = tokenManager.getGithubUserToken(imsUser)
+                if (imsUserToken != null) {
+                    return imsUserToken
                 }
             }
         }

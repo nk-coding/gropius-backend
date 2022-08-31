@@ -52,6 +52,7 @@ class Application : CommandLineRunner {
      */
     @Autowired
     lateinit var syncSelector: SyncSelector
+    
     override fun run(vararg args: String?) {
         runBlocking {
             syncSelector.sync()

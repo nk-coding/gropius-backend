@@ -22,7 +22,7 @@ import kotlin.system.exitProcess
  * @param configurableApplicationContext Reference for the spring instance of ConfigurableApplicationContext
  */
 @Configuration
-class SyncApplication(
+class SyncConfiguration(
     val configurableApplicationContext: ConfigurableApplicationContext
 ) {
     /**

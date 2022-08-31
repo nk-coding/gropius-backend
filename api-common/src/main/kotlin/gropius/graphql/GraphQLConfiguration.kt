@@ -37,34 +37,6 @@ import kotlin.reflect.full.createType
 class GraphQLConfiguration {
 
     /**
-     * Generates the GraphQL context map
-     * TODO: use authentication as soon as available
-     *
-     * @param gropiusUserRepository used to get the user
-     * @return the generated context factory
-     */
-    @Bean
-    fun contextFactory(gropiusUserRepository: GropiusUserRepository) = object : DefaultSpringGraphQLContextFactory() {
-        override suspend fun generateContextMap(request: ServerRequest): Map<*, Any> {
-            //TODO use authentication as soon as available
-            val userId = request.headers().firstHeader("Authorization")
-            val additionalContextEntries = if (userId == null) {
-                emptyMap()
-            } else {
-                val user = gropiusUserRepository.findById(userId).awaitSingle()
-                val context = GropiusAuthorizationContext(userId, !user.isAdmin)
-                if (user.isAdmin) {
-                    mapOf(AuthorizationContext::class to context)
-                } else {
-                    mapOf(Permission::class to Permission(NodePermission.READ, context))
-                }
-
-            }
-            return super.generateContextMap(request) + additionalContextEntries
-        }
-    }
-
-    /**
      * Necessary transaction manager
      *
      * @param driver used Neo4j driver

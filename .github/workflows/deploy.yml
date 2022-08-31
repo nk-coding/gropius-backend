@@ -22,6 +22,10 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Execute Gradle build
         run: ./gradlew build dokkaHtmlMultiModule
+      - name: Save graphql schemas
+        run: |
+          chmod +x ./website/scripts/generate-graphql-schema.sh
+          ./website/scripts/generate-graphql-schema.sh
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -33,7 +37,8 @@ jobs:
           src: "build/dokka/htmlMultiModule"
           modules: |
             core
-            api
+            api-common
+            api-public
             sync
             github
           dest: "website/docs"
@@ -41,6 +46,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: website
+      - name: Update graphql documentation
+        run: |
+          chmod +x ./website/scripts/update-graphql-doc.sh
+          ./website/scripts/update-graphql-doc.sh
       - name: Build website
         run: npm run build
         working-directory: website

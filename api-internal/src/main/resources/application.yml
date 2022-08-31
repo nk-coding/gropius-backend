@@ -1,0 +1,10 @@
+graphql:
+  packages:
+    - "gropius"
+spring:
+  neo4j:
+    uri: "bolt://localhost:7687"
+logging:
+  level:
+    org.springframework.data.neo4j: ERROR
+    io.github.graphglue: ERROR

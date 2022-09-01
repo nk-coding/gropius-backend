@@ -162,7 +162,7 @@ class Incoming(
     }
 
     /**
-     * Sync github to gropius
+     * Create or read the IMSIssue for a given issue and IMSProject
      * @param imsProjectConfig Config of the imsProject to sync
      * @param issue Issue to connect the project to
      * @param issueData GitHub issue data containing url, number, ...

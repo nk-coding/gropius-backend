@@ -45,8 +45,9 @@ class GropiusGraphQLContextFactory(
             }
         } else {
             val user = verifyToken(token)
-            val context = GropiusAuthorizationContext(user.rawId!!, !user.isAdmin)
-            if (user.isAdmin) {
+            val isAdmin = user.isAdmin || gropiusPublicApiConfigurationProperties.debugNoAuthentication
+            val context = GropiusAuthorizationContext(user.rawId!!, !isAdmin)
+            if (isAdmin) {
                 mapOf(AuthorizationContext::class to context)
             } else {
                 mapOf(Permission::class to Permission(NodePermission.READ, context))

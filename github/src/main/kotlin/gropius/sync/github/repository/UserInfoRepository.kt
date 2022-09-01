@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository
 import java.net.URI
 
 /**
- * Repository for mapping of a single user from neo4j to github
+ * Repository for mapping of a single user from neo4j to GitHub
  */
 @Repository
 interface UserInfoRepository : ReactiveMongoRepository<UserInfo, ObjectId> {

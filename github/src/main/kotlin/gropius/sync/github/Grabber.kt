@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 import java.time.OffsetDateTime
 
 /**
- * Requests data from github using steps that are managed over restarts for processing items (e.g. issues, timeline, ...)
+ * Requests data from GitHub using steps that are managed over restarts for processing items (e.g. issues, timeline, ...)
  * @param T type of the resulting grabbed item
  */
 abstract class Grabber<T : Any> {
@@ -30,7 +30,7 @@ abstract class Grabber<T : Any> {
         val nodes: Iterable<T>
 
         /**
-         * Total node count (as github didn't put it in the metadata section)
+         * Total node count (as GitHub didn't put it in the metadata section)
          */
         val totalCount: Int
 
@@ -46,7 +46,7 @@ abstract class Grabber<T : Any> {
     private val logger = LoggerFactory.getLogger(Grabber::class.java)
 
     /**
-     * Request a single step from github
+     * Request a single step from GitHub
      * @param since First entry that could be relevant, null for all-time
      * @param cursor Cursor of the pageInfoData of the previous query
      * @param count preferred number of entries to request this request
@@ -102,7 +102,7 @@ abstract class Grabber<T : Any> {
      * Handle the results of a step response (currently inserting into cache)
      * @param response the response
      */
-    private suspend fun handleStepResponse(response: Grabber.StepResponse<T>) {
+    private suspend fun handleStepResponse(response: StepResponse<T>) {
         for (node in response.nodes) {
             addToCache(node)
         }
@@ -122,8 +122,8 @@ abstract class Grabber<T : Any> {
                     remaining = response.totalCount //TODO: Should be subtracted with the number of known nodes
                     logger.trace("Requesting $remaining nodes")
                 }
-                githubCursor = response.pageInfoData?.endCursor
-                handleStepResponse(response);
+                githubCursor = response.pageInfoData.endCursor
+                handleStepResponse(response)
             }
         } while ((githubCursor != null) && (remaining > 0))
     }
@@ -134,7 +134,7 @@ abstract class Grabber<T : Any> {
      * @return true if one item could not be saved
      */
     suspend fun iterate(callback: suspend (atom: T) -> OffsetDateTime?): Boolean {
-        var repeat = false;
+        var repeat = false
         val times = mutableListOf<OffsetDateTime>()
         for (node in iterateCache().toList()) {
             increaseFailedCache(nodeId(node))
@@ -149,6 +149,6 @@ abstract class Grabber<T : Any> {
         if (times.size > 0) {
             writeTimestamp(times.maxOrNull()!!)
         }
-        return repeat;
+        return repeat
     }
 }

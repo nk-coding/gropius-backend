@@ -1,9 +1,9 @@
 package gropius.sync.github
 
 import gropius.model.architecture.IMSProject
-import java.net.URI
 
 /**
+ * Config read out from a single IMSProject and an IMSConfig node
  * @param imsProject the gropius IMSProject to use as input
  * @param imsConfig the config of the parent IMS
  * @param botUser bot user name

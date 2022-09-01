@@ -30,6 +30,8 @@ fragment IssueData on Issue {
     id
     title
     createdAt
+    number
+    url
     author {
         ...UserData
     }

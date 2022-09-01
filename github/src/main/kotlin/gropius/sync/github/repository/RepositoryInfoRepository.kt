@@ -7,12 +7,12 @@ import org.springframework.stereotype.Repository
 import java.net.URI
 
 /**
- * Repository for mapping of a single repository from neo4j to github
+ * Repository for mapping of a single repository from neo4j to GitHub
  */
 @Repository
 interface RepositoryInfoRepository : ReactiveMongoRepository<RepositoryInfo, ObjectId> {
     /**
-     * Lookup to find the mapping given a github id
+     * Lookup to find the mapping given a GitHub id
      * @param user Database query param
      * @param repo Database query param
      * @param url Database query param

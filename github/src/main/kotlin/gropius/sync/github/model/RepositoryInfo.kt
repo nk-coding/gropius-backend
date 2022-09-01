@@ -8,10 +8,10 @@ import java.net.URI
 import java.time.OffsetDateTime
 
 /**
- * Mapping of a single repository from neo4j to github
+ * Mapping of a single repository from neo4j to GitHub
  * @param url API URL of IMS of the repo
- * @param user user/orga on github
- * @param repo repo on github
+ * @param user user/orga on GitHub
+ * @param repo repo on GitHub
  * @param lastAccess Time of the last item of the last issue query
  */
 @Document

@@ -8,19 +8,24 @@ import java.net.URI
 import java.time.OffsetDateTime
 
 /**
- * Mapping of a single timeline event from neo4j to github
+ * Mapping of a single timeline event from neo4j to GitHub
  * @param url API URL of IMS of the repo
- * @param githubId ID on github
+ * @param githubId ID on GitHub
  * @param neo4jId ID in gropius database
  * @param lastModifiedAt Time of the last interaction with this timeline item
- * @param type Github __typename of this event
+ * @param type GitHub __typename of this event
  */
 @Document
 data class TimelineEventInfo(
     @Indexed
     val githubId: String,
     @Indexed
-    val neo4jId: String?, val lastModifiedAt: OffsetDateTime, val type: String?, val url: URI
+    val neo4jId: String?,
+    val lastModifiedAt: OffsetDateTime,
+    @Indexed
+    val type: String?,
+    @Indexed
+    val url: URI
 ) {
     /**
      * MongoDB ID

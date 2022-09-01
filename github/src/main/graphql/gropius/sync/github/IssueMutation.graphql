@@ -1,0 +1,24 @@
+mutation MutateCloseIssue($id: ID!) {
+    closeIssue(input:{issueId:$id}){
+        issue {
+            timelineItems(itemTypes: [CLOSED_EVENT], last: 1) {
+                nodes {
+                    ...TimelineItemData
+                }
+            }
+        }
+        clientMutationId
+    }
+}
+mutation MutateReopenIssue($id: ID!) {
+    closeIssue(input:{issueId:$id}){
+        issue {
+            timelineItems(itemTypes: [REOPENED_EVENT], last: 1) {
+                nodes {
+                    ...TimelineItemData
+                }
+            }
+        }
+        clientMutationId
+    }
+}

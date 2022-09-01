@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 import java.net.URI
 
 /**
- * Repository for mapping of a single issue from neo4j to github
+ * Repository for mapping of a single issue from neo4j to GitHub
  */
 @Repository
 interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
@@ -20,6 +20,13 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
     suspend fun findByUrlAndDirtyIsTrue(url: URI): Flow<IssueInfo>
 
     /**
+     * Find all issues
+     * @param url API URL syncing currently
+     * @return result of database operation
+     */
+    suspend fun findByUrl(url: URI): Flow<IssueInfo>
+
+    /**
      * Lookup to find the mapping given a neo4j id
      * @param url API URL syncing currently
      * @param neo4jId Database query param
@@ -28,7 +35,7 @@ interface IssueInfoRepository : ReactiveMongoRepository<IssueInfo, ObjectId> {
     suspend fun findByUrlAndNeo4jId(url: URI, neo4jId: String): IssueInfo?
 
     /**
-     * Lookup to find the mapping given a github id
+     * Lookup to find the mapping given a GitHub id
      * @param url API URL syncing currently
      * @param githubId Database query param
      * @return result of database operation

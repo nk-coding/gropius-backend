@@ -126,7 +126,7 @@ class Outgoing(
      * @param imsProjectConfig active config
      * @return string if token found, null otherwise
      */
-    private suspend fun extractUser(imsProjectConfig: IMSProjectConfig, user: User): String? {
+    private suspend fun extractUserToken(imsProjectConfig: IMSProjectConfig, user: User): String? {
         var activeGropiusUser: GropiusUser
         if (user is IMSUser) {
             val token = extractIMSUserToken(imsProjectConfig, user)
@@ -155,7 +155,7 @@ class Outgoing(
     private suspend fun createClient(imsProjectConfig: IMSProjectConfig, userList: Iterable<User>): ApolloClient {
         var token: String? = null
         for (user in userList) {
-            token = extractUser(imsProjectConfig, user)
+            token = extractUserToken(imsProjectConfig, user)
         }
         if (token == null) {
             token = tokenManager.getTokenForIMSUser(imsProjectConfig.imsConfig, null)

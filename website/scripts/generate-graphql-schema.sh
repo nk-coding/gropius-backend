@@ -2,7 +2,7 @@
 
 mkdir -p ./website/schemas
 
-./gradlew api-public:bootRun &
+./gradlew api-public:bootRun --args="--gropius.api.public.jwtSecret=SecretToGetGraphQLSchemaDoNotUseInProduction" &
 gradlew_pid=$!
 schema_endpoint="http://localhost:8080/sdl"
 c=0

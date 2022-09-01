@@ -1,12 +1,12 @@
 package gropius.sync.github
 
-import gropius.model.architecture.IMSProject
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
 import gropius.model.template.IssueTemplate
 import gropius.model.template.IssueType
 import gropius.model.user.GropiusUser
+import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.sync.github.generated.fragment.*
 import gropius.sync.github.model.IssueInfo
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
 /**
- * Save github nodes as gropius nodes into the database
+ * Save GitHub nodes as gropius nodes into the database
  */
 @Component
 class NodeSourcerer(
@@ -48,8 +48,8 @@ class NodeSourcerer(
     private val labelInfoRepository: LabelInfoRepository
 ) {
     /**
-     * Ensure the default github issue type with the default template is in the database
-     * @return The default type for github issues
+     * Ensure the default GitHub issue type with the default template is in the database
+     * @return The default type for GitHub issues
      */
     suspend fun ensureGithubType(): IssueType {
         val types = neoOperations.findAll<IssueType>().toList()
@@ -58,15 +58,15 @@ class NodeSourcerer(
                 return type
             }
         }
-        var type = IssueType("github-issue", "Issue synced from github")
+        var type = IssueType("github-issue", "Issue synced from GitHub")
         type.partOf() += ensureGithubTemplate()
         type = neoOperations.save(type).awaitSingle()
         return type
     }
 
     /**
-     * Ensure the default github template is in the databse
-     * @return The default template for github issues
+     * Ensure the default GitHub template is in the databse
+     * @return The default template for GitHub issues
      */
     suspend fun ensureGithubTemplate(): IssueTemplate {
         val types = neoOperations.findAll<IssueTemplate>().toList()
@@ -75,7 +75,7 @@ class NodeSourcerer(
                 return type
             }
         }
-        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf<String, String>(), false)
+        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf(), false)
         template = neoOperations.save(template).awaitSingle()
         return template
     }
@@ -83,90 +83,140 @@ class NodeSourcerer(
     /**
      * Create an issuebody for the given issue is in the database
      * @param info The issue to created this body for
+     * @param imsProjectConfig Config of the active project
      * @return The finished body
      */
-    private suspend fun createIssueBody(info: IssueData): Body {
-        val user = ensureUser(info.author!!)
-        val issueBody = Body(
-            info.createdAt, OffsetDateTime.now(), (info as? IssueDataExtensive)?.body ?: "", info.createdAt
+    private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
+        val user = ensureUser(imsProjectConfig, info.author!!)
+        var issueBody = Body(
+            info.createdAt, info.createdAt, (info as? IssueDataExtensive)?.body ?: "", info.createdAt
         )
         issueBody.createdBy().value = user
         issueBody.lastModifiedBy().value = user
         issueBody.bodyLastEditedBy().value = user
+        issueBody = neoOperations.save(issueBody).awaitSingle()
         return issueBody
+    }
+
+    /**
+     * Fills the body of the issue with the data from info and save the resulting issue
+     * @param imsProjectConfig the config to use while processing the issue
+     * @param info the data from the GitHub api
+     * @param issue the issue to start working with
+     * @return true if the content of the issue has been changed
+     */
+    private suspend fun fillIssueBodyAndSave(
+        imsProjectConfig: IMSProjectConfig, info: IssueData, issue: Issue
+    ): Boolean {
+        var bodyChanged = false
+        if (info is IssueDataExtensive) {
+            val user = ensureUser(imsProjectConfig, (info.editor ?: info.author)!!)
+            val issueBody = issue.body().value
+            if (issueBody.lastModifiedAt < (info.lastEditedAt ?: info.createdAt)) {
+                issueBody.lastModifiedAt = (info.lastEditedAt ?: info.createdAt)
+                issue.lastUpdatedAt = maxOf(issue.lastUpdatedAt, (info.lastEditedAt ?: info.createdAt))
+                issueBody.bodyLastEditedAt = (info.lastEditedAt ?: info.createdAt)
+                issueBody.lastModifiedBy().value = user
+                issueBody.bodyLastEditedBy().value = user
+                issueBody.body = info.body
+                bodyChanged = true
+            }
+            issue.body().value = issueBody
+        }
+        issue.trackables().add(imsProjectConfig.imsProject.trackable().value)
+        neoOperations.save(issue).awaitSingle()
+        return bodyChanged
+    }
+
+    /**
+     * Fills the direct part an Issue structure with the data from info
+     * @param imsProjectConfig the config to use while processing the issue
+     * @param info the data from the GitHub api
+     * @return the resulting Issue
+     */
+    private suspend fun prepareIssueFromIssueData(imsProjectConfig: IMSProjectConfig, info: IssueData): Issue {
+        val issue = Issue(
+            info.createdAt,
+            OffsetDateTime.now(),
+            mutableMapOf(),
+            info.title,
+            info.createdAt,
+            true,
+            null,
+            null,
+            null,
+            null
+        )
+        issue.body().value = createIssueBody(imsProjectConfig, info)
+        issue.createdBy().value = ensureUser(imsProjectConfig, info.author!!)
+        issue.lastModifiedBy().value = ensureUser(imsProjectConfig, info.author!!)
+        issue.type().value = ensureGithubType()
+        issue.template().value = ensureGithubTemplate()
+        return issue
     }
 
     /**
      * Ensure a given issue is in the database
      * @param info The issue to created this body for
+     * @param imsProjectConfig Config of the active project
      * @return The gropius issue and the mongodb issue mapping
      */
-    suspend fun ensureIssue(imsProject: IMSProject, info: IssueData): Pair<Issue, IssueInfo> {
-        val issueInfo = issueInfoRepository.findByImsProjectAndGithubId(imsProject.rawId!!, info.id)
-        if (issueInfo == null) {
-            var issue = Issue(
-                info.createdAt,
-                OffsetDateTime.now(),
-                mutableMapOf<String, String>(),
-                info.title,
-                info.createdAt,
-                true,
-                null,
-                null,
-                null,
-                null
-            )
-            val user = ensureUser(info.author!!)
-            val issueBody = createIssueBody(info)
-            issue.body().value = issueBody
-            issueBody.issue().value = issue
-            issue.createdBy().value = user
-            issue.lastModifiedBy().value = user
-            issue.type().value = ensureGithubType()
-            issue.template().value = ensureGithubTemplate()
-            issue.trackables().add(imsProject.trackable().value)
-            issue = neoOperations.save(issue).awaitSingle()
-            return Pair(
-                issue,
-                issueInfoRepository.save(IssueInfo(info.id, issue.rawId!!, true, null, imsProject.rawId!!))
-                    .awaitSingle()
-            )
+    suspend fun ensureIssue(imsProjectConfig: IMSProjectConfig, info: IssueData): Pair<Issue, IssueInfo> {
+        var issueInfo = issueInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
+        val issue: Issue = if (issueInfo == null) {
+            prepareIssueFromIssueData(imsProjectConfig, info)
         } else {
-            return Pair(neoOperations.findById<Issue>(issueInfo.neo4jId)!!, issueInfo)
+            neoOperations.findById(issueInfo.neo4jId)!!
         }
+        val bodyChanged = fillIssueBodyAndSave(imsProjectConfig, info, issue)
+        if ((issueInfo == null) || bodyChanged) {
+            issueInfo = issueInfoRepository.save(
+                issueInfo ?: IssueInfo(
+                    info.id, imsProjectConfig.url, issue.rawId!!, true, null, info, null
+                )
+            ).awaitSingle()
+        }
+        return Pair(issue, issueInfo!!)
     }
 
     /**
      * Ensure the user with the given UserData is inserted in the database
      * @param info The GraphQL user data
+     * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
-    suspend fun ensureUser(info: UserData) = ensureUser(info.login)
+    suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, info: UserData) =
+        ensureUser(imsProjectConfig, info.login)
 
     /**
      * Ensure a user with the given username is in the database
-     * @param username The github username string
+     * @param username The GitHub username string
+     * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
-    suspend fun ensureUser(username: String): User {
-        val userInfo = userInfoRepository.findByLogin(username)
+    suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, username: String): User {
+        val userInfo = userInfoRepository.findByUrlAndLogin(imsProjectConfig.url, username)
         return if (userInfo == null) {
-            var user = GropiusUser(username, null, username, false)
+            var user = IMSUser(username, null, username)
+            user.ims().value = imsProjectConfig.imsConfig.ims
             user = neoOperations.save(user).awaitSingle()
-            userInfoRepository.save(UserInfo(username, user.rawId!!)).awaitSingle()
+            userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
             user
         } else {
-            neoOperations.findById<User>(userInfo.neo4jId)!!
+            neoOperations.findById(userInfo.neo4jId)!!
         }
     }
 
     /**
      * Ensure a given label is in the database
      * @param info The GraphQL data for this label
+     * @param imsProjectConfig Config of the active project
      * @return a gropius label
      */
-    suspend fun ensureLabel(imsProjectConfig: IMSProjectConfig, info: LabelData): Label {
-        val labelInfo = labelInfoRepository.findByGithubId(info.id)
+    suspend fun ensureLabel(
+        imsProjectConfig: IMSProjectConfig, info: LabelData
+    ): Label {
+        val labelInfo = labelInfoRepository.findByUrlAndGithubId(imsProjectConfig.url, info.id)
         return if (labelInfo == null) {
             var label = Label(
                 info.createdAt!!,
@@ -175,13 +225,13 @@ class NodeSourcerer(
                 (info as? LabelDataExtensive)?.description ?: "",
                 (info as? LabelDataExtensive)?.color ?: "#000000"
             )
-            label.createdBy().value = ensureUser(imsProjectConfig.botUser)
-            label.lastModifiedBy().value = ensureUser(imsProjectConfig.botUser)
+            label.createdBy().value = ensureUser(imsProjectConfig, imsProjectConfig.botUser)
+            label.lastModifiedBy().value = ensureUser(imsProjectConfig, imsProjectConfig.botUser)
             label = neoOperations.save(label).awaitSingle()
-            labelInfoRepository.save(LabelInfo(info.id, label.rawId!!)).awaitSingle()
+            labelInfoRepository.save(LabelInfo(info.id, label.rawId!!, imsProjectConfig.url)).awaitSingle()
             label
         } else {
-            neoOperations.findById<Label>(labelInfo.neo4jId)!!
+            neoOperations.findById(labelInfo.neo4jId)!!
         }
     }
 

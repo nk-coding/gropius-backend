@@ -70,6 +70,7 @@ class IssueCleaner(
      * @param id Issue ID to clean
      */
     @Transactional
+    @Suppress("UNUSED_VALUE")
     suspend fun cleanIssue(id: String) {
         var issue = neoOperations.findById<Issue>(id)!!
         cleanLabels(issue)

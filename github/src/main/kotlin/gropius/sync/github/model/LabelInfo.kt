@@ -1,24 +1,25 @@
 package gropius.sync.github.model
+
 import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
+import java.net.URI
 
 /**
- * Mapping of a single label from neo4j to github
+ * Mapping of a single label from neo4j to GitHub
+ * @param url API URL of IMS of the repo
+ * @param githubId ID on GitHub
+ * @param neo4jId ID in gropius database
  */
 @Document
 data class LabelInfo(
-    /**
-     * ID on github
-     */
-    @Indexed(unique = true)
+    @Indexed
     val githubId: String,
-    /**
-     * ID in gropius database
-     */
     @Indexed(unique = true)
-    val neo4jId: String
+    val neo4jId: String,
+    @Indexed
+    val url: URI
 ) {
     /**
      * MongoDB ID

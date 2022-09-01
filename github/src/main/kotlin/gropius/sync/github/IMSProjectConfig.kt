@@ -3,6 +3,7 @@ package gropius.sync.github
 import gropius.model.architecture.IMSProject
 
 /**
+ * Config read out from a single IMSProject and an IMSConfig node
  * @param imsProject the gropius IMSProject to use as input
  * @param imsConfig the config of the parent IMS
  * @param botUser bot user name
@@ -24,11 +25,14 @@ data class IMSProjectConfig(
     constructor(
         helper: JsonHelper, imsConfig: IMSConfig, imsProject: IMSProject
     ) : this(
-        imsProject, imsConfig,
+        imsProject,
+        imsConfig,
         helper.parseString(imsProject.templatedFields["bot-user"]) ?: imsConfig.botUser,
         imsConfig.readUser,
         helper.objectMapper.readValue<RepoDescription>(
             imsProject.templatedFields["repo"]!!, RepoDescription::class.java
         )
     )
+
+    val url get() = imsConfig.graphQLUrl
 }

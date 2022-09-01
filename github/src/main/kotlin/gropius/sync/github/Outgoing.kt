@@ -29,42 +29,22 @@ import org.springframework.stereotype.Component
 
 /**
  * Stateless component for the outgoing part of the sync
- * @param helper Reference for the spring instance of JsonHelper
- * @param imsConfigManager Reference for the spring instance of IMSConfigManager
- * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
- * @param syncNotificator Reference for the spring instance of SyncNotificator
- * @param tokenManager Reference for the spring instance of TokenManager
- * @param repositoryInfoRepository Reference for the spring instance of RepositoryInfoRepository
  * @param issueInfoRepository Reference for the spring instance of IssueInfoRepository
- * @param userInfoRepository Reference for the spring instance of UserInfoRepository
- * @param labelInfoRepository Reference for the spring instance of LabelInfoRepository
- * @param mongoOperations Reference for the spring instance of ReactiveMongoOperations
  * @param timelineEventInfoRepository Reference for the spring instance of TimelineEventInfoRepository
- * @param issueCleaner Reference for the spring instance of IssueCleaner
- * @param nodeSourcerer Reference for the spring instance of NodeSourcerer
- * @param timelineItemHandler Reference for the spring instance of TimelineItemHandler
+ * @param helper Reference for the spring instance of JsonHelper
+ * @param tokenManager Reference for the spring instance of TokenManager
+ * @param issueRepository Reference for the spring instance of IssueRepository
+ * @param imsUserRepository Reference for the spring instance of IMSUserRepository
+ * @param incoming Reference for the spring instance of Incoming
  */
 @Component
 class Outgoing(
-    private val repositoryInfoRepository: RepositoryInfoRepository,
     private val issueInfoRepository: IssueInfoRepository,
-    private val userInfoRepository: UserInfoRepository,
-    private val labelInfoRepository: LabelInfoRepository,
-    private val mongoOperations: ReactiveMongoOperations,
     private val timelineEventInfoRepository: TimelineEventInfoRepository,
-    private val issueCleaner: IssueCleaner,
-    private val nodeSourcerer: NodeSourcerer,
-    private val timelineItemHandler: TimelineItemHandler,
-    @Qualifier("graphglueNeo4jOperations")
-    private val neoOperations: ReactiveNeo4jOperations,
     private val helper: JsonHelper,
-    private val imsConfigManager: IMSConfigManager,
-    private val syncNotificator: SyncNotificator,
     private val tokenManager: TokenManager,
     private val issueRepository: IssueRepository,
-    private val timelineItemRepository: TimelineItemRepository,
     private val imsUserRepository: IMSUserRepository,
-    private val nodeDefinitionCollection: NodeDefinitionCollection,
     private val incoming: Incoming
 ) {
     /**
@@ -226,12 +206,14 @@ class Outgoing(
         }
         val collectedMutations = mutableListOf<suspend () -> Unit>()
         if (relevantTimeline.last() is ReopenedEvent) {
-            collectedMutations += githubReopenIssue(imsProjectConfig,
+            collectedMutations += githubReopenIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
         if (relevantTimeline.last() is ClosedEvent) {
-            collectedMutations += githubCloseIssue(imsProjectConfig,
+            collectedMutations += githubCloseIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }

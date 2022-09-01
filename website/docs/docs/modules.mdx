@@ -31,6 +31,13 @@ MUST NOT be publicly exposed as no authentication or authorization is done.
 Can be horizontally scaled.  
 Depends on [api-common](#api-common)
 
+### github
+
+Github sync that executes exactly one sync cycle.
+May not be executed more than once at the same time.
+Documentation about the concept can be found [here](github.mdx).  
+Depends on [sync](#sync)
+
 ## Abstract Modules
 
 ### core
@@ -43,4 +50,9 @@ Requires a Neo4j database, for the configuration see [Configure the project](htt
 Contains common functionality for [api-public](#api-public) and [api-internal](#api-internal).  
 By default, the API is provided on port 8080 at the endpoint `/graphql`, a GraphQL Playground can be found at `/playground`. 
 For the configuration of the GraphQL endpoints, see [Configuration Properties](https://opensource.expediagroup.com/graphql-kotlin/docs/server/spring-server/spring-properties).  
+Depends on [core](#core)
+
+### sync
+
+Contains abstract helpers for general sync development.  
 Depends on [core](#core)

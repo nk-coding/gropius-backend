@@ -19,6 +19,7 @@ import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionM
 import kotlin.system.exitProcess
 
 /**
+ * Configuration provider for the neo4j transaction manager
  * @param configurableApplicationContext Reference for the spring instance of ConfigurableApplicationContext
  */
 @Configuration
@@ -52,7 +53,7 @@ class Application : CommandLineRunner {
      */
     @Autowired
     lateinit var syncSelector: SyncSelector
-    
+
     override fun run(vararg args: String?) {
         runBlocking {
             syncSelector.sync()

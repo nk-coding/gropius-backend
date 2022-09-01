@@ -59,6 +59,7 @@ class SyncSelector(
      * Sync GitHub to gropius
      */
     suspend fun sync() {
+        logger.info("Sync started")
         imsConfigManager.findTemplates()
         for (imsTemplate in imsConfigManager.findTemplates()) {
             for (ims in imsTemplate.usedIn()) {
@@ -74,6 +75,7 @@ class SyncSelector(
                 }
             }
         }
+        logger.info("Sync exited without exception")
     }
 
     /**

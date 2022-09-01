@@ -66,7 +66,7 @@ class GropiusGraphQLContextFactory(
     private suspend fun verifyToken(token: String): GropiusUser {
         val tokenWithoutBearer = token.replace("Bearer ", "")
         val jwt = try {
-            jwtParser.parseClaimsJwt(tokenWithoutBearer)
+            jwtParser.parseClaimsJws(tokenWithoutBearer)
         } catch (e: JwtException) {
             throw IllegalStateException("Invalid jwt", e)
         }

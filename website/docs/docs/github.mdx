@@ -1,0 +1,29 @@
+---
+sidebar_position: 3
+slug: /github-sync
+---
+
+# GitHub sync
+
+The GitHub sync binary runs one cycle and then exits.
+For automatical sync schedule executions of the module with cron or similar.
+
+## Single Execution
+
+Each cycle consists of two parts: Incoming and Outgoing.
+The incoming phase only syncs data from GitHub to gropius while the outgoing phase syncs only from gropius to GitHub.
+
+### Incoming
+
+During the Incoming phase the sync first downloads all new events from GitHub.
+These events are immediately added to the MongoDB and the timestamps for the GitHub api moved to avoid repeated downloads.
+
+After everything has been downloaded, the missing issues are created and all timeline items inserted into the timelines.
+
+### Outgoing
+
+The outgoing phase collects all new issues and timeline items that have no known GitHub id and have not been invalidated (e.g. no reopen after close event).
+These differences are then collected and prepared for submission to GitHub.
+
+After all mutations are collected, a final damage control check ensures that the amount of mutations does not exceed a threshold to prevent damage to larger public repositories in case of issues with the sync.
+Then all of the mutations are executed and the ids of the created issues and timeline items added to the MongoDB.

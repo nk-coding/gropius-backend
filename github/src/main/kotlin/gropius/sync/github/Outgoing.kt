@@ -28,7 +28,7 @@ import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.stereotype.Component
 
 /**
- * Stateless component for the incoming part of the sync
+ * Stateless component for the outgoing part of the sync
  * @param helper Reference for the spring instance of JsonHelper
  * @param imsConfigManager Reference for the spring instance of IMSConfigManager
  * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations

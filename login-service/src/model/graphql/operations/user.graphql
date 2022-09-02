@@ -1,0 +1,18 @@
+query getBasicGropiusUserData($id: ID!) {
+    node(id: $id) {
+        ...UserData
+    }
+}
+
+query getUserByName($username: String!) {
+    gropiusUser(username: $username) {
+        ...UserData
+    }
+}
+
+fragment UserData on GropiusUser {
+    id
+    username
+    displayName
+    email
+}

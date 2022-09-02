@@ -150,6 +150,7 @@ class GraphQLConfiguration {
      * @param requestParser required for [SpringGraphQLServer]
      * @param contextFactory required for [SpringGraphQLServer]
      * @param requestHandler required for [SpringGraphQLServer]
+     * @return the generated [SpringGraphQLServer]
      */
     @Bean
     fun springGraphQLServer(

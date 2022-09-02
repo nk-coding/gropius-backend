@@ -13,8 +13,10 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import kotlinx.coroutines.reactor.awaitSingle
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.server.ResponseStatusException
 
 /**
  * Generates the GraphQL context map
@@ -41,7 +43,7 @@ class GropiusGraphQLContextFactory(
             if (gropiusPublicApiConfigurationProperties.debugNoAuthentication) {
                 emptyMap()
             } else {
-                throw IllegalStateException("No authentication token provided")
+                throw ResponseStatusException(HttpStatus.FORBIDDEN, "No authentication token provided")
             }
         } else {
             val user = verifyToken(token)
@@ -69,7 +71,7 @@ class GropiusGraphQLContextFactory(
         val jwt = try {
             jwtParser.parseClaimsJws(tokenWithoutBearer)
         } catch (e: JwtException) {
-            throw IllegalStateException("Invalid jwt", e)
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid jwt")
         }
         val user = jwt.body.subject!!
         return gropiusUserRepository.findById(user).awaitSingle()

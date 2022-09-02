@@ -2,20 +2,21 @@ package gropius.graphql
 
 import com.expediagroup.graphql.generator.execution.KotlinDataFetcherFactoryProvider
 import com.expediagroup.graphql.generator.execution.SimpleKotlinDataFetcherFactoryProvider
-import com.expediagroup.graphql.server.spring.execution.DefaultSpringGraphQLContextFactory
+import com.expediagroup.graphql.server.execution.GraphQLRequestHandler
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLContextFactory
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLRequestParser
+import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
+import com.expediagroup.graphql.server.types.GraphQLResponse
+import com.expediagroup.graphql.server.types.GraphQLServerError
+import com.expediagroup.graphql.server.types.GraphQLServerResponse
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.scalars.regex.RegexScalar
-import graphql.schema.*
-import gropius.authorization.GropiusAuthorizationContext
+import graphql.schema.DataFetcherFactory
+import graphql.schema.GraphQLScalarType
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
-import gropius.model.user.permission.NodePermission
-import gropius.repository.user.GropiusUserRepository
-import io.github.graphglue.authorization.AuthorizationContext
-import io.github.graphglue.authorization.Permission
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
-import kotlinx.coroutines.reactor.awaitSingle
 import org.neo4j.driver.Driver
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
@@ -23,6 +24,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
 import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
 import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -142,5 +144,35 @@ class GraphQLConfiguration {
                 GropiusFunctionDataFetcher(target, kFunction, applicationContext)
             }
         }
+
+    /**
+     * [SpringGraphQLServer] which catches [Exception]s and converts them into GraphQL errors
+     *
+     * @param requestParser required for [SpringGraphQLServer]
+     * @param contextFactory required for [SpringGraphQLServer]
+     * @param requestHandler required for [SpringGraphQLServer]
+     * @return the generated [SpringGraphQLServer]
+     */
+    @Bean
+    fun springGraphQLServer(
+        requestParser: SpringGraphQLRequestParser,
+        contextFactory: SpringGraphQLContextFactory<*>,
+        requestHandler: GraphQLRequestHandler
+    ): SpringGraphQLServer = object : SpringGraphQLServer(requestParser, contextFactory, requestHandler) {
+        override suspend fun execute(request: ServerRequest): GraphQLServerResponse? {
+            return try {
+                super.execute(request)
+            } catch (e: ResponseStatusException) {
+                GraphQLResponse<Any?>(
+                    errors = listOf(
+                        GraphQLServerError(
+                            e.reason ?: "No error message provided",
+                            extensions = mapOf("status" to e.status.value())
+                        )
+                    )
+                )
+            }
+        }
+    }
 
 }

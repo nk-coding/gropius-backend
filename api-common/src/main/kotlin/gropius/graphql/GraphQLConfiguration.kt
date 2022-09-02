@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
 import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
 import org.springframework.web.reactive.function.server.ServerRequest
+import org.springframework.web.server.ResponseStatusException
 import java.net.URI
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -161,9 +162,14 @@ class GraphQLConfiguration {
         override suspend fun execute(request: ServerRequest): GraphQLServerResponse? {
             return try {
                 super.execute(request)
-            } catch (e: Exception) {
+            } catch (e: ResponseStatusException) {
                 GraphQLResponse<Any?>(
-                    errors = listOf(GraphQLServerError(e.message ?: "No error message provided"))
+                    errors = listOf(
+                        GraphQLServerError(
+                            e.reason ?: "No error message provided",
+                            extensions = mapOf("status" to e.status.value())
+                        )
+                    )
                 )
             }
         }

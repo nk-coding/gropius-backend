@@ -20,4 +20,13 @@ export class LoginUser {
 
     @OneToMany(() => UserLoginData, (loginData) => loginData.user)
     loginData: UserLoginData[];
+
+    toJSON() {
+        return {
+            id: this.id,
+            username: this.username,
+            displayName: this.displayName,
+            email: this.email,
+        };
+    }
 }

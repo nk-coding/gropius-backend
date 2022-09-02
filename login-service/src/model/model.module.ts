@@ -11,7 +11,6 @@ import { UserLoginDataImsUserService } from "./services/user-login-data-ims-user
 import { UserLoginDataService } from "./services/user-login-data.service";
 
 const modelModuleExportedServices = [
-    GraphqlService,
     LoginUserService,
     StrategyInstanceService,
     UserLoginDataService,

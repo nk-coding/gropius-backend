@@ -8,4 +8,8 @@ export class UserLoginDataImsUser {
 
     @ManyToOne(() => UserLoginData, (loginData) => loginData.imsUsers)
     loginData: UserLoginData;
+
+    toJSON() {
+        return {};
+    }
 }

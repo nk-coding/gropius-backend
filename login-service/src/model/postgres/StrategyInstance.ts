@@ -12,7 +12,7 @@ export class StrategyInstance {
     type: string;
 
     @Column("json")
-    instanceConfig: any;
+    instanceConfig: object;
 
     @Column()
     isLoginActive: boolean;
@@ -22,4 +22,14 @@ export class StrategyInstance {
 
     @Column()
     isSyncActive: boolean;
+
+    toJSON() {
+        return {
+            name: this.name,
+            type: this.type,
+            isLoginActive: this.isLoginActive,
+            isRegisterActive: this.isRegisterActive,
+            isSyncActive: this.isSyncActive,
+        };
+    }
 }

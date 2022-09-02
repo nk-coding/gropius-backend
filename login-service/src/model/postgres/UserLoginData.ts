@@ -25,4 +25,8 @@ export class UserLoginData {
 
     @OneToMany(() => UserLoginDataImsUser, (imsUser) => imsUser.loginData)
     imsUsers: UserLoginDataImsUser[];
+
+    toJSON() {
+        return { id: this.id };
+    }
 }

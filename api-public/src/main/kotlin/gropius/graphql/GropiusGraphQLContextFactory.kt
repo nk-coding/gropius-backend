@@ -41,7 +41,7 @@ class GropiusGraphQLContextFactory(
             if (gropiusPublicApiConfigurationProperties.debugNoAuthentication) {
                 emptyMap()
             } else {
-                throw IllegalStateException("No authentication token provided")
+                throw IllegalStateException("403 - No authentication token provided")
             }
         } else {
             val user = verifyToken(token)
@@ -69,7 +69,7 @@ class GropiusGraphQLContextFactory(
         val jwt = try {
             jwtParser.parseClaimsJws(tokenWithoutBearer)
         } catch (e: JwtException) {
-            throw IllegalStateException("Invalid jwt", e)
+            throw IllegalStateException("403 - Invalid jwt", e)
         }
         val user = jwt.body.subject!!
         return gropiusUserRepository.findById(user).awaitSingle()

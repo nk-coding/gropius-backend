@@ -1,3 +1,4 @@
+import * as passport from "passport";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 
@@ -27,13 +28,12 @@ export abstract class Strategy {
         if (!this.checkInstanceConfig(instanceConfig)) {
             throw new Error("Instance config format invalid");
         }
-        const instance = new StrategyInstance();
+        const instance = new StrategyInstance(this.typeName);
         instance.name = name.replace(/[^a-zA-Z0-9-_]/g, "");
         instance.instanceConfig = instanceConfig;
         instance.isLoginActive = !!isLoginActive;
         instance.isRegisterActive = !!isRegisterActive;
         instance.isSyncActive = !!isSyncActive;
-        instance.type = this.typeName;
 
         return await this.strategyInstanceService.save(instance);
     }
@@ -52,6 +52,10 @@ export abstract class Strategy {
             type: this.typeName,
         });
     }
+
+    abstract getPassportStrategyInstance(
+        strategyInstance: StrategyInstance,
+    ): passport.Strategy;
 
     toJSON() {
         return {

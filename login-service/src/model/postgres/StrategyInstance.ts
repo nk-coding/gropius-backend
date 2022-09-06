@@ -2,17 +2,21 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class StrategyInstance {
+    constructor(type: string) {
+        this.type = type;
+    }
+
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column({ unique: true, nullable: true })
     name: string | null;
 
-    @Column()
-    type: string;
-
     @Column("json")
     instanceConfig: object;
+
+    @Column()
+    readonly type: string;
 
     @Column()
     isLoginActive: boolean;
@@ -25,6 +29,7 @@ export class StrategyInstance {
 
     toJSON() {
         return {
+            id: this.id,
             name: this.name,
             type: this.type,
             isLoginActive: this.isLoginActive,

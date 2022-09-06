@@ -8,6 +8,7 @@ import {
     Next,
     Param,
     Post,
+    Query,
     Req,
     Res,
     UseGuards,
@@ -21,13 +22,16 @@ import { StrategyInstanceService } from "src/model/services/strategy-instance.se
 import { GenericStrategyController } from "../generic-strategy.controller";
 import { StrategiesService } from "../strategies.service";
 import { CreateStrategyInstanceInput } from "../_inputs/CreateStrategyInstanceInput";
-import { UserpassLoginInput } from "./UserpassLoginInput";
+import { UserpassLoginInput } from "../userpass/UserpassLoginInput";
+import { AuthClientService } from "src/model/services/auth-client.service";
+import { AuthFunction } from "../AuthResult";
 
 @Controller("userpass")
 export class StrategyUserpassController extends GenericStrategyController {
     constructor(
         strategiesService: StrategiesService,
         private readonly userService: LoginUserService,
+        private readonly authClientService: AuthClientService,
     ) {
         super("userpass", strategiesService);
     }
@@ -50,23 +54,79 @@ export class StrategyUserpassController extends GenericStrategyController {
         }
     }
 
-    @All(":id/login")
+    @Get(":id/authorize/login")
     async userpassLogin(
         @Param("id") id: string,
+        @Query() query,
+        @Body() body,
         @Req() req,
         @Res() res,
         @Next() next,
     ): Promise<string> {
         //this.checkUserpassLoginInput(body);
         const instance = await this.idToStrategyInstance(id);
-        const passportStrategy =
+        const strategy = await this.strategiesService.getStrategyByName(
+            this.strategyName,
+        );
+        const params = { ...query, ...body };
+        const clientId = params.client_id;
+        const client = await this.authClientService.findOneBy({ id: clientId });
+        if (!clientId || !client) {
+            throw new HttpException(
+                "client_id not given or not a valid client id",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        if (params.response_type !== "code") {
+            throw new HttpException(
+                "response_type must be set to 'code'. Other flow types not supported",
+                HttpStatus.NOT_IMPLEMENTED,
+            );
+        }
+        if (
+            !!params.redirect_uri &&
+            !client.redirectUrls.includes(params.redirect_uri)
+        ) {
+            throw new HttpException(
+                "Given redirect URI not valid for this client.",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        const redirect = params.redirect_uri || client.redirectUrls[0];
+        const state = params.state;
+
+        const result = await strategy.performAuth(
+            instance,
+            { function: AuthFunction.LOGIN, state },
+            req,
+            res,
+        );
+
+        if (result.result == null) {
+            console.log("Result null, returning info");
+            throw new HttpException(
+                result.info.message,
+                HttpStatus.BAD_REQUEST,
+            );
+        } else {
+            console.log("Auth successfull");
+            return "Logged in as " + result.result.user.displayName;
+        }
+
+        /*const passportStrategy =
             this.strategiesService.getPassportStrategyInstanceFor(instance);
         console.log("Login witn userpass " + id);
-        passport.authenticate(passportStrategy)(req, res, (a) => {
+        passport.authenticate(
+            passportStrategy,
+            { session: false },
+            (err, user, info) => {
+                console.log("passport callback", err, user, info);
+            },
+        )(req, res, (a) => {
             console.log("next", a);
             return next(a);
         });
-        return "Login";
+        return "Login";*/
     }
 
     @All(":id/register")

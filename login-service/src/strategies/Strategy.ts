@@ -1,6 +1,9 @@
 import * as passport from "passport";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
+import { AuthResult, AuthStateData } from "./AuthResult";
 
 export abstract class Strategy {
     constructor(
@@ -8,6 +11,8 @@ export abstract class Strategy {
         private readonly strategyInstanceService: StrategyInstanceService,
         public readonly canLoginRegister: boolean = true,
         public readonly canSync: boolean = false,
+        public readonly needsRedirectFlow = false,
+        public readonly allowsImplicitSignup = false,
     ) {}
 
     /**
@@ -53,9 +58,18 @@ export abstract class Strategy {
         });
     }
 
-    abstract getPassportStrategyInstance(
+    get acceptsVariables(): {
+        [variableName: string]: string;
+    } {
+        return {};
+    }
+
+    abstract performAuth(
         strategyInstance: StrategyInstance,
-    ): passport.Strategy;
+        authStateData: AuthStateData | object,
+        req: any,
+        res: any,
+    ): Promise<{ result: AuthResult | null; info: any }>;
 
     toJSON() {
         return {
@@ -63,5 +77,57 @@ export abstract class Strategy {
             canLoginRegister: this.canLoginRegister,
             canSync: this.canSync,
         };
+    }
+}
+
+export abstract class StrategyUsingPassport extends Strategy {
+    private readonly passportInstances: Map<string, passport.Strategy> =
+        new Map();
+
+    abstract createPassportStrategyInstance(
+        strategyInstance: StrategyInstance,
+    ): passport.Strategy;
+
+    getPassportStrategyInstanceFor(
+        strategyInstance: StrategyInstance,
+    ): passport.Strategy {
+        if (this.passportInstances.has(strategyInstance.id)) {
+            return this.passportInstances.get(strategyInstance.id);
+        } else {
+            const newInstance =
+                this.createPassportStrategyInstance(strategyInstance);
+            console.log(
+                `Created new passport strategy for strategy ${this.typeName}, instance: ${strategyInstance.id}`,
+            );
+            this.passportInstances.set(strategyInstance.id, newInstance);
+            return newInstance;
+        }
+    }
+
+    public override async performAuth(
+        strategyInstance: StrategyInstance,
+        authStateData: AuthStateData | object,
+        req: any,
+        res: any,
+    ): Promise<{ result: AuthResult | null; info: any }> {
+        return new Promise((resolve, reject) => {
+            const passportStrategy =
+                this.getPassportStrategyInstanceFor(strategyInstance);
+            passport.authenticate(
+                passportStrategy,
+                { session: false },
+                (err, user: AuthResult | false, info) => {
+                    console.log("passport callback", err, user, info);
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve({ result: user || null, info });
+                    }
+                },
+            )(req, res, (a) => {
+                console.error("next called", a);
+                return;
+            });
+        });
     }
 }

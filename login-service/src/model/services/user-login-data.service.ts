@@ -7,4 +7,6 @@ export class UserLoginDataService extends Repository<UserLoginData> {
     constructor(private dataSource: DataSource) {
         super(UserLoginData, dataSource.createEntityManager());
     }
+
+    public find;
 }

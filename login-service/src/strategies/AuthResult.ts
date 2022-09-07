@@ -8,13 +8,10 @@ export enum AuthFunction {
 }
 
 export interface AuthStateData {
-    function: AuthFunction;
-    auth_user: string;
-    state: string;
+    function?: AuthFunction;
 }
 
 export interface AuthResult {
-    authStateData: AuthStateData | object;
     login: ActiveLogin;
     user?: LoginUser;
 }

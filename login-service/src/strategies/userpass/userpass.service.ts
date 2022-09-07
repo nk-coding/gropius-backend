@@ -9,6 +9,7 @@ import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
+import { AuthResult } from "../AuthResult";
 
 @Injectable()
 export class UserpassStrategyService extends StrategyUsingPassport {
@@ -38,13 +39,20 @@ export class UserpassStrategyService extends StrategyUsingPassport {
     ): passport.Strategy {
         const loginDataService = this.loginDataService;
         const loginUserService = this.loginUserService;
-        return new passportLocal.Strategy({}, (username, password, done) => {
-            const user = loginUserService.findOneBy({ username });
-            if (!user) {
-                done(null, null, { message: "Username unknown" });
-            }
-            console.log(`Auth for ${username} with ${password}`);
-            done(null, user);
-        });
+        return new passportLocal.Strategy(
+            {},
+            async (
+                username,
+                password,
+                done: (err: any, user: AuthResult | false, info: any) => any,
+            ) => {
+                const user = await loginUserService.findOneBy({ username });
+                if (!user) {
+                    done(null, false, { message: "Username unknown" });
+                }
+                console.log(`Auth for ${username} with ${password}`);
+                done(null, { user, login: undefined as any }, {});
+            },
+        );
     }
 }

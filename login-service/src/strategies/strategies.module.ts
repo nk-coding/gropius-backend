@@ -38,6 +38,6 @@ export class StrategiesModule {
             .apply(StrategiesMiddleware)
             .forRoutes("strategy/oauth/:id/callback")
             .apply(OauthRedirectMiddleware)
-            .forRoutes("strategy/oauth/:id/authorize");
+            .forRoutes("strategy/oauth/:id/callback");
     }
 }

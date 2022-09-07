@@ -70,7 +70,11 @@ export abstract class Strategy {
         req: any,
         res: any,
         next: () => void,
-    ): Promise<{ result: AuthResult | null; info: any }>;
+    ): Promise<{
+        result: AuthResult | null;
+        returnedState: AuthStateData;
+        info: any;
+    }>;
 
     toJSON() {
         return {
@@ -111,7 +115,11 @@ export abstract class StrategyUsingPassport extends Strategy {
         req: any,
         res: any,
         next: () => void,
-    ): Promise<{ result: AuthResult | null; info: any }> {
+    ): Promise<{
+        result: AuthResult | null;
+        returnedState: AuthStateData;
+        info: any;
+    }> {
         return new Promise((resolve, reject) => {
             const passportStrategy =
                 this.getPassportStrategyInstanceFor(strategyInstance);
@@ -128,12 +136,28 @@ export abstract class StrategyUsingPassport extends Strategy {
                     if (err) {
                         reject(err);
                     } else {
-                        resolve({ result: user || null, info });
+                        let returnedState = {};
+                        if (info.state && typeof info.state == "string") {
+                            returnedState = JSON.parse(
+                                Buffer.from(info.state, "base64url").toString(
+                                    "utf-8",
+                                ),
+                            );
+                        } else if (info.state) {
+                            returnedState = info.state;
+                        } else if (authStateData) {
+                            returnedState = authStateData;
+                        }
+                        resolve({ result: user || null, returnedState, info });
                     }
                 },
             )(req, res, (a) => {
-                console.error("next called by passport", a);
-                return resolve({ result: null, info: null });
+                console.log("next called by passport", a);
+                return resolve({
+                    result: null,
+                    returnedState: null,
+                    info: null,
+                });
             });
         });
     }

@@ -4,6 +4,7 @@ import {
     Injectable,
     NestMiddleware,
 } from "@nestjs/common";
+import { Request, Response } from "express";
 import passport from "passport";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { AuthClientService } from "src/model/services/auth-client.service";
@@ -35,23 +36,33 @@ export class StrategiesMiddleware implements NestMiddleware {
         return instance;
     }
 
-    async use(req: any, res: any, next: () => void) {
+    async use(req: Request, res: Response, next: () => void) {
         const id = req.params.id;
         console.log("id", id);
         const instance = await this.idToStrategyInstance(id);
         const strategy = await this.strategiesService.getStrategyByName(
             instance.type,
         );
-        console.log("strategies middleware");
+        console.log("strategies middleware; state", res.locals.state);
         const result = await strategy.performAuth(
             instance,
-            { function: AuthFunction.LOGIN, state: {} },
+            res.locals.state || {},
             req,
             res,
             next,
         );
         console.log("Strategy result", result);
-        next();
+        if (result.result) {
+            if (result.returnedState) {
+                res.locals.state = result.returnedState;
+            }
+            next();
+        } else {
+            throw new HttpException(
+                result.info?.message ?? result.info ?? "Login not successfull",
+                HttpStatus.UNAUTHORIZED,
+            );
+        }
 
         /*if (result.result == null) {
             console.log("Result null, returning info");

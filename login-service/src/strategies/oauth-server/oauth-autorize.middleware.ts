@@ -11,6 +11,12 @@ import { StrategyInstanceService } from "src/model/services/strategy-instance.se
 import { AuthFunction } from "../AuthResult";
 import { StrategiesService } from "../strategies.service";
 
+export interface OauthServerStateData {
+    state?: string;
+    redirect?: string;
+    clientId?: string;
+}
+
 @Injectable()
 export class OauthAutorizeMiddleware implements NestMiddleware {
     constructor(private readonly authClientService: AuthClientService) {}

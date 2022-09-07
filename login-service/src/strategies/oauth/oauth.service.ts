@@ -9,6 +9,7 @@ import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
+import { AuthResult } from "../AuthResult";
 
 @Injectable()
 export class OauthStrategyService extends StrategyUsingPassport {
@@ -39,31 +40,16 @@ export class OauthStrategyService extends StrategyUsingPassport {
                 tokenURL: "https://github.com/login/oauth/access_token",
                 store: {
                     store: (req, state, meta, callback) =>
-                        callback(
-                            null,
-                            Buffer.from(
-                                JSON.stringify(state),
-                                "utf-8",
-                            ).toString("base64url"),
-                        ),
+                        callback(null, state),
                     verify: (req, providedState, callback) =>
-                        callback(
-                            null,
-                            true,
-                            JSON.parse(
-                                Buffer.from(
-                                    providedState,
-                                    "base64url",
-                                ).toString("utf-8"),
-                            ),
-                        ),
+                        callback(null, true, providedState),
                 } as any,
             },
             (
                 accessToken: string,
                 refreshToken: string,
                 profile: any,
-                done: (err, user, info) => void,
+                done: (err, user: AuthResult | false, info) => void,
             ) => {
                 /*const user = loginUserService.findOneBy({ username });
                 if (!user) {
@@ -76,8 +62,19 @@ export class OauthStrategyService extends StrategyUsingPassport {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 })
                     .then((res) => res.json())
-                    .then((user) => {
-                        done(null, user, {});
+                    .then(async (user) => {
+                        const username = user.login;
+                        const loginUser = await loginUserService.findOneBy({
+                            username,
+                        });
+                        if (!loginUser) {
+                            done(null, false, { message: "User not found" });
+                        }
+                        done(
+                            null,
+                            { user: loginUser, login: undefined as any },
+                            {},
+                        );
                     })
                     .catch((err) => done(err, false, {}));
             },

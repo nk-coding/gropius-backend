@@ -100,6 +100,7 @@ export class StrategyUserpassController extends GenericStrategyController {
             { function: AuthFunction.LOGIN, state },
             req,
             res,
+            next,
         );
 
         if (result.result == null) {

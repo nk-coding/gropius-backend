@@ -69,6 +69,7 @@ export abstract class Strategy {
         authStateData: AuthStateData | object,
         req: any,
         res: any,
+        next: () => void,
     ): Promise<{ result: AuthResult | null; info: any }>;
 
     toJSON() {
@@ -109,13 +110,19 @@ export abstract class StrategyUsingPassport extends Strategy {
         authStateData: AuthStateData | object,
         req: any,
         res: any,
+        next: () => void,
     ): Promise<{ result: AuthResult | null; info: any }> {
         return new Promise((resolve, reject) => {
             const passportStrategy =
                 this.getPassportStrategyInstanceFor(strategyInstance);
             passport.authenticate(
                 passportStrategy,
-                { session: false },
+                {
+                    session: false,
+                    state: Buffer.from(JSON.stringify(authStateData)).toString(
+                        "base64url",
+                    ),
+                },
                 (err, user: AuthResult | false, info) => {
                     console.log("passport callback", err, user, info);
                     if (err) {
@@ -125,8 +132,8 @@ export abstract class StrategyUsingPassport extends Strategy {
                     }
                 },
             )(req, res, (a) => {
-                console.error("next called", a);
-                return;
+                console.error("next called by passport", a);
+                return resolve({ result: null, info: null });
             });
         });
     }

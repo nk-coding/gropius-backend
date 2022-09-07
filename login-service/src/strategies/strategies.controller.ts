@@ -1,4 +1,5 @@
 import {
+    All,
     Controller,
     Get,
     HttpException,
@@ -14,5 +15,10 @@ export class StrategiesController {
     @Get()
     async getAllStrategyTypes() {
         return this.strategiesService.getAllStrategies();
+    }
+
+    @All("oauth/:id/login")
+    test(@Param("id") id: string) {
+        return "Test successfull for " + id;
     }
 }

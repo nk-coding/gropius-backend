@@ -1,9 +1,68 @@
-import { Injectable, NestMiddleware } from "@nestjs/common";
+import {
+    HttpException,
+    HttpStatus,
+    Injectable,
+    NestMiddleware,
+} from "@nestjs/common";
 import passport from "passport";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { AuthClientService } from "src/model/services/auth-client.service";
+import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
+import { AuthFunction } from "./AuthResult";
+import { StrategiesService } from "./strategies.service";
 
 @Injectable()
 export class StrategiesMiddleware implements NestMiddleware {
-    use(req: any, res: any, next: () => void) {
-        passport.authenticate("")(req, res, next);
+    constructor(
+        private readonly strategiesService: StrategiesService,
+        private readonly strategyInstanceService: StrategyInstanceService,
+    ) {}
+
+    async idToStrategyInstance(id: string): Promise<StrategyInstance> {
+        if (!id) {
+            throw new HttpException(
+                "No Id of strategy instance given",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        const instance = await this.strategyInstanceService.findOneBy({ id });
+        if (!instance) {
+            throw new HttpException(
+                `No Strategy instance with id ${id}`,
+                HttpStatus.NOT_FOUND,
+            );
+        }
+        return instance;
+    }
+
+    async use(req: any, res: any, next: () => void) {
+        const id = req.params.id;
+        console.log("id", id);
+        const instance = await this.idToStrategyInstance(id);
+        const strategy = await this.strategiesService.getStrategyByName(
+            instance.type,
+        );
+        console.log("strategies middleware");
+        const result = await strategy.performAuth(
+            instance,
+            { function: AuthFunction.LOGIN, state: {} },
+            req,
+            res,
+            next,
+        );
+        console.log("Strategy result", result);
+        next();
+
+        /*if (result.result == null) {
+            console.log("Result null, returning info");
+            throw new HttpException(
+                result.info.message,
+                HttpStatus.BAD_REQUEST,
+            );
+        } else {
+            console.log("Auth successfull");
+            return "Logged in as " + result.result.user.displayName;
+        }
+        throw new HttpException("Test", HttpStatus.BAD_REQUEST);*/
     }
 }

@@ -100,6 +100,13 @@ export abstract class StrategyUsingPassport extends Strategy {
         strategyInstance: StrategyInstance,
     ): passport.Strategy;
 
+    protected getAdditionalPassportOptions(
+        strategyInstance: StrategyInstance,
+        authStateData: AuthStateData | object,
+    ): passport.AuthenticateOptions {
+        return {};
+    }
+
     getPassportStrategyInstanceFor(
         strategyInstance: StrategyInstance,
     ): passport.Strategy {
@@ -136,6 +143,10 @@ export abstract class StrategyUsingPassport extends Strategy {
                     session: false,
                     state: Buffer.from(JSON.stringify(authStateData)).toString(
                         "base64url",
+                    ),
+                    ...this.getAdditionalPassportOptions(
+                        strategyInstance,
+                        authStateData,
                     ),
                 },
                 (err, user: AuthResult | false, info) => {

@@ -15,6 +15,7 @@ export interface AuthStateData {
     loggedInUser?: LoginUser | string;
     activeLogin?: ActiveLogin | string;
     authErrorMessage?: string;
+    authErrorType?: string;
 }
 
 export interface AuthResult {

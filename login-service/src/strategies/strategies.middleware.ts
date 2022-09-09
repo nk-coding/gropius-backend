@@ -5,15 +5,9 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import passport from "passport";
-import { ActiveLogin, LoginState } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { ActiveLoginService } from "src/model/services/active-login.service";
-import { AuthClientService } from "src/model/services/auth-client.service";
-import { LoginUserService } from "src/model/services/login-user.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { AuthFunction, AuthResult, AuthStateData } from "./AuthResult";
+import { AuthStateData } from "./AuthResult";
 import { PerformAuthFunctionService } from "./perform-auth-function.service";
 import { StrategiesService } from "./strategies.service";
 import { ensureState } from "./utils";
@@ -45,6 +39,9 @@ export class StrategiesMiddleware implements NestMiddleware {
 
     async use(req: Request, res: Response, next: () => void) {
         ensureState(res);
+        if ((res.locals.state as AuthStateData)?.authErrorMessage) {
+            next();
+        }
         const id = req.params.id;
         console.log("id", id);
         const instance = await this.idToStrategyInstance(id);
@@ -72,6 +69,7 @@ export class StrategiesMiddleware implements NestMiddleware {
             next,
         );
         console.log("Strategy result", result);
+        res.locals.state = { ...res.locals.state, ...result.returnedState };
 
         const authResult = result.result;
         if (authResult) {
@@ -81,7 +79,7 @@ export class StrategiesMiddleware implements NestMiddleware {
                     res.locals.state,
                     instance,
                 );
-            res.locals.state = { ...result.returnedState, ...executionResult };
+            res.locals.state = { ...res.locals.state, ...executionResult };
         } else {
             (res.locals.state as AuthStateData).authErrorMessage =
                 result.info?.message?.toString() ||

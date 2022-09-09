@@ -1,15 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "../strategies.service";
-import { Strategy, StrategyUsingPassport } from "../Strategy";
+import { StrategyUsingPassport } from "../Strategy";
 import * as passportOauth from "passport-oauth2";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
-import { ActiveLogin, LoginState } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { AuthResult } from "../AuthResult";
+import { AuthFunction, AuthResult, AuthStateData } from "../AuthResult";
 
 @Injectable()
 export class OauthStrategyService extends StrategyUsingPassport {
@@ -25,6 +23,23 @@ export class OauthStrategyService extends StrategyUsingPassport {
 
     protected override checkInstanceConfig(instanceConfig: object): boolean {
         return Object.keys(instanceConfig).length === 0; //todo
+    }
+
+    protected override getAdditionalPassportOptions(
+        strategyInstance: StrategyInstance,
+        authStateData: object | AuthStateData,
+    ): passport.AuthenticateOptions {
+        const mode = (authStateData as AuthStateData).function;
+        if (
+            mode == AuthFunction.LINK_ACCOUNT_WITH_SYNC ||
+            mode == AuthFunction.REGISTER_WITH_SYNC
+        ) {
+            return {
+                scope: "repo",
+            };
+        } else {
+            return {};
+        }
     }
 
     public override createPassportStrategyInstance(

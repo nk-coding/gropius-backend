@@ -11,6 +11,19 @@ import { LoginUser } from "./LoginUser";
 import { StrategyInstance } from "./StrategyInstance";
 import { UserLoginDataImsUser } from "./UserLoginDataImsUser";
 
+export enum LoginState {
+    /**
+     * The user authenticated using a strategy but has no account yet.
+     * The login data will be saved for some time to give the user time to register using the temporary access token
+     */
+    WAITING_FOR_REGISTER = "WAITING_FOR_REGISTER",
+    VALID = "VALID",
+    /**
+     * The login of the user with this login data has been blocked by an administrator
+     */
+    BLOCKED = "BLOCKED",
+}
+
 /**
  * Data used for verifying a login by a LoginUser.
  *
@@ -21,8 +34,8 @@ export class UserLoginData {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @ManyToOne(() => LoginUser, (user) => user.loginData)
-    user: Promise<LoginUser>;
+    @ManyToOne(() => LoginUser, (user) => user.loginData, { nullable: true })
+    user: Promise<LoginUser | null>;
 
     @ManyToOne(() => StrategyInstance)
     @JoinColumn({ name: "strategyInstanceId" })
@@ -33,6 +46,16 @@ export class UserLoginData {
      */
     @Column("jsonb")
     data: any;
+
+    @Column({
+        type: "enum",
+        enum: LoginState,
+        default: LoginState.VALID,
+    })
+    state: LoginState;
+
+    @Column({ nullable: true, default: null })
+    expires: Date | null;
 
     @OneToMany(() => UserLoginDataImsUser, (imsUser) => imsUser.loginData)
     imsUsers: Promise<UserLoginDataImsUser[]>;

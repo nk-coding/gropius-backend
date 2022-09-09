@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthClientService } from "src/model/services/auth-client.service";
+import { AuthStateData } from "../AuthResult";
 import { ensureState } from "../utils";
 
 export interface OauthServerStateData {
@@ -19,6 +20,7 @@ export class OauthAutorizeMiddleware implements NestMiddleware {
     constructor(private readonly authClientService: AuthClientService) {}
 
     async use(req: Request, res: Response, next: () => void) {
+        ensureState(res);
         console.log("oauth-authorize middleware");
         const params = { ...req.query } as { [name: string]: string };
         const clientId = params.client_id;
@@ -33,10 +35,10 @@ export class OauthAutorizeMiddleware implements NestMiddleware {
             params.response_type != undefined &&
             params.response_type !== "code"
         ) {
-            throw new HttpException(
-                "response_type must be set to 'code'. Other flow types not supported",
-                HttpStatus.NOT_IMPLEMENTED,
-            );
+            (res.locals.state as AuthStateData).authErrorMessage =
+                "response_type must be set to 'code'. Other flow types not supported";
+            (res.locals.state as AuthStateData).authErrorType =
+                "unsupported_response_type";
         }
         if (
             !!params.redirect_uri &&

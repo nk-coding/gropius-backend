@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
 import { StrategyInstance } from "../postgres/StrategyInstance";
-import { UserLoginData } from "../postgres/UserLoginData";
+import { LoginState, UserLoginData } from "../postgres/UserLoginData";
 
 @Injectable()
 export class UserLoginDataService extends Repository<UserLoginData> {
@@ -16,6 +16,9 @@ export class UserLoginDataService extends Repository<UserLoginData> {
         return this.createQueryBuilder("loginData")
             .where(`"strategyInstanceId" = :instanceId`, {
                 instanceId: strategyInstance.id,
+            })
+            .andWhere(`("expires" is not null and "expires" >= :dateNow)`, {
+                dateNow: new Date(),
             })
             .andWhere(`"data" @> :data`, { data })
             .getMany();

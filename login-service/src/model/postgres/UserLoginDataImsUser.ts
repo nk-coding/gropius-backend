@@ -7,7 +7,7 @@ export class UserLoginDataImsUser {
     neo4jId: string;
 
     @ManyToOne(() => UserLoginData, (loginData) => loginData.imsUsers)
-    loginData: UserLoginData;
+    loginData: Promise<UserLoginData>;
 
     toJSON() {
         return {};

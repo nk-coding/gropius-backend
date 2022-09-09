@@ -23,11 +23,16 @@ export class ActiveLogin {
     id: string;
 
     constructor(usedStrategyInstance: StrategyInstance) {
-        this.usedStrategyInstnce = usedStrategyInstance;
+        this.usedStrategyInstnce = Promise.resolve(usedStrategyInstance);
+        this.created = new Date();
+        this.expires = null;
     }
 
     @Column()
-    expires: Date;
+    created: Date;
+
+    @Column({ nullable: true })
+    expires: Date | null;
 
     @Column({
         type: "enum",
@@ -44,17 +49,17 @@ export class ActiveLogin {
     /**
      * Data which needs to be stored on a per-login basis (e.g. issued tokens from auth provider)
      */
-    @Column("json")
+    @Column("jsonb")
     data: object = {};
 
     /**
      * May not be null, must be set on creation.
      */
     @ManyToOne(() => StrategyInstance)
-    usedStrategyInstnce: StrategyInstance;
+    usedStrategyInstnce: Promise<StrategyInstance>;
 
     @ManyToOne(() => UserLoginData, (loginData) => loginData.loginsUsingThis, {
         nullable: true,
     })
-    loginInstanceFor: UserLoginData | null;
+    loginInstanceFor: Promise<UserLoginData | null>;
 }

@@ -12,7 +12,7 @@ export class StrategyInstance {
     @Column({ unique: true, nullable: true })
     name: string | null;
 
-    @Column("json")
+    @Column("jsonb")
     instanceConfig: object;
 
     @Column()
@@ -26,6 +26,9 @@ export class StrategyInstance {
 
     @Column()
     isSyncActive: boolean;
+
+    @Column()
+    doesImplicitRegister: boolean;
 
     toJSON() {
         return {

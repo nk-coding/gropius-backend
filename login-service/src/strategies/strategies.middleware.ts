@@ -6,20 +6,27 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import passport from "passport";
+import { ActiveLogin, LoginState } from "src/model/postgres/ActiveLogin";
+import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthClientService } from "src/model/services/auth-client.service";
+import { LoginUserService } from "src/model/services/login-user.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { AuthFunction } from "./AuthResult";
+import { AuthFunction, AuthResult, AuthStateData } from "./AuthResult";
+import { PerformAuthFunctionService } from "./perform-auth-function.service";
 import { StrategiesService } from "./strategies.service";
+import { ensureState } from "./utils";
 
 @Injectable()
 export class StrategiesMiddleware implements NestMiddleware {
     constructor(
         private readonly strategiesService: StrategiesService,
         private readonly strategyInstanceService: StrategyInstanceService,
+        private readonly performAuthFunctionService: PerformAuthFunctionService,
     ) {}
 
-    async idToStrategyInstance(id: string): Promise<StrategyInstance> {
+    private async idToStrategyInstance(id: string): Promise<StrategyInstance> {
         if (!id) {
             throw new HttpException(
                 "No Id of strategy instance given",
@@ -37,6 +44,7 @@ export class StrategiesMiddleware implements NestMiddleware {
     }
 
     async use(req: Request, res: Response, next: () => void) {
+        ensureState(res);
         const id = req.params.id;
         console.log("id", id);
         const instance = await this.idToStrategyInstance(id);
@@ -44,6 +52,18 @@ export class StrategiesMiddleware implements NestMiddleware {
             instance.type,
         );
         console.log("strategies middleware; state", res.locals.state);
+
+        const functionError =
+            this.performAuthFunctionService.checkFunctionIsAllowed(
+                res.locals.state,
+                instance,
+            );
+        if (functionError != null) {
+            (res.locals.state as AuthStateData).authErrorMessage =
+                functionError;
+            return next();
+        }
+
         const result = await strategy.performAuth(
             instance,
             res.locals.state || {},
@@ -52,28 +72,22 @@ export class StrategiesMiddleware implements NestMiddleware {
             next,
         );
         console.log("Strategy result", result);
-        if (result.result) {
-            if (result.returnedState) {
-                res.locals.state = result.returnedState;
-            }
-            next();
-        } else {
-            throw new HttpException(
-                result.info?.message ?? result.info ?? "Login not successfull",
-                HttpStatus.UNAUTHORIZED,
-            );
-        }
 
-        /*if (result.result == null) {
-            console.log("Result null, returning info");
-            throw new HttpException(
-                result.info.message,
-                HttpStatus.BAD_REQUEST,
-            );
+        const authResult = result.result;
+        if (authResult) {
+            const executionResult =
+                await this.performAuthFunctionService.performRequestedAction(
+                    authResult,
+                    res.locals.state,
+                    instance,
+                );
+            res.locals.state = { ...result.returnedState, ...executionResult };
         } else {
-            console.log("Auth successfull");
-            return "Logged in as " + result.result.user.displayName;
+            (res.locals.state as AuthStateData).authErrorMessage =
+                result.info?.message?.toString() ||
+                JSON.stringify(result.info) ||
+                "Login unsuccessfull";
         }
-        throw new HttpException("Test", HttpStatus.BAD_REQUEST);*/
+        next();
     }
 }

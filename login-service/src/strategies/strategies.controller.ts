@@ -17,8 +17,8 @@ export class StrategiesController {
         return this.strategiesService.getAllStrategies();
     }
 
-    @All("oauth/:id/login")
+    @All("post/:id")
     test(@Param("id") id: string) {
-        return "Test successfull for " + id;
+        return "Post strategy data for " + id;
     }
 }

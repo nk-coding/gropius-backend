@@ -7,7 +7,7 @@ import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { ActiveLogin, LoginState } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { AuthResult } from "../AuthResult";
 
@@ -57,24 +57,47 @@ export class OauthStrategyService extends StrategyUsingPassport {
                 }
                 console.log(`Auth for ${username} with ${password}`);
                 done(null, user);*/
-                console.log("Got access token", accessToken, refreshToken);
+                console.log(
+                    "Got access token",
+                    accessToken,
+                    refreshToken,
+                    profile,
+                );
                 fetch("https://api.github.com/user", {
                     headers: { Authorization: `Bearer ${accessToken}` },
                 })
                     .then((res) => res.json())
                     .then(async (user) => {
                         const username = user.login;
-                        const loginUser = await loginUserService.findOneBy({
+                        const dataActiveLogin = {
+                            accessToken,
+                            refreshToken,
+                        };
+                        const dataUserLoginData = {
                             username,
-                        });
-                        if (!loginUser) {
-                            done(null, false, { message: "User not found" });
+                        };
+                        const loginDataCandidates =
+                            await loginDataService.findForStrategyWithDataContaining(
+                                strategyInstance,
+                                { username },
+                            );
+                        if (loginDataCandidates.length != 1) {
+                            done(
+                                null,
+                                { dataActiveLogin, dataUserLoginData },
+                                { message: "No unique user found" },
+                            );
+                        } else {
+                            done(
+                                null,
+                                {
+                                    loginData: loginDataCandidates[0],
+                                    dataActiveLogin,
+                                    dataUserLoginData,
+                                },
+                                {},
+                            );
                         }
-                        done(
-                            null,
-                            { user: loginUser, login: undefined as any },
-                            {},
-                        );
                     })
                     .catch((err) => done(err, false, {}));
             },

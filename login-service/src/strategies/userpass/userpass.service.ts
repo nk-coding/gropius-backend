@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "../strategies.service";
-import { Strategy, StrategyUsingPassport } from "../Strategy";
+import { Strategy, StrategyUsingPassport, StrategyVariable } from "../Strategy";
 import * as passportLocal from "passport-local";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
@@ -23,10 +23,20 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         strategiesService.addStrategy("userpass", this);
     }
 
-    override get acceptsVariables(): { [variableName: string]: string } {
+    override get acceptsVariables(): {
+        [variableName: string]: StrategyVariable;
+    } {
         return {
-            username: "string",
-            password: "string",
+            username: {
+                name: "string",
+                displayName: "Username",
+                type: "string",
+            },
+            password: {
+                name: "string",
+                displayName: "Password",
+                type: "string",
+            },
         };
     }
 
@@ -46,12 +56,40 @@ export class UserpassStrategyService extends StrategyUsingPassport {
                 password,
                 done: (err: any, user: AuthResult | false, info: any) => any,
             ) => {
-                const user = await loginUserService.findOneBy({ username });
-                if (!user) {
-                    done(null, false, { message: "Username unknown" });
+                const dataActiveLogin = {};
+                const dataUserLoginData = {
+                    password,
+                };
+                const loginDataCandidates =
+                    await loginDataService.findForStrategyWithDataContaining(
+                        strategyInstance,
+                        { password },
+                    );
+                const loginDataForCorrectUser = await loginDataService
+                    .createQueryBuilder("loginData")
+                    .leftJoinAndSelect(`loginData.user`, "user")
+                    .where(`user.username = :username`, { username })
+                    .andWhereInIds(
+                        loginDataCandidates.map((candidate) => candidate.id),
+                    )
+                    .getMany();
+                if (loginDataForCorrectUser.length != 1) {
+                    done(
+                        null,
+                        { dataActiveLogin, dataUserLoginData },
+                        { message: "Username or password incorrect" },
+                    );
                 }
                 console.log(`Auth for ${username} with ${password}`);
-                done(null, { user, login: undefined as any }, {});
+                done(
+                    null,
+                    {
+                        loginData: loginDataForCorrectUser[0],
+                        dataActiveLogin,
+                        dataUserLoginData,
+                    },
+                    {},
+                );
             },
         );
     }

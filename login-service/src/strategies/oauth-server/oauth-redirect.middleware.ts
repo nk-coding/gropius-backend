@@ -5,11 +5,6 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { AuthClientService } from "src/model/services/auth-client.service";
-import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { AuthFunction, AuthStateData } from "../AuthResult";
-import { StrategiesService } from "../strategies.service";
 import { OauthServerStateData } from "./oauth-autorize.middleware";
 
 @Injectable()

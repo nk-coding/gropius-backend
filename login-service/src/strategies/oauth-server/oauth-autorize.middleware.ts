@@ -4,12 +4,9 @@ import {
     Injectable,
     NestMiddleware,
 } from "@nestjs/common";
-import { query, Request, Response } from "express";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { Request, Response } from "express";
 import { AuthClientService } from "src/model/services/auth-client.service";
-import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { AuthFunction } from "../AuthResult";
-import { StrategiesService } from "../strategies.service";
+import { ensureState } from "../utils";
 
 export interface OauthServerStateData {
     state?: string;
@@ -53,12 +50,10 @@ export class OauthAutorizeMiddleware implements NestMiddleware {
         const redirect = params.redirect_uri || client.redirectUrls[0];
         const state = params.state;
 
-        res.locals.state = {
-            function: AuthFunction.LOGIN,
-            state,
-            redirect,
-            clientId,
-        };
+        ensureState(res);
+        res.locals.state.state = state;
+        res.locals.state.redirect = redirect;
+        res.locals.state.clientId = clientId;
         next();
     }
 }

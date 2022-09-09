@@ -5,6 +5,13 @@ import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthResult, AuthStateData } from "./AuthResult";
 
+export interface StrategyVariable {
+    name: string;
+    displayName?: string;
+    type: "boolean" | "number" | "object" | "string";
+    nullable?: boolean;
+}
+
 export abstract class Strategy {
     constructor(
         public readonly typeName: string,
@@ -59,7 +66,7 @@ export abstract class Strategy {
     }
 
     get acceptsVariables(): {
-        [variableName: string]: string;
+        [variableName: string]: StrategyVariable;
     } {
         return {};
     }

@@ -62,7 +62,7 @@ export class StrategyUserpassController extends GenericStrategyController {
         @Req() req,
         @Res() res,
         @Next() next,
-    ): Promise<string> {
+    ): Promise<any> {
         //this.checkUserpassLoginInput(body);
         const instance = await this.idToStrategyInstance(id);
         const strategy = await this.strategiesService.getStrategyByName(
@@ -111,7 +111,7 @@ export class StrategyUserpassController extends GenericStrategyController {
             );
         } else {
             console.log("Auth successfull");
-            return "Logged in as " + result.result.user.displayName;
+            return result.result.loginData;
         }
 
         /*const passportStrategy =

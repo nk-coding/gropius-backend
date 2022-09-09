@@ -19,7 +19,7 @@ export class LoginUser {
     email: string | null;
 
     @OneToMany(() => UserLoginData, (loginData) => loginData.user)
-    loginData: UserLoginData[];
+    loginData: Promise<UserLoginData[]>;
 
     toJSON() {
         return {

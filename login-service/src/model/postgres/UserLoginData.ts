@@ -1,6 +1,7 @@
 import {
     Column,
     Entity,
+    JoinColumn,
     ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
@@ -21,22 +22,23 @@ export class UserLoginData {
     id: string;
 
     @ManyToOne(() => LoginUser, (user) => user.loginData)
-    user: LoginUser;
+    user: Promise<LoginUser>;
 
     @ManyToOne(() => StrategyInstance)
-    strategyInstance: StrategyInstance;
+    @JoinColumn({ name: "strategyInstanceId" })
+    strategyInstance: Promise<StrategyInstance>;
 
     /**
      * Data which needs to be stored for the user for every strategy he uses (e.g. username on the 3rd party platform)
      */
-    @Column("json")
+    @Column("jsonb")
     data: any;
 
     @OneToMany(() => UserLoginDataImsUser, (imsUser) => imsUser.loginData)
-    imsUsers: UserLoginDataImsUser[];
+    imsUsers: Promise<UserLoginDataImsUser[]>;
 
     @OneToMany(() => ActiveLogin, (login) => login.loginInstanceFor)
-    loginsUsingThis: ActiveLogin[];
+    loginsUsingThis: Promise<ActiveLogin[]>;
 
     toJSON() {
         return { id: this.id };

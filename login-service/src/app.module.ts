@@ -7,6 +7,8 @@ import { ApiSyncModule } from "./api-sync/api-sync.module";
 import { AppController } from "./app.controller";
 import { ModelModule } from "./model/model.module";
 import { StrategiesModule } from "./strategies/strategies.module";
+import { BackendServicesModule } from "./backend-services/backend-services.module";
+import { validationSchema } from "./configuration-validator";
 
 @Module({
     imports: [
@@ -15,14 +17,15 @@ import { StrategiesModule } from "./strategies/strategies.module";
                 process.env.NODE_ENV === "production"
                     ? [".env.prod.local", ".env.prod"]
                     : [".env.dev.local", ".env.dev"],
+            validationSchema,
         }),
         TypeOrmModule.forRoot({
             type: "postgres",
-            host: process.env.GROPIUS_LOGIN_DATABASE_HOST ?? "localhost",
-            port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10) || 5432, // note: using || instead of ?? to catch NaN
-            username: process.env.GROPIUS_LOGIN_DATABASE_USER ?? "gropius",
-            password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD ?? "gropius",
-            database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE ?? "gropius",
+            host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
+            port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10), // note: using || instead of ?? to catch NaN
+            username: process.env.GROPIUS_LOGIN_DATABASE_USER,
+            password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
+            database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
             synchronize: process.env.NODE_ENV !== "production",
             autoLoadEntities: true,
         }),
@@ -35,6 +38,7 @@ import { StrategiesModule } from "./strategies/strategies.module";
             { path: "syncApi", module: ApiSyncModule },
             { path: "strategy", module: StrategiesModule },
         ]),
+        BackendServicesModule,
     ],
     controllers: [AppController],
     providers: [],

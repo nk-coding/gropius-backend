@@ -21,11 +21,10 @@ export class PerformAuthFunctionService {
         private readonly activeLoginService: ActiveLoginService,
         private readonly userLoginDataService: UserLoginDataService,
     ) {
-        this.REGISTRATION_EXPIRATION_TIME_SEC =
-            parseInt(
-                process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_SEC,
-                10,
-            ) || 600;
+        this.REGISTRATION_EXPIRATION_TIME_SEC = parseInt(
+            process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_SEC,
+            10,
+        );
     }
 
     public checkFunctionIsAllowed(

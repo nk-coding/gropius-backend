@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module } from "@nestjs/common";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { ModelModule } from "src/model/model.module";
 import { ErrorHandlerMiddleware } from "./error-handler.middleware";
 import { ModeExtractorMiddleware } from "./mode-extractor.middleware";
@@ -14,7 +15,18 @@ import { StrategyUserpassController } from "./userpass/userpass.controller";
 import { UserpassStrategyService } from "./userpass/userpass.service";
 
 @Module({
-    imports: [ModelModule],
+    imports: [
+        ModelModule,
+        JwtModule.register({
+            secret: process.env.GROPIUS_PASSPORT_STATE_JWT_SECRET,
+            signOptions: {
+                issuer: process.env.GROPIUS_PASSPORT_STATE_JWT_ISSUER,
+            },
+            verifyOptions: {
+                issuer: process.env.GROPIUS_PASSPORT_STATE_JWT_ISSUER,
+            },
+        }),
+    ],
     controllers: [
         StrategiesController,
         StrategyUserpassController,
@@ -22,9 +34,10 @@ import { UserpassStrategyService } from "./userpass/userpass.service";
     ],
     providers: [
         StrategiesService,
+        PerformAuthFunctionService,
         UserpassStrategyService,
         OauthStrategyService,
-        PerformAuthFunctionService,
+        { provide: "PassportStateJwt", useExisting: JwtService },
     ],
 })
 export class StrategiesModule {

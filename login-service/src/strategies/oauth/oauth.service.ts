@@ -1,13 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "../strategies.service";
-import { StrategyUsingPassport } from "../Strategy";
 import * as passportOauth from "passport-oauth2";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { AuthFunction, AuthResult, AuthStateData } from "../AuthResult";
+import { StrategyUsingPassport } from "../StrategyUsingPassport";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class OauthStrategyService extends StrategyUsingPassport {
@@ -16,8 +17,18 @@ export class OauthStrategyService extends StrategyUsingPassport {
         strategyInstanceService: StrategyInstanceService,
         private readonly loginDataService: UserLoginDataService,
         private readonly loginUserService: LoginUserService,
+        @Inject("PassportStateJwt")
+        passportJwtService: JwtService,
     ) {
-        super("oauth", strategyInstanceService, true, false, true, true);
+        super(
+            "oauth",
+            strategyInstanceService,
+            passportJwtService,
+            true,
+            false,
+            true,
+            true,
+        );
         strategiesService.addStrategy("oauth", this);
     }
 

@@ -4,8 +4,6 @@ import { GraphqlService } from "./model/graphql/graphql.service";
 
 @Controller()
 export class AppController {
-    constructor() {}
-
     @Get()
     async getHello(): Promise<string> {
         return "";

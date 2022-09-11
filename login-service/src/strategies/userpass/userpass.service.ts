@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "../strategies.service";
-import { Strategy, StrategyUsingPassport, StrategyVariable } from "../Strategy";
+import { Strategy, StrategyVariable } from "../Strategy";
 import * as passportLocal from "passport-local";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
@@ -10,6 +10,8 @@ import { UserLoginDataService } from "src/model/services/user-login-data.service
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { AuthResult } from "../AuthResult";
+import { StrategyUsingPassport } from "../StrategyUsingPassport";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
 export class UserpassStrategyService extends StrategyUsingPassport {
@@ -18,8 +20,18 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         strategyInstanceService: StrategyInstanceService,
         private readonly loginDataService: UserLoginDataService,
         private readonly loginUserService: LoginUserService,
+        @Inject("PassportStateJwt")
+        passportJwtService: JwtService,
     ) {
-        super("userpass", strategyInstanceService, true, false, false, false);
+        super(
+            "userpass",
+            strategyInstanceService,
+            passportJwtService,
+            true,
+            false,
+            false,
+            false,
+        );
         strategiesService.addStrategy("userpass", this);
     }
 

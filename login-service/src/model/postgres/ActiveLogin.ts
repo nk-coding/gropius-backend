@@ -1,10 +1,13 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { AuthClient } from "./AuthClient";
 import { LoginUser } from "./LoginUser";
 import { StrategyInstance } from "./StrategyInstance";
 import { UserLoginData } from "./UserLoginData";
 
 @Entity()
 export class ActiveLogin {
+    static LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED = -1;
+
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -12,8 +15,9 @@ export class ActiveLogin {
         this.usedStrategyInstnce = Promise.resolve(usedStrategyInstance);
         this.created = new Date();
         this.expires = expires || null;
-        this.isValid =
-            this.expires == null ? true : this.created < this.expires;
+        this.isValid = false;
+        this.nextExpectedRefreshTokenNumber =
+            ActiveLogin.LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED;
     }
 
     @Column()
@@ -49,4 +53,9 @@ export class ActiveLogin {
         nullable: true,
     })
     loginInstanceFor: Promise<UserLoginData | null>;
+
+    @ManyToOne(() => AuthClient, (client) => client.loginsOfThisClient, {
+        nullable: true,
+    })
+    createdByClient: Promise<AuthClient | null>;
 }

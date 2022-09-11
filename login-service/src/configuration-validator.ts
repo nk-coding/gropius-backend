@@ -16,9 +16,11 @@ export const validationSchema = Joi.object({
     GROPIUS_LOGIN_DATABASE_DATABASE: Joi.string().default("gropius"),
 
     GROPIUS_REGISTRATION_EXPIRATION_TIME_SEC: Joi.number().min(0).default(600),
+    GROPIUS_LOGIN_SPECIFIC_JWT_SECRET: Joi.string().required(),
+    GROPIUS_JWT_ISSUER: Joi.string().default("gropius-login"),
 
-    GROPIUS_PASSPORT_STATE_JWT_SECRET: Joi.string().required(),
     GROPIUS_PASSPORT_STATE_JWT_ISSUER: Joi.string().default(
         "gropius-login-state",
     ),
+    GROPIUS_OAUTH_CODE_EXPIRATION_TIME_SEC: Joi.number().min(0).default(600),
 });

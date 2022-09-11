@@ -69,13 +69,12 @@ export abstract class StrategyUsingPassport extends Strategy {
         return new Promise((resolve, reject) => {
             const passportStrategy =
                 this.getPassportStrategyInstanceFor(strategyInstance);
+            const jwtService = this.passportJwtService;
             passport.authenticate(
                 passportStrategy,
                 {
                     session: false,
-                    state: Buffer.from(JSON.stringify(authStateData)).toString(
-                        "base64url",
-                    ),
+                    state: jwtService.sign(authStateData),
                     ...this.getAdditionalPassportOptions(
                         strategyInstance,
                         authStateData,
@@ -88,13 +87,9 @@ export abstract class StrategyUsingPassport extends Strategy {
                     } else {
                         let returnedState = {};
                         if (info.state && typeof info.state == "string") {
-                            returnedState = JSON.parse(
-                                Buffer.from(info.state, "base64url").toString(
-                                    "utf-8",
-                                ),
-                            );
+                            returnedState = jwtService.verify(info.state);
                         } else if (info.state) {
-                            returnedState = info.state;
+                            reject("State not returned as JWT");
                         } else if (authStateData) {
                             returnedState = authStateData;
                         }

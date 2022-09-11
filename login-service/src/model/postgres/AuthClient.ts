@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ActiveLogin } from "./ActiveLogin";
 
 @Entity()
 export class AuthClient {
@@ -10,4 +11,7 @@ export class AuthClient {
 
     @Column("json")
     clientSecrets: string[];
+
+    @OneToMany(() => ActiveLogin, (login) => login.createdByClient)
+    loginsOfThisClient: Promise<ActiveLogin[]>;
 }

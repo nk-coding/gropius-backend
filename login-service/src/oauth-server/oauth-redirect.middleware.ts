@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenService } from "src/backend-services/token.service";
-import { AuthStateData } from "../AuthResult";
+import { AuthStateData } from "../strategies/AuthResult";
 import { OauthServerStateData } from "./oauth-autorize.middleware";
 
 @Injectable()

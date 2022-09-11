@@ -9,6 +9,7 @@ import { ModelModule } from "./model/model.module";
 import { StrategiesModule } from "./strategies/strategies.module";
 import { BackendServicesModule } from "./backend-services/backend-services.module";
 import { validationSchema } from "./configuration-validator";
+import { OauthServerModule } from "./oauth-server/oauth-server.module";
 
 @Module({
     imports: [
@@ -33,6 +34,7 @@ import { validationSchema } from "./configuration-validator";
         ApiLoginModule,
         ApiSyncModule,
         StrategiesModule,
+        OauthServerModule,
         RouterModule.register([
             { path: "login", module: ApiLoginModule },
             { path: "syncApi", module: ApiSyncModule },

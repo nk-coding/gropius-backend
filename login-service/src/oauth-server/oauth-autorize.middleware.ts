@@ -6,8 +6,8 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthClientService } from "src/model/services/auth-client.service";
-import { AuthStateData } from "../AuthResult";
-import { ensureState } from "../utils";
+import { AuthStateData } from "../strategies/AuthResult";
+import { ensureState } from "../strategies/utils";
 
 export interface OauthServerStateData {
     state?: string;

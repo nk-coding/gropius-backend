@@ -7,6 +7,7 @@ import { StrategiesMiddleware } from "../strategies/strategies.middleware";
 import { StrategiesModule } from "../strategies/strategies.module";
 import { OauthAutorizeMiddleware } from "./oauth-autorize.middleware";
 import { OauthRedirectMiddleware } from "./oauth-redirect.middleware";
+import { OauthServerController } from "./oauth-server.controller";
 import { OauthTokenMiddleware } from "./oauth-token.middleware";
 import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.middleware";
 
@@ -18,6 +19,7 @@ import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.mid
         OauthTokenMiddleware,
         TokenAuthorizationCodeMiddleware,
     ],
+    controllers: [OauthServerController],
 })
 export class OauthServerModule {
     private middlewares: { middlewares: NestMiddleware[]; path: string }[] = [];

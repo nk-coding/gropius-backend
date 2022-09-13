@@ -4,6 +4,10 @@ export const validationSchema = Joi.object({
     GROPIUS_INTERNAL_BACKEND_ENDPOINT: Joi.string().uri().required(),
     GROPIUS_INTERNAL_BACKEND_TOKEN: Joi.string(),
     GROPIUS_INTERNAL_BACKEND_JWT_SECRET: Joi.string().required(),
+    GROPIUS_INTERNAL_BACKEND_JWT_EXPIRATION_TIME_MS: Joi.number()
+        .min(0)
+        .max(48 * 60 * 60 * 1000)
+        .required(),
 
     GROPIUS_LOGIN_DATABASE_HOST: Joi.string().default("localhost"),
     GROPIUS_LOGIN_DATABASE_PORT: Joi.number()
@@ -15,12 +19,14 @@ export const validationSchema = Joi.object({
     GROPIUS_LOGIN_DATABASE_PASSWORD: Joi.string().default("postgres"),
     GROPIUS_LOGIN_DATABASE_DATABASE: Joi.string().default("gropius"),
 
-    GROPIUS_REGISTRATION_EXPIRATION_TIME_SEC: Joi.number().min(0).default(600),
+    GROPIUS_REGISTRATION_EXPIRATION_TIME_MS: Joi.number()
+        .min(0)
+        .default(600000),
     GROPIUS_LOGIN_SPECIFIC_JWT_SECRET: Joi.string().required(),
     GROPIUS_JWT_ISSUER: Joi.string().default("gropius-login"),
 
     GROPIUS_PASSPORT_STATE_JWT_ISSUER: Joi.string().default(
         "gropius-login-state",
     ),
-    GROPIUS_OAUTH_CODE_EXPIRATION_TIME_SEC: Joi.number().min(0).default(600),
+    GROPIUS_OAUTH_CODE_EXPIRATION_TIME_MS: Joi.number().min(0).default(600000),
 });

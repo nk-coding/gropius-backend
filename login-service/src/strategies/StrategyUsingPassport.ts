@@ -1,4 +1,4 @@
-import passport from "passport";
+import * as passport from "passport";
 import { Strategy } from "./Strategy";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { AuthStateData, AuthResult } from "./AuthResult";

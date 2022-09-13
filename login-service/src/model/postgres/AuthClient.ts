@@ -12,6 +12,12 @@ export class AuthClient {
     @Column("json")
     clientSecrets: string[];
 
+    @Column()
+    isValid: boolean;
+
+    @Column()
+    requiresSecret: boolean;
+
     @OneToMany(() => ActiveLogin, (login) => login.createdByClient)
     loginsOfThisClient: Promise<ActiveLogin[]>;
 }

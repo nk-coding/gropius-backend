@@ -108,6 +108,10 @@ export class OauthStrategyService extends StrategyUsingPassport {
                                 { username },
                             );
                         if (loginDataCandidates.length != 1) {
+                            console.error(
+                                "Oauth login didn's find unique login data",
+                                loginDataCandidates,
+                            );
                             done(
                                 null,
                                 { dataActiveLogin, dataUserLoginData },

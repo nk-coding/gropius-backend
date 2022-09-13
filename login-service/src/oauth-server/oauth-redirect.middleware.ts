@@ -6,12 +6,132 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenService } from "src/backend-services/token.service";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { AuthClient } from "src/model/postgres/AuthClient";
+import { ActiveLoginService } from "src/model/services/active-login.service";
+import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "../strategies/AuthResult";
 import { OauthServerStateData } from "./oauth-autorize.middleware";
 
 @Injectable()
 export class OauthRedirectMiddleware implements NestMiddleware {
-    constructor(private readonly tokenService: TokenService) {}
+    constructor(
+        private readonly tokenService: TokenService,
+        private readonly activeLoginService: ActiveLoginService,
+        private readonly authClientService: AuthClientService,
+    ) {}
+
+    private handleErrorCases(
+        state: (AuthStateData & OauthServerStateData) | undefined | null,
+        url: URL,
+    ): boolean {
+        const errorMessage = state?.authErrorMessage;
+        if (errorMessage) {
+            url.searchParams.append(
+                "error",
+                encodeURIComponent(state.authErrorType || "invalid_request"),
+            );
+            url.searchParams.append(
+                "error_description",
+                encodeURIComponent(
+                    state.authErrorMessage?.replace(
+                        /[^\x20-\x21\x23-\x5B\x5D-\x7E]/g,
+                        "",
+                    ),
+                ),
+            );
+            return true;
+        } else if (state == undefined || state == null) {
+            url.searchParams.append("error", "server_error");
+            url.searchParams.append(
+                "error_description",
+                encodeURIComponent(
+                    "State of request was lost. Internal server error",
+                ),
+            );
+            return true;
+        } else if (!state.activeLogin) {
+            url.searchParams.append("error", "server_error");
+            url.searchParams.append(
+                "error_description",
+                encodeURIComponent(
+                    "Login information was lost. Internal server error",
+                ),
+            );
+        } else if (!state.client?.id && !state.clientId) {
+            url.searchParams.append("error", "server_error");
+            url.searchParams.append(
+                "error_description",
+                encodeURIComponent(
+                    "Client id information was lost. Internal server error",
+                ),
+            );
+        }
+        return false;
+    }
+
+    private async assignActiveLoginToClient(
+        state: AuthStateData & OauthServerStateData,
+        expiresIn: number,
+    ): Promise<number> {
+        if (typeof state.activeLogin == "string") {
+            state.activeLogin = await this.activeLoginService.findOneByOrFail({
+                id: state.activeLogin,
+            });
+        }
+        if (!state.client && state.clientId) {
+            state.client = await this.authClientService.findOneByOrFail({
+                id: state.clientId,
+            });
+        }
+        state.activeLogin.createdByClient = Promise.resolve(state.client);
+        state.activeLogin.expires = new Date(Date.now() + expiresIn);
+        const codeJwtId = ++state.activeLogin.nextExpectedRefreshTokenNumber;
+
+        state.activeLogin = await this.activeLoginService.save(
+            state.activeLogin,
+        );
+        state.client = await this.authClientService.findOneBy({
+            id: state.client.id,
+        });
+
+        return codeJwtId;
+    }
+
+    private async generateCode(
+        state: AuthStateData & OauthServerStateData,
+        url: URL,
+    ) {
+        const activeLogin = state?.activeLogin;
+        try {
+            const expiresIn = parseInt(
+                process.env.GROPIUS_OAUTH_CODE_EXPIRATION_TIME_MS,
+                10,
+            );
+            const codeJwtId = await this.assignActiveLoginToClient(
+                state,
+                expiresIn,
+            );
+            const token = await this.tokenService.signActiveLoginCode(
+                typeof activeLogin == "string" ? activeLogin : activeLogin.id,
+                state.clientId || state.client.id,
+                expiresIn,
+                codeJwtId,
+            );
+            url.searchParams.append("code", token);
+            console.log("Created token", url.searchParams);
+            if (state.state) {
+                url.searchParams.append("state", state.state);
+            }
+        } catch (err) {
+            console.error(err);
+            url.searchParams.append("error", "server_error");
+            url.searchParams.append(
+                "error_description",
+                encodeURIComponent("Could not generate code for response"),
+            );
+        }
+    }
 
     async use(req: Request, res: Response, next: () => void) {
         console.log("oauth-callback middleware");
@@ -23,76 +143,10 @@ export class OauthRedirectMiddleware implements NestMiddleware {
             );
         }
         const url = new URL(state.redirect);
-        const errorMessage = (res.locals?.state as AuthStateData)
-            ?.authErrorMessage;
-        if (errorMessage) {
-            url.searchParams.append(
-                "error",
-                encodeURIComponent(
-                    (res.locals?.state as AuthStateData).authErrorType ||
-                        "invalid_request",
-                ),
-            );
-            url.searchParams.append(
-                "error_description",
-                encodeURIComponent(
-                    (
-                        res.locals?.state as AuthStateData
-                    ).authErrorMessage?.replace(
-                        /[^\x20-\x21\x23-\x5B\x5D-\x7E]/g,
-                        "",
-                    ),
-                ),
-            );
-        } else if (
-            res.locals?.state == undefined ||
-            res.locals?.state == null
-        ) {
-            url.searchParams.append("error", "server_error");
-            url.searchParams.append(
-                "error_description",
-                encodeURIComponent(
-                    "State of request was lost. Internal server error",
-                ),
-            );
-        } else {
-            const activeLogin = (res.locals?.state as AuthStateData)
-                ?.activeLogin;
-            if (activeLogin) {
-                try {
-                    const expiresIn = parseInt(
-                        process.env.GROPIUS_OAUTH_CODE_EXPIRATION_TIME_SEC,
-                        10,
-                    );
-                    const token = await this.tokenService.signActiveLoginCode(
-                        typeof activeLogin == "string"
-                            ? activeLogin
-                            : activeLogin.id,
-                        expiresIn,
-                    );
-                    url.searchParams.append("code", token);
-                    if (state.state) {
-                        url.searchParams.append("state", state.state);
-                    }
-                } catch (err) {
-                    console.error(err);
-                    url.searchParams.append("error", "server_error");
-                    url.searchParams.append(
-                        "error_description",
-                        encodeURIComponent(
-                            "Could not generate code for response",
-                        ),
-                    );
-                }
-            } else {
-                url.searchParams.append("error", "server_error");
-                url.searchParams.append(
-                    "error_description",
-                    encodeURIComponent(
-                        "Login information was lost. Internal server error",
-                    ),
-                );
-            }
+
+        const hadErrors = this.handleErrorCases(res.locals?.state, url);
+        if (!hadErrors) {
+            await this.generateCode(res.locals?.state, url);
         }
         res.status(302)
             .setHeader("Location", url.toString())

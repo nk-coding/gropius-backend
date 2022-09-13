@@ -14,15 +14,15 @@ import { AuthStateData, AuthFunction, AuthResult } from "./AuthResult";
  */
 @Injectable()
 export class PerformAuthFunctionService {
-    private readonly REGISTRATION_EXPIRATION_TIME_SEC;
+    private readonly REGISTRATION_EXPIRATION_TIME_MS;
 
     constructor(
         private readonly loginUserService: LoginUserService,
         private readonly activeLoginService: ActiveLoginService,
         private readonly userLoginDataService: UserLoginDataService,
     ) {
-        this.REGISTRATION_EXPIRATION_TIME_SEC = parseInt(
-            process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_SEC,
+        this.REGISTRATION_EXPIRATION_TIME_MS = parseInt(
+            process.env.REGISTRATION_EXPIRATION_TIME_MS,
             10,
         );
     }
@@ -68,6 +68,10 @@ export class PerformAuthFunctionService {
         activeLogin.data = data;
         activeLogin.loginInstanceFor = Promise.resolve(loginData);
         activeLogin.supportsSync = supportsSync;
+        activeLogin.expires = new Date(
+            Date.now() +
+                parseInt(process.env.REGISTRATION_EXPIRATION_TIME_MS, 10),
+        );
         return this.activeLoginService.save(activeLogin);
     }
 
@@ -97,7 +101,7 @@ export class PerformAuthFunctionService {
         let loginData = authResult.loginData;
         loginData.data = authResult.dataUserLoginData;
         loginData.expires = new Date(
-            Date.now() + this.REGISTRATION_EXPIRATION_TIME_SEC * 1000,
+            Date.now() + this.REGISTRATION_EXPIRATION_TIME_MS,
         );
         loginData = await this.userLoginDataService.save(loginData);
         return {
@@ -123,7 +127,7 @@ export class PerformAuthFunctionService {
         let loginData = new UserLoginData();
         loginData.data = authResult.dataUserLoginData;
         loginData.expires = new Date(
-            Date.now() + this.REGISTRATION_EXPIRATION_TIME_SEC * 1000,
+            Date.now() + this.REGISTRATION_EXPIRATION_TIME_MS,
         );
         loginData.state = LoginState.WAITING_FOR_REGISTER;
         loginData.strategyInstance = Promise.resolve(instance);

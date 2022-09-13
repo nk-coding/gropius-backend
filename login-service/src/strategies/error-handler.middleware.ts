@@ -21,8 +21,21 @@ export class ErrorHandlerMiddleware implements NestMiddleware {
     async use(req: Request, res: Response, next: () => void) {
         const errorMessage = (res.locals?.state as AuthStateData)
             ?.authErrorMessage;
-        if (errorMessage) {
-            throw new HttpException(errorMessage, HttpStatus.UNAUTHORIZED);
+        const errorType = (res.locals?.state as AuthStateData)?.authErrorType;
+        if (errorMessage || errorType) {
+            if (errorType) {
+                throw new HttpException(
+                    {
+                        statusCode: HttpStatus.BAD_REQUEST,
+                        error: errorType,
+                        error_description: errorMessage,
+                        message: errorMessage,
+                    },
+                    HttpStatus.BAD_REQUEST,
+                );
+            } else {
+                throw new HttpException(errorMessage, HttpStatus.UNAUTHORIZED);
+            }
         } else if (
             res.locals?.state == undefined ||
             res.locals?.state == null

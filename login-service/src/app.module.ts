@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { RouterModule } from "@nestjs/core";
+import { LazyModuleLoader, RouterModule } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApiLoginModule } from "./api-login/api-login.module";
 import { ApiSyncModule } from "./api-sync/api-sync.module";
@@ -20,15 +20,19 @@ import { OauthServerModule } from "./oauth-server/oauth-server.module";
                     : [".env.dev.local", ".env.dev"],
             validationSchema,
         }),
-        TypeOrmModule.forRoot({
-            type: "postgres",
-            host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
-            port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10), // note: using || instead of ?? to catch NaN
-            username: process.env.GROPIUS_LOGIN_DATABASE_USER,
-            password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
-            database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
-            synchronize: process.env.NODE_ENV !== "production",
-            autoLoadEntities: true,
+        TypeOrmModule.forRootAsync({
+            useFactory(...args) {
+                return {
+                    type: "postgres",
+                    host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
+                    port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10), // note: using || instead of ?? to catch NaN
+                    username: process.env.GROPIUS_LOGIN_DATABASE_USER,
+                    password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
+                    database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
+                    synchronize: process.env.NODE_ENV !== "production",
+                    autoLoadEntities: true,
+                };
+            },
         }),
         ModelModule,
         ApiLoginModule,
@@ -38,7 +42,7 @@ import { OauthServerModule } from "./oauth-server/oauth-server.module";
         RouterModule.register([
             { path: "login", module: ApiLoginModule },
             { path: "syncApi", module: ApiSyncModule },
-            { path: "strategy", module: StrategiesModule },
+            { path: "strategy", module: OauthServerModule },
         ]),
         BackendServicesModule,
     ],

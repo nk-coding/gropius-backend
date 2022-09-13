@@ -5,6 +5,7 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
+import { AuthClient } from "src/model/postgres/AuthClient";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "../strategies/AuthResult";
 import { ensureState } from "../strategies/utils";
@@ -13,6 +14,7 @@ export interface OauthServerStateData {
     state?: string;
     redirect?: string;
     clientId?: string;
+    client?: AuthClient;
 }
 
 @Injectable()

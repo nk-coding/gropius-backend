@@ -10,11 +10,24 @@ import {
     Res,
 } from "@nestjs/common";
 import { Response } from "express";
-import { TokenService } from "src/backend-services/token.service";
+import { TokenScope, TokenService } from "src/backend-services/token.service";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { AuthClient } from "src/model/postgres/AuthClient";
+import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "src/strategies/AuthResult";
 import { ensureState } from "src/strategies/utils";
+import { OauthServerStateData } from "./oauth-autorize.middleware";
+import { OauthHttpException } from "./OauthHttpException";
+
+export interface OauthTokenEdnpointResponseDto {
+    access_token: string;
+    token_type: "bearer";
+    expires_in: number;
+    refresh_token: string;
+    scope: string;
+}
 
 @Controller("oauth")
 export class OauthServerController {
@@ -24,12 +37,125 @@ export class OauthServerController {
         private readonly tokenService: TokenService,
     ) {}
 
+    private async checkLoginDataIsVaild(loginData?: UserLoginData) {
+        if (!loginData) {
+            throw new OauthHttpException(
+                "invalid_grant",
+                "No login found for given grant (refresh token/code)",
+            );
+        }
+        if (loginData.expires != null && loginData.expires <= new Date()) {
+            throw new OauthHttpException(
+                "invalid_grant",
+                "Login has expired. Try restarting login/register/link process.",
+            );
+        }
+        switch (loginData.state) {
+            case LoginState.VALID:
+                if (!(await loginData.user)) {
+                    throw new OauthHttpException(
+                        "invalid_state",
+                        "No user for valid login. Internal server error.",
+                    );
+                }
+                break;
+            case LoginState.WAITING_FOR_REGISTER:
+                if (await loginData.user) {
+                    throw new OauthHttpException(
+                        "invalid_state",
+                        "Login still in register state but user already existing. Internal server error.",
+                    );
+                }
+                break;
+            default:
+                throw new OauthHttpException(
+                    "invalid_grant",
+                    "Login for given grant is not valid any more. Please re-login",
+                );
+        }
+    }
+
+    private async updateRefreshTokenIdAndExpirationDate(
+        activeLogin: ActiveLogin,
+        isRegisterLogin: boolean,
+    ): Promise<ActiveLogin> {
+        const loginExpiresIn = parseInt(
+            process.env.GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS,
+            10,
+        );
+        if (!isRegisterLogin) {
+            if (
+                loginExpiresIn &&
+                loginExpiresIn > 0 &&
+                !activeLogin.supportsSync
+            ) {
+                activeLogin.expires = new Date(Date.now() + loginExpiresIn);
+            } else {
+                activeLogin.expires = null;
+            }
+        }
+        activeLogin.nextExpectedRefreshTokenNumber++;
+        return await this.activeLoginService.save(activeLogin);
+    }
+
+    private async createAccessToken(
+        loginData: UserLoginData,
+        activeLogin: ActiveLogin,
+        currentClient: AuthClient,
+    ): Promise<OauthTokenEdnpointResponseDto> {
+        const tokenExpiresInMs: number = parseInt(
+            process.env.GROPIUS_ACCESS_TOKEN_EXPIRATION_TIME_MS,
+            10,
+        );
+
+        let accessToken: string;
+        let tokenScope: TokenScope[];
+        if (loginData.state == LoginState.WAITING_FOR_REGISTER) {
+            tokenScope = [TokenScope.LOGIN_SERVICE_REGISTER];
+            accessToken = await this.tokenService.signRegistrationToken(
+                loginData.id,
+                tokenExpiresInMs,
+            );
+        } else {
+            tokenScope = [TokenScope.BACKEND, TokenScope.LOGIN_SERVICE];
+            accessToken = this.tokenService.signBackendToken(
+                (await loginData.user).neo4jId,
+                tokenExpiresInMs,
+            );
+        }
+
+        activeLogin = await this.updateRefreshTokenIdAndExpirationDate(
+            activeLogin,
+            loginData.state == LoginState.WAITING_FOR_REGISTER,
+        );
+
+        const refreshToken = await this.tokenService.signActiveLoginCode(
+            activeLogin.id,
+            currentClient.id,
+            activeLogin.nextExpectedRefreshTokenNumber,
+            undefined,
+        );
+        return {
+            access_token: accessToken,
+            token_type: "bearer",
+            expires_in: Math.floor(tokenExpiresInMs / 1000),
+            refresh_token: refreshToken,
+            scope: tokenScope.join(" "),
+        };
+    }
+
     @All(":id?/token/:mode?")
     async token(
-        @Param("id") id: string,
         @Res({ passthrough: true }) res: Response,
-    ) {
+    ): Promise<OauthTokenEdnpointResponseDto> {
         ensureState(res);
+        const currentClient = (res.locals.state as OauthServerStateData).client;
+        if (!currentClient) {
+            throw new OauthHttpException(
+                "invalid_client",
+                "No client id/authentication given",
+            );
+        }
         let activeLogin = (res.locals.state as AuthStateData)?.activeLogin;
         if (typeof activeLogin == "string") {
             activeLogin = await this.activeLoginService.findOneByOrFail({
@@ -37,27 +163,11 @@ export class OauthServerController {
             });
         }
         const loginData = await activeLogin.loginInstanceFor;
-        if (!loginData) {
-            (res.locals.state as AuthStateData).authErrorType =
-                "invalid_request";
-            (res.locals.state as AuthStateData).authErrorMessage =
-                "No Login data for this code. Internal server error";
-        }
-        const user = await loginData?.user;
-        if (!user) {
-            //todo: user is not registered, create temporary token and require to register
-        } else {
-            //todo: user known, issue regular access + refresh token pair
-            const accessToken = this.tokenService.signBackendToken(
-                user.neo4jId,
-                parseInt(
-                    process.env.GROPIUS_INTERNAL_BACKEND_JWT_EXPIRATION_TIME_MS,
-                    10,
-                ),
-            );
-        }
-        return `Token Endpoint for ${id}, active login: ${
-            (res.locals.state as AuthStateData)?.activeLogin
-        }`;
+        await this.checkLoginDataIsVaild(loginData);
+        return await this.createAccessToken(
+            loginData,
+            activeLogin,
+            currentClient,
+        );
     }
 }

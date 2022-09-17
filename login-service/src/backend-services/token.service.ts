@@ -4,6 +4,20 @@ import { JsonWebTokenError } from "jsonwebtoken";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 
+export interface ActiveLoginTokenResult {
+    activeLoginId: string;
+    clientId: string;
+    tokenUniqueId: string;
+}
+
+export enum TokenScope {
+    LOGIN_SERVICE = "login",
+    LOGIN_SERVICE_REGISTER = "login-register",
+    BACKEND = "backend",
+    REFRESH_TOKEN = "token",
+    NONE = "none",
+}
+
 @Injectable()
 export class TokenService {
     constructor(
@@ -13,42 +27,58 @@ export class TokenService {
     ) {}
 
     signBackendToken(neo4JUserId: string, expiresIn: number): string {
+        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
         return this.backendJwtService.sign(
             {},
-            { subject: neo4JUserId, expiresIn, audience: ["login", "backend"] },
+            {
+                subject: neo4JUserId,
+                ...expiryObject,
+                audience: [TokenScope.LOGIN_SERVICE, TokenScope.BACKEND],
+            },
         );
+    }
+
+    async signRegistrationToken(
+        loginDataId: string,
+        expiresIn?: number,
+    ): Promise<string> {
+        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
+        return this.backendJwtService.signAsync(
+            {},
+            {
+                subject: loginDataId,
+                ...expiryObject,
+                audience: [TokenScope.LOGIN_SERVICE_REGISTER],
+                secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
+            },
+        );
+    }
+
+    async verifyRegistrationToken(token: string): Promise<string> {
+        const payload = await this.backendJwtService.verifyAsync(token, {
+            audience: [TokenScope.LOGIN_SERVICE_REGISTER],
+            secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
+        });
+        return payload.sub;
     }
 
     async signActiveLoginCode(
         activeLoginId: string,
         clientId: string,
-        expiresIn: number,
         uniqueId: string | number,
+        expiresIn?: number,
     ): Promise<string> {
-        const activeLogin = await this.activeLoginService.findOneBy({
-            id: activeLoginId,
-        });
-        if (!activeLogin) {
-            throw new Error("Login doesn't exist");
-        }
-        if (
-            activeLogin.nextExpectedRefreshTokenNumber !=
-            ActiveLogin.LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED
-        ) {
-            throw new Error(
-                "A login code can't be retrieved for a login for which a token was already created",
-            );
-        }
+        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
         return await this.backendJwtService.signAsync(
             {
-                loginId: activeLogin.id,
+                client_id: clientId,
             },
             {
-                subject: clientId,
-                expiresIn,
+                subject: activeLoginId,
+                ...expiryObject,
                 jwtid: uniqueId.toString(),
                 secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
-                audience: ["token"], // = token retrieval (valid for getting a (new) access token, e.g. oauth code or refresh token)
+                audience: [TokenScope.REFRESH_TOKEN],
             },
         );
     }
@@ -56,34 +86,23 @@ export class TokenService {
     async verifyActiveLoginToken(
         token: string,
         requiredClientId: string,
-    ): Promise<{ activeLoginId: string; clientId: string; uniqueId: string }> {
+    ): Promise<ActiveLoginTokenResult> {
         const payload = await this.backendJwtService.verifyAsync(token, {
             secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
-            audience: ["token"],
-            subject: requiredClientId,
+            audience: [TokenScope.REFRESH_TOKEN],
         });
-        if (!payload.loginId) {
+        if (payload.client_id !== requiredClientId) {
+            throw new JsonWebTokenError("Token is not for current client.");
+        }
+        if (!payload.sub) {
             throw new JsonWebTokenError(
                 "Active login token (code) doesn't contain an id",
             );
         }
-        const activeLogin = await this.activeLoginService.findOneBy({
-            id: payload.loginId,
-        });
-        if (!activeLogin) {
-            throw new JsonWebTokenError("Invalid login id");
-        }
-        const tokenJti = parseInt(payload.jti, 10);
-        if (
-            !isFinite(tokenJti) ||
-            tokenJti !== activeLogin.nextExpectedRefreshTokenNumber
-        ) {
-            throw new JsonWebTokenError("Code has already been used");
-        }
         return {
-            activeLoginId: payload.loginId,
-            clientId: payload.sub,
-            uniqueId: payload.jti,
+            activeLoginId: payload.sub,
+            clientId: payload.client_id,
+            tokenUniqueId: payload.jti,
         };
     }
 }

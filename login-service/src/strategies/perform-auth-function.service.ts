@@ -7,6 +7,7 @@ import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { AuthStateData, AuthFunction, AuthResult } from "./AuthResult";
+import { StrategiesService } from "./strategies.service";
 
 /**
  * Contains the logic how the system is supposed to create and link login data ans active logins when users authenticate.
@@ -14,18 +15,12 @@ import { AuthStateData, AuthFunction, AuthResult } from "./AuthResult";
  */
 @Injectable()
 export class PerformAuthFunctionService {
-    private readonly REGISTRATION_EXPIRATION_TIME_MS;
-
     constructor(
         private readonly loginUserService: LoginUserService,
         private readonly activeLoginService: ActiveLoginService,
         private readonly userLoginDataService: UserLoginDataService,
-    ) {
-        this.REGISTRATION_EXPIRATION_TIME_MS = parseInt(
-            process.env.REGISTRATION_EXPIRATION_TIME_MS,
-            10,
-        );
-    }
+        private readonly strategiesService: StrategiesService,
+    ) {}
 
     public checkFunctionIsAllowed(
         state: AuthStateData,
@@ -70,7 +65,10 @@ export class PerformAuthFunctionService {
         activeLogin.supportsSync = supportsSync;
         activeLogin.expires = new Date(
             Date.now() +
-                parseInt(process.env.REGISTRATION_EXPIRATION_TIME_MS, 10),
+                parseInt(
+                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
+                    10,
+                ),
         );
         return this.activeLoginService.save(activeLogin);
     }
@@ -101,7 +99,11 @@ export class PerformAuthFunctionService {
         let loginData = authResult.loginData;
         loginData.data = authResult.dataUserLoginData;
         loginData.expires = new Date(
-            Date.now() + this.REGISTRATION_EXPIRATION_TIME_MS,
+            Date.now() +
+                parseInt(
+                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
+                    10,
+                ),
         );
         loginData = await this.userLoginDataService.save(loginData);
         return {
@@ -127,7 +129,11 @@ export class PerformAuthFunctionService {
         let loginData = new UserLoginData();
         loginData.data = authResult.dataUserLoginData;
         loginData.expires = new Date(
-            Date.now() + this.REGISTRATION_EXPIRATION_TIME_MS,
+            Date.now() +
+                parseInt(
+                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
+                    10,
+                ),
         );
         loginData.state = LoginState.WAITING_FOR_REGISTER;
         loginData.strategyInstance = Promise.resolve(instance);
@@ -229,7 +235,10 @@ export class PerformAuthFunctionService {
     ): Promise<AuthStateData> {
         if (authResult.loginData) {
             // sucessfully found login data matching the authentication
-            if (authResult.loginData.expires >= new Date()) {
+            if (
+                authResult.loginData.expires != null &&
+                authResult.loginData.expires <= new Date()
+            ) {
                 // Found login data is expired => shouldn't happen as expired login data are filtered when searhcing for them
                 return {
                     authErrorMessage:

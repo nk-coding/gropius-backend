@@ -5,7 +5,10 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import { TokenService } from "src/backend-services/token.service";
+import {
+    ActiveLoginTokenResult,
+    TokenService,
+} from "src/backend-services/token.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthStateData } from "src/strategies/AuthResult";
@@ -28,11 +31,7 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
 
     async use(req: Request, res: Response, next: () => void) {
         ensureState(res);
-        let tokenData: {
-            activeLoginId: string;
-            clientId: string;
-            uniqueId: string;
-        };
+        let tokenData: ActiveLoginTokenResult;
         const currentClient = (res.locals.state as OauthServerStateData).client;
         if (!currentClient) {
             console.error("No client logged in");
@@ -51,6 +50,7 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
             console.error(err);
             return this.throwGenericCodeError(res, next);
         }
+
         const activeLogin = await this.activeLoginService.findOneBy({
             id: tokenData.activeLoginId,
         });
@@ -66,11 +66,18 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
             );
             return this.throwGenericCodeError(res, next);
         }
-        if (activeLogin.expires > new Date()) {
-            console.error("Active login is expired", tokenData.activeLoginId);
+        if (
+            (activeLogin.expires != null &&
+                activeLogin.expires <= new Date()) ||
+            !activeLogin.isValid
+        ) {
+            console.error(
+                "Active login is expired or set invalid",
+                tokenData.activeLoginId,
+            );
             return this.throwGenericCodeError(res, next);
         }
-        const codeUniqueId = parseInt(tokenData.uniqueId, 10);
+        const codeUniqueId = parseInt(tokenData.tokenUniqueId, 10);
         if (
             !isFinite(codeUniqueId) ||
             codeUniqueId !== activeLogin.nextExpectedRefreshTokenNumber

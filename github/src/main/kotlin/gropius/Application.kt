@@ -60,7 +60,7 @@ class Application : CommandLineRunner {
                 syncSelector.sync()
             }
         } finally {
-            exitProcess(0)
+            exitProcess(0)//TODO: remove ASAP
         }
     }
 }

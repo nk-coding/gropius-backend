@@ -5,7 +5,6 @@ import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
 import gropius.model.template.IssueTemplate
 import gropius.model.template.IssueType
-import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.sync.github.generated.fragment.*
@@ -81,12 +80,12 @@ class NodeSourcerer(
     }
 
     /**
-     * Create an issuebody for the given issue is in the database
-     * @param info The issue to created this body for
+     * Preapre an IssueBody for the given issue is in the database
+     * @param info The issue to be created this body for
      * @param imsProjectConfig Config of the active project
      * @return The finished body
      */
-    private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
+    private suspend fun prepareIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
         val user = ensureUser(imsProjectConfig, info.author!!)
         var issueBody = Body(
             info.createdAt, info.createdAt, (info as? IssueDataExtensive)?.body ?: "", info.createdAt
@@ -94,7 +93,6 @@ class NodeSourcerer(
         issueBody.createdBy().value = user
         issueBody.lastModifiedBy().value = user
         issueBody.bodyLastEditedBy().value = user
-        issueBody = neoOperations.save(issueBody).awaitSingle()
         return issueBody
     }
 
@@ -147,7 +145,8 @@ class NodeSourcerer(
             null,
             null
         )
-        issue.body().value = createIssueBody(imsProjectConfig, info)
+        issue.body().value = prepareIssueBody(imsProjectConfig, info)
+        issue.body().value.issue().value = issue
         issue.createdBy().value = ensureUser(imsProjectConfig, info.author!!)
         issue.lastModifiedBy().value = ensureUser(imsProjectConfig, info.author!!)
         issue.type().value = ensureGithubType()
@@ -157,7 +156,7 @@ class NodeSourcerer(
 
     /**
      * Ensure a given issue is in the database
-     * @param info The issue to created this body for
+     * @param info The issue to be created this body for
      * @param imsProjectConfig Config of the active project
      * @return The gropius issue and the mongodb issue mapping
      */

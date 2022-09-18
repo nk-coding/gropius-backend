@@ -7,12 +7,11 @@ import org.neo4j.driver.Driver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.event.EventListener
 import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories
 import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
 import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
@@ -45,6 +44,7 @@ class SyncConfiguration(
  * Main Application
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan
 @EnableGraphglueRepositories
 @EnableReactiveMongoRepositories
 class Application : CommandLineRunner {
@@ -55,8 +55,12 @@ class Application : CommandLineRunner {
     lateinit var syncSelector: SyncSelector
 
     override fun run(vararg args: String?) {
-        runBlocking {
-            syncSelector.sync()
+        try {
+            runBlocking {
+                syncSelector.sync()
+            }
+        } finally {
+            exitProcess(0)
         }
     }
 }

@@ -80,7 +80,7 @@ class NodeSourcerer(
     }
 
     /**
-     * Preapre an IssueBody for the given issue is in the database
+     * Prepare an IssueBody for the given issue is in the database
      * @param info The issue to be created this body for
      * @param imsProjectConfig Config of the active project
      * @return The finished body

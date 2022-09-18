@@ -216,10 +216,7 @@ class Outgoing(
      * @return List of functions that contain the actual mutation executors
      */
     private fun addCreatedLabel(
-        imsProjectConfig: IMSProjectConfig,
-        userList: Iterable<User>,
-        issueInfo: IssueInfo,
-        label: Label
+        imsProjectConfig: IMSProjectConfig, userList: Iterable<User>, issueInfo: IssueInfo, label: Label
     ): List<suspend () -> Unit> {
         return listOf {
             val client = createClient(imsProjectConfig, userList)
@@ -232,8 +229,7 @@ class Outgoing(
             if (newLabel != null) {
                 nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
                 val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
-                val item =
-                    response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                val item = response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
                 if (item != null) {
                     incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
                 }
@@ -250,18 +246,13 @@ class Outgoing(
      * @return List of functions that contain the actual mutation executors
      */
     private fun addExistingLabel(
-        labelInfo: LabelInfo,
-        imsProjectConfig: IMSProjectConfig,
-        userList: Iterable<User>,
-        issueInfo: IssueInfo
+        labelInfo: LabelInfo, imsProjectConfig: IMSProjectConfig, userList: Iterable<User>, issueInfo: IssueInfo
     ): List<suspend () -> Unit> {
         return if (labelInfo.url == imsProjectConfig.url) {
             listOf {
                 val client = createClient(imsProjectConfig, userList)
-                val response =
-                    client.mutation(MutateAddLabelMutation(issueInfo.githubId, labelInfo.githubId)).execute()
-                val item =
-                    response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, labelInfo.githubId)).execute()
+                val item = response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
                 if (item != null) {
                     incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
                 }
@@ -318,12 +309,30 @@ class Outgoing(
                 return listOf()
             }
         }
+        return handleFinalReopenCloseBlock(finalBlock, relevantTimeline, imsProjectConfig, issueInfo)
+    }
+
+    /**
+     * Convert the finalBlock of an reopenClose relevantTimeline into the mutations
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param relevantTimeline TimelineItems for this issue filtered to reopen/close and sorted by date
+     * @param finalBlock Final similarly typed block of relevantTimeline
+     * @return List of functions that contain the actual mutation executors
+     */
+    private suspend fun handleFinalReopenCloseBlock(
+        finalBlock: List<TimelineItem>,
+        relevantTimeline: List<TimelineItem>,
+        imsProjectConfig: IMSProjectConfig,
+        issueInfo: IssueInfo
+    ): MutableList<suspend () -> Unit> {
         val collectedMutations = mutableListOf<suspend () -> Unit>()
         if (shouldSyncType<ReopenedEvent, ClosedEvent>(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubReopenIssue(imsProjectConfig,
+            collectedMutations += githubReopenIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -403,8 +412,7 @@ class Outgoing(
                     finalBlock, relevantTimeline, false
                 )
             ) {
-                collectedMutations += githubAddLabel(
-                    imsProjectConfig,
+                collectedMutations += githubAddLabel(imsProjectConfig,
                     issueInfo,
                     label,
                     finalBlock.map { it.lastModifiedBy().value })
@@ -413,7 +421,8 @@ class Outgoing(
                     finalBlock, relevantTimeline, true
                 )
             ) {
-                collectedMutations += githubRemoveLabel(imsProjectConfig,
+                collectedMutations += githubRemoveLabel(
+                    imsProjectConfig,
                     issueInfo,
                     label,
                     finalBlock.map { it.lastModifiedBy().value })

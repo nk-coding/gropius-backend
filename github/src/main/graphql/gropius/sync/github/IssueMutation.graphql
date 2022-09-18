@@ -22,3 +22,39 @@ mutation MutateReopenIssue($id: ID!) {
         clientMutationId
     }
 }
+mutation MutateAddLabel($id: ID!, $label: ID!) {
+    addLabelsToLabelable(input:{labelableId:$id,labelIds: [$label]}){
+        labelable {
+            ... on Issue {
+                timelineItems(itemTypes: [LABELED_EVENT], last: 1) {
+                    nodes {
+                        ...TimelineItemData
+                    }
+                }
+            }
+        }
+        clientMutationId
+    }
+}
+mutation MutateRemoveLabel($id: ID!, $label: ID!) {
+    removeLabelsFromLabelable(input:{labelableId:$id,labelIds: [$label]}){
+        labelable {
+            ... on Issue {
+                title
+                timelineItems(itemTypes: [UNLABELED_EVENT], last: 1) {
+                    nodes {
+                        ...TimelineItemData
+                    }
+                }
+            }
+        }
+        clientMutationId
+    }
+}
+mutation MutateCreateLabel($repositoryId: ID!, $name:String!, $description:String!, $color: String!) {
+    createLabel(input: {color: $color, name: $name, description: $description, repositoryId: $repositoryId}){
+        label {
+            ...LabelData
+        }
+    }
+}

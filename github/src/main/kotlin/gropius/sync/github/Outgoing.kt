@@ -15,6 +15,7 @@ import gropius.sync.github.generated.MutateAddLabelMutation.Data.AddLabelsToLabe
 import gropius.sync.github.generated.MutateCreateLabelMutation.Data.CreateLabel.Label.Companion.labelData
 import gropius.sync.github.generated.MutateRemoveLabelMutation.Data.RemoveLabelsFromLabelable.Labelable.Companion.asIssue
 import gropius.sync.github.model.IssueInfo
+import gropius.sync.github.model.LabelInfo
 import gropius.sync.github.repository.IssueInfoRepository
 import gropius.sync.github.repository.LabelInfoRepository
 import gropius.sync.github.repository.TimelineEventInfoRepository
@@ -198,41 +199,75 @@ class Outgoing(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, label: Label, userList: Iterable<User>
     ): List<suspend () -> Unit> {
         logger.info("Scheduling adding ${label.name} (${label.rawId}) to ${issueInfo.neo4jId}")
-        val labelId = labelInfoRepository.findByNeo4jId(label.rawId!!)
-        if (labelId != null) {
-            return if (labelId.url == imsProjectConfig.url) {
-                listOf {
-                    val client = createClient(imsProjectConfig, userList)
-                    val response =
-                        client.mutation(MutateAddLabelMutation(issueInfo.githubId, labelId.githubId)).execute()
-                    val item =
-                        response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
-                    if (item != null) {
-                        incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
-                    }
+        val labelInfo = labelInfoRepository.findByNeo4jId(label.rawId!!)
+        return if (labelInfo != null) {
+            addExistingLabel(labelInfo, imsProjectConfig, userList, issueInfo)
+        } else {
+            addCreatedLabel(imsProjectConfig, userList, issueInfo, label)
+        }
+    }
+
+    /**
+     * Create and add label to issue
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param userList users that have contributed to the event
+     * @param label the label that has been added
+     * @return List of functions that contain the actual mutation executors
+     */
+    private fun addCreatedLabel(
+        imsProjectConfig: IMSProjectConfig,
+        userList: Iterable<User>,
+        issueInfo: IssueInfo,
+        label: Label
+    ): List<suspend () -> Unit> {
+        return listOf {
+            val client = createClient(imsProjectConfig, userList)
+            val createLabelResponse = client.mutation(
+                MutateCreateLabelMutation(
+                    issueInfo.githubId, label.name, label.description, label.color
+                )
+            ).execute()
+            val newLabel = createLabelResponse?.data?.createLabel?.label?.labelData()
+            if (newLabel != null) {
+                nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
+                val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
+                val item =
+                    response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                if (item != null) {
+                    incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
                 }
-            } else {
-                emptyList()
+            }
+        }
+    }
+
+    /**
+     * Add existing label to issue
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param userList users that have contributed to the event
+     * @param labelInfo info about the label that has been added
+     * @return List of functions that contain the actual mutation executors
+     */
+    private fun addExistingLabel(
+        labelInfo: LabelInfo,
+        imsProjectConfig: IMSProjectConfig,
+        userList: Iterable<User>,
+        issueInfo: IssueInfo
+    ): List<suspend () -> Unit> {
+        return if (labelInfo.url == imsProjectConfig.url) {
+            listOf {
+                val client = createClient(imsProjectConfig, userList)
+                val response =
+                    client.mutation(MutateAddLabelMutation(issueInfo.githubId, labelInfo.githubId)).execute()
+                val item =
+                    response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                if (item != null) {
+                    incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+                }
             }
         } else {
-            return listOf {
-                val client = createClient(imsProjectConfig, userList)
-                val createLabelResponse = client.mutation(
-                    MutateCreateLabelMutation(
-                        issueInfo.githubId, label.name, label.description, label.color
-                    )
-                ).execute()
-                val newLabel = createLabelResponse?.data?.createLabel?.label?.labelData()
-                if (newLabel != null) {
-                    nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
-                    val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
-                    val item =
-                        response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
-                    if (item != null) {
-                        incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
-                    }
-                }
-            }
+            emptyList()
         }
     }
 

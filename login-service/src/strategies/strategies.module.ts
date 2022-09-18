@@ -42,6 +42,7 @@ import { UserpassStrategyService } from "./userpass/userpass.service";
         ErrorHandlerMiddleware,
     ],
     exports: [
+        StrategiesService,
         ModeExtractorMiddleware,
         StrategiesMiddleware,
         ErrorHandlerMiddleware,

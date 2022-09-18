@@ -9,6 +9,8 @@ import { UserLoginDataService } from "src/model/services/user-login-data.service
 import { AuthFunction, AuthResult, AuthStateData } from "../AuthResult";
 import { StrategyUsingPassport } from "../StrategyUsingPassport";
 import { JwtService } from "@nestjs/jwt";
+import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLoginService } from "src/model/services/active-login.service";
 
 @Injectable()
 export class OauthStrategyService extends StrategyUsingPassport {
@@ -19,6 +21,7 @@ export class OauthStrategyService extends StrategyUsingPassport {
         private readonly loginUserService: LoginUserService,
         @Inject("PassportStateJwt")
         passportJwtService: JwtService,
+        private readonly activeLoginService: ActiveLoginService,
     ) {
         super(
             "oauth",
@@ -34,6 +37,33 @@ export class OauthStrategyService extends StrategyUsingPassport {
 
     protected override checkInstanceConfig(instanceConfig: object): boolean {
         return Object.keys(instanceConfig).length === 0; //todo
+    }
+
+    override async getSyncTokenFor(
+        loginData: UserLoginData,
+    ): Promise<string | null> {
+        const syncLogins = (
+            await this.activeLoginService.findValidForLoginData(loginData, true)
+        ).filter((login) => !!login.data["accessToken"]);
+        if (syncLogins.length == 0) {
+            return null;
+        }
+        syncLogins.sort((a, b) => {
+            if (a.expires == null) {
+                if (b.expires == null) {
+                    return 0;
+                } else {
+                    return -1;
+                }
+            } else {
+                if (b.expires == null) {
+                    return 1;
+                } else {
+                    return b.expires.getTime() - a.expires.getTime();
+                }
+            }
+        });
+        return syncLogins[0].data["accessToken"] ?? null;
     }
 
     protected override getAdditionalPassportOptions(

@@ -11,6 +11,7 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import { Response } from "express";
+import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
@@ -38,6 +39,7 @@ export class RegisterController {
         private readonly loginDataService: UserLoginDataService,
         private readonly userService: LoginUserService,
         private readonly activeLoginService: ActiveLoginService,
+        private readonly backendUserSerivce: BackendUserService,
     ) {}
 
     @Get()
@@ -45,14 +47,31 @@ export class RegisterController {
         console.log(body);
     }
 
-    @All("self-register")
+    @Post("self-register")
     async register(@Body() input: RegisterUserInput & RegisterTokenInput) {
         registerUserInputCheck(input);
         const { loginData, activeLogin } =
             await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
                 input.register_token,
             );
-        return "In self register";
+        if (
+            (await this.userService.countBy({ username: input.username })) > 0
+        ) {
+            throw new HttpException(
+                "Username is not available anymore",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        const newUser = await this.backendUserSerivce.createNewUser(
+            input,
+            false,
+        );
+        const { loggedInUser } = await this.linkAccountToUser(
+            newUser,
+            loginData,
+            activeLogin,
+        );
+        return { result: "success", operation: "self-register" };
     }
 
     @Post("self-link")
@@ -76,7 +95,7 @@ export class RegisterController {
             activeLogin,
         );
         (res.locals.state as ApiStateData).loggedInUser = loggedInUser;
-        return { result: "success" };
+        return { result: "success", operation: "self-link" };
     }
 
     @Post("admin-link")
@@ -104,7 +123,7 @@ export class RegisterController {
                 linkToUser,
             );
         await this.linkAccountToUser(linkToUser, loginData, activeLogin);
-        return { result: "success" };
+        return { result: "success", operation: "admin-link" };
     }
 
     private async linkAccountToUser(
@@ -134,7 +153,6 @@ export class RegisterController {
             }
         }
         loginData.expires = null;
-        loginData.imsUsers; // todo: find ims users and link them
         loginData = await this.loginDataService.save(loginData);
 
         await this.activeLoginService.setActiveLoginExpiration(activeLogin);
@@ -142,6 +160,11 @@ export class RegisterController {
         userToLinkTo = await this.userService.findOneBy({
             id: userToLinkTo.id,
         });
+
+        await this.backendUserSerivce.linkImsUserToGropiusUser(
+            userToLinkTo,
+            loginData,
+        );
         return { loggedInUser: userToLinkTo, loginData };
     }
 }

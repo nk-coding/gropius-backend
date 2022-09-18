@@ -32,4 +32,6 @@ export const validationSchema = Joi.object({
         "gropius-login-state",
     ),
     GROPIUS_OAUTH_CODE_EXPIRATION_TIME_MS: Joi.number().min(0).default(600000),
+
+    GROPIUS_LOGIN_SYNC_API_SECRET: Joi.string(),
 });

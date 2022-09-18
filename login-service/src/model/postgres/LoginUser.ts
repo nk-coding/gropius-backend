@@ -9,7 +9,7 @@ export class LoginUser {
     @Column({ unique: true })
     neo4jId: string;
 
-    @Column()
+    @Column({ unique: true })
     username: string;
 
     @OneToMany(() => UserLoginData, (loginData) => loginData.user)

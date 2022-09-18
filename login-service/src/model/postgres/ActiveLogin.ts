@@ -1,4 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    ManyToOne,
+    PrimaryGeneratedColumn,
+} from "typeorm";
 import { AuthClient } from "./AuthClient";
 import { LoginUser } from "./LoginUser";
 import { StrategyInstance } from "./StrategyInstance";
@@ -52,6 +58,7 @@ export class ActiveLogin {
     @ManyToOne(() => UserLoginData, (loginData) => loginData.loginsUsingThis, {
         nullable: true,
     })
+    @JoinColumn({ name: "loginInstanceForId" })
     loginInstanceFor: Promise<UserLoginData | null>;
 
     @ManyToOne(() => AuthClient, (client) => client.loginsOfThisClient, {

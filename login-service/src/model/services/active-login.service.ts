@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
 import { ActiveLogin } from "../postgres/ActiveLogin";
+import { UserLoginData } from "../postgres/UserLoginData";
 
 @Injectable()
 export class ActiveLoginService extends Repository<ActiveLogin> {
@@ -21,5 +22,25 @@ export class ActiveLoginService extends Repository<ActiveLogin> {
             activeLogin.expires = null;
         }
         return this.save(activeLogin);
+    }
+
+    async findValidForLoginData(
+        loginData: UserLoginData,
+        supportsSync: boolean | null,
+    ): Promise<ActiveLogin[]> {
+        let builder = this.createQueryBuilder("activeLogin")
+            .where(`"loginInstanceForId" = :loginDataId`, {
+                loginDataId: loginData.id,
+            })
+            .andWhere(`"isValid"=true`, {})
+            .andWhere(`("expires" is null or "expires" > :expires)`, {
+                expires: new Date(),
+            });
+        if (supportsSync !== null) {
+            builder = builder.andWhere(`"supportsSync" = :supportsSync`, {
+                supportsSync,
+            });
+        }
+        return builder.getMany();
     }
 }

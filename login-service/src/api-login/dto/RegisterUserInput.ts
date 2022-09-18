@@ -3,7 +3,7 @@ import { HttpException, HttpStatus } from "@nestjs/common";
 export interface RegisterUserInput {
     username: string;
     displayName: string;
-    email: string;
+    email?: string;
 }
 
 export function registerUserInputCheck(
@@ -21,9 +21,9 @@ export function registerUserInputCheck(
             HttpStatus.BAD_REQUEST,
         );
     }
-    if (!input.email || input.email.trim().length <= 0) {
+    if (input.email != undefined && input.email.trim().length <= 0) {
         throw new HttpException(
-            "Email must be given and can't be empty",
+            "If email is given it can't be empty",
             HttpStatus.BAD_REQUEST,
         );
     }

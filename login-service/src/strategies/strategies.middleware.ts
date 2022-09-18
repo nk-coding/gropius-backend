@@ -80,6 +80,7 @@ export class StrategiesMiddleware implements NestMiddleware {
                     authResult,
                     res.locals.state,
                     instance,
+                    strategy,
                 );
             res.locals.state = { ...res.locals.state, ...executionResult };
         } else {

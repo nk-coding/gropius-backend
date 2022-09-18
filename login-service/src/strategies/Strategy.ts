@@ -2,6 +2,7 @@ import * as passport from "passport";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { UserLoginData } from "src/model/postgres/UserLoginData";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthResult, AuthStateData } from "./AuthResult";
 
@@ -69,6 +70,12 @@ export abstract class Strategy {
         [variableName: string]: StrategyVariable;
     } {
         return {};
+    }
+
+    getSyncTokenFor(
+        loginData: UserLoginData,
+    ): string | null | Promise<string | null> {
+        return null;
     }
 
     abstract performAuth(

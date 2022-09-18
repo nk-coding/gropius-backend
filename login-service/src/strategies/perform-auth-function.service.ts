@@ -149,6 +149,7 @@ export class PerformAuthFunctionService {
         authResult: AuthResult,
         state: AuthStateData,
         instance: StrategyInstance,
+        strategy: Strategy,
     ): Promise<AuthStateData> {
         if (authResult.loginData) {
             // sucessfully found login data matching the authentication
@@ -191,7 +192,8 @@ export class PerformAuthFunctionService {
             if (
                 state.function == AuthFunction.REGISTER ||
                 state.function == AuthFunction.REGISTER_WITH_SYNC ||
-                (instance.doesImplicitRegister &&
+                (strategy.allowsImplicitSignup &&
+                    instance.doesImplicitRegister &&
                     state.function == AuthFunction.LOGIN)
             ) {
                 return this.registerNewUser(
@@ -201,7 +203,8 @@ export class PerformAuthFunctionService {
                 );
             } else if (
                 state.function == AuthFunction.LOGIN &&
-                !instance.doesImplicitRegister
+                (!strategy.allowsImplicitSignup ||
+                    !instance.doesImplicitRegister)
             ) {
                 return { authErrorMessage: "Invalid user credentials." };
             }

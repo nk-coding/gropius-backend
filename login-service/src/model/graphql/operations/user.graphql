@@ -10,6 +10,16 @@ query getUserByName($username: String!) {
     }
 }
 
+query checkUserIsAdmin($id: ID!) {
+    node(id: $id) {
+        ...OnlyId
+    }
+}
+
+fragment OnlyId on Node {
+    id
+}
+
 fragment UserData on GropiusUser {
     id
     username

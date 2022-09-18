@@ -8,6 +8,7 @@ import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { AuthStateData, AuthFunction, AuthResult } from "./AuthResult";
 import { StrategiesService } from "./strategies.service";
+import { Strategy } from "./Strategy";
 
 /**
  * Contains the logic how the system is supposed to create and link login data ans active logins when users authenticate.
@@ -25,26 +26,23 @@ export class PerformAuthFunctionService {
     public checkFunctionIsAllowed(
         state: AuthStateData,
         instance: StrategyInstance,
+        strategy: Strategy,
     ): string | null {
         switch (state?.function) {
             case AuthFunction.REGISTER_WITH_SYNC:
-            //Fallthrough as for instances without sync capability, registration will happen without sync
+                if (!strategy.canSync) {
+                    state.function = AuthFunction.REGISTER;
+                }
+            //Fallthrough to check if registration is possible at all
             case AuthFunction.REGISTER:
-                if (!instance.isRegisterActive) {
-                    return "Registration not enabled for this strategy instance";
-                }
-                break;
-            case AuthFunction.LINK_ACCOUNT:
-                if (!instance.isRegisterActive) {
-                    return "Registration and simple linking using this strategy instance is disabled. Try linking with sync enabled.";
-                }
-                break;
-            case AuthFunction.LINK_ACCOUNT_WITH_SYNC:
-                if (!instance.isRegisterActive && !instance.isSyncActive) {
-                    return "Registration and sync using this strategy are disabled. This disables any linking.";
+                if (!strategy.canLoginRegister && !strategy.canSync) {
+                    return "This strategy does not support either login nor sync";
                 }
                 break;
             case AuthFunction.LOGIN:
+                if (!strategy.canLoginRegister) {
+                    return "This strategy type does not support login/registration.";
+                }
                 if (!instance.isLoginActive) {
                     return "Login using this strategy instance not enabled";
                 }
@@ -78,7 +76,6 @@ export class PerformAuthFunctionService {
         instance: StrategyInstance,
     ): Promise<AuthStateData> {
         console.log("Logging in");
-        const loggedInUser = await authResult.loginData.user;
         return {
             activeLogin: await this.createActiveLogin(
                 instance,
@@ -86,7 +83,6 @@ export class PerformAuthFunctionService {
                 authResult.loginData,
                 false,
             ),
-            loggedInUser: loggedInUser,
         };
     }
 
@@ -95,16 +91,18 @@ export class PerformAuthFunctionService {
         instance: StrategyInstance,
         supportsSync: boolean,
     ): Promise<AuthStateData> {
-        const loggedInUser = await authResult.loginData.user;
         let loginData = authResult.loginData;
         loginData.data = authResult.dataUserLoginData;
-        loginData.expires = new Date(
+        const newExpiryDate = new Date(
             Date.now() +
                 parseInt(
                     process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
                     10,
                 ),
         );
+        if (loginData.expires != null && loginData.expires < newExpiryDate) {
+            loginData.expires = newExpiryDate;
+        }
         loginData = await this.userLoginDataService.save(loginData);
         return {
             activeLogin: await this.createActiveLogin(
@@ -113,7 +111,6 @@ export class PerformAuthFunctionService {
                 authResult.loginData,
                 supportsSync,
             ),
-            loggedInUser: loggedInUser,
         };
     }
 
@@ -145,86 +142,6 @@ export class PerformAuthFunctionService {
                 loginData,
                 supportsSync,
             ),
-            loggedInUser: null,
-        };
-        // Todo: Answer must contain temporary api key
-    }
-
-    private async getUserToLinkWith(
-        state: AuthStateData,
-    ): Promise<LoginUser | null> {
-        if (typeof state.loggedInUser == "string") {
-            return await this.loginUserService.findOneBy({
-                id: state.loggedInUser,
-            });
-        } else if (
-            typeof state.loggedInUser == "object" &&
-            typeof state.loggedInUser.id == "string"
-        ) {
-            return await this.loginUserService.findOneBy({
-                id: state.loggedInUser.id,
-            });
-        } else {
-            return null;
-        }
-    }
-
-    private async linkAccountToUser(
-        authResult: AuthResult,
-        state: AuthStateData,
-        instance: StrategyInstance,
-        supportsSync: boolean,
-    ): Promise<AuthStateData> {
-        const loggedInUser = await this.getUserToLinkWith(state);
-        if (loggedInUser == null) {
-            return {
-                authErrorMessage:
-                    "You need to be logged in to link credentials to an account",
-                authErrorType: "access_denied",
-            };
-        }
-        let loginData = new UserLoginData();
-        loginData.data = authResult.dataUserLoginData;
-        loginData.state = LoginState.VALID;
-        loginData.strategyInstance = Promise.resolve(instance);
-        loginData.user = Promise.resolve(loggedInUser);
-        loginData = await this.userLoginDataService.save(loginData);
-        return {
-            activeLogin: await this.createActiveLogin(
-                instance,
-                authResult.dataActiveLogin,
-                loginData,
-                supportsSync,
-            ),
-            loggedInUser: await loginData.user,
-        };
-    }
-
-    private async linkExistingAccountIfSameUser(
-        authResult: AuthResult,
-        state: AuthStateData,
-        instance: StrategyInstance,
-        supportsSync: boolean,
-    ): Promise<AuthStateData> {
-        const loggedInUser = await this.getUserToLinkWith(state);
-        const loginDataUser = await authResult.loginData.user;
-        if (loggedInUser != null && loggedInUser.id !== loginDataUser.id) {
-            return {
-                authErrorMessage:
-                    "This account is already registered and linked to a Gropius account",
-            };
-        }
-        let loginData = authResult.loginData;
-        loginData.data = authResult.dataUserLoginData;
-        loginData = await this.userLoginDataService.save(loginData);
-        return {
-            activeLogin: await this.createActiveLogin(
-                instance,
-                authResult.dataActiveLogin,
-                loginData,
-                supportsSync,
-            ),
-            loggedInUser: await loginData.user,
         };
     }
 
@@ -249,40 +166,11 @@ export class PerformAuthFunctionService {
                 state.function == AuthFunction.REGISTER ||
                 state.function == AuthFunction.REGISTER_WITH_SYNC
             ) {
-                if (
-                    authResult.loginData.state ==
-                    LoginState.WAITING_FOR_REGISTER
-                ) {
-                    return this.continueExistingRegistration(
-                        authResult,
-                        instance,
-                        state.function == AuthFunction.REGISTER_WITH_SYNC,
-                    );
-                } else {
-                    return {
-                        authErrorMessage: "This account is already registered",
-                    };
-                }
-            } else if (
-                state.function == AuthFunction.LINK_ACCOUNT ||
-                state.function == AuthFunction.LINK_ACCOUNT_WITH_SYNC
-            ) {
-                if (
-                    authResult.loginData.state !=
-                    LoginState.WAITING_FOR_REGISTER
-                ) {
-                    this.linkExistingAccountIfSameUser(
-                        authResult,
-                        state,
-                        instance,
-                        state.function == AuthFunction.LINK_ACCOUNT_WITH_SYNC,
-                    );
-                } else {
-                    return {
-                        authErrorMessage:
-                            "The credentials you are trying to link to are currently in a registration process. Please finish it or wait until it expires",
-                    };
-                }
+                return this.continueExistingRegistration(
+                    authResult,
+                    instance,
+                    state.function == AuthFunction.REGISTER_WITH_SYNC,
+                );
             } else if (state.function == AuthFunction.LOGIN) {
                 switch (authResult.loginData.state) {
                     case LoginState.WAITING_FOR_REGISTER:
@@ -311,32 +199,6 @@ export class PerformAuthFunctionService {
                     instance,
                     state.function == AuthFunction.REGISTER_WITH_SYNC,
                 );
-            } else if (
-                state.function == AuthFunction.LINK_ACCOUNT ||
-                state.function == AuthFunction.LINK_ACCOUNT_WITH_SYNC
-            ) {
-                if (!state.loggedInUser) {
-                    if (instance.doesImplicitRegister) {
-                        return this.registerNewUser(
-                            authResult,
-                            instance,
-                            state.function ==
-                                AuthFunction.LINK_ACCOUNT_WITH_SYNC,
-                        );
-                    } else {
-                        return {
-                            authErrorMessage:
-                                "You must be logged in in order to link a new strategy instance account to your gropius account",
-                        };
-                    }
-                } else {
-                    return this.linkAccountToUser(
-                        authResult,
-                        state,
-                        instance,
-                        state.function == AuthFunction.LINK_ACCOUNT_WITH_SYNC,
-                    );
-                }
             } else if (
                 state.function == AuthFunction.LOGIN &&
                 !instance.doesImplicitRegister

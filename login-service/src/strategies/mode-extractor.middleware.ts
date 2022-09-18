@@ -19,14 +19,6 @@ export class ModeExtractorMiddleware implements NestMiddleware {
                 (res.locals.state as AuthStateData).function =
                     AuthFunction.REGISTER_WITH_SYNC;
                 break;
-            case "link":
-                (res.locals.state as AuthStateData).function =
-                    AuthFunction.LINK_ACCOUNT;
-                break;
-            case "link-sync":
-                (res.locals.state as AuthStateData).function =
-                    AuthFunction.LINK_ACCOUNT_WITH_SYNC;
-                break;
             case "login":
             default:
                 (res.locals.state as AuthStateData).function =

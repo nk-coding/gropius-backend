@@ -25,7 +25,7 @@ export class OauthStrategyService extends StrategyUsingPassport {
             strategyInstanceService,
             passportJwtService,
             true,
-            false,
+            true,
             true,
             true,
         );
@@ -41,10 +41,7 @@ export class OauthStrategyService extends StrategyUsingPassport {
         authStateData: object | AuthStateData,
     ): passport.AuthenticateOptions {
         const mode = (authStateData as AuthStateData).function;
-        if (
-            mode == AuthFunction.LINK_ACCOUNT_WITH_SYNC ||
-            mode == AuthFunction.REGISTER_WITH_SYNC
-        ) {
+        if (mode == AuthFunction.REGISTER_WITH_SYNC) {
             return {
                 scope: "repo",
             };

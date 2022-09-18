@@ -82,11 +82,11 @@ export abstract class GenericStrategyController {
         if (
             body.instanceConfig == null ||
             body.isLoginActive == null ||
-            body.isRegisterActive == null ||
+            body.isSelfRegisterActive == null ||
             body.isSyncActive == null
         ) {
             throw new HttpException(
-                "instanceConfig, isLoginActive, isRegisterActive and isSyncActive must be given",
+                "instanceConfig, isLoginActive, isSelfRegisterActive and isSyncActive must be given",
                 HttpStatus.BAD_REQUEST,
             );
         }
@@ -116,7 +116,7 @@ export abstract class GenericStrategyController {
                 body.name,
                 body.instanceConfig,
                 !!body.isLoginActive,
-                !!body.isRegisterActive,
+                !!body.isSelfRegisterActive,
                 !!body.isSyncActive,
             );
         } catch (err) {

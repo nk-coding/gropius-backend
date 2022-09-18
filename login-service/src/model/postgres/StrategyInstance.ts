@@ -22,7 +22,7 @@ export class StrategyInstance {
     isLoginActive: boolean;
 
     @Column()
-    isRegisterActive: boolean;
+    isSelfRegisterActive: boolean;
 
     @Column()
     isSyncActive: boolean;
@@ -36,7 +36,7 @@ export class StrategyInstance {
             name: this.name,
             type: this.type,
             isLoginActive: this.isLoginActive,
-            isRegisterActive: this.isRegisterActive,
+            isSelfRegisterActive: this.isSelfRegisterActive,
             isSyncActive: this.isSyncActive,
         };
     }

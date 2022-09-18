@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { ModelModule } from "src/model/model.module";
 import { TokenService } from "./token.service";
+import { BackendUserService } from "./backend-user.service";
 
 @Module({
     imports: [
@@ -25,7 +26,8 @@ import { TokenService } from "./token.service";
     providers: [
         { provide: "BackendJwtService", useExisting: JwtService },
         TokenService,
+        BackendUserService,
     ],
-    exports: [TokenService],
+    exports: [TokenService, BackendUserService],
 })
 export class BackendServicesModule {}

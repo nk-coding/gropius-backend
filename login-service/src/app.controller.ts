@@ -1,5 +1,5 @@
 import { Controller, Get, Post } from "@nestjs/common";
-import { UserDataFragment } from "./model/generated";
+import { UserDataFragment } from "./model/graphql/generated";
 import { GraphqlService } from "./model/graphql/graphql.service";
 
 @Controller()

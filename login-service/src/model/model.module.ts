@@ -21,6 +21,7 @@ const modelModuleExportedServices = [
     UserLoginDataImsUserService,
     ActiveLoginService,
     AuthClientService,
+    GraphqlService,
 ];
 
 @Module({

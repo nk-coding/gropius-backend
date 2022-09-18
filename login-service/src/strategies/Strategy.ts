@@ -34,7 +34,7 @@ export abstract class Strategy {
         name: string | null,
         instanceConfig: object,
         isLoginActive: boolean,
-        isRegisterActive: boolean,
+        isSelfRegisterActive: boolean,
         isSyncActive: boolean,
     ): Promise<StrategyInstance> {
         if (!this.checkInstanceConfig(instanceConfig)) {
@@ -44,7 +44,7 @@ export abstract class Strategy {
         instance.name = name.replace(/[^a-zA-Z0-9-_]/g, "");
         instance.instanceConfig = instanceConfig;
         instance.isLoginActive = !!isLoginActive;
-        instance.isRegisterActive = !!isRegisterActive;
+        instance.isSelfRegisterActive = !!isSelfRegisterActive;
         instance.isSyncActive = !!isSyncActive;
 
         return await this.strategyInstanceService.save(instance);

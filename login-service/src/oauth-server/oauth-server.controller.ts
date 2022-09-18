@@ -83,16 +83,17 @@ export class OauthServerController {
             process.env.GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS,
             10,
         );
+        console.log(
+            "Updating active login",
+            isRegisterLogin,
+            loginExpiresIn,
+            activeLogin.supportsSync,
+        );
         if (!isRegisterLogin) {
-            if (
-                loginExpiresIn &&
-                loginExpiresIn > 0 &&
-                !activeLogin.supportsSync
-            ) {
-                activeLogin.expires = new Date(Date.now() + loginExpiresIn);
-            } else {
-                activeLogin.expires = null;
-            }
+            activeLogin =
+                await this.activeLoginService.setActiveLoginExpiration(
+                    activeLogin,
+                );
         }
         activeLogin.nextExpectedRefreshTokenNumber++;
         return await this.activeLoginService.save(activeLogin);
@@ -113,13 +114,13 @@ export class OauthServerController {
         if (loginData.state == LoginState.WAITING_FOR_REGISTER) {
             tokenScope = [TokenScope.LOGIN_SERVICE_REGISTER];
             accessToken = await this.tokenService.signRegistrationToken(
-                loginData.id,
+                activeLogin.id,
                 tokenExpiresInMs,
             );
         } else {
             tokenScope = [TokenScope.BACKEND, TokenScope.LOGIN_SERVICE];
-            accessToken = this.tokenService.signBackendToken(
-                (await loginData.user).neo4jId,
+            accessToken = await this.tokenService.signBackendAccessToken(
+                await loginData.user,
                 tokenExpiresInMs,
             );
         }

@@ -138,7 +138,6 @@ export class StrategyUserpassController extends GenericStrategyController {
         const instance = await this.idToStrategyInstance(id);
         const newUser = new LoginUser();
         newUser.username = "test-user";
-        newUser.displayName = "Test User";
         newUser.neo4jId = "1234";
         this.userService.save(newUser);
         console.log("Register witn userpass " + id);

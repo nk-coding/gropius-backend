@@ -7,9 +7,10 @@ import {
 import { Request, Response } from "express";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { AuthStateData } from "./AuthResult";
+import { AuthFunction, AuthStateData } from "./AuthResult";
 import { PerformAuthFunctionService } from "./perform-auth-function.service";
 import { StrategiesService } from "./strategies.service";
+import { Strategy } from "./Strategy";
 import { ensureState } from "./utils";
 
 @Injectable()
@@ -54,6 +55,7 @@ export class StrategiesMiddleware implements NestMiddleware {
             this.performAuthFunctionService.checkFunctionIsAllowed(
                 res.locals.state,
                 instance,
+                strategy,
             );
         if (functionError != null) {
             (res.locals.state as AuthStateData).authErrorMessage =

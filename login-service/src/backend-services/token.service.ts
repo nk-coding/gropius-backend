@@ -2,7 +2,9 @@ import { Inject, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { JsonWebTokenError } from "jsonwebtoken";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { LoginUser } from "src/model/postgres/LoginUser";
 import { ActiveLoginService } from "src/model/services/active-login.service";
+import { LoginUserService } from "src/model/services/login-user.service";
 
 export interface ActiveLoginTokenResult {
     activeLoginId: string;
@@ -24,29 +26,70 @@ export class TokenService {
         @Inject("BackendJwtService")
         private readonly backendJwtService: JwtService,
         private readonly activeLoginService: ActiveLoginService,
+        private readonly loginUserService: LoginUserService,
     ) {}
 
-    signBackendToken(neo4JUserId: string, expiresIn: number): string {
-        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
+    async signBackendAccessToken(
+        user: LoginUser,
+        expiresIn?: number,
+    ): Promise<string> {
+        const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
         return this.backendJwtService.sign(
             {},
             {
-                subject: neo4JUserId,
+                subject: user.neo4jId,
                 ...expiryObject,
                 audience: [TokenScope.LOGIN_SERVICE, TokenScope.BACKEND],
             },
         );
     }
 
-    async signRegistrationToken(
-        loginDataId: string,
+    async signLoginOnlyAccessToken(
+        user: LoginUser,
         expiresIn?: number,
     ): Promise<string> {
-        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
+        const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
+        return this.backendJwtService.sign(
+            {},
+            {
+                subject: user.id,
+                ...expiryObject,
+                audience: [TokenScope.LOGIN_SERVICE],
+            },
+        );
+    }
+
+    async verifyAccessToken(
+        token: string,
+    ): Promise<{ user: LoginUser | null }> {
+        const payload = await this.backendJwtService.verifyAsync(token, {
+            audience: [TokenScope.LOGIN_SERVICE],
+        });
+        const audience: TokenScope[] = (payload.aud as string[]).map(
+            (scope) => TokenScope[scope],
+        );
+        let user: LoginUser | null = null;
+        if (audience.includes(TokenScope.BACKEND)) {
+            user = await this.loginUserService.findOneBy({
+                neo4jId: payload.sub,
+            });
+        }
+        if (!user) {
+            user = await this.loginUserService.findOneBy({ id: payload.sub });
+        }
+        user = user ?? null;
+        return { user };
+    }
+
+    async signRegistrationToken(
+        activeLoginId: string,
+        expiresIn?: number,
+    ): Promise<string> {
+        const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
         return this.backendJwtService.signAsync(
             {},
             {
-                subject: loginDataId,
+                subject: activeLoginId,
                 ...expiryObject,
                 audience: [TokenScope.LOGIN_SERVICE_REGISTER],
                 secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
@@ -68,7 +111,8 @@ export class TokenService {
         uniqueId: string | number,
         expiresIn?: number,
     ): Promise<string> {
-        const expiryObject = expiresIn !== undefined ? { expiresIn } : {};
+        const expiryObject =
+            expiresIn !== undefined ? { expiresIn: expiresIn / 1000 } : {};
         return await this.backendJwtService.signAsync(
             {
                 client_id: clientId,

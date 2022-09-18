@@ -6,27 +6,22 @@ export class LoginUser {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     neo4jId: string;
 
     @Column()
     username: string;
 
-    @Column()
-    displayName: string;
-
-    @Column({ nullable: true })
-    email: string | null;
-
     @OneToMany(() => UserLoginData, (loginData) => loginData.user)
     loginData: Promise<UserLoginData[]>;
+
+    @Column()
+    revokeTokensBefore: Date;
 
     toJSON() {
         return {
             id: this.id,
             username: this.username,
-            displayName: this.displayName,
-            email: this.email,
         };
     }
 }

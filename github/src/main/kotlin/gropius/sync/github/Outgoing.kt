@@ -212,7 +212,7 @@ class Outgoing(
                     }
                 }
             } else {
-                listOf();
+                emptyList()
             }
         } else {
             return listOf {

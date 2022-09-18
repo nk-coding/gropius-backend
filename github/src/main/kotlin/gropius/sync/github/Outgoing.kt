@@ -191,6 +191,7 @@ class Outgoing(
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
      * @param userList users that have contributed to the event
+     * @param label the label that has been added
      * @return List of functions that contain the actual mutation executors
      */
     private suspend fun githubAddLabel(
@@ -224,8 +225,7 @@ class Outgoing(
                 val newLabel = createLabelResponse?.data?.createLabel?.label?.labelData()
                 if (newLabel != null) {
                     nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
-                    val response =
-                        client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
+                    val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
                     val item =
                         response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
                     if (item != null) {
@@ -241,6 +241,7 @@ class Outgoing(
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
      * @param userList users that have contributed to the event
+     * @param label the label that has been removed
      * @return List of functions that contain the actual mutation executors
      */
     private suspend fun githubRemoveLabel(
@@ -295,7 +296,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubCloseIssue(imsProjectConfig,
+            collectedMutations += githubCloseIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }

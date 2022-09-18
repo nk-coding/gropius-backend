@@ -51,3 +51,10 @@ mutation MutateRemoveLabel($id: ID!, $label: ID!) {
         clientMutationId
     }
 }
+mutation MutateCreateLabel($repositoryId: ID!, $name:String!, $description:String!, $color: String!) {
+    createLabel(input: {color: $color, name: $name, description: $description, repositoryId: $repositoryId}){
+        label {
+            ...LabelData
+        }
+    }
+}

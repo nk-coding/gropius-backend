@@ -10,12 +10,10 @@ import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.repository.issue.IssueRepository
 import gropius.repository.user.IMSUserRepository
-import gropius.sync.github.generated.MutateAddLabelMutation
+import gropius.sync.github.generated.*
 import gropius.sync.github.generated.MutateAddLabelMutation.Data.AddLabelsToLabelable.Labelable.Companion.asIssue
-import gropius.sync.github.generated.MutateCloseIssueMutation
-import gropius.sync.github.generated.MutateRemoveLabelMutation
+import gropius.sync.github.generated.MutateCreateLabelMutation.Data.CreateLabel.Label.Companion.labelData
 import gropius.sync.github.generated.MutateRemoveLabelMutation.Data.RemoveLabelsFromLabelable.Labelable.Companion.asIssue
-import gropius.sync.github.generated.MutateReopenIssueMutation
 import gropius.sync.github.model.IssueInfo
 import gropius.sync.github.repository.IssueInfoRepository
 import gropius.sync.github.repository.LabelInfoRepository
@@ -45,6 +43,7 @@ class Outgoing(
     private val issueRepository: IssueRepository,
     private val imsUserRepository: IMSUserRepository,
     private val incoming: Incoming,
+    private val nodeSourcerer: NodeSourcerer,
     private val labelInfoRepository: LabelInfoRepository
 ) {
     /**
@@ -141,7 +140,8 @@ class Outgoing(
             token = tokenManager.getTokenForIMSUser(imsProjectConfig.imsConfig, null)
         }
         return ApolloClient.Builder().serverUrl(imsProjectConfig.imsConfig.graphQLUrl.toString())
-            .addHttpHeader("Authorization", "bearer $token").build()
+            .addHttpHeader("Authorization", "bearer $token")
+            .addHttpHeader("Accept", "application/json, application/vnd.github.bane-preview+json").build()
     }
 
     /**
@@ -214,7 +214,25 @@ class Outgoing(
                 listOf();
             }
         } else {
-            TODO("create Label");
+            return listOf {
+                val client = createClient(imsProjectConfig, userList)
+                val createLabelResponse = client.mutation(
+                    MutateCreateLabelMutation(
+                        issueInfo.githubId, label.name, label.description, label.color
+                    )
+                ).execute()
+                val newLabel = createLabelResponse?.data?.createLabel?.label?.labelData()
+                if (newLabel != null) {
+                    nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
+                    val response =
+                        client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
+                    val item =
+                        response.data?.addLabelsToLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                    if (item != null) {
+                        incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
+                    }
+                }
+            }
         }
     }
 
@@ -229,24 +247,18 @@ class Outgoing(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, label: Label, userList: Iterable<User>
     ): List<suspend () -> Unit> {
         logger.info("Scheduling removing ${label.name} (${label.rawId}) from ${issueInfo.neo4jId}")
-        val labelId = labelInfoRepository.findByNeo4jId(label.rawId!!)
-        if (labelId != null) {
-            return if (labelId.url == imsProjectConfig.url) {
-                listOf {
-                    val client = createClient(imsProjectConfig, userList)
-                    val response =
-                        client.mutation(MutateRemoveLabelMutation(issueInfo.githubId, labelId.githubId)).execute()
-                    val item =
-                        response.data?.removeLabelsFromLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
-                    if (item != null) {
-                        incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
-                    }
+        return listOf {
+            val labelId = labelInfoRepository.findByNeo4jId(label.rawId!!)
+            if (labelId != null) {
+                val client = createClient(imsProjectConfig, userList)
+                val response =
+                    client.mutation(MutateRemoveLabelMutation(issueInfo.githubId, labelId.githubId)).execute()
+                val item =
+                    response.data?.removeLabelsFromLabelable?.labelable?.asIssue()?.timelineItems?.nodes?.lastOrNull()
+                if (item != null) {
+                    incoming.handleTimelineEvent(imsProjectConfig, issueInfo, item)
                 }
-            } else {
-                listOf();
             }
-        } else {
-            TODO("create Label");
         }
     }
 

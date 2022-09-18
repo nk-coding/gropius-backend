@@ -331,8 +331,7 @@ class Outgoing(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubReopenIssue(
-                imsProjectConfig,
+            collectedMutations += githubReopenIssue(imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -340,8 +339,7 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubCloseIssue(
-                imsProjectConfig,
+            collectedMutations += githubCloseIssue(imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -389,46 +387,62 @@ class Outgoing(
     ): List<suspend () -> Unit> {
         val groups = timeline.filter { (it is AddedLabelEvent) || (it is RemovedLabelEvent) }.groupBy {
             when (it) {
-                is AddedLabelEvent -> {
-                    it.addedLabel().value
-                }
-
-                is RemovedLabelEvent -> {
-                    it.removedLabel().value
-                }
-
+                is AddedLabelEvent -> it.addedLabel().value
+                is RemovedLabelEvent -> it.removedLabel().value
                 else -> throw IllegalStateException()
             }
         }
         val collectedMutations = mutableListOf<suspend () -> Unit>()
         for ((label, relevantTimeline) in groups) {
-            val finalBlock = findFinalTypeBlock(relevantTimeline)
-            for (item in finalBlock) {
-                if (timelineEventInfoRepository.findByNeo4jId(item.rawId!!) != null) {
-                    return listOf()
-                }
-            }
-            if (shouldSyncType<AddedLabelEvent, RemovedLabelEvent>(
-                    finalBlock, relevantTimeline, false
+            if (handleSingleLabel(
+                    relevantTimeline, collectedMutations, imsProjectConfig, issueInfo, label
                 )
-            ) {
-                collectedMutations += githubAddLabel(imsProjectConfig,
-                    issueInfo,
-                    label,
-                    finalBlock.map { it.lastModifiedBy().value })
-            }
-            if (shouldSyncType<RemovedLabelEvent, AddedLabelEvent>(
-                    finalBlock, relevantTimeline, true
-                )
-            ) {
-                collectedMutations += githubRemoveLabel(
-                    imsProjectConfig,
-                    issueInfo,
-                    label,
-                    finalBlock.map { it.lastModifiedBy().value })
-            }
+            ) return listOf()
         }
         return collectedMutations
+    }
+
+    /**
+     * Mutate the labels of an issue upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param relevantTimeline Sorted labeling TimelineItems filtered for the same label
+     * @param collectedMutations List to insert the mutations into
+     * @param label The label this group manipulates
+     * @return true if the item has already been synced and should not be synced again
+     */
+    private suspend fun handleSingleLabel(
+        relevantTimeline: List<TimelineItem>,
+        collectedMutations: MutableList<suspend () -> Unit>,
+        imsProjectConfig: IMSProjectConfig,
+        issueInfo: IssueInfo,
+        label: Label
+    ): Boolean {
+        val finalBlock = findFinalTypeBlock(relevantTimeline)
+        for (item in finalBlock) {
+            if (timelineEventInfoRepository.findByNeo4jId(item.rawId!!) != null) {
+                return true
+            }
+        }
+        if (shouldSyncType<AddedLabelEvent, RemovedLabelEvent>(
+                finalBlock, relevantTimeline, false
+            )
+        ) {
+            collectedMutations += githubAddLabel(imsProjectConfig,
+                issueInfo,
+                label,
+                finalBlock.map { it.lastModifiedBy().value })
+        }
+        if (shouldSyncType<RemovedLabelEvent, AddedLabelEvent>(
+                finalBlock, relevantTimeline, true
+            )
+        ) {
+            collectedMutations += githubRemoveLabel(imsProjectConfig,
+                issueInfo,
+                label,
+                finalBlock.map { it.lastModifiedBy().value })
+        }
+        return false
     }
 
     /**

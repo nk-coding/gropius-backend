@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import * as passport from "passport";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { Strategy } from "./Strategy";
+import { Strategy } from "../../strategies/Strategy";
 
 @Injectable()
 export class StrategiesService {

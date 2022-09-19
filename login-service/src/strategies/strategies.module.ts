@@ -5,10 +5,9 @@ import { ErrorHandlerMiddleware } from "./error-handler.middleware";
 import { ModeExtractorMiddleware } from "./mode-extractor.middleware";
 import { OauthStrategyService } from "./oauth/oauth.service";
 import { PerformAuthFunctionService } from "./perform-auth-function.service";
-import { StrategiesController } from "./strategies.controller";
 import { StrategiesMiddleware } from "./strategies.middleware";
-import { StrategiesService } from "./strategies.service";
 import { UserpassStrategyService } from "./userpass/userpass.service";
+import { BackendServicesModule } from "src/backend-services/backend-services.module";
 
 @Module({
     imports: [
@@ -28,10 +27,10 @@ import { UserpassStrategyService } from "./userpass/userpass.service";
                 };
             },
         }),
+        BackendServicesModule,
     ],
-    controllers: [StrategiesController],
+    controllers: [],
     providers: [
-        StrategiesService,
         PerformAuthFunctionService,
         UserpassStrategyService,
         OauthStrategyService,
@@ -41,7 +40,6 @@ import { UserpassStrategyService } from "./userpass/userpass.service";
         ErrorHandlerMiddleware,
     ],
     exports: [
-        StrategiesService,
         ModeExtractorMiddleware,
         StrategiesMiddleware,
         ErrorHandlerMiddleware,

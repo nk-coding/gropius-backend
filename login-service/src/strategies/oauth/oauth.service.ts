@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { StrategiesService } from "../strategies.service";
+import { StrategiesService } from "../../model/services/strategies.service";
 import * as passportOauth from "passport-oauth2";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import * as passport from "passport";
@@ -39,7 +39,6 @@ export class OauthStrategyService extends StrategyUsingPassport {
     protected override checkInstanceConfig(
         instanceConfig: object,
     ): boolean | string {
-        //todo adapt further
         const checkResults = [
             super.checkInstanceConfig(instanceConfig),
             checkType(instanceConfig, "authorizationUrl", "string"),
@@ -47,7 +46,17 @@ export class OauthStrategyService extends StrategyUsingPassport {
             checkType(instanceConfig, "clientId", "string"),
             checkType(instanceConfig, "clientSecret", "string"),
         ];
-        return checkResults.find((v) => v !== true) ?? true;
+        const error = checkResults.find((v) => v !== true);
+        if (error != undefined) {
+            return error;
+        }
+        try {
+            new URL(instanceConfig["authorizationUrl"]);
+            new URL(instanceConfig["tokenUrl"]);
+        } catch (err) {
+            console.error(err);
+            return err.message ?? err;
+        }
     }
 
     override async getSyncTokenForLoginData(

@@ -37,14 +37,19 @@ export class OauthServerController {
         private readonly tokenService: TokenService,
     ) {}
 
-    private async checkLoginDataIsVaild(loginData?: UserLoginData) {
+    private async checkLoginDataIsVaild(
+        loginData?: UserLoginData,
+        activeLogin?: ActiveLogin,
+    ) {
         if (!loginData) {
+            console.error("Login data not found");
             throw new OauthHttpException(
                 "invalid_grant",
                 "No login found for given grant (refresh token/code)",
             );
         }
         if (loginData.expires != null && loginData.expires <= new Date()) {
+            console.error("Login data has expired", loginData);
             throw new OauthHttpException(
                 "invalid_grant",
                 "Login has expired. Try restarting login/register/link process.",
@@ -72,6 +77,27 @@ export class OauthServerController {
                     "invalid_grant",
                     "Login for given grant is not valid any more. Please re-login",
                 );
+        }
+        if (!activeLogin) {
+            console.error("Active login not found");
+            throw new OauthHttpException(
+                "invalid_grant",
+                "No login found for given grant (refresh token/code)",
+            );
+        }
+        if (activeLogin.expires != null && activeLogin.expires <= new Date()) {
+            console.error("Active login has expired", activeLogin.id);
+            throw new OauthHttpException(
+                "invalid_grant",
+                "Login has expired. Try restarting login/register/link process.",
+            );
+        }
+        if (!activeLogin.isValid) {
+            console.error("Active login is set invalid", activeLogin.id);
+            throw new OauthHttpException(
+                "invalid_grant",
+                "Login is set invalid/disabled.",
+            );
         }
     }
 
@@ -154,7 +180,7 @@ export class OauthServerController {
         if (!currentClient) {
             throw new OauthHttpException(
                 "invalid_client",
-                "No client id/authentication given",
+                "No client id/authentication given or authentication invalid",
             );
         }
         let activeLogin = (res.locals.state as AuthStateData)?.activeLogin;
@@ -164,7 +190,7 @@ export class OauthServerController {
             });
         }
         const loginData = await activeLogin.loginInstanceFor;
-        await this.checkLoginDataIsVaild(loginData);
+        await this.checkLoginDataIsVaild(loginData, activeLogin);
         return await this.createAccessToken(
             loginData,
             activeLogin,

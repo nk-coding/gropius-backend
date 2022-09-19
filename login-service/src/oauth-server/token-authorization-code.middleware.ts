@@ -43,7 +43,7 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
         }
         try {
             tokenData = await this.tokenService.verifyActiveLoginToken(
-                req.body.code,
+                req.body.code ?? req.body.refresh_token,
                 currentClient.id,
             );
         } catch (err) {

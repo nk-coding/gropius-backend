@@ -28,8 +28,8 @@ export class CheckAccessTokenGuard implements CanActivate {
     ) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const authHead = context.switchToHttp().getRequest<Request>()
-            ?.headers?.authorization;
+        const req = context.switchToHttp().getRequest<Request>();
+        const authHead = req?.headers?.authorization;
         if (!authHead || authHead.length == 0) {
             throw new UnauthorizedException(
                 undefined,
@@ -61,6 +61,7 @@ export class CheckAccessTokenGuard implements CanActivate {
         const needsAdmin =
             this.reflector.get<boolean>("needsAdmin", context.getHandler()) ??
             false;
+        console.log("Request needs admin:", needsAdmin);
         if (needsAdmin) {
             if (!this.backendUserService.checkIsUserAdmin(user)) {
                 return false;

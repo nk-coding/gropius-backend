@@ -24,7 +24,6 @@ import { StrategiesModule } from "src/strategies/strategies.module";
             },
         }),
         ModelModule,
-        StrategiesModule,
     ],
     providers: [
         { provide: "BackendJwtService", useExisting: JwtService },

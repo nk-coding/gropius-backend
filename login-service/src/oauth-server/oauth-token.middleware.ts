@@ -9,7 +9,7 @@ import { TokenService } from "src/backend-services/token.service";
 import { AuthClient } from "src/model/postgres/AuthClient";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { StrategiesMiddleware } from "src/strategies/strategies.middleware";
-import { StrategiesService } from "src/strategies/strategies.service";
+import { StrategiesService } from "src/model/services/strategies.service";
 import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.middleware";
 import * as bcrypt from "bcrypt";
 import { ensureState } from "src/strategies/utils";
@@ -52,12 +52,13 @@ export class OauthTokenMiddleware implements NestMiddleware {
         if (auth_head && auth_head.startsWith("Basic ")) {
             const clientIdSecret = Buffer.from(auth_head.substring(6), "base64")
                 ?.toString("utf-8")
-                ?.split(":");
+                ?.split(":")
+                ?.map((text) => decodeURIComponent(text));
             if (clientIdSecret && clientIdSecret.length == 2) {
                 const client = await this.authClientService.findOneBy({
                     id: clientIdSecret[0],
                 });
-                if (client) {
+                if (client && client.isValid) {
                     if (
                         this.checkGivenClientSecretValidOrNotRequired(
                             client,
@@ -73,7 +74,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
         const client = await this.authClientService.findOneBy({
             id: req.body.client_id,
         });
-        if (client) {
+        if (client && client.isValid) {
             if (
                 this.checkGivenClientSecretValidOrNotRequired(
                     client,
@@ -96,6 +97,8 @@ export class OauthTokenMiddleware implements NestMiddleware {
 
         const grant_type = req.body.grant_type;
         switch (grant_type) {
+            case "refresh_token": //Request for new token using refresh token
+            //Fallthrough as resfrehsh token works the same as the initial code (both used to obtain new access token)
             case "authorization_code": //Request for token based on obtained code
                 this.tokenResponseCodeMiddleware.use(req, res, () => {
                     console.log("authorization_code called next");
@@ -109,8 +112,6 @@ export class OauthTokenMiddleware implements NestMiddleware {
                     console.log("password/post_credentials called next");
                     next();
                 });
-                break;
-            case "refresh_token": //Request for new token using refresh token
                 break;
             case "client_credentials": //Request for token for stuff on client => not supported
             default:

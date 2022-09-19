@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthFunction, AuthStateData } from "./AuthResult";
-import { StrategiesService } from "./strategies.service";
+import { StrategiesService } from "../model/services/strategies.service";
 import { ensureState } from "./utils";
 
 @Injectable()

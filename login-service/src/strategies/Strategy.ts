@@ -1,4 +1,6 @@
 import * as passport from "passport";
+import { CreateStrategyInstanceInput } from "src/api-login/strategy/inputs/CreateStrategyInstanceInput";
+import { UpdateStrategyInstanceInput } from "src/api-login/strategy/inputs/UpdateStrategyInstance";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
@@ -46,22 +48,70 @@ export abstract class Strategy {
         return true;
     }
 
-    async createNewInstance(
-        name: string | null,
-        instanceConfig: object,
-        isLoginActive: boolean,
-        isSelfRegisterActive: boolean,
-        isSyncActive: boolean,
-    ): Promise<StrategyInstance> {
-        if (!this.checkInstanceConfig(instanceConfig)) {
-            throw new Error("Instance config format invalid");
+    private updateCapabilityFlags(
+        patrentValue: boolean,
+        useDefault: boolean,
+        inputValue?: boolean | null,
+    ): boolean {
+        if (inputValue == null || inputValue == undefined) {
+            if (useDefault) {
+                return patrentValue;
+            }
+        } else if (typeof inputValue == "boolean") {
+            return patrentValue && inputValue;
+        } else {
+            throw new Error("Input value must be boolean");
         }
-        const instance = new StrategyInstance(this.typeName);
-        instance.name = name.replace(/[^a-zA-Z0-9-_]/g, "");
-        instance.instanceConfig = instanceConfig;
-        instance.isLoginActive = !!isLoginActive;
-        instance.isSelfRegisterActive = !!isSelfRegisterActive;
-        instance.isSyncActive = !!isSyncActive;
+    }
+
+    async createOrUpdateNewInstance(
+        input: CreateStrategyInstanceInput | UpdateStrategyInstanceInput,
+        instanceToUpdate?: StrategyInstance,
+    ): Promise<StrategyInstance> {
+        const createNew = instanceToUpdate == undefined;
+        if (createNew) {
+            if ((input as CreateStrategyInstanceInput).type !== this.typeName)
+                throw new Error(
+                    "Called createNewInstance on wrong strategy type",
+                );
+        }
+        if (input.instanceConfig) {
+            const verifyResult = this.checkInstanceConfig(input.instanceConfig);
+            if (verifyResult !== true) {
+                throw new Error(
+                    "Instance config format invalid: " + verifyResult,
+                );
+            }
+        }
+        const instance = createNew
+            ? new StrategyInstance(this.typeName)
+            : instanceToUpdate;
+        instance.doesImplicitRegister = this.updateCapabilityFlags(
+            this.allowsImplicitSignup && this.canLoginRegister,
+            createNew,
+            input.doesImplicitRegister,
+        );
+        instance.isLoginActive = this.updateCapabilityFlags(
+            this.canLoginRegister,
+            createNew,
+            input.isLoginActive,
+        );
+        instance.isSelfRegisterActive = this.updateCapabilityFlags(
+            this.canLoginRegister,
+            createNew,
+            input.isSelfRegisterActive,
+        );
+        instance.isSyncActive = this.updateCapabilityFlags(
+            this.canSync,
+            createNew,
+            input.isSyncActive,
+        );
+        if (createNew || input.name !== undefined) {
+            instance.name = input.name?.replace(/[^a-zA-Z0-9-_ ]/g, "") ?? null;
+        }
+        if (createNew || input.instanceConfig) {
+            instance.instanceConfig = input.instanceConfig;
+        }
 
         return await this.strategyInstanceService.save(instance);
     }
@@ -188,6 +238,8 @@ export abstract class Strategy {
             typeName: this.typeName,
             canLoginRegister: this.canLoginRegister,
             canSync: this.canSync,
+            needsRedirectFlow: this.needsRedirectFlow,
+            allowsImplicitSignup: this.allowsImplicitSignup,
         };
     }
 }

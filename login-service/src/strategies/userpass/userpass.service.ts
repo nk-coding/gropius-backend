@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
-import { StrategiesService } from "../strategies.service";
+import { StrategiesService } from "../../model/services/strategies.service";
 import { Strategy, StrategyVariable } from "../Strategy";
 import * as passportLocal from "passport-local";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";

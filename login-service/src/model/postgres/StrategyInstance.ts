@@ -9,7 +9,7 @@ export class StrategyInstance {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column({ unique: true, nullable: true })
+    @Column({ nullable: true })
     name: string | null;
 
     @Column("jsonb")
@@ -38,6 +38,7 @@ export class StrategyInstance {
             isLoginActive: this.isLoginActive,
             isSelfRegisterActive: this.isSelfRegisterActive,
             isSyncActive: this.isSyncActive,
+            doesImplicitRegister: this.doesImplicitRegister,
         };
     }
 }

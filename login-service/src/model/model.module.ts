@@ -10,11 +10,13 @@ import { UserLoginDataImsUser } from "./postgres/UserLoginDataImsUser";
 import { ActiveLoginService } from "./services/active-login.service";
 import { AuthClientService } from "./services/auth-client.service";
 import { LoginUserService } from "./services/login-user.service";
+import { StrategiesService } from "./services/strategies.service";
 import { StrategyInstanceService } from "./services/strategy-instance.service";
 import { UserLoginDataImsUserService } from "./services/user-login-data-ims-user";
 import { UserLoginDataService } from "./services/user-login-data.service";
 
 const modelModuleExportedServices = [
+    StrategiesService,
     LoginUserService,
     StrategyInstanceService,
     UserLoginDataService,

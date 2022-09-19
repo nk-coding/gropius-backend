@@ -7,7 +7,7 @@ import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { AuthStateData, AuthFunction, AuthResult } from "./AuthResult";
-import { StrategiesService } from "./strategies.service";
+import { StrategiesService } from "../model/services/strategies.service";
 import { Strategy } from "./Strategy";
 
 /**

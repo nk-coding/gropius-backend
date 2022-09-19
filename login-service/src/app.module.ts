@@ -41,6 +41,7 @@ import { OauthServerModule } from "./oauth-server/oauth-server.module";
         OauthServerModule,
         RouterModule.register([
             { path: "login", module: ApiLoginModule },
+            { path: "login", module: StrategiesModule },
             { path: "syncApi", module: ApiSyncModule },
             { path: "strategy", module: OauthServerModule },
         ]),

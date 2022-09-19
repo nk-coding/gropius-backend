@@ -46,7 +46,7 @@ export class BackendUserService {
             loginUser.neo4jId = backendUser.createGropiusUser.gropiusUser.id;
             loginUser = await this.loginUserService.save(loginUser);
         } catch (err) {
-            this.loginUserService.delete(loginUser.id);
+            this.loginUserService.remove(loginUser);
             throw err;
         }
         return loginUser;

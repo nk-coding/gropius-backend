@@ -27,6 +27,9 @@ export const validationSchema = Joi.object({
     GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS: Joi.number()
         .min(0)
         .default(0),
+    GROPIUS_PERFORM_IMS_USER_SEARCH_ON: Joi.string()
+        .pattern(/^((LOGIN|REG|REG_SYNC),)*(LOGIN|REG|REG_SYNC)?$/)
+        .default("LOGIN,REG,REG_SYNC"),
 
     GROPIUS_PASSPORT_STATE_JWT_ISSUER: Joi.string().default(
         "gropius-login-state",

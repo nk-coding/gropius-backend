@@ -5,11 +5,12 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
+import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthFunction, AuthStateData } from "./AuthResult";
 import { PerformAuthFunctionService } from "./perform-auth-function.service";
-import { StrategiesService } from "./strategies.service";
+import { StrategiesService } from "../model/services/strategies.service";
 import { Strategy } from "./Strategy";
 import { ensureState } from "./utils";
 
@@ -19,6 +20,7 @@ export class StrategiesMiddleware implements NestMiddleware {
         private readonly strategiesService: StrategiesService,
         private readonly strategyInstanceService: StrategyInstanceService,
         private readonly performAuthFunctionService: PerformAuthFunctionService,
+        private readonly imsUserFindingService: ImsUserFindingService,
     ) {}
 
     private async idToStrategyInstance(id: string): Promise<StrategyInstance> {
@@ -36,6 +38,21 @@ export class StrategiesMiddleware implements NestMiddleware {
             );
         }
         return instance;
+    }
+
+    async performImsUserSearchIfNeeded(state: AuthStateData) {
+        if (typeof state.activeLogin == "object" && state.activeLogin.id) {
+            const imsUserSearchOnModes =
+                process.env.GROPIUS_PERFORM_IMS_USER_SEARCH_ON.split(
+                    ",",
+                ).filter((s) => !!s);
+            if (imsUserSearchOnModes.includes(state.function)) {
+                const loginData = await state.activeLogin.loginInstanceFor;
+                this.imsUserFindingService.createAndLinkImsUsersForLoginData(
+                    loginData,
+                );
+            }
+        }
     }
 
     async use(req: Request, res: Response, next: () => void) {
@@ -82,6 +99,7 @@ export class StrategiesMiddleware implements NestMiddleware {
                     strategy,
                 );
             res.locals.state = { ...res.locals.state, ...executionResult };
+            await this.performImsUserSearchIfNeeded(res.locals.state);
         } else {
             (res.locals.state as AuthStateData).authErrorMessage =
                 result.info?.message?.toString() ||

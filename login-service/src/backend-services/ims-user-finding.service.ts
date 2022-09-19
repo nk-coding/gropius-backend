@@ -5,7 +5,7 @@ import { UserLoginData } from "src/model/postgres/UserLoginData";
 import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
-import { StrategiesService } from "src/strategies/strategies.service";
+import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "src/strategies/Strategy";
 import { jsonFieldArrayToObject, objectToJsonFieldArray } from "./JSONField";
 

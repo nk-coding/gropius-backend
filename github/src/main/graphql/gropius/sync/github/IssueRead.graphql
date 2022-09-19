@@ -1,6 +1,5 @@
 fragment IssueDataExtensive on Issue {
     ...IssueData
-    number
     body
     lastEditedAt
     updatedAt

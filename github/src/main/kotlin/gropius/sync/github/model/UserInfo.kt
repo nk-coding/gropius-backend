@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document
 import java.net.URI
 
 /**
- * Mapping of a single user from neo4j to github
+ * Mapping of a single user from neo4j to GitHub
  * @param url API URL of IMS of the repo
- * @param login username on github
+ * @param login username on GitHub
  * @param neo4jId IMSUser ID in gropius database
  */
 @Document
@@ -17,7 +17,9 @@ data class UserInfo(
     @Indexed
     val login: String,
     @Indexed(unique = true)
-    val neo4jId: String, val url: URI
+    val neo4jId: String,
+    @Indexed
+    val url: URI
 ) {
     /**
      * MongoDB ID

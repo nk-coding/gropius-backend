@@ -11,13 +11,19 @@ import java.net.URI
  * Cache for unprocessed issues
  * @param url API URL of IMS of the repo
  * @param githubId ID on GitHub
- * @param data Data from github api
+ * @param data Data from GitHub api
  * @param attempts Number of attempts tried to insert into db
  */
 @Document
 data class IssueDataCache(
     @Indexed(unique = true)
-    var githubId: String, val url: URI, val data: IssueDataExtensive, var attempts: Int?
+    var githubId: String,
+    @Indexed
+    val url: URI,
+    @Indexed
+    val data: IssueDataExtensive,
+    @Indexed
+    var attempts: Int?
 ) {
     /**
      * MongoDB ID

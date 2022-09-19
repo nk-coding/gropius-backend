@@ -1,6 +1,7 @@
 package gropius.sync.github
 
 import gropius.model.architecture.IMS
+import gropius.model.template.IMSTemplate
 import java.net.URI
 
 /**
@@ -9,20 +10,23 @@ import java.net.URI
  * @param botUser the bot user string extracted from the template
  * @param readUser the read user string extracted from the template
  * @param graphQLUrl the read url extracted from the template
+ * @param imsTemplate the template of the current IMS
  */
 data class IMSConfig(
-    val ims: IMS, val botUser: String, val readUser: String, val graphQLUrl: URI
+    val ims: IMS, val botUser: String, val readUser: String, val graphQLUrl: URI, val imsTemplate: IMSTemplate
 ) {
     /**
      * @param ims the gropius ims to use as input
      * @param helper Reference for the spring instance of JsonHelper
+     * @param imsTemplate the template of the current IMS
      */
     constructor(
-        helper: JsonHelper, ims: IMS
+        helper: JsonHelper, ims: IMS, imsTemplate: IMSTemplate
     ) : this(
         ims,
         helper.parseString(ims.templatedFields["bot-user"]) ?: "github-bot",
         helper.parseString(ims.templatedFields["read-user"])!!,
-        URI(helper.parseString(ims.templatedFields["graphql-url"])!!)
+        URI(helper.parseString(ims.templatedFields["graphql-url"])!!),
+        imsTemplate
     )
 }

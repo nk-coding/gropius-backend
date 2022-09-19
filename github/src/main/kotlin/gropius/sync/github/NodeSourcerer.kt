@@ -5,7 +5,7 @@ import gropius.model.issue.Label
 import gropius.model.issue.timeline.Body
 import gropius.model.template.IssueTemplate
 import gropius.model.template.IssueType
-import gropius.model.user.GropiusUser
+import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.sync.github.generated.fragment.*
 import gropius.sync.github.model.IssueInfo
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
 /**
- * Save github nodes as gropius nodes into the database
+ * Save GitHub nodes as gropius nodes into the database
  */
 @Component
 class NodeSourcerer(
@@ -47,8 +47,8 @@ class NodeSourcerer(
     private val labelInfoRepository: LabelInfoRepository
 ) {
     /**
-     * Ensure the default github issue type with the default template is in the database
-     * @return The default type for github issues
+     * Ensure the default GitHub issue type with the default template is in the database
+     * @return The default type for GitHub issues
      */
     suspend fun ensureGithubType(): IssueType {
         val types = neoOperations.findAll<IssueType>().toList()
@@ -57,15 +57,15 @@ class NodeSourcerer(
                 return type
             }
         }
-        var type = IssueType("github-issue", "Issue synced from github")
+        var type = IssueType("github-issue", "Issue synced from GitHub")
         type.partOf() += ensureGithubTemplate()
         type = neoOperations.save(type).awaitSingle()
         return type
     }
 
     /**
-     * Ensure the default github template is in the databse
-     * @return The default template for github issues
+     * Ensure the default GitHub template is in the databse
+     * @return The default template for GitHub issues
      */
     suspend fun ensureGithubTemplate(): IssueTemplate {
         val types = neoOperations.findAll<IssueTemplate>().toList()
@@ -74,18 +74,18 @@ class NodeSourcerer(
                 return type
             }
         }
-        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf<String, String>(), false)
+        var template = IssueTemplate("github-temp", "Github Template", mutableMapOf(), false)
         template = neoOperations.save(template).awaitSingle()
         return template
     }
 
     /**
-     * Create an issuebody for the given issue is in the database
-     * @param info The issue to created this body for
+     * Prepare an IssueBody for the given issue is in the database
+     * @param info The issue to be created this body for
      * @param imsProjectConfig Config of the active project
      * @return The finished body
      */
-    private suspend fun createIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
+    private suspend fun prepareIssueBody(imsProjectConfig: IMSProjectConfig, info: IssueData): Body {
         val user = ensureUser(imsProjectConfig, info.author!!)
         var issueBody = Body(
             info.createdAt, info.createdAt, (info as? IssueDataExtensive)?.body ?: "", info.createdAt
@@ -93,7 +93,6 @@ class NodeSourcerer(
         issueBody.createdBy().value = user
         issueBody.lastModifiedBy().value = user
         issueBody.bodyLastEditedBy().value = user
-        issueBody = neoOperations.save(issueBody).awaitSingle()
         return issueBody
     }
 
@@ -146,7 +145,8 @@ class NodeSourcerer(
             null,
             null
         )
-        issue.body().value = createIssueBody(imsProjectConfig, info)
+        issue.body().value = prepareIssueBody(imsProjectConfig, info)
+        issue.body().value.issue().value = issue
         issue.createdBy().value = ensureUser(imsProjectConfig, info.author!!)
         issue.lastModifiedBy().value = ensureUser(imsProjectConfig, info.author!!)
         issue.type().value = ensureGithubType()
@@ -156,7 +156,7 @@ class NodeSourcerer(
 
     /**
      * Ensure a given issue is in the database
-     * @param info The issue to created this body for
+     * @param info The issue to be created this body for
      * @param imsProjectConfig Config of the active project
      * @return The gropius issue and the mongodb issue mapping
      */
@@ -171,7 +171,7 @@ class NodeSourcerer(
         if ((issueInfo == null) || bodyChanged) {
             issueInfo = issueInfoRepository.save(
                 issueInfo ?: IssueInfo(
-                    info.id, imsProjectConfig.url, issue.rawId!!, true, null,
+                    info.id, imsProjectConfig.url, issue.rawId!!, true, null, info, null
                 )
             ).awaitSingle()
         }
@@ -189,19 +189,20 @@ class NodeSourcerer(
 
     /**
      * Ensure a user with the given username is in the database
-     * @param username The github username string
+     * @param username The GitHub username string
      * @param imsProjectConfig Config of the active project
      * @return a gropius user
      */
     suspend fun ensureUser(imsProjectConfig: IMSProjectConfig, username: String): User {
         val userInfo = userInfoRepository.findByUrlAndLogin(imsProjectConfig.url, username)
         return if (userInfo == null) {
-            var user = GropiusUser(username, null, username, false)
+            var user = IMSUser(username, null, username)
+            user.ims().value = imsProjectConfig.imsConfig.ims
             user = neoOperations.save(user).awaitSingle()
             userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
             user
         } else {
-            neoOperations.findById<User>(userInfo.neo4jId)!!
+            neoOperations.findById(userInfo.neo4jId)!!
         }
     }
 
@@ -229,7 +230,7 @@ class NodeSourcerer(
             labelInfoRepository.save(LabelInfo(info.id, label.rawId!!, imsProjectConfig.url)).awaitSingle()
             label
         } else {
-            neoOperations.findById<Label>(labelInfo.neo4jId)!!
+            neoOperations.findById(labelInfo.neo4jId)!!
         }
     }
 

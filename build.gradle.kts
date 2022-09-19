@@ -15,8 +15,14 @@ allprojects {
 }
 
 subprojects {
+    val dokkaGraphQLDescriptionPluginVersion: String by project
+
     apply(plugin = "kotlin")
     apply(plugin = "org.jetbrains.dokka")
+
+    dependencies {
+        dokkaPlugin("io.github.graphglue", "dokka-graphql-description-plugin", dokkaGraphQLDescriptionPluginVersion)
+    }
 
     tasks.withType<DokkaTaskPartial>().configureEach {
         dokkaSourceSets {

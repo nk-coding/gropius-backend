@@ -10,6 +10,7 @@ import org.neo4j.cypherdsl.core.Cypher
  * Default authorization context
  *
  * @param userId the id of the authenticated [GropiusUser]
+ * @param checkPermission if `false`, no authorization checks should be performed
  */
 class GropiusAuthorizationContext(val userId: String, val checkPermission: Boolean = true) : AuthorizationContext {
 

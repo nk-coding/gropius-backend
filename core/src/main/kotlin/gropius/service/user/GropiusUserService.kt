@@ -70,4 +70,16 @@ class GropiusUserService(
         return repository.save(gropiusUser).awaitSingle()
     }
 
+    /**
+     * Finds a [GropiusUser] by username
+     * No authorization status check necessary
+     *
+     * @param username the username of the user to get
+     * @return the found user
+     */
+    suspend fun findGropiusUserByUsername(username: String): GropiusUser {
+        return repository.findByUsername(username)
+            ?: throw IllegalStateException("User with provided username does not exist")
+    }
+
 }

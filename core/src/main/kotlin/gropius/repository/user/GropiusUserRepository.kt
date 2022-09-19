@@ -18,4 +18,12 @@ interface GropiusUserRepository : GropiusRepository<GropiusUser, String> {
      */
     suspend fun existsByUsername(username: String): Boolean
 
+    /**
+     * Finds a [GropiusUser] by username
+     *
+     * @param username the username of the user to get
+     * @return the found user
+     */
+    suspend fun findByUsername(username: String): GropiusUser?
+
 }

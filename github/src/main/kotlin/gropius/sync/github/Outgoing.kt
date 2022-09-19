@@ -347,22 +347,13 @@ class Outgoing(
     private suspend fun pushComments(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
     ): List<suspend () -> Unit> {
-        val relevantTimeline = timeline.filter { (it is IssueComment) }
-        if (relevantTimeline.isEmpty()) {
-            return listOf()
-        }
         val collectedMutations = mutableListOf<suspend () -> Unit>()
-        for (comment in relevantTimeline) {
-            println("A")
-            println(comment)
-            if (timelineEventInfoRepository.findByNeo4jId(comment.rawId!!) == null) {
-                println("B")
-                println(comment)
+        val relevantTimeline = timeline.mapNotNull { it as? IssueComment }
+            .filter { timelineEventInfoRepository.findByNeo4jId(it.rawId!!) == null }.forEach {
                 collectedMutations += githubPostComment(
-                    imsProjectConfig, issueInfo, comment as IssueComment, comment.lastModifiedBy().value
+                    imsProjectConfig, issueInfo, it as IssueComment, it.lastModifiedBy().value
                 )
             }
-        }
         return collectedMutations
     }
 
@@ -385,7 +376,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubReopenIssue(imsProjectConfig,
+            collectedMutations += githubReopenIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -393,7 +385,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubCloseIssue(imsProjectConfig,
+            collectedMutations += githubCloseIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -482,7 +475,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubAddLabel(imsProjectConfig,
+            collectedMutations += githubAddLabel(
+                imsProjectConfig,
                 issueInfo,
                 label,
                 finalBlock.map { it.lastModifiedBy().value })
@@ -491,7 +485,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubRemoveLabel(imsProjectConfig,
+            collectedMutations += githubRemoveLabel(
+                imsProjectConfig,
                 issueInfo,
                 label,
                 finalBlock.map { it.lastModifiedBy().value })

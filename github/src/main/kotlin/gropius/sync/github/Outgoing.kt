@@ -295,7 +295,7 @@ class Outgoing(
      * Mutate an IssueComment upto GitHub
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
-     * @param user users that has contributed to the event
+     * @param user user that has contributed to the event
      * @param comment the comment to post
      * @return List of functions that contain the actual mutation executors
      */

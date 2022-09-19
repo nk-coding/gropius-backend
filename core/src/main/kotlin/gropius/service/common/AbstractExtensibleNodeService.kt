@@ -9,7 +9,7 @@ import gropius.dto.input.orElse
 import gropius.model.common.ExtensibleNode
 import org.springframework.beans.factory.annotation.Autowired
 import gropius.repository.GropiusRepository
-import gropius.util.jsonNodeToDeterministicString
+import gropius.util.JsonNodeMapper
 
 /**
  * Base class for services for subclasses of [ExtensibleNode]
@@ -26,6 +26,12 @@ abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : GropiusRepo
      */
     @Autowired
     lateinit var objectMapper: ObjectMapper
+
+    /**
+     * Injected [JsonNodeMapper]
+     */
+    @Autowired
+    private lateinit var jsonNodeMapper: JsonNodeMapper
 
     /**
      * Updates [node] based on [input]
@@ -57,7 +63,7 @@ abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : GropiusRepo
      */
     private fun updateExtensionFields(node: ExtensibleNode, fields: List<JSONFieldInput>) {
         for (field in fields) {
-            node.extensionFields[field.name] = objectMapper.jsonNodeToDeterministicString(field.value as JsonNode)
+            node.extensionFields[field.name] = jsonNodeMapper.jsonNodeToDeterministicString(field.value as JsonNode)
         }
     }
 }

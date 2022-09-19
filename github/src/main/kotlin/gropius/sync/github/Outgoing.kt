@@ -295,8 +295,8 @@ class Outgoing(
      * Mutate an IssueComment upto GitHub
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
-     * @param userList users that have contributed to the event
-     * @param label the label that has been removed
+     * @param user users that has contributed to the event
+     * @param comment the comment to post
      * @return List of functions that contain the actual mutation executors
      */
     private suspend fun githubPostComment(

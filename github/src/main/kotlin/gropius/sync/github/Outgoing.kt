@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component
  * @param issueRepository Reference for the spring instance of IssueRepository
  * @param imsUserRepository Reference for the spring instance of IMSUserRepository
  * @param incoming Reference for the spring instance of Incoming
+ * @param timelineItemHandler Reference for the spring instance of TimelineItemHandler
  */
 @Component
 class Outgoing(
@@ -45,7 +46,8 @@ class Outgoing(
     private val imsUserRepository: IMSUserRepository,
     private val incoming: Incoming,
     private val nodeSourcerer: NodeSourcerer,
-    private val labelInfoRepository: LabelInfoRepository
+    private val labelInfoRepository: LabelInfoRepository,
+    private val timelineItemHandler: TimelineItemHandler
 ) {
     /**
      * Logger used to print notifications
@@ -290,6 +292,28 @@ class Outgoing(
     }
 
     /**
+     * Mutate an IssueComment upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param user user that has contributed to the event
+     * @param comment the comment to post
+     * @return List of functions that contain the actual mutation executors
+     */
+    private suspend fun githubPostComment(
+        imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, comment: IssueComment, user: User
+    ): List<suspend () -> Unit> {
+        logger.info("Scheduling comment ${comment.body} on ${issueInfo.neo4jId}")
+        return listOf {
+            val client = createClient(imsProjectConfig, listOf(user))
+            val response = client.mutation(MutateCreateCommentMutation(issueInfo.githubId, comment.body)).execute()
+            val item = response.data?.addComment?.commentEdge?.node
+            if (item != null) {
+                timelineItemHandler.handleIssueComment(imsProjectConfig, issueInfo, item, null)
+            }
+        }
+    }
+
+    /**
      * Mutate the open/close state of an issue upto GitHub
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
@@ -299,7 +323,8 @@ class Outgoing(
     private suspend fun pushReopenClose(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
     ): List<suspend () -> Unit> {
-        val relevantTimeline = timeline.filter { (it is ReopenedEvent) || (it is ClosedEvent) }
+        val relevantTimeline =
+            timeline.filter { (it is ReopenedEvent) || (it is ClosedEvent) }//TODO: block similar to label?
         if (relevantTimeline.isEmpty()) {
             return listOf()
         }
@@ -310,6 +335,24 @@ class Outgoing(
             }
         }
         return handleFinalReopenCloseBlock(finalBlock, relevantTimeline, imsProjectConfig, issueInfo)
+    }
+
+    /**
+     * Mutate the comments of an issue upto GitHub
+     * @param imsProjectConfig active config
+     * @param issueInfo info of the issue containing the timeline item
+     * @param timeline TimelineItems for this issue
+     * @return List of functions that contain the actual mutation executors
+     */
+    private suspend fun pushComments(
+        imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
+    ): List<suspend () -> Unit> {
+        return timeline.mapNotNull { it as? IssueComment }
+            .filter { timelineEventInfoRepository.findByNeo4jId(it.rawId!!) == null }.flatMap {
+                githubPostComment(
+                    imsProjectConfig, issueInfo, it as IssueComment, it.lastModifiedBy().value
+                )
+            }
     }
 
     /**
@@ -458,6 +501,7 @@ class Outgoing(
         val timeline = issue.timelineItems().toList().sortedBy { it.lastModifiedAt }
         collectedMutations += pushReopenClose(imsProjectConfig, issueInfo, timeline)
         collectedMutations += pushLabels(imsProjectConfig, issueInfo, timeline)
+        collectedMutations += pushComments(imsProjectConfig, issueInfo, timeline)
         return collectedMutations
     }
 

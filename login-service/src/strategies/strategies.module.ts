@@ -8,7 +8,6 @@ import { PerformAuthFunctionService } from "./perform-auth-function.service";
 import { StrategiesController } from "./strategies.controller";
 import { StrategiesMiddleware } from "./strategies.middleware";
 import { StrategiesService } from "./strategies.service";
-import { StrategyUserpassController } from "./userpass/userpass.controller";
 import { UserpassStrategyService } from "./userpass/userpass.service";
 
 @Module({
@@ -30,7 +29,7 @@ import { UserpassStrategyService } from "./userpass/userpass.service";
             },
         }),
     ],
-    controllers: [StrategiesController, StrategyUserpassController],
+    controllers: [StrategiesController],
     providers: [
         StrategiesService,
         PerformAuthFunctionService,

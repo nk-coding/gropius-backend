@@ -68,7 +68,6 @@ export class StrategiesMiddleware implements NestMiddleware {
             res.locals.state || {},
             req,
             res,
-            next,
         );
         console.log("Strategy result", result);
         res.locals.state = { ...res.locals.state, ...result.returnedState };

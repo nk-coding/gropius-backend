@@ -24,7 +24,7 @@ export class ActiveLoginService extends Repository<ActiveLogin> {
         return this.save(activeLogin);
     }
 
-    async findValidForLoginData(
+    async findValidForLoginDataSortedByExpiration(
         loginData: UserLoginData,
         supportsSync: boolean | null,
     ): Promise<ActiveLogin[]> {
@@ -41,6 +41,6 @@ export class ActiveLoginService extends Repository<ActiveLogin> {
                 supportsSync,
             });
         }
-        return builder.getMany();
+        return builder.orderBy("expires", "DESC", "NULLS FIRST").getMany();
     }
 }

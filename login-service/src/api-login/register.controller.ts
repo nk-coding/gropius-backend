@@ -13,6 +13,7 @@ import {
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
+import { defaultReturn } from "src/defaultReturn";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
@@ -71,7 +72,7 @@ export class RegisterController {
             loginData,
             activeLogin,
         );
-        return { result: "success", operation: "self-register" };
+        return defaultReturn("self-register");
     }
 
     @Post("self-link")
@@ -95,7 +96,7 @@ export class RegisterController {
             activeLogin,
         );
         (res.locals.state as ApiStateData).loggedInUser = loggedInUser;
-        return { result: "success", operation: "self-link" };
+        return defaultReturn("self-link");
     }
 
     @Post("admin-link")
@@ -123,7 +124,7 @@ export class RegisterController {
                 linkToUser,
             );
         await this.linkAccountToUser(linkToUser, loginData, activeLogin);
-        return { result: "success", operation: "admin-link" };
+        return defaultReturn("admin-link");
     }
 
     private async linkAccountToUser(

@@ -6,11 +6,14 @@ import {
     HttpException,
     HttpStatus,
     Post,
+    Put,
     Query,
     Res,
     SetMetadata,
     UseGuards,
 } from "@nestjs/common";
+import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
+import { defaultReturn } from "src/defaultReturn";
 import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { StrategiesService } from "src/strategies/strategies.service";
@@ -23,6 +26,7 @@ export class SyncImsUserController {
     constructor(
         private readonly imsUserService: UserLoginDataImsUserService,
         private readonly strategyService: StrategiesService,
+        private readonly imsUserFindingService: ImsUserFindingService,
     ) {}
 
     @Get("getIMSToken")
@@ -60,9 +64,22 @@ export class SyncImsUserController {
             strategyInstance.type,
         );
         return {
-            token: await strategy.getSyncTokenFor(loginData),
+            token: await strategy.getSyncTokenForLoginData(loginData),
             isImsUserKnown: true,
             message: null,
         };
+    }
+
+    //todo: make endpoint accept list of ims users to be linked all at once in order to optimize finding
+    @Put("linkIMSUser")
+    async linkIMSUser(@Query("imsUser") imsUserId: string) {
+        if (!imsUserId || imsUserId.trim().length <= 0) {
+            throw new HttpException(
+                "Missing query parameter imsUser",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        await this.imsUserFindingService.createAndLinkSingleImsUser(imsUserId);
+        return defaultReturn("linkIMSUser");
     }
 }

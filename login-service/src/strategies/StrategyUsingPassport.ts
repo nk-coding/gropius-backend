@@ -60,7 +60,6 @@ export abstract class StrategyUsingPassport extends Strategy {
         authStateData: AuthStateData | object,
         req: any,
         res: any,
-        next: () => void,
     ): Promise<{
         result: AuthResult | null;
         returnedState: AuthStateData;

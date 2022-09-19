@@ -11,6 +11,7 @@ import { StrategyUsingPassport } from "../StrategyUsingPassport";
 import { JwtService } from "@nestjs/jwt";
 import { UserLoginData } from "src/model/postgres/UserLoginData";
 import { ActiveLoginService } from "src/model/services/active-login.service";
+import { checkType } from "../utils";
 
 @Injectable()
 export class OauthStrategyService extends StrategyUsingPassport {
@@ -35,35 +36,44 @@ export class OauthStrategyService extends StrategyUsingPassport {
         strategiesService.addStrategy("oauth", this);
     }
 
-    protected override checkInstanceConfig(instanceConfig: object): boolean {
-        return Object.keys(instanceConfig).length === 0; //todo
+    protected override checkInstanceConfig(
+        instanceConfig: object,
+    ): boolean | string {
+        //todo adapt further
+        const checkResults = [
+            super.checkInstanceConfig(instanceConfig),
+            checkType(instanceConfig, "authorizationUrl", "string"),
+            checkType(instanceConfig, "tokenUrl", "string"),
+            checkType(instanceConfig, "clientId", "string"),
+            checkType(instanceConfig, "clientSecret", "string"),
+        ];
+        return checkResults.find((v) => v !== true) ?? true;
     }
 
-    override async getSyncTokenFor(
+    override async getSyncTokenForLoginData(
         loginData: UserLoginData,
     ): Promise<string | null> {
         const syncLogins = (
-            await this.activeLoginService.findValidForLoginData(loginData, true)
+            await this.activeLoginService.findValidForLoginDataSortedByExpiration(
+                loginData,
+                true,
+            )
         ).filter((login) => !!login.data["accessToken"]);
-        if (syncLogins.length == 0) {
-            return null;
-        }
-        syncLogins.sort((a, b) => {
-            if (a.expires == null) {
-                if (b.expires == null) {
-                    return 0;
-                } else {
-                    return -1;
-                }
-            } else {
-                if (b.expires == null) {
-                    return 1;
-                } else {
-                    return b.expires.getTime() - a.expires.getTime();
-                }
-            }
-        });
-        return syncLogins[0].data["accessToken"] ?? null;
+        return syncLogins[0]?.data["accessToken"] ?? null;
+    }
+
+    override getImsUserTemplatedValuesForLoginData(
+        loginData: UserLoginData,
+    ): object {
+        return {
+            username: loginData.data["username"],
+        };
+    }
+
+    override getLoginDataDataForImsUserTemplatedFields(
+        imsUser: object,
+    ): object | Promise<object> {
+        return { username: imsUser["username"] };
     }
 
     protected override getAdditionalPassportOptions(

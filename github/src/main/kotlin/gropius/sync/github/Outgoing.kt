@@ -292,7 +292,7 @@ class Outgoing(
     }
 
     /**
-     * Mutate an RemovedLabelEvent upto GitHub
+     * Mutate an IssueComment upto GitHub
      * @param imsProjectConfig active config
      * @param issueInfo info of the issue containing the timeline item
      * @param userList users that have contributed to the event

@@ -9,6 +9,7 @@ import com.expediagroup.graphql.server.spring.execution.SpringGraphQLServer
 import com.expediagroup.graphql.server.types.GraphQLResponse
 import com.expediagroup.graphql.server.types.GraphQLServerError
 import com.expediagroup.graphql.server.types.GraphQLServerResponse
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.scalars.regex.RegexScalar
 import graphql.schema.*
@@ -17,6 +18,7 @@ import gropius.model.template.TemplatedNode
 import gropius.model.user.GropiusUser
 import gropius.model.user.IMSUser
 import gropius.model.user.USERNAME_FILTER_BEAN
+import gropius.util.JsonNodeMapper
 import io.github.graphglue.connection.filter.TypeFilterDefinitionEntry
 import io.github.graphglue.connection.filter.definition.scalars.StringFilterDefinition
 import org.neo4j.driver.Driver
@@ -135,10 +137,11 @@ class GraphQLConfiguration {
     /**
      * Filter for templatedFields on [TemplatedNode]
      *
+     * @param jsonNodeMapper used to serialize [JsonNode]s
      * @return the generated filter definition
      */
     @Bean(TEMPLATED_FIELDS_FILTER_BEAN)
-    fun templatedFieldsFilter(objectMapper: ObjectMapper) = TemplatedFieldsFilterEntryDefinition(objectMapper)
+    fun templatedFieldsFilter(jsonNodeMapper: JsonNodeMapper) = TemplatedFieldsFilterEntryDefinition(jsonNodeMapper)
 
     /**
      * Provides the [KotlinDataFetcherFactoryProvider] which generates a FunctionDataFetcher which handles

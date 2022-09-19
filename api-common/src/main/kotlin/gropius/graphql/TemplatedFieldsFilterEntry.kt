@@ -1,22 +1,25 @@
 package gropius.graphql
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import gropius.dto.input.common.JSONFieldInput
+import gropius.model.template.TemplatedNode
+import gropius.util.JsonNodeMapper
 import io.github.graphglue.connection.filter.model.FilterEntry
 import org.neo4j.cypherdsl.core.Condition
 import org.neo4j.cypherdsl.core.Conditions
 import org.neo4j.cypherdsl.core.Cypher
 import org.neo4j.cypherdsl.core.Node
+import kotlin.reflect.KProperty
 
 /**
  * Parsed filter entry of a [TemplatedFieldsFilterEntryDefinition]
  *
  * @param value the value provided by the user
- * @param objectMapper used to serialize [JsonNode]s
+ * @param jsonNodeMapper used to serialize [JsonNode]s
  * @param definition [TemplatedFieldsFilterEntryDefinition] used to create this entry
  */
 class TemplatedFieldsFilterEntry(
-    private val value: List<*>, private val objectMapper: ObjectMapper, definition: TemplatedFieldsFilterEntryDefinition
+    private val value: List<*>, private val jsonNodeMapper: JsonNodeMapper, definition: TemplatedFieldsFilterEntryDefinition
 ) : FilterEntry(definition) {
 
     override fun generateCondition(node: Node): Condition {
@@ -25,9 +28,12 @@ class TemplatedFieldsFilterEntry(
         } else {
             value.fold(Conditions.noCondition()) { condition, entry ->
                 entry as Map<*, *>
-                val property = node.property("templatedFields.${entry["name"] as String}")
-                val propertyValue = Cypher.anonParameter(objectMapper.writeValueAsString(entry["value"] as JsonNode))
-                condition.and(property.isEqualTo(propertyValue))
+                val templatedFieldProperty: KProperty<*> = TemplatedNode::templatedFields
+                val property =
+                    node.property("${templatedFieldProperty.name}.${entry[JSONFieldInput::name.name] as String}")
+                val propertyValue =
+                    jsonNodeMapper.jsonNodeToDeterministicString(entry[JSONFieldInput::value.name] as JsonNode)
+                condition.and(property.isEqualTo(Cypher.anonParameter(propertyValue)))
             }
         }
     }

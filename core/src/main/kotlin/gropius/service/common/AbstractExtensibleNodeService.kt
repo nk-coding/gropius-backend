@@ -1,5 +1,6 @@
 package gropius.service.common
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import gropius.dto.input.common.CreateExtensibleNodeInput
 import gropius.dto.input.common.JSONFieldInput
@@ -8,6 +9,7 @@ import gropius.dto.input.orElse
 import gropius.model.common.ExtensibleNode
 import org.springframework.beans.factory.annotation.Autowired
 import gropius.repository.GropiusRepository
+import gropius.util.jsonNodeToDeterministicString
 
 /**
  * Base class for services for subclasses of [ExtensibleNode]
@@ -55,7 +57,7 @@ abstract class AbstractExtensibleNodeService<T : ExtensibleNode, R : GropiusRepo
      */
     private fun updateExtensionFields(node: ExtensibleNode, fields: List<JSONFieldInput>) {
         for (field in fields) {
-            node.extensionFields[field.name] = objectMapper.writeValueAsString(field.value)
+            node.extensionFields[field.name] = objectMapper.jsonNodeToDeterministicString(field.value as JsonNode)
         }
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
-import { StrategyInstance } from "../postgres/StrategyInstance";
-import { LoginState, UserLoginData } from "../postgres/UserLoginData";
+import { StrategyInstance } from "../postgres/StrategyInstance.entity";
+import { LoginState, UserLoginData } from "../postgres/UserLoginData.entity";
 
 @Injectable()
 export class UserLoginDataService extends Repository<UserLoginData> {

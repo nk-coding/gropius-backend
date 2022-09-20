@@ -1,6 +1,6 @@
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 
 export enum AuthFunction {
     LOGIN = "LOGIN",

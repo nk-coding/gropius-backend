@@ -2,14 +2,14 @@ import { Inject, Injectable } from "@nestjs/common";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "../../model/services/strategies.service";
 import * as passportOauth from "passport-oauth2";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import * as passport from "passport";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { AuthFunction, AuthResult, AuthStateData } from "../AuthResult";
 import { StrategyUsingPassport } from "../StrategyUsingPassport";
 import { JwtService } from "@nestjs/jwt";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { checkType } from "../utils";
 

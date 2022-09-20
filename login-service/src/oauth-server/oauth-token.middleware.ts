@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenService } from "src/backend-services/token.service";
-import { AuthClient } from "src/model/postgres/AuthClient";
+import { AuthClient } from "src/model/postgres/AuthClient.entity";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { StrategiesMiddleware } from "src/strategies/strategies.middleware";
 import { StrategiesService } from "src/model/services/strategies.service";

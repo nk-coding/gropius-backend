@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthFunction, AuthStateData } from "./AuthResult";
 import { PerformAuthFunctionService } from "./perform-auth-function.service";

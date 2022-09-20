@@ -14,9 +14,12 @@ import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
 import { defaultReturn } from "src/defaultReturn";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import {
+    LoginState,
+    UserLoginData,
+} from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
@@ -31,7 +34,7 @@ import {
 import {
     RegisterUserInput,
     registerUserInputCheck,
-} from "./dto/RegisterUserInput";
+} from "./dto/self-register-user.dto";
 
 @Controller("registration")
 export class RegisterController {

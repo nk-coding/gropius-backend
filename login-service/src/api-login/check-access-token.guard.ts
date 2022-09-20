@@ -11,8 +11,11 @@ import { Observable } from "rxjs";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
 import { GraphqlService } from "src/model/graphql/graphql.service";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import {
+    LoginState,
+    UserLoginData,
+} from "src/model/postgres/UserLoginData.entity";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ensureState } from "src/strategies/utils";
 import { ApiStateData } from "./ApiStateData";

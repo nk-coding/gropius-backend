@@ -6,8 +6,8 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenService } from "src/backend-services/token.service";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { AuthClient } from "src/model/postgres/AuthClient";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { AuthClient } from "src/model/postgres/AuthClient.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "../strategies/AuthResult";

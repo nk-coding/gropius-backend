@@ -11,26 +11,24 @@ import {
     Res,
     UseGuards,
 } from "@nestjs/common";
+import { ApiOkResponse } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { defaultReturn } from "src/defaultReturn";
-import { AuthClient } from "src/model/postgres/AuthClient";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { AuthClient } from "src/model/postgres/AuthClient.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
-import {
-    CreateOrUpdateAuthClientInput,
-    createOrUpdateAuthClientInputCheck,
-} from "./dto/CreateAuthClientInput";
+import { CreateOrUpdateAuthClientInput } from "./dto/create-update-auth-client.dto";
 import { IsAdminInput, isAdminInputCheck } from "./dto/IsAdminInput";
 import {
     RegisterUserInput,
     registerUserInputCheck,
-} from "./dto/RegisterUserInput";
+} from "./dto/self-register-user.dto";
 
 @Controller("client")
 @UseGuards(CheckAccessTokenGuard)
@@ -69,7 +67,7 @@ export class AuthClientController {
     async createNewAuthClient(
         @Body() input: CreateOrUpdateAuthClientInput,
     ): Promise<AuthClient> {
-        createOrUpdateAuthClientInputCheck(input);
+        CreateOrUpdateAuthClientInput.check(input);
         const newClient = new AuthClient();
         newClient.redirectUrls = [];
         if (input.redirectUrls) {
@@ -91,13 +89,25 @@ export class AuthClientController {
         return this.authClientService.save(newClient);
     }
 
+    /**
+     * Updates the auth client with the given ID.
+     * Only parameter given in the input will be changed.
+     *
+     * @param id The uuid string of a valid auth client
+     * @param input The input data dto
+     * @returns The auth client with the updated data
+     */
     @Put(":id")
     @NeedsAdmin()
+    @ApiOkResponse({
+        description: "The auth client was successfully updated",
+        type: AuthClient,
+    })
     async editAuthClient(
         @Param("id") id: string,
         @Body() input: CreateOrUpdateAuthClientInput,
     ): Promise<AuthClient> {
-        createOrUpdateAuthClientInputCheck(input);
+        CreateOrUpdateAuthClientInput.check(input);
 
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {

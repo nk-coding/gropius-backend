@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { GraphqlService } from "src/model/graphql/graphql.service";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
-import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
+import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { StrategiesService } from "src/model/services/strategies.service";

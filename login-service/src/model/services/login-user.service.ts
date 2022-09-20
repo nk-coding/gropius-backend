@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { DataSource, Repository } from "typeorm";
-import { LoginUser } from "../postgres/LoginUser";
+import { LoginUser } from "../postgres/LoginUser.entity";
 
 @Injectable()
 export class LoginUserService extends Repository<LoginUser> {

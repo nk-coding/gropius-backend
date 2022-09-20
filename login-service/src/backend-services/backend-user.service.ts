@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { RegisterUserInput } from "src/api-login/dto/RegisterUserInput";
+import { RegisterUserInput } from "src/api-login/dto/self-register-user.dto";
 import { GraphqlService } from "src/model/graphql/graphql.service";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
-import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
+import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { LoginUserService } from "src/model/services/login-user.service";
 
 @Injectable()

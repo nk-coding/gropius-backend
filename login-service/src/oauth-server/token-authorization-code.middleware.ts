@@ -9,7 +9,7 @@ import {
     ActiveLoginTokenResult,
     TokenService,
 } from "src/backend-services/token.service";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthStateData } from "src/strategies/AuthResult";
 import { ensureState } from "src/strategies/utils";

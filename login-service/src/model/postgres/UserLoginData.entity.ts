@@ -6,10 +6,10 @@ import {
     OneToMany,
     PrimaryGeneratedColumn,
 } from "typeorm";
-import { ActiveLogin } from "./ActiveLogin";
-import { LoginUser } from "./LoginUser";
-import { StrategyInstance } from "./StrategyInstance";
-import { UserLoginDataImsUser } from "./UserLoginDataImsUser";
+import { ActiveLogin } from "./ActiveLogin.entity";
+import { LoginUser } from "./LoginUser.entity";
+import { StrategyInstance } from "./StrategyInstance.entity";
+import { UserLoginDataImsUser } from "./UserLoginDataImsUser.entity";
 
 export enum LoginState {
     /**

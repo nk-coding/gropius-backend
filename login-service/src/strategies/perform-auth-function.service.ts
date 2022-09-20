@@ -1,8 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
+import {
+    LoginState,
+    UserLoginData,
+} from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";

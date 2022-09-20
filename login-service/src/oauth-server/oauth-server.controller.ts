@@ -11,9 +11,12 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { TokenScope, TokenService } from "src/backend-services/token.service";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { AuthClient } from "src/model/postgres/AuthClient";
-import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { AuthClient } from "src/model/postgres/AuthClient.entity";
+import {
+    LoginState,
+    UserLoginData,
+} from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "src/strategies/AuthResult";

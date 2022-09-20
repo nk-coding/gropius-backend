@@ -14,8 +14,8 @@ import {
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { defaultReturn } from "src/defaultReturn";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ApiStateData } from "./ApiStateData";
@@ -24,7 +24,7 @@ import { IsAdminInput, isAdminInputCheck } from "./dto/IsAdminInput";
 import {
     RegisterUserInput,
     registerUserInputCheck,
-} from "./dto/RegisterUserInput";
+} from "./dto/self-register-user.dto";
 
 @Controller("user")
 @UseGuards(CheckAccessTokenGuard)

@@ -1,6 +1,6 @@
 import * as passport from "passport";
 import { Strategy } from "./Strategy";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { AuthStateData, AuthResult } from "./AuthResult";
 import { JwtService } from "@nestjs/jwt";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";

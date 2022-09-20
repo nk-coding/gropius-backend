@@ -5,7 +5,7 @@ import {
     NestMiddleware,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import { AuthClient } from "src/model/postgres/AuthClient";
+import { AuthClient } from "src/model/postgres/AuthClient.entity";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "../strategies/AuthResult";
 import { ensureState } from "../strategies/utils";
@@ -27,9 +27,9 @@ export class OauthAutorizeMiddleware implements NestMiddleware {
         const params = { ...req.query } as { [name: string]: string };
         const clientId = params.client_id;
         const client = await this.authClientService.findOneBy({ id: clientId });
-        if (!clientId || !client) {
+        if (!clientId || !client || !client.isValid) {
             throw new HttpException(
-                "client_id not given or not a valid client id",
+                "client_id not given, not a valid client id or client invalid",
                 HttpStatus.BAD_REQUEST,
             );
         }

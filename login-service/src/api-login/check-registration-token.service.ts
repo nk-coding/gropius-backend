@@ -9,9 +9,12 @@ import {
 import { Request, Response } from "express";
 import { Observable } from "rxjs";
 import { TokenService } from "src/backend-services/token.service";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import {
+    LoginState,
+    UserLoginData,
+} from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 

@@ -1,10 +1,10 @@
 import * as passport from "passport";
 import { CreateStrategyInstanceInput } from "src/api-login/strategy/inputs/CreateStrategyInstanceInput";
 import { UpdateStrategyInstanceInput } from "src/api-login/strategy/inputs/UpdateStrategyInstance";
-import { ActiveLogin } from "src/model/postgres/ActiveLogin";
-import { LoginUser } from "src/model/postgres/LoginUser";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
-import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
+import { LoginUser } from "src/model/postgres/LoginUser.entity";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
+import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthResult, AuthStateData } from "./AuthResult";

@@ -16,7 +16,7 @@ import {
     NeedsAdmin,
 } from "src/api-login/check-access-token.guard";
 import { defaultReturn } from "src/defaultReturn";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";

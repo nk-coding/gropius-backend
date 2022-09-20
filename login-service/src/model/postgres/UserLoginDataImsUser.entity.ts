@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
-import { UserLoginData } from "./UserLoginData";
+import { UserLoginData } from "./UserLoginData.entity";
 
 @Entity()
 export class UserLoginDataImsUser {

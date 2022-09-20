@@ -6,7 +6,7 @@ import {
     HttpStatus,
     Param,
 } from "@nestjs/common";
-import { StrategyInstance } from "src/model/postgres/StrategyInstance";
+import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
@@ -32,18 +32,5 @@ export class StrategiesController {
             );
         }
         return this.strategiesService.getStrategyByName(type);
-    }
-
-    @Get(":type/instance")
-    async getInstancesForType(
-        @Param("type") type: string,
-    ): Promise<StrategyInstance[]> {
-        if (!this.strategiesService.hasStrategy(type)) {
-            throw new HttpException(
-                "Strategy type does not exist",
-                HttpStatus.NOT_FOUND,
-            );
-        }
-        return await this.strategyInstanceService.findBy({ type: type });
     }
 }

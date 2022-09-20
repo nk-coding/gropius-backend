@@ -14,7 +14,7 @@ import {
 } from "@nestjs/common";
 import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
 import { defaultReturn } from "src/defaultReturn";
-import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
+import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { CheckSyncSecretGuard } from "./check-sync-secret.guard";

@@ -73,6 +73,10 @@ class TokenManager(
         )
     }
 
+    /**
+     * Advertise to the login service that an IMSUser  has been created
+     * @param user The user AFTER BEING SAVED TO DB (valid, non-null rawId)
+     */
     suspend fun advertiseIMSUser(user: IMSUser) {
         val response: HttpResponse = client.put(gropiusGithubConfigurationProperties.loginServiceBase.toString()) {
             url {

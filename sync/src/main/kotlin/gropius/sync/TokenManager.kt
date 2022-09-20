@@ -22,7 +22,7 @@ import java.net.URI
  * @param apiSecret API Secret for login service
  */
 @ConstructorBinding
-@ConfigurationProperties("gropius.sync.github")
+@ConfigurationProperties("gropius.sync")
 data class SyncConfigurationProperties(val loginServiceBase: URI, val apiSecret: String)
 
 /**

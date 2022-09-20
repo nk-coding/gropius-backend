@@ -1,6 +1,7 @@
 package gropius.sync.github
 
 import com.apollographql.apollo3.ApolloClient
+import gropius.GithubConfigurationProperties
 import gropius.model.architecture.IMS
 import gropius.model.issue.Issue
 import gropius.model.issue.Label
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Component
  * @param imsUserRepository Reference for the spring instance of IMSUserRepository
  * @param incoming Reference for the spring instance of Incoming
  * @param timelineItemHandler Reference for the spring instance of TimelineItemHandler
+ * @param githubConfigurationProperties Reference for the spring instance of GithubConfigurationProperties
  */
 @Component
 class Outgoing(
@@ -51,7 +53,8 @@ class Outgoing(
     private val incoming: Incoming,
     private val nodeSourcerer: NodeSourcerer,
     private val labelInfoRepository: LabelInfoRepository,
-    private val timelineItemHandler: TimelineItemHandler
+    private val timelineItemHandler: TimelineItemHandler,
+    private val githubConfigurationProperties: GithubConfigurationProperties
 ) {
     /**
      * Logger used to print notifications
@@ -333,7 +336,7 @@ class Outgoing(
         imsProjectConfig: IMSProjectConfig, issueInfo: IssueInfo, timeline: List<TimelineItem>
     ): List<suspend () -> Unit> {
         val relevantTimeline =
-            timeline.filter { (it is ReopenedEvent) || (it is ClosedEvent) }//TODO: block similar to label?
+            timeline.filter { (it is ReopenedEvent) || (it is ClosedEvent) }
         if (relevantTimeline.isEmpty()) {
             return listOf()
         }
@@ -383,7 +386,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubReopenIssue(imsProjectConfig,
+            collectedMutations += githubReopenIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -391,7 +395,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubCloseIssue(imsProjectConfig,
+            collectedMutations += githubCloseIssue(
+                imsProjectConfig,
                 issueInfo,
                 finalBlock.map { it.lastModifiedBy().value })
         }
@@ -480,7 +485,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, false
             )
         ) {
-            collectedMutations += githubAddLabel(imsProjectConfig,
+            collectedMutations += githubAddLabel(
+                imsProjectConfig,
                 issueInfo,
                 label,
                 finalBlock.map { it.lastModifiedBy().value })
@@ -489,7 +495,8 @@ class Outgoing(
                 finalBlock, relevantTimeline, true
             )
         ) {
-            collectedMutations += githubRemoveLabel(imsProjectConfig,
+            collectedMutations += githubRemoveLabel(
+                imsProjectConfig,
                 issueInfo,
                 label,
                 finalBlock.map { it.lastModifiedBy().value })
@@ -528,7 +535,7 @@ class Outgoing(
                 issueInfoRepository.save(issueInfo).awaitSingle()
             }
         }
-        if (collectedMutations.size > 100) {//TODO: Config
+        if (collectedMutations.size > githubConfigurationProperties.maxMutationCount) {
             throw SyncNotificator.NotificatedError("SYNC_GITHUB_TOO_MANY_MUTATIONS")
         }
         logger.info("Pushing ${collectedMutations.size} mutations")

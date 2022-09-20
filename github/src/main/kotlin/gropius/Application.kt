@@ -7,7 +7,9 @@ import org.neo4j.driver.Driver
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.runApplication
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.context.annotation.Bean
@@ -16,6 +18,15 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 import org.springframework.data.neo4j.core.ReactiveDatabaseSelectionProvider
 import org.springframework.data.neo4j.core.transaction.ReactiveNeo4jTransactionManager
 import kotlin.system.exitProcess
+
+/**
+ * Configuration properties for the GitHub API
+ *
+ * @param maxMutationCount maximum number of mutations during single sync cycle
+ */
+@ConstructorBinding
+@ConfigurationProperties("gropius.sync.github")
+data class GithubConfigurationProperties(val maxMutationCount: Int)
 
 /**
  * Configuration provider for the neo4j transaction manager

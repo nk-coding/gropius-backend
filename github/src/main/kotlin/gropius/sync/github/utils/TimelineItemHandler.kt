@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
 import org.springframework.stereotype.Component
+import java.lang.IllegalArgumentException
 import java.time.OffsetDateTime
 
 /**
@@ -204,7 +205,7 @@ class TimelineItemHandler(
             is SubscribedEventTimelineItemData -> Pair(null, event.createdAt)
             is UnsubscribedEventTimelineItemData -> Pair(null, event.createdAt)
             else -> {
-                TODO("Throw nice exception for unhandled event: " + event.__typename)
+                throw IllegalArgumentException("Invalid GraphQL query response in timeline")
             }
         }
     }

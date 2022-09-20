@@ -135,7 +135,10 @@ const config = {
                 config: {
                     "login-service": {
                         specPath: "schemas/login.json",
-                        outputDir: "docs/rest/login-service"
+                        outputDir: "docs/rest/login-service",
+                        sidebarOptions: {
+                            groupPathsBy: "tag"
+                        }
                     }
                 }
             }

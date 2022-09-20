@@ -1,6 +1,6 @@
 import * as passport from "passport";
-import { CreateStrategyInstanceInput } from "src/api-login/strategy/dto/CreateStrategyInstanceInput";
-import { UpdateStrategyInstanceInput } from "src/api-login/strategy/dto/UpdateStrategyInstance";
+import { CreateStrategyInstanceInput } from "src/api-login/strategy/dto/create-strategy-instance.dto";
+import { UpdateStrategyInstanceInput } from "src/api-login/strategy/dto/update-strategy-instance.dto";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
@@ -95,7 +95,7 @@ export abstract class Strategy {
             instance.name = input.name?.replace(/[^a-zA-Z0-9+/\-_= ]/g, "") ?? null;
         }
         if (createNew || input.instanceConfig) {
-            instance.instanceConfig = input.instanceConfig;
+            instance.instanceConfig = input.instanceConfig ?? {};
         }
 
         return await this.strategyInstanceService.save(instance);

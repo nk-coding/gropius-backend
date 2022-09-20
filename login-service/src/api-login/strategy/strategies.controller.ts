@@ -1,7 +1,7 @@
 import { All, Controller, Get, HttpException, HttpStatus, Param } from "@nestjs/common";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { GetStrategyResponse } from "./dto/strategy-api.dto";
 import { OpenApiTag } from "src/openapi-tag";
 
@@ -36,6 +36,7 @@ export class StrategiesController {
      */
     @Get("strategy/:type")
     @ApiOperation({ summary: "Get one strategy (type)" })
+    @ApiParam({ name: "type", type: String, description: "The strategy type name of the strategy to retrieve" })
     @ApiOkResponse({
         type: GetStrategyResponse,
         description: "If existing, the strategy specified",

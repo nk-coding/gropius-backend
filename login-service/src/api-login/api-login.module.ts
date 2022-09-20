@@ -9,6 +9,11 @@ import { StrategiesController } from "./strategy/strategies.controller";
 import { StrategyInstancesController } from "./strategy/strategy-instances.controller";
 import { UsersController } from "./users.controller";
 
+/**
+ * Module that contains all controllers for the regular login-service API
+ * (Except the actual authentication).
+ * All entities are accessed over this Module.
+ */
 @Module({
     imports: [ModelModule, BackendServicesModule, StrategiesModule],
     controllers: [

@@ -129,7 +129,7 @@ export class OauthTokenController {
         };
     }
 
-    @All(":id?/token/:mode?")
+    @Post(":id?/token/:mode?")
     async token(@Res({ passthrough: true }) res: Response): Promise<OauthTokenEdnpointResponseDto> {
         ensureState(res);
         const currentClient = (res.locals.state as OauthServerStateData).client;

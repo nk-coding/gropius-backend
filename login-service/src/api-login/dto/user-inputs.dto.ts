@@ -29,6 +29,18 @@ export class BaseUserInput {
      */
     email?: string;
 
+    /**
+     * Checks for a valid {@link BaseUserInput}
+     *
+     * Needed:
+     * - `username` is a required, non empty string
+     * - `displayName` is a required, non empty string
+     * - `email` is, if given, a non empty string
+     *
+     * @param input The instance to check
+     * @returns The argument unchanged
+     * @throws {@link HttpException} BAD_REQUEST if invalid
+     */
     static check(input: BaseUserInput): BaseUserInput {
         if (!input.username || input.username.trim().length <= 0) {
             throw new HttpException(
@@ -67,6 +79,17 @@ export class SelfRegisterUserInput extends BaseUserInput {
      */
     register_token: string;
 
+    /**
+     * Checks for a valid {@link SelfRegisterUserInput}
+     *
+     * Needed:
+     * - Valid {@link BaseUserInput}
+     * - Valid {@link RegistrationTokenInput}
+     *
+     * @param input The instance to check
+     * @returns The argument unchanged
+     * @throws {@link HttpException} BAD_REQUEST if invalid
+     */
     static check(input: SelfRegisterUserInput): SelfRegisterUserInput {
         BaseUserInput.check(input);
         RegistrationTokenInput.check(input);
@@ -88,6 +111,17 @@ export class CreateUserAsAdminInput extends BaseUserInput {
      */
     isAdmin?: boolean;
 
+    /**
+     * Checks for a valid {@link CreateUserAsAdminInput}
+     *
+     * Needed:
+     * - Valid {@link BaseUserInput}
+     * - `isAdmin` is, if given, a valid boolean
+     *
+     * @param input The instance to check
+     * @returns The argument unchanged
+     * @throws {@link HttpException} BAD_REQUEST if invalid
+     */
     static check(input: CreateUserAsAdminInput): CreateUserAsAdminInput {
         BaseUserInput.check(input);
         if (input.isAdmin != undefined && typeof input.isAdmin != "boolean") {

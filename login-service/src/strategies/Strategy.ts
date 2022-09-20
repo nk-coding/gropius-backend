@@ -1,6 +1,6 @@
 import * as passport from "passport";
-import { CreateStrategyInstanceInput } from "src/api-login/strategy/inputs/CreateStrategyInstanceInput";
-import { UpdateStrategyInstanceInput } from "src/api-login/strategy/inputs/UpdateStrategyInstance";
+import { CreateStrategyInstanceInput } from "src/api-login/strategy/dto/CreateStrategyInstanceInput";
+import { UpdateStrategyInstanceInput } from "src/api-login/strategy/dto/UpdateStrategyInstance";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
@@ -245,6 +245,7 @@ export abstract class Strategy {
             canSync: this.canSync,
             needsRedirectFlow: this.needsRedirectFlow,
             allowsImplicitSignup: this.allowsImplicitSignup,
+            acceptsVariables: this.acceptsVariables,
         };
     }
 }

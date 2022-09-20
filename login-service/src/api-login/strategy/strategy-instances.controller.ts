@@ -23,11 +23,11 @@ import { Strategy } from "../../strategies/Strategy";
 import {
     CreateStrategyInstanceInput,
     createStrategyInstanceInputCheck,
-} from "./inputs/CreateStrategyInstanceInput";
+} from "./dto/CreateStrategyInstanceInput";
 import {
     UpdateStrategyInstanceInput,
     updateStrategyInstanceInputCheck,
-} from "./inputs/UpdateStrategyInstance";
+} from "./dto/UpdateStrategyInstance";
 
 @Controller()
 export class StrategyInstancesController {

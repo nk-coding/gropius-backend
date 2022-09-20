@@ -1,6 +1,12 @@
 package gropius.sync.github
 
+import gropius.GropiusGithubConfigurationProperties
 import gropius.model.user.IMSUser
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations
 import org.springframework.data.neo4j.core.findById
@@ -13,8 +19,19 @@ import org.springframework.stereotype.Component
 @Component
 class TokenManager(
     @Qualifier("graphglueNeo4jOperations")
-    private val neoOperations: ReactiveNeo4jOperations
+    private val neoOperations: ReactiveNeo4jOperations,
+    private val gropiusGithubConfigurationProperties: GropiusGithubConfigurationProperties
 ) {
+    val client = HttpClient() {
+        expectSuccess = true
+    }
+
+    /**
+     * Response of the getIMSToken login endpoint
+     * @param token Token if available
+     * @param isImsUserKnown True if the user exists and just has no token
+     */
+    private data class TokenResponse(val token: String?, val isImsUserKnown: Boolean)
 
     /**
      * Request an user token from the auth service
@@ -22,7 +39,17 @@ class TokenManager(
      * @return token if available
      */
     suspend fun getGithubUserToken(imsUser: IMSUser): String? {
-        return System.getenv("GITHUB_DUMMY_PAT")//TODO: @modellbahnfreak!!
+        val tokenResponse: TokenResponse =
+            client.get(gropiusGithubConfigurationProperties.loginServiceBase.toString()) {
+                url {
+                    appendPathSegments("syncApi", "getIMSToken")
+                    parameters.append("imsUser", imsUser.rawId!!)
+                }
+                headers {
+                    append(HttpHeaders.Authorization, "Bearer " + gropiusGithubConfigurationProperties.apiSecret)
+                }
+            }.body()
+        return tokenResponse.token
     }
 
     /**
@@ -32,8 +59,6 @@ class TokenManager(
      * @return GitHub auth token
      */
     suspend fun getTokenForIMSUser(imsConfig: IMSConfig, imsUser: IMSUser?): String {
-        return System.getenv("GITHUB_DUMMY_PAT")//TODO: Login service
-
         val readUser =
             imsUser ?: neoOperations.findById<IMSUser>(imsConfig.readUser) ?: throw SyncNotificator.NotificatedError(
                 "SYNC_GITHUB_USER_NOT_FOUND"
@@ -46,5 +71,17 @@ class TokenManager(
         return getGithubUserToken(readUser) ?: throw SyncNotificator.NotificatedError(
             "SYNC_GITHUB_USER_NO_TOKEN"
         )
+    }
+
+    suspend fun advertiseIMSUser(user: IMSUser) {
+        val response: HttpResponse = client.put(gropiusGithubConfigurationProperties.loginServiceBase.toString()) {
+            url {
+                appendPathSegments("syncApi", "linkIMSUser")
+                parameters.append("imsUser", user.rawId!!)
+            }
+            headers {
+                append(HttpHeaders.Authorization, "Bearer " + gropiusGithubConfigurationProperties.apiSecret)
+            }
+        }
     }
 }

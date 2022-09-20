@@ -10,4 +10,4 @@ import org.springframework.boot.context.properties.ConstructorBinding
  */
 @ConstructorBinding
 @ConfigurationProperties("gropius.sync.github")
-data class GithubConfigurationProperties(val maxMutationCount: Int)
+data class GithubConfigurationProperties(val maxMutationCount: Int = 100)

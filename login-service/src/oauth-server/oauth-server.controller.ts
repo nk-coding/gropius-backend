@@ -1,22 +1,9 @@
-import {
-    All,
-    Body,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-    Post,
-    Res,
-} from "@nestjs/common";
+import { All, Body, Controller, Get, HttpException, HttpStatus, Param, Post, Res } from "@nestjs/common";
 import { Response } from "express";
 import { TokenScope, TokenService } from "src/backend-services/token.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { AuthClient } from "src/model/postgres/AuthClient.entity";
-import {
-    LoginState,
-    UserLoginData,
-} from "src/model/postgres/UserLoginData.entity";
+import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { AuthStateData } from "src/strategies/AuthResult";
@@ -40,16 +27,10 @@ export class OauthServerController {
         private readonly tokenService: TokenService,
     ) {}
 
-    private async checkLoginDataIsVaild(
-        loginData?: UserLoginData,
-        activeLogin?: ActiveLogin,
-    ) {
+    private async checkLoginDataIsVaild(loginData?: UserLoginData, activeLogin?: ActiveLogin) {
         if (!loginData) {
             console.error("Login data not found");
-            throw new OauthHttpException(
-                "invalid_grant",
-                "No login found for given grant (refresh token/code)",
-            );
+            throw new OauthHttpException("invalid_grant", "No login found for given grant (refresh token/code)");
         }
         if (loginData.expires != null && loginData.expires <= new Date()) {
             console.error("Login data has expired", loginData);
@@ -61,10 +42,7 @@ export class OauthServerController {
         switch (loginData.state) {
             case LoginState.VALID:
                 if (!(await loginData.user)) {
-                    throw new OauthHttpException(
-                        "invalid_state",
-                        "No user for valid login. Internal server error.",
-                    );
+                    throw new OauthHttpException("invalid_state", "No user for valid login. Internal server error.");
                 }
                 break;
             case LoginState.WAITING_FOR_REGISTER:
@@ -83,10 +61,7 @@ export class OauthServerController {
         }
         if (!activeLogin) {
             console.error("Active login not found");
-            throw new OauthHttpException(
-                "invalid_grant",
-                "No login found for given grant (refresh token/code)",
-            );
+            throw new OauthHttpException("invalid_grant", "No login found for given grant (refresh token/code)");
         }
         if (activeLogin.expires != null && activeLogin.expires <= new Date()) {
             console.error("Active login has expired", activeLogin.id);
@@ -97,10 +72,7 @@ export class OauthServerController {
         }
         if (!activeLogin.isValid) {
             console.error("Active login is set invalid", activeLogin.id);
-            throw new OauthHttpException(
-                "invalid_grant",
-                "Login is set invalid/disabled.",
-            );
+            throw new OauthHttpException("invalid_grant", "Login is set invalid/disabled.");
         }
     }
 
@@ -109,21 +81,10 @@ export class OauthServerController {
         isRegisterLogin: boolean,
         currentClient: AuthClient,
     ): Promise<ActiveLogin> {
-        const loginExpiresIn = parseInt(
-            process.env.GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS,
-            10,
-        );
-        console.log(
-            "Updating active login",
-            isRegisterLogin,
-            loginExpiresIn,
-            activeLogin.supportsSync,
-        );
+        const loginExpiresIn = parseInt(process.env.GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS, 10);
+        console.log("Updating active login", isRegisterLogin, loginExpiresIn, activeLogin.supportsSync);
         if (!isRegisterLogin) {
-            activeLogin =
-                await this.activeLoginService.setActiveLoginExpiration(
-                    activeLogin,
-                );
+            activeLogin = await this.activeLoginService.setActiveLoginExpiration(activeLogin);
         }
         activeLogin.nextExpectedRefreshTokenNumber++;
         activeLogin.createdByClient = Promise.resolve(currentClient);
@@ -135,25 +96,16 @@ export class OauthServerController {
         activeLogin: ActiveLogin,
         currentClient: AuthClient,
     ): Promise<OauthTokenEdnpointResponseDto> {
-        const tokenExpiresInMs: number = parseInt(
-            process.env.GROPIUS_ACCESS_TOKEN_EXPIRATION_TIME_MS,
-            10,
-        );
+        const tokenExpiresInMs: number = parseInt(process.env.GROPIUS_ACCESS_TOKEN_EXPIRATION_TIME_MS, 10);
 
         let accessToken: string;
         let tokenScope: TokenScope[];
         if (loginData.state == LoginState.WAITING_FOR_REGISTER) {
             tokenScope = [TokenScope.LOGIN_SERVICE_REGISTER];
-            accessToken = await this.tokenService.signRegistrationToken(
-                activeLogin.id,
-                tokenExpiresInMs,
-            );
+            accessToken = await this.tokenService.signRegistrationToken(activeLogin.id, tokenExpiresInMs);
         } else {
             tokenScope = [TokenScope.BACKEND, TokenScope.LOGIN_SERVICE];
-            accessToken = await this.tokenService.signBackendAccessToken(
-                await loginData.user,
-                tokenExpiresInMs,
-            );
+            accessToken = await this.tokenService.signBackendAccessToken(await loginData.user, tokenExpiresInMs);
         }
 
         activeLogin = await this.updateRefreshTokenIdAndExpirationDate(
@@ -178,9 +130,7 @@ export class OauthServerController {
     }
 
     @All(":id?/token/:mode?")
-    async token(
-        @Res({ passthrough: true }) res: Response,
-    ): Promise<OauthTokenEdnpointResponseDto> {
+    async token(@Res({ passthrough: true }) res: Response): Promise<OauthTokenEdnpointResponseDto> {
         ensureState(res);
         const currentClient = (res.locals.state as OauthServerStateData).client;
         if (!currentClient) {
@@ -197,10 +147,6 @@ export class OauthServerController {
         }
         const loginData = await activeLogin.loginInstanceFor;
         await this.checkLoginDataIsVaild(loginData, activeLogin);
-        return await this.createAccessToken(
-            loginData,
-            activeLogin,
-            currentClient,
-        );
+        return await this.createAccessToken(loginData, activeLogin, currentClient);
     }
 }

@@ -1,11 +1,4 @@
-import {
-    All,
-    Controller,
-    Get,
-    HttpException,
-    HttpStatus,
-    Param,
-} from "@nestjs/common";
+import { All, Controller, Get, HttpException, HttpStatus, Param } from "@nestjs/common";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
 import { ApiNotFoundResponse, ApiOkResponse } from "@nestjs/swagger";
@@ -48,10 +41,7 @@ export class StrategiesController {
     })
     getStrategyType(@Param("type") type: string): GetStrategyResponse {
         if (!this.strategiesService.hasStrategy(type)) {
-            throw new HttpException(
-                "Strategy type does not exist",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Strategy type does not exist", HttpStatus.NOT_FOUND);
         }
         return this.strategiesService.getStrategyByName(type);
     }

@@ -13,10 +13,7 @@ export interface CreateUserInput {
 
 @Injectable()
 export class BackendUserService {
-    constructor(
-        private readonly graphqlService: GraphqlService,
-        private readonly loginUserService: LoginUserService,
-    ) {}
+    constructor(private readonly graphqlService: GraphqlService, private readonly loginUserService: LoginUserService) {}
 
     async checkIsUserAdmin(user: LoginUser): Promise<boolean> {
         // todo: adapt once actual query is available
@@ -33,10 +30,7 @@ export class BackendUserService {
         );
     }
 
-    async createNewUser(
-        input: CreateUserInput,
-        isAdmin: boolean,
-    ): Promise<LoginUser> {
+    async createNewUser(input: CreateUserInput, isAdmin: boolean): Promise<LoginUser> {
         let loginUser = new LoginUser();
         loginUser.username = input.username;
         loginUser.revokeTokensBefore = new Date();
@@ -62,10 +56,7 @@ export class BackendUserService {
         return loginUser;
     }
 
-    async linkOneImsUserToGropiusUser(
-        loginUser: LoginUser,
-        imsUser: UserLoginDataImsUser,
-    ) {
+    async linkOneImsUserToGropiusUser(loginUser: LoginUser, imsUser: UserLoginDataImsUser) {
         if (!loginUser.neo4jId) {
             throw new Error("User without neo4jId: " + loginUser.id);
         }
@@ -79,10 +70,7 @@ export class BackendUserService {
         });
     }
 
-    async linkAllImsUsersToGropiusUser(
-        loginUser: LoginUser,
-        loginData: UserLoginData,
-    ) {
+    async linkAllImsUsersToGropiusUser(loginUser: LoginUser, loginData: UserLoginData) {
         if (!loginUser.neo4jId) {
             throw new Error("User without neo4jId: " + loginUser.id);
         }
@@ -103,15 +91,9 @@ export class BackendUserService {
             .filter(
                 (result) =>
                     result.status == "rejected" ||
-                    (result.status == "fulfilled" &&
-                        !result.value.updateIMSUser.imsuser.id),
+                    (result.status == "fulfilled" && !result.value.updateIMSUser.imsuser.id),
             )
-            .map((result) =>
-                result.status == "fulfilled" ? result.value : result.reason,
-            );
-        console.warn(
-            "Failures during linking ims user and gropius user:",
-            failedLinks,
-        );
+            .map((result) => (result.status == "fulfilled" ? result.value : result.reason));
+        console.warn("Failures during linking ims user and gropius user:", failedLinks);
     }
 }

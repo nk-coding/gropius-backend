@@ -21,6 +21,7 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        'indent': ['warn', 4, { "SwitchCase": 1 }]
+        'indent': ['warn', 4, { "SwitchCase": 1 }],
+        "max-len": ["error", { "code": 120, "ignoreUrls": true }],
     },
 };

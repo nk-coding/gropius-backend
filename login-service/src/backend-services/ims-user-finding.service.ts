@@ -33,14 +33,8 @@ export class ImsUserFindingService {
      * If not given, all keys of `templatedFields` will be matched
      * @returns `true` iff all specified keys that the templatedValues had a value fore matched, `false` else
      */
-    private checkFieldsDirectly(
-        node: object,
-        requiredTemplatedValues: object,
-        fieldsToCheck?: string[],
-    ): boolean {
-        const fields = fieldsToCheck
-            ? fieldsToCheck
-            : Object.keys(requiredTemplatedValues);
+    private checkFieldsDirectly(node: object, requiredTemplatedValues: object, fieldsToCheck?: string[]): boolean {
+        const fields = fieldsToCheck ? fieldsToCheck : Object.keys(requiredTemplatedValues);
         for (const key of fields) {
             if (requiredTemplatedValues[key]) {
                 if (!node[key]) {
@@ -49,10 +43,7 @@ export class ImsUserFindingService {
                 if (requiredTemplatedValues[key] != node[key]) {
                     return false;
                 }
-                if (
-                    JSON.stringify(node[key]) !=
-                    JSON.stringify(requiredTemplatedValues[key])
-                ) {
+                if (JSON.stringify(node[key]) != JSON.stringify(requiredTemplatedValues[key])) {
                     return false;
                 }
                 delete requiredTemplatedValues[key];
@@ -67,29 +58,15 @@ export class ImsUserFindingService {
         ims: object,
         imsTemplatedValues: { [key: string]: any },
     ): Promise<boolean> {
-        const requiredTemplatedValues =
-            await strategy.getImsTemplatedValuesForStrategyInstance(instance);
+        const requiredTemplatedValues = await strategy.getImsTemplatedValuesForStrategyInstance(instance);
         if (requiredTemplatedValues == null) {
-            console.warn(
-                `Syncing strategy instance ${instance.id} did not provide required templated values`,
-            );
+            console.warn(`Syncing strategy instance ${instance.id} did not provide required templated values`);
             return false;
         }
-        if (
-            !this.checkFieldsDirectly(ims, requiredTemplatedValues, [
-                "id",
-                "name",
-                "description",
-            ])
-        ) {
+        if (!this.checkFieldsDirectly(ims, requiredTemplatedValues, ["id", "name", "description"])) {
             return false;
         }
-        if (
-            !this.checkFieldsDirectly(
-                imsTemplatedValues,
-                requiredTemplatedValues,
-            )
-        ) {
+        if (!this.checkFieldsDirectly(imsTemplatedValues, requiredTemplatedValues)) {
             return false;
         }
         return true;
@@ -99,9 +76,7 @@ export class ImsUserFindingService {
         ims: object,
         imsTemplatedValues: { [key: string]: any },
     ): Promise<{ instance: StrategyInstance; strategy: Strategy }> {
-        const allSyncStrategies = this.strategiesService
-            .getAllStrategies()
-            .filter((s) => s.canSync);
+        const allSyncStrategies = this.strategiesService.getAllStrategies().filter((s) => s.canSync);
 
         const matchingInstances: {
             instance: StrategyInstance;
@@ -113,14 +88,7 @@ export class ImsUserFindingService {
                 const allInstances = await strategy.getAllInstances();
                 await Promise.all(
                     allInstances.map(async (instance) => {
-                        if (
-                            this.checkIfInstanceMatches(
-                                strategy,
-                                instance,
-                                ims,
-                                imsTemplatedValues,
-                            )
-                        ) {
+                        if (this.checkIfInstanceMatches(strategy, instance, ims, imsTemplatedValues)) {
                             matchingInstances.push({ instance, strategy });
                         }
                     }),
@@ -143,10 +111,7 @@ export class ImsUserFindingService {
      * @param fields The names of the fields to remove from the object
      * @returns An object with the extracted fields
      */
-    private extractFieldsFromObject(
-        data: object,
-        fields: string[],
-    ): { [field: string]: any } {
+    private extractFieldsFromObject(data: object, fields: string[]): { [field: string]: any } {
         const extracted = {};
         for (const key of fields) {
             extracted[key] = data[key];
@@ -166,53 +131,42 @@ export class ImsUserFindingService {
             email?: string;
         },
     ): Promise<UserLoginData> {
-        const requiredLoginDataData =
-            matchingStrategy.getLoginDataDataForImsUserTemplatedFields({
-                ...imsUserTemplatedValues,
-                id: imsUser.id,
-                username: imsUser.username,
-                displayName: imsUser.displayName,
-                email: imsUser.email,
-            });
+        const requiredLoginDataData = matchingStrategy.getLoginDataDataForImsUserTemplatedFields({
+            ...imsUserTemplatedValues,
+            id: imsUser.id,
+            username: imsUser.username,
+            displayName: imsUser.displayName,
+            email: imsUser.email,
+        });
         if (!requiredLoginDataData) {
             throw new Error(
                 "Strategy did not provide required login data data field for ims user. Make sure, the strategy can sync.",
             );
         }
 
-        const matchingLoginData =
-            await this.loginDataService.findForStrategyWithDataContaining(
-                matchingInstance,
-                requiredLoginDataData,
-            );
+        const matchingLoginData = await this.loginDataService.findForStrategyWithDataContaining(
+            matchingInstance,
+            requiredLoginDataData,
+        );
 
         if (matchingLoginData.length != 1) {
-            throw new Error(
-                `Not exactly one (${matchingLoginData.length}) login data matched the ims user given`,
-            );
+            throw new Error(`Not exactly one (${matchingLoginData.length}) login data matched the ims user given`);
         }
 
         return matchingLoginData[0];
     }
 
     async findLoginDataForImsUser(imsUserId: string): Promise<UserLoginData> {
-        const imsUserWithDetail = (
-            await this.graphqlService.sdk.getImsUserDetails({ imsUserId })
-        ).node;
+        const imsUserWithDetail = (await this.graphqlService.sdk.getImsUserDetails({ imsUserId })).node;
         if (imsUserWithDetail.__typename != "IMSUser") {
             throw new Error("Id is not a ims user id");
         }
 
         const ims = imsUserWithDetail.ims;
         const imsTemplatedValues = jsonFieldArrayToObject(ims.templatedFields);
-        const matchingInstance = await this.getMatchingInstance(
-            ims,
-            imsTemplatedValues,
-        );
+        const matchingInstance = await this.getMatchingInstance(ims, imsTemplatedValues);
 
-        const imsUserTemplatedValues = jsonFieldArrayToObject(
-            imsUserWithDetail["templatedFields"] ?? [],
-        ); // todo: retrieve ims user templated values once implemented in backend
+        const imsUserTemplatedValues = jsonFieldArrayToObject(imsUserWithDetail["templatedFields"] ?? []); // todo: retrieve ims user templated values once implemented in backend
         return this.getMatchingLoginData(
             matchingInstance.instance,
             matchingInstance.strategy,
@@ -222,9 +176,7 @@ export class ImsUserFindingService {
     }
 
     //todo: make more efficient (optimization by aggregating all imsusers created in one sync run)
-    async createAndLinkSingleImsUser(
-        imsUserId: string,
-    ): Promise<UserLoginDataImsUser> {
+    async createAndLinkSingleImsUser(imsUserId: string): Promise<UserLoginDataImsUser> {
         const existingImsUser = await this.imsUserService.findOneBy({
             neo4jId: imsUserId,
         });
@@ -246,10 +198,7 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
 
         const loginUser = await loginData.user;
         if (loginUser) {
-            this.backendUserService.linkOneImsUserToGropiusUser(
-                loginUser,
-                newImsUser,
-            );
+            this.backendUserService.linkOneImsUserToGropiusUser(loginUser, newImsUser);
         }
 
         return newImsUser;
@@ -259,94 +208,70 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
         loginData: UserLoginData,
     ): Promise<{ imsUserIds: string[]; imsIdsWithoutImsUsers: string[] }> {
         const strategyInstance = await loginData.strategyInstance;
-        const strategy = this.strategiesService.getStrategyByName(
-            strategyInstance.type,
-        );
+        const strategy = this.strategiesService.getStrategyByName(strategyInstance.type);
 
-        const requiredImsTemplatedValues =
-            await strategy.getImsTemplatedValuesForStrategyInstance(
-                strategyInstance,
-            );
+        const requiredImsTemplatedValues = await strategy.getImsTemplatedValuesForStrategyInstance(strategyInstance);
         if (!requiredImsTemplatedValues) {
             throw new Error(
                 "Strategy instance did not provide required ims template values. Make sure the strategy can sync",
             );
         }
-        const directRequiredIms = this.extractFieldsFromObject(
-            requiredImsTemplatedValues,
-            ["id", "name", "description"],
-        );
-        const requiredImsTemplatedValuesAsArray = objectToJsonFieldArray(
-            requiredImsTemplatedValues,
-        );
+        const directRequiredIms = this.extractFieldsFromObject(requiredImsTemplatedValues, [
+            "id",
+            "name",
+            "description",
+        ]);
+        const requiredImsTemplatedValuesAsArray = objectToJsonFieldArray(requiredImsTemplatedValues);
 
-        const requiredUserTemplatedFields =
-            strategy.getImsUserTemplatedValuesForLoginData(loginData);
+        const requiredUserTemplatedFields = strategy.getImsUserTemplatedValuesForLoginData(loginData);
         if (!requiredUserTemplatedFields) {
             throw new Error(
                 "Strategy did not provide required IMSUser templated field values. Make sure the strategy can sync",
             );
         }
-        const directRequiredUser = this.extractFieldsFromObject(
-            requiredUserTemplatedFields,
-            ["id", "username", "displayName", "email"],
-        );
-        const requiredUserTemplatedFieldsAsArray = objectToJsonFieldArray(
-            requiredUserTemplatedFields,
-        );
+        const directRequiredUser = this.extractFieldsFromObject(requiredUserTemplatedFields, [
+            "id",
+            "username",
+            "displayName",
+            "email",
+        ]);
+        const requiredUserTemplatedFieldsAsArray = objectToJsonFieldArray(requiredUserTemplatedFields);
 
-        const matchingImsUsers =
-            await this.graphqlService.sdk.getImsUsersByTemplatedFieldValues({
-                imsFilterInput: {
-                    ...directRequiredIms,
-                    templatedFields: requiredImsTemplatedValuesAsArray,
-                },
-                userFilterInput: {
-                    ...directRequiredUser,
-                    templatedFields: requiredUserTemplatedFieldsAsArray,
-                },
-            });
+        const matchingImsUsers = await this.graphqlService.sdk.getImsUsersByTemplatedFieldValues({
+            imsFilterInput: {
+                ...directRequiredIms,
+                templatedFields: requiredImsTemplatedValuesAsArray,
+            },
+            userFilterInput: {
+                ...directRequiredUser,
+                templatedFields: requiredUserTemplatedFieldsAsArray,
+            },
+        });
 
         console.log("Retrieved matching imss and ims users:", matchingImsUsers);
         return {
-            imsUserIds: matchingImsUsers.imss.nodes.flatMap((ims) =>
-                ims.users.nodes.map((user) => user.id),
-            ),
+            imsUserIds: matchingImsUsers.imss.nodes.flatMap((ims) => ims.users.nodes.map((user) => user.id)),
             imsIdsWithoutImsUsers: matchingImsUsers.imss.nodes
                 .filter((ims) => ims.users.nodes.length == 0)
                 .map((ims) => ims.id),
         };
     }
 
-    async createNewImsUserInBackendForLoginDataAndIms(
-        loginData: UserLoginData,
-        imsId: string,
-    ): Promise<string> {
+    async createNewImsUserInBackendForLoginDataAndIms(loginData: UserLoginData, imsId: string): Promise<string> {
         const strategyInstance = await loginData.strategyInstance;
-        const strategy = this.strategiesService.getStrategyByName(
-            strategyInstance.type,
-        );
-        const templatedFieldValuesForImsUser =
-            strategy.getImsUserTemplatedValuesForLoginData(loginData);
-        const directValues = this.extractFieldsFromObject(
-            templatedFieldValuesForImsUser,
-            ["id", "username", "displayName", "email"],
-        );
-        const templatedValuesAsArray = objectToJsonFieldArray(
-            templatedFieldValuesForImsUser,
-        );
-        let findPossibleDisplayName =
-            directValues["displayName"] ??
-            directValues["username"] ??
-            directValues["email"];
+        const strategy = this.strategiesService.getStrategyByName(strategyInstance.type);
+        const templatedFieldValuesForImsUser = strategy.getImsUserTemplatedValuesForLoginData(loginData);
+        const directValues = this.extractFieldsFromObject(templatedFieldValuesForImsUser, [
+            "id",
+            "username",
+            "displayName",
+            "email",
+        ]);
+        const templatedValuesAsArray = objectToJsonFieldArray(templatedFieldValuesForImsUser);
+        let findPossibleDisplayName = directValues["displayName"] ?? directValues["username"] ?? directValues["email"];
         if (!findPossibleDisplayName) {
             for (const key in templatedFieldValuesForImsUser) {
-                if (
-                    Object.prototype.hasOwnProperty.call(
-                        templatedFieldValuesForImsUser,
-                        key,
-                    )
-                ) {
+                if (Object.prototype.hasOwnProperty.call(templatedFieldValuesForImsUser, key)) {
                     const value = templatedFieldValuesForImsUser[key];
                     if (value) {
                         findPossibleDisplayName = value;
@@ -367,11 +292,8 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
         return result.createIMSUser.imsuser.id;
     }
 
-    async createAndLinkImsUsersForLoginData(
-        loginData: UserLoginData,
-    ): Promise<UserLoginDataImsUser[]> {
-        const { imsUserIds, imsIdsWithoutImsUsers } =
-            await this.findImsUserIdsForLoginData(loginData);
+    async createAndLinkImsUsersForLoginData(loginData: UserLoginData): Promise<UserLoginDataImsUser[]> {
+        const { imsUserIds, imsIdsWithoutImsUsers } = await this.findImsUserIdsForLoginData(loginData);
 
         const listOfKnownImsUsers = await Promise.all(
             imsUserIds.map(async (id) => {
@@ -384,9 +306,7 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
         );
 
         const imsUserWithDifferentLoginData = listOfKnownImsUsers.find(
-            (result) =>
-                (result.loginDataId != null || result.imsUser != null) &&
-                result.loginDataId != loginData.id,
+            (result) => (result.loginDataId != null || result.imsUser != null) && result.loginDataId != loginData.id,
         );
         if (!!imsUserWithDifferentLoginData) {
             throw new Error(`The filtered resulting ims users included at least one ims user that is already assigned to another login data.
@@ -396,12 +316,7 @@ IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}, curr
 
         const backendCreatedImsUsers = await Promise.all(
             imsIdsWithoutImsUsers
-                .map((ims) =>
-                    this.createNewImsUserInBackendForLoginDataAndIms(
-                        loginData,
-                        ims,
-                    ),
-                )
+                .map((ims) => this.createNewImsUserInBackendForLoginDataAndIms(loginData, ims))
                 .map(async (idPromise) => {
                     const id = await idPromise;
                     return { id, imsUser: null, loginDataId: null };
@@ -424,12 +339,7 @@ IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}, curr
         const loginUser = await loginData.user;
         if (loginUser) {
             await Promise.all(
-                newImsUsers.map((imsUser) =>
-                    this.backendUserService.linkOneImsUserToGropiusUser(
-                        loginUser,
-                        imsUser,
-                    ),
-                ),
+                newImsUsers.map((imsUser) => this.backendUserService.linkOneImsUserToGropiusUser(loginUser, imsUser)),
             );
         }
 

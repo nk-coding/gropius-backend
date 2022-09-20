@@ -1,9 +1,4 @@
-import {
-    HttpException,
-    HttpStatus,
-    Injectable,
-    NestMiddleware,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response } from "express";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
@@ -19,8 +14,7 @@ export class ErrorHandlerMiddleware implements NestMiddleware {
     ) {}
 
     async use(req: Request, res: Response, next: () => void) {
-        const errorMessage = (res.locals?.state as AuthStateData)
-            ?.authErrorMessage;
+        const errorMessage = (res.locals?.state as AuthStateData)?.authErrorMessage;
         const errorType = (res.locals?.state as AuthStateData)?.authErrorType;
         if (errorMessage || errorType) {
             if (errorType) {
@@ -36,10 +30,7 @@ export class ErrorHandlerMiddleware implements NestMiddleware {
             } else {
                 throw new HttpException(errorMessage, HttpStatus.UNAUTHORIZED);
             }
-        } else if (
-            res.locals?.state == undefined ||
-            res.locals?.state == null
-        ) {
+        } else if (res.locals?.state == undefined || res.locals?.state == null) {
             throw new HttpException(
                 "State of request was lost. Internal server error",
                 HttpStatus.INTERNAL_SERVER_ERROR,

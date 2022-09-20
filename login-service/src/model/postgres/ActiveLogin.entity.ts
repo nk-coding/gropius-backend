@@ -1,11 +1,5 @@
 import { ApiHideProperty } from "@nestjs/swagger";
-import {
-    Column,
-    Entity,
-    JoinColumn,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { AuthClient } from "./AuthClient.entity";
 import { LoginUser } from "./LoginUser.entity";
 import { StrategyInstance } from "./StrategyInstance.entity";
@@ -28,8 +22,7 @@ export class ActiveLogin {
         this.created = new Date();
         this.expires = expires || null;
         this.isValid = true;
-        this.nextExpectedRefreshTokenNumber =
-            ActiveLogin.LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED;
+        this.nextExpectedRefreshTokenNumber = ActiveLogin.LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED;
     }
 
     /**

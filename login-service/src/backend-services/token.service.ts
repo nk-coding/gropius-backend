@@ -29,10 +29,7 @@ export class TokenService {
         private readonly loginUserService: LoginUserService,
     ) {}
 
-    async signBackendAccessToken(
-        user: LoginUser,
-        expiresIn?: number,
-    ): Promise<string> {
+    async signBackendAccessToken(user: LoginUser, expiresIn?: number): Promise<string> {
         const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
         if (!user.neo4jId) {
             throw new Error("Login user without neo4jId: " + user.id);
@@ -47,10 +44,7 @@ export class TokenService {
         );
     }
 
-    async signLoginOnlyAccessToken(
-        user: LoginUser,
-        expiresIn?: number,
-    ): Promise<string> {
+    async signLoginOnlyAccessToken(user: LoginUser, expiresIn?: number): Promise<string> {
         const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
         return this.backendJwtService.sign(
             {},
@@ -62,15 +56,11 @@ export class TokenService {
         );
     }
 
-    async verifyAccessToken(
-        token: string,
-    ): Promise<{ user: LoginUser | null }> {
+    async verifyAccessToken(token: string): Promise<{ user: LoginUser | null }> {
         const payload = await this.backendJwtService.verifyAsync(token, {
             audience: [TokenScope.LOGIN_SERVICE],
         });
-        const audience: TokenScope[] = (payload.aud as string[]).map(
-            (scope) => TokenScope[scope],
-        );
+        const audience: TokenScope[] = (payload.aud as string[]).map((scope) => TokenScope[scope]);
         let user: LoginUser | null = null;
         if (audience.includes(TokenScope.BACKEND)) {
             user = await this.loginUserService.findOneBy({
@@ -84,10 +74,7 @@ export class TokenService {
         return { user };
     }
 
-    async signRegistrationToken(
-        activeLoginId: string,
-        expiresIn?: number,
-    ): Promise<string> {
+    async signRegistrationToken(activeLoginId: string, expiresIn?: number): Promise<string> {
         const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
         return this.backendJwtService.signAsync(
             {},
@@ -114,8 +101,7 @@ export class TokenService {
         uniqueId: string | number,
         expiresIn?: number,
     ): Promise<string> {
-        const expiryObject =
-            expiresIn !== undefined ? { expiresIn: expiresIn / 1000 } : {};
+        const expiryObject = expiresIn !== undefined ? { expiresIn: expiresIn / 1000 } : {};
         return await this.backendJwtService.signAsync(
             {
                 client_id: clientId,
@@ -130,10 +116,7 @@ export class TokenService {
         );
     }
 
-    async verifyActiveLoginToken(
-        token: string,
-        requiredClientId: string,
-    ): Promise<ActiveLoginTokenResult> {
+    async verifyActiveLoginToken(token: string, requiredClientId: string): Promise<ActiveLoginTokenResult> {
         const payload = await this.backendJwtService.verifyAsync(token, {
             secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET,
             audience: [TokenScope.REFRESH_TOKEN],
@@ -142,9 +125,7 @@ export class TokenService {
             throw new JsonWebTokenError("Token is not for current client.");
         }
         if (!payload.sub) {
-            throw new JsonWebTokenError(
-                "Active login token (code) doesn't contain an id",
-            );
+            throw new JsonWebTokenError("Active login token (code) doesn't contain an id");
         }
         return {
             activeLoginId: payload.sub,

@@ -24,10 +24,7 @@ query getImsUserDetails($imsUserId: ID!) {
     }
 }
 
-query getImsUsersByTemplatedFieldValues(
-    $imsFilterInput: IMSFilterInput!
-    $userFilterInput: IMSUserFilterInput!
-) {
+query getImsUsersByTemplatedFieldValues($imsFilterInput: IMSFilterInput!, $userFilterInput: IMSUserFilterInput!) {
     imss(filter: $imsFilterInput) {
         nodes {
             id

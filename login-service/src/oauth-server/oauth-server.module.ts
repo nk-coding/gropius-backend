@@ -47,29 +47,19 @@ export class OauthServerModule {
         });
 
         this.middlewares.push({
-            middlewares: [
-                this.strategies,
-                this.oauthRedirect,
-                this.errorHandler,
-            ],
+            middlewares: [this.strategies, this.oauthRedirect, this.errorHandler],
             path: "strategy/oauth/:id/callback",
         });
 
         this.middlewares.push({
-            middlewares: [
-                this.modeExtractor,
-                this.oauthToken,
-                this.errorHandler,
-            ],
+            middlewares: [this.modeExtractor, this.oauthToken, this.errorHandler],
             path: "strategy/oauth/:id?/token/:mode?",
         });
     }
 
     configure(consumer: MiddlewareConsumer) {
         for (const chain of this.middlewares) {
-            consumer
-                .apply(...chain.middlewares.map((m) => m.use.bind(m)))
-                .forRoutes(chain.path);
+            consumer.apply(...chain.middlewares.map((m) => m.use.bind(m))).forRoutes(chain.path);
         }
     }
 }

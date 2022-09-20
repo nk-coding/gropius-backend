@@ -11,10 +11,7 @@ import { Observable } from "rxjs";
 import { TokenService } from "src/backend-services/token.service";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
-import {
-    LoginState,
-    UserLoginData,
-} from "src/model/postgres/UserLoginData.entity";
+import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 
@@ -46,42 +43,23 @@ export class CheckRegistrationTokenService {
         activeLoginId: string,
     ) {
         if (!activeLogin) {
-            console.error(
-                `No active login with id from token; id:`,
-                activeLoginId,
-            );
-            throw new UnauthorizedException(
-                undefined,
-                "Register token is (no longer) valid.",
-            );
+            console.error(`No active login with id from token; id:`, activeLoginId);
+            throw new UnauthorizedException(undefined, "Register token is (no longer) valid.");
         }
         if (!loginData) {
             console.error(`No login data for active login; id:`, activeLoginId);
-            throw new UnauthorizedException(
-                undefined,
-                "Register token is (no longer) valid.",
-            );
+            throw new UnauthorizedException(undefined, "Register token is (no longer) valid.");
         }
         if (
             (loginData.expires != null && loginData.expires <= new Date()) ||
-            (activeLogin.expires != null &&
-                activeLogin.expires <= new Date()) ||
+            (activeLogin.expires != null && activeLogin.expires <= new Date()) ||
             !activeLogin.isValid
         ) {
-            throw new UnauthorizedException(
-                undefined,
-                "Login has expired. Registration did not happen time",
-            );
+            throw new UnauthorizedException(undefined, "Login has expired. Registration did not happen time");
         }
         if (loginData.state !== LoginState.WAITING_FOR_REGISTER) {
-            console.error(
-                "State is not waiting for register of login data",
-                loginData.id,
-            );
-            throw new UnauthorizedException(
-                undefined,
-                "A user is already registered for this login",
-            );
+            console.error("State is not waiting for register of login data", loginData.id);
+            throw new UnauthorizedException(undefined, "A user is already registered for this login");
         }
     }
 
@@ -97,10 +75,7 @@ export class CheckRegistrationTokenService {
      * @param userMustBe The user to verify or undefined
      * @throws {@link UnauthorizedException} If the user did not match as specified above.
      */
-    async verifyUserMatches(
-        loginData: UserLoginData,
-        userMustBe?: LoginUser | undefined,
-    ) {
+    async verifyUserMatches(loginData: UserLoginData, userMustBe?: LoginUser | undefined) {
         const loginDataUser = await loginData.user;
         if (!!loginDataUser) {
             if (userMustBe) {
@@ -118,14 +93,8 @@ export class CheckRegistrationTokenService {
                     // ok. required user matches login data user
                 }
             } else {
-                console.error(
-                    "User already esists for login data",
-                    loginData.id,
-                );
-                throw new UnauthorizedException(
-                    undefined,
-                    "A user is already registered for this login",
-                );
+                console.error("User already esists for login data", loginData.id);
+                throw new UnauthorizedException(undefined, "A user is already registered for this login");
             }
         }
     }
@@ -145,22 +114,14 @@ export class CheckRegistrationTokenService {
         userMustBe?: LoginUser | undefined,
     ): Promise<{ loginData: UserLoginData; activeLogin: ActiveLogin }> {
         if (!token) {
-            throw new UnauthorizedException(
-                undefined,
-                "No registration token given",
-            );
+            throw new UnauthorizedException(undefined, "No registration token given");
         }
         let activeLoginId: string;
         try {
-            activeLoginId = await this.tokenService.verifyRegistrationToken(
-                token,
-            );
+            activeLoginId = await this.tokenService.verifyRegistrationToken(token);
         } catch (err) {
             console.error("Invalid registration token: ", err);
-            throw new UnauthorizedException(
-                undefined,
-                "Invalid registration token: " + (err.message ?? err),
-            );
+            throw new UnauthorizedException(undefined, "Invalid registration token: " + (err.message ?? err));
         }
         const activeLogin = await this.activeLoginService.findOneBy({
             id: activeLoginId,

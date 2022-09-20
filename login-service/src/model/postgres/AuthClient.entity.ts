@@ -94,10 +94,7 @@ export class AuthClient {
         fingerprint: string;
         censored: string;
     }> {
-        const length = Math.min(
-            15,
-            parseInt(process.env.GROPIUS_CLIENT_SECRET_LENGTH, 10),
-        );
+        const length = Math.min(15, parseInt(process.env.GROPIUS_CLIENT_SECRET_LENGTH, 10));
         const secretText = (await randomBytesAsync(length)).toString("hex");
         if (secretText.length < 15) {
             throw new Error("Secret must be at least 15 characters long");
@@ -105,10 +102,7 @@ export class AuthClient {
         if (secretText.match(/[^a-zA-Z0-9+/-_=]/)) {
             throw new Error("Secret can not match /[^a-zA-Z0-9+/-_=]/");
         }
-        const hash = await bcrypt.hash(
-            secretText,
-            parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10),
-        );
+        const hash = await bcrypt.hash(secretText, parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10));
         const censored = secretText.substring(0, 5);
         if (!this.clientSecrets?.length || !this.clientSecrets?.push) {
             this.clientSecrets = [];

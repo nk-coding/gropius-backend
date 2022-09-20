@@ -24,21 +24,10 @@ export class OauthStrategyService extends StrategyUsingPassport {
         passportJwtService: JwtService,
         private readonly activeLoginService: ActiveLoginService,
     ) {
-        super(
-            "oauth",
-            strategyInstanceService,
-            strategiesService,
-            passportJwtService,
-            true,
-            true,
-            true,
-            true,
-        );
+        super("oauth", strategyInstanceService, strategiesService, passportJwtService, true, true, true, true);
     }
 
-    protected override checkInstanceConfig(
-        instanceConfig: object,
-    ): boolean | string {
+    protected override checkInstanceConfig(instanceConfig: object): boolean | string {
         const checkResults = [
             super.checkInstanceConfig(instanceConfig),
             checkType(instanceConfig, "authorizationUrl", "string"),
@@ -59,30 +48,23 @@ export class OauthStrategyService extends StrategyUsingPassport {
         }
     }
 
-    override async getSyncTokenForLoginData(
-        loginData: UserLoginData,
-    ): Promise<string | null> {
+    override async getSyncTokenForLoginData(loginData: UserLoginData): Promise<string | null> {
         const syncLogins = (
-            await this.activeLoginService.findValidForLoginDataSortedByExpiration(
-                loginData,
-                true,
-            )
+            await this.activeLoginService.findValidForLoginDataSortedByExpiration(loginData, true)
         ).filter((login) => !!login.data["accessToken"]);
         return syncLogins[0]?.data["accessToken"] ?? null;
     }
 
-    override getImsUserTemplatedValuesForLoginData(
-        loginData: UserLoginData,
-    ): object {
+    override getImsUserTemplatedValuesForLoginData(loginData: UserLoginData): object {
         return {
             username: loginData.data["username"],
         };
     }
 
-    override getLoginDataDataForImsUserTemplatedFields(
-        imsUser: object,
-    ): object | Promise<object> {
-        return { username: imsUser["username"] };
+    override getLoginDataDataForImsUserTemplatedFields(imsUser: object): object | Promise<object> {
+        return {
+            username: imsUser["username"],
+        };
     }
 
     protected override getAdditionalPassportOptions(
@@ -99,22 +81,19 @@ export class OauthStrategyService extends StrategyUsingPassport {
         }
     }
 
-    public override createPassportStrategyInstance(
-        strategyInstance: StrategyInstance,
-    ): passport.Strategy {
+    public override createPassportStrategyInstance(strategyInstance: StrategyInstance): passport.Strategy {
         const loginDataService = this.loginDataService;
-        const loginUserService = this.loginUserService;
         return new passportOauth.Strategy(
             {
-                authorizationURL: "https://github.com/login/oauth/authorize",
-                clientID: process.env.GROPIUS_OAUTH_CLIENT_ID,
-                clientSecret: process.env.GROPIUS_OAUTH_CLIENT_SECRET,
-                tokenURL: "https://github.com/login/oauth/access_token",
+                authorizationURL:
+                    strategyInstance.instanceConfig["authorizationUrl"] ?? "https://github.com/login/oauth/authorize",
+                clientID: strategyInstance.instanceConfig["clientId"] ?? process.env.GROPIUS_OAUTH_CLIENT_ID,
+                clientSecret:
+                    strategyInstance.instanceConfig["clientSecret"] ?? process.env.GROPIUS_OAUTH_CLIENT_SECRET,
+                tokenURL: strategyInstance.instanceConfig["tokenUrl"] ?? "https://github.com/login/oauth/access_token",
                 store: {
-                    store: (req, state, meta, callback) =>
-                        callback(null, state),
-                    verify: (req, providedState, callback) =>
-                        callback(null, true, providedState),
+                    store: (req, state, meta, callback) => callback(null, state),
+                    verify: (req, providedState, callback) => callback(null, true, providedState),
                 } as any,
             },
             (
@@ -123,20 +102,10 @@ export class OauthStrategyService extends StrategyUsingPassport {
                 profile: any,
                 done: (err, user: AuthResult | false, info) => void,
             ) => {
-                /*const user = loginUserService.findOneBy({ username });
-                if (!user) {
-                    done(null, false, { message: "Username unknown" });
-                }
-                console.log(`Auth for ${username} with ${password}`);
-                done(null, user);*/
-                console.log(
-                    "Got access token",
-                    accessToken,
-                    refreshToken,
-                    profile,
-                );
                 fetch("https://api.github.com/user", {
-                    headers: { Authorization: `Bearer ${accessToken}` },
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
                 })
                     .then((res) => res.json())
                     .then(async (user) => {
@@ -148,16 +117,14 @@ export class OauthStrategyService extends StrategyUsingPassport {
                         const dataUserLoginData = {
                             username,
                         };
-                        const loginDataCandidates =
-                            await loginDataService.findForStrategyWithDataContaining(
-                                strategyInstance,
-                                { username },
-                            );
+                        const loginDataCandidates = await loginDataService.findForStrategyWithDataContaining(
+                            strategyInstance,
+                            {
+                                username,
+                            },
+                        );
                         if (loginDataCandidates.length != 1) {
-                            console.error(
-                                "Oauth login didn's find unique login data",
-                                loginDataCandidates,
-                            );
+                            console.error("Oauth login didn's find unique login data", loginDataCandidates);
                             done(
                                 null,
                                 {
@@ -165,7 +132,9 @@ export class OauthStrategyService extends StrategyUsingPassport {
                                     dataUserLoginData,
                                     mayRegister: true,
                                 },
-                                { message: "No unique user found" },
+                                {
+                                    message: "No unique user found",
+                                },
                             );
                         } else {
                             done(

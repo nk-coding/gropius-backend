@@ -37,9 +37,7 @@ export class UsersController {
     }
 
     @Get("self")
-    async getOwnUser(
-        @Res({ passthrough: true }) res: Response,
-    ): Promise<LoginUser> {
+    async getOwnUser(@Res({ passthrough: true }) res: Response): Promise<LoginUser> {
         return (res.locals.state as ApiStateData).loggedInUser;
     }
 
@@ -47,47 +45,33 @@ export class UsersController {
     async getOneUser(@Param("id") id: string): Promise<LoginUser> {
         const user = await this.userService.findOneBy({ id });
         if (!user) {
-            throw new HttpException(
-                "User with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("User with given id not found", HttpStatus.NOT_FOUND);
         }
         return user;
     }
 
     @Post()
     @NeedsAdmin()
-    async createNewUser(
-        @Body() input: CreateUserAsAdminInput,
-    ): Promise<LoginUser> {
+    async createNewUser(@Body() input: CreateUserAsAdminInput): Promise<LoginUser> {
         CreateUserAsAdminInput.check(input);
         return this.backendUserSerice.createNewUser(input, input.isAdmin);
     }
 
     @Put(":id")
-    async editUser(
-        @Param("id") id: string,
-        @Body() input: Partial<CreateUserAsAdminInput>,
-    ): Promise<LoginUser> {
+    async editUser(@Param("id") id: string, @Body() input: Partial<CreateUserAsAdminInput>): Promise<LoginUser> {
         throw new HttpException(
             "Needs to be discussed with backend who stores what and what changes where",
             HttpStatus.NOT_IMPLEMENTED,
         );
         const user = await this.userService.findOneBy({ id });
         if (!user) {
-            throw new HttpException(
-                "User with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("User with given id not found", HttpStatus.NOT_FOUND);
         }
     }
 
     @Delete(":id")
     async deleteUser(@Param("id") id: string): Promise<DefaultReturn> {
-        throw new HttpException(
-            "Yeah, we are not even gonna talk about this.",
-            HttpStatus.NOT_IMPLEMENTED,
-        );
+        throw new HttpException("Yeah, we are not even gonna talk about this.", HttpStatus.NOT_IMPLEMENTED);
         return new DefaultReturn("delete-user");
     }
 
@@ -103,14 +87,8 @@ export class UsersController {
         if (id == "self") {
             id = loggedInUser.id;
         }
-        if (
-            id != loggedInUser.id &&
-            !this.backendUserSerice.checkIsUserAdmin(loggedInUser)
-        ) {
-            throw new HttpException(
-                "No permission to access others login data if not admin",
-                HttpStatus.UNAUTHORIZED,
-            );
+        if (id != loggedInUser.id && !this.backendUserSerice.checkIsUserAdmin(loggedInUser)) {
+            throw new HttpException("No permission to access others login data if not admin", HttpStatus.UNAUTHORIZED);
         }
         return this.loginDataSerive.findBy({
             user: {

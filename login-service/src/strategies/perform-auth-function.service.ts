@@ -2,10 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
-import {
-    LoginState,
-    UserLoginData,
-} from "src/model/postgres/UserLoginData.entity";
+import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
@@ -26,11 +23,7 @@ export class PerformAuthFunctionService {
         private readonly strategiesService: StrategiesService,
     ) {}
 
-    public checkFunctionIsAllowed(
-        state: AuthStateData,
-        instance: StrategyInstance,
-        strategy: Strategy,
-    ): string | null {
+    public checkFunctionIsAllowed(state: AuthStateData, instance: StrategyInstance, strategy: Strategy): string | null {
         switch (state?.function) {
             case AuthFunction.REGISTER_WITH_SYNC:
                 if (!strategy.canSync) {
@@ -64,20 +57,11 @@ export class PerformAuthFunctionService {
         activeLogin.data = data;
         activeLogin.loginInstanceFor = Promise.resolve(loginData);
         activeLogin.supportsSync = supportsSync;
-        activeLogin.expires = new Date(
-            Date.now() +
-                parseInt(
-                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
-                    10,
-                ),
-        );
+        activeLogin.expires = new Date(Date.now() + parseInt(process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS, 10));
         return this.activeLoginService.save(activeLogin);
     }
 
-    private async loginExistingUser(
-        authResult: AuthResult,
-        instance: StrategyInstance,
-    ): Promise<AuthStateData> {
+    private async loginExistingUser(authResult: AuthResult, instance: StrategyInstance): Promise<AuthStateData> {
         console.log("Logging in");
         return {
             activeLogin: await this.createActiveLogin(
@@ -96,13 +80,7 @@ export class PerformAuthFunctionService {
     ): Promise<AuthStateData> {
         let loginData = authResult.loginData;
         loginData.data = authResult.dataUserLoginData;
-        const newExpiryDate = new Date(
-            Date.now() +
-                parseInt(
-                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
-                    10,
-                ),
-        );
+        const newExpiryDate = new Date(Date.now() + parseInt(process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS, 10));
         if (loginData.expires != null && loginData.expires < newExpiryDate) {
             loginData.expires = newExpiryDate;
         }
@@ -122,29 +100,15 @@ export class PerformAuthFunctionService {
         instance: StrategyInstance,
         supportsSync: boolean,
     ): Promise<AuthStateData> {
-        console.log(
-            "Registering new user with login data",
-            authResult.dataUserLoginData,
-        );
+        console.log("Registering new user with login data", authResult.dataUserLoginData);
         let loginData = new UserLoginData();
         loginData.data = authResult.dataUserLoginData;
-        loginData.expires = new Date(
-            Date.now() +
-                parseInt(
-                    process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS,
-                    10,
-                ),
-        );
+        loginData.expires = new Date(Date.now() + parseInt(process.env.GROPIUS_REGISTRATION_EXPIRATION_TIME_MS, 10));
         loginData.state = LoginState.WAITING_FOR_REGISTER;
         loginData.strategyInstance = Promise.resolve(instance);
         loginData = await this.userLoginDataService.save(loginData);
         return {
-            activeLogin: await this.createActiveLogin(
-                instance,
-                authResult.dataActiveLogin,
-                loginData,
-                supportsSync,
-            ),
+            activeLogin: await this.createActiveLogin(instance, authResult.dataActiveLogin, loginData, supportsSync),
         };
     }
 
@@ -156,20 +120,14 @@ export class PerformAuthFunctionService {
     ): Promise<AuthStateData> {
         if (authResult.loginData) {
             // sucessfully found login data matching the authentication
-            if (
-                authResult.loginData.expires != null &&
-                authResult.loginData.expires <= new Date()
-            ) {
+            if (authResult.loginData.expires != null && authResult.loginData.expires <= new Date()) {
                 // Found login data is expired => shouldn't happen as expired login data are filtered when searhcing for them
                 return {
                     authErrorMessage:
                         "The login using this strategy instance has expired. If you were just registering, try starting the registration again. If this error happens again, something internally went wrong.",
                 };
             }
-            if (
-                state.function == AuthFunction.REGISTER ||
-                state.function == AuthFunction.REGISTER_WITH_SYNC
-            ) {
+            if (state.function == AuthFunction.REGISTER || state.function == AuthFunction.REGISTER_WITH_SYNC) {
                 return this.continueExistingRegistration(
                     authResult,
                     instance,
@@ -195,26 +153,17 @@ export class PerformAuthFunctionService {
             if (
                 state.function == AuthFunction.REGISTER ||
                 state.function == AuthFunction.REGISTER_WITH_SYNC ||
-                (strategy.allowsImplicitSignup &&
-                    instance.doesImplicitRegister &&
-                    state.function == AuthFunction.LOGIN)
+                (strategy.allowsImplicitSignup && instance.doesImplicitRegister && state.function == AuthFunction.LOGIN)
             ) {
                 if (!authResult.mayRegister) {
-                    console.error(
-                        "Strategy did not provide existing loginData but it did not allow registering",
-                    );
+                    console.error("Strategy did not provide existing loginData but it did not allow registering");
                     return { authErrorMessage: "Invalid user credentials." };
                 }
 
-                return this.registerNewUser(
-                    authResult,
-                    instance,
-                    state.function == AuthFunction.REGISTER_WITH_SYNC,
-                );
+                return this.registerNewUser(authResult, instance, state.function == AuthFunction.REGISTER_WITH_SYNC);
             } else if (
                 state.function == AuthFunction.LOGIN &&
-                (!strategy.allowsImplicitSignup ||
-                    !instance.doesImplicitRegister)
+                (!strategy.allowsImplicitSignup || !instance.doesImplicitRegister)
             ) {
                 return { authErrorMessage: "Invalid user credentials." };
             }

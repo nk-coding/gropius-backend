@@ -33,10 +33,7 @@ import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
 import { CreateAuthClientSecretResponse } from "./dto/create-auth-client-secret.dto";
 import { CreateOrUpdateAuthClientInput } from "./dto/create-update-auth-client.dto";
-import {
-    CensoredClientSecret,
-    GetAuthClientResponse,
-} from "./dto/get-auth-client.dto";
+import { CensoredClientSecret, GetAuthClientResponse } from "./dto/get-auth-client.dto";
 
 /**
  * Controller for all queries related to auth clients and their client secrets
@@ -88,18 +85,12 @@ export class AuthClientController {
         description: "The auth client with the requested id",
     })
     @ApiNotFoundResponse({
-        description:
-            "If no id was given or no auth client with the given id was found",
+        description: "If no id was given or no auth client with the given id was found",
     })
-    async getOneAuthClient(
-        @Param("id") id: string,
-    ): Promise<GetAuthClientResponse> {
+    async getOneAuthClient(@Param("id") id: string): Promise<GetAuthClientResponse> {
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
         return {
             ...authClient.toJSON(),
@@ -124,9 +115,7 @@ export class AuthClientController {
     @ApiBadRequestResponse({
         description: "If the input data didn't match the schema",
     })
-    async createNewAuthClient(
-        @Body() input: CreateOrUpdateAuthClientInput,
-    ): Promise<AuthClient> {
+    async createNewAuthClient(@Body() input: CreateOrUpdateAuthClientInput): Promise<AuthClient> {
         CreateOrUpdateAuthClientInput.check(input);
         const newClient = new AuthClient();
         newClient.redirectUrls = [];
@@ -167,21 +156,14 @@ export class AuthClientController {
         description: "If the input data didn't match the schema",
     })
     @ApiNotFoundResponse({
-        description:
-            "If no id was given or no auth client with the given id was found",
+        description: "If no id was given or no auth client with the given id was found",
     })
-    async editAuthClient(
-        @Param("id") id: string,
-        @Body() input: CreateOrUpdateAuthClientInput,
-    ): Promise<AuthClient> {
+    async editAuthClient(@Param("id") id: string, @Body() input: CreateOrUpdateAuthClientInput): Promise<AuthClient> {
         CreateOrUpdateAuthClientInput.check(input);
 
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
 
         if (input.redirectUrls) {
@@ -213,16 +195,12 @@ export class AuthClientController {
         type: DefaultReturn,
     })
     @ApiNotFoundResponse({
-        description:
-            "If no id was given or no auth client with the given id was found",
+        description: "If no id was given or no auth client with the given id was found",
     })
     async deleteAuthClient(@Param("id") id: string): Promise<DefaultReturn> {
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
 
         await this.authClientService.remove(authClient);
@@ -247,18 +225,12 @@ export class AuthClientController {
         description: "All client secrets of the auth client (censored)",
     })
     @ApiNotFoundResponse({
-        description:
-            "If no id was given or no auth client with the given id was found",
+        description: "If no id was given or no auth client with the given id was found",
     })
-    async getClientSecrets(
-        @Param("id") id: string,
-    ): Promise<CensoredClientSecret[]> {
+    async getClientSecrets(@Param("id") id: string): Promise<CensoredClientSecret[]> {
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
 
         return authClient.getSecretsShortedAndFingerprint();
@@ -281,18 +253,12 @@ export class AuthClientController {
             "If creation succeeded, the created client secret including the censored version and the fingerprint.",
     })
     @ApiNotFoundResponse({
-        description:
-            "If no id was given or no auth client with the given id was found",
+        description: "If no id was given or no auth client with the given id was found",
     })
-    async createClientSecret(
-        @Param("id") id: string,
-    ): Promise<CreateAuthClientSecretResponse> {
+    async createClientSecret(@Param("id") id: string): Promise<CreateAuthClientSecretResponse> {
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
 
         const result = await authClient.addSecret();
@@ -313,8 +279,7 @@ export class AuthClientController {
     @NeedsAdmin()
     @ApiOkResponse({
         type: DefaultReturn,
-        description:
-            'If deletion was successfull, the default response with operation "delete-clientSecret"',
+        description: 'If deletion was successfull, the default response with operation "delete-clientSecret"',
     })
     @ApiNotFoundResponse({
         description:
@@ -325,18 +290,12 @@ export class AuthClientController {
         @Param("fingerprint") fingerprint: string,
     ): Promise<DefaultReturn> {
         if (!fingerprint) {
-            throw new HttpException(
-                "Fingerprint of secret to delete expected",
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException("Fingerprint of secret to delete expected", HttpStatus.BAD_REQUEST);
         }
 
         const authClient = await this.authClientService.findOneBy({ id });
         if (!authClient) {
-            throw new HttpException(
-                "Auth client with given id not found",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Auth client with given id not found", HttpStatus.NOT_FOUND);
         }
 
         const allSecrets = authClient.getFullHashesPlusCensoredAndFingerprint();
@@ -344,10 +303,7 @@ export class AuthClientController {
             .filter((entry) => entry.fingerprint != fingerprint)
             .map((entry) => entry.secret);
         if (allSecrets.length <= secretsToKeep.length) {
-            throw new HttpException(
-                "No secret with given fingerprint",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("No secret with given fingerprint", HttpStatus.NOT_FOUND);
         }
 
         authClient.clientSecrets = secretsToKeep;

@@ -12,17 +12,14 @@ export class ModeExtractorMiddleware implements NestMiddleware {
         ensureState(res);
         switch (req.params.mode) {
             case "register":
-                (res.locals.state as AuthStateData).function =
-                    AuthFunction.REGISTER;
+                (res.locals.state as AuthStateData).function = AuthFunction.REGISTER;
                 break;
             case "register-sync":
-                (res.locals.state as AuthStateData).function =
-                    AuthFunction.REGISTER_WITH_SYNC;
+                (res.locals.state as AuthStateData).function = AuthFunction.REGISTER_WITH_SYNC;
                 break;
             case "login":
             default:
-                (res.locals.state as AuthStateData).function =
-                    AuthFunction.LOGIN;
+                (res.locals.state as AuthStateData).function = AuthFunction.LOGIN;
                 break;
         }
         next();

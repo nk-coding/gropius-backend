@@ -1,10 +1,4 @@
-import {
-    CanActivate,
-    ExecutionContext,
-    Injectable,
-    SetMetadata,
-    UnauthorizedException,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, SetMetadata, UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
 
 export const NeedsAdmin = () => SetMetadata("needsAdmin", true);
@@ -17,27 +11,17 @@ export class CheckSyncSecretGuard implements CanActivate {
             return true;
         }
 
-        const authHead = context.switchToHttp().getRequest<Request>()
-            ?.headers?.authorization;
+        const authHead = context.switchToHttp().getRequest<Request>()?.headers?.authorization;
         if (!authHead || authHead.length == 0) {
-            throw new UnauthorizedException(
-                undefined,
-                "Authorization header is empty",
-            );
+            throw new UnauthorizedException(undefined, "Authorization header is empty");
         }
         if (!authHead.toLowerCase().startsWith("bearer ")) {
-            throw new UnauthorizedException(
-                undefined,
-                "Only accepting Bearer authorization",
-            );
+            throw new UnauthorizedException(undefined, "Only accepting Bearer authorization");
         }
         const token = authHead.substring(7).trim();
 
         if (token != expectedToken) {
-            throw new UnauthorizedException(
-                undefined,
-                "Invalid sync-api secret",
-            );
+            throw new UnauthorizedException(undefined, "Invalid sync-api secret");
         }
         return true;
     }

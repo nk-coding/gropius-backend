@@ -15,9 +15,7 @@ import { BackendServicesModule } from "src/backend-services/backend-services.mod
         JwtModule.registerAsync({
             useFactory(...args) {
                 return {
-                    secret:
-                        process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET ||
-                        "blabla",
+                    secret: process.env.GROPIUS_LOGIN_SPECIFIC_JWT_SECRET || "blabla",
                     signOptions: {
                         issuer: process.env.GROPIUS_PASSPORT_STATE_JWT_ISSUER,
                     },
@@ -39,10 +37,6 @@ import { BackendServicesModule } from "src/backend-services/backend-services.mod
         StrategiesMiddleware,
         ErrorHandlerMiddleware,
     ],
-    exports: [
-        ModeExtractorMiddleware,
-        StrategiesMiddleware,
-        ErrorHandlerMiddleware,
-    ],
+    exports: [ModeExtractorMiddleware, StrategiesMiddleware, ErrorHandlerMiddleware],
 })
 export class StrategiesModule {}

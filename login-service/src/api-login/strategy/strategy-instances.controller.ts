@@ -11,23 +11,14 @@ import {
     Put,
     UseGuards,
 } from "@nestjs/common";
-import {
-    CheckAccessTokenGuard,
-    NeedsAdmin,
-} from "src/api-login/check-access-token.guard";
+import { CheckAccessTokenGuard, NeedsAdmin } from "src/api-login/check-access-token.guard";
 import { DefaultReturn } from "src/defaultReturn";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
-import {
-    CreateStrategyInstanceInput,
-    createStrategyInstanceInputCheck,
-} from "./dto/CreateStrategyInstanceInput";
-import {
-    UpdateStrategyInstanceInput,
-    updateStrategyInstanceInputCheck,
-} from "./dto/UpdateStrategyInstance";
+import { CreateStrategyInstanceInput, createStrategyInstanceInputCheck } from "./dto/CreateStrategyInstanceInput";
+import { UpdateStrategyInstanceInput, updateStrategyInstanceInputCheck } from "./dto/UpdateStrategyInstance";
 
 @Controller()
 export class StrategyInstancesController {
@@ -37,9 +28,7 @@ export class StrategyInstancesController {
     ) {}
 
     @Get(["strategyInstance", "strategy/:type/instance"])
-    async getAllStrategyInstances(
-        @Param("type") type: string,
-    ): Promise<StrategyInstance[]> {
+    async getAllStrategyInstances(@Param("type") type: string): Promise<StrategyInstance[]> {
         if (type) {
             return this.strategyInstanceService.findBy({ type });
         } else {
@@ -48,23 +37,15 @@ export class StrategyInstancesController {
     }
 
     @Get(["strategyInstance/:id", "strategy/:type/instance/:id"])
-    async getStrategyInstance(
-        @Param("id") id: string,
-        @Param("type") type?: string,
-    ) {
+    async getStrategyInstance(@Param("id") id: string, @Param("type") type?: string) {
         const instance = await this.strategyInstanceService.findOneBy({
             id,
             type,
         });
         if (!instance) {
-            throw new HttpException(
-                "Id is not a valid strategy instance id",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Id is not a valid strategy instance id", HttpStatus.NOT_FOUND);
         }
-        const strategy = this.strategiesService.getStrategyByName(
-            instance.type,
-        );
+        const strategy = this.strategiesService.getStrategyByName(instance.type);
         const nonRedirectUrls = strategy.needsRedirectFlow
             ? {}
             : {
@@ -100,10 +81,7 @@ export class StrategyInstancesController {
         createStrategyInstanceInputCheck(input);
         const strategy = this.strategiesService.getStrategyByName(input.type);
         if (!strategy) {
-            throw new HttpException(
-                "Strategy with given type name does not exist",
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException("Strategy with given type name does not exist", HttpStatus.BAD_REQUEST);
         }
         try {
             return strategy.createOrUpdateNewInstance(input);
@@ -128,18 +106,11 @@ export class StrategyInstancesController {
             type,
         });
         if (!instance) {
-            throw new HttpException(
-                "Id is not a valid strategy instance id",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Id is not a valid strategy instance id", HttpStatus.NOT_FOUND);
         }
-        const stragety = this.strategiesService.getStrategyByName(
-            instance.type,
-        );
+        const stragety = this.strategiesService.getStrategyByName(instance.type);
         if (!stragety) {
-            throw new Error(
-                `Strategy ${instance.type} for instance ${instance.id} not found`,
-            );
+            throw new Error(`Strategy ${instance.type} for instance ${instance.id} not found`);
         }
         return stragety.createOrUpdateNewInstance(input, instance);
     }
@@ -157,10 +128,7 @@ export class StrategyInstancesController {
             type,
         });
         if (!instance) {
-            throw new HttpException(
-                "Id is not a valid strategy instance id",
-                HttpStatus.NOT_FOUND,
-            );
+            throw new HttpException("Id is not a valid strategy instance id", HttpStatus.NOT_FOUND);
         }
         await this.strategyInstanceService.remove(instance);
         return new DefaultReturn("delete-strategyInstance");

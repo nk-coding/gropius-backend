@@ -17,20 +17,14 @@ import { TokenService } from "src/backend-services/token.service";
 import { DefaultReturn } from "src/defaultReturn";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
-import {
-    LoginState,
-    UserLoginData,
-} from "src/model/postgres/UserLoginData.entity";
+import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
 import { CheckRegistrationTokenService } from "./check-registration-token.service";
-import {
-    AdminLinkUserInput,
-    RegistrationTokenInput,
-} from "./dto/link-user.dto";
+import { AdminLinkUserInput, RegistrationTokenInput } from "./dto/link-user.dto";
 import { SelfRegisterUserInput } from "./dto/user-inputs.dto";
 
 /**
@@ -56,31 +50,16 @@ export class RegisterController {
      * @returns The Default Return.
      */
     @Post("self-register")
-    async register(
-        @Body() input: SelfRegisterUserInput,
-    ): Promise<DefaultReturn> {
+    async register(@Body() input: SelfRegisterUserInput): Promise<DefaultReturn> {
         SelfRegisterUserInput.check(input);
-        const { loginData, activeLogin } =
-            await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
-                input.register_token,
-            );
-        if (
-            (await this.userService.countBy({ username: input.username })) > 0
-        ) {
-            throw new HttpException(
-                "Username is not available anymore",
-                HttpStatus.BAD_REQUEST,
-            );
+        const { loginData, activeLogin } = await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
+            input.register_token,
+        );
+        if ((await this.userService.countBy({ username: input.username })) > 0) {
+            throw new HttpException("Username is not available anymore", HttpStatus.BAD_REQUEST);
         }
-        const newUser = await this.backendUserSerivce.createNewUser(
-            input,
-            false,
-        );
-        const { loggedInUser } = await this.linkAccountToUser(
-            newUser,
-            loginData,
-            activeLogin,
-        );
+        const newUser = await this.backendUserSerivce.createNewUser(input, false);
+        const { loggedInUser } = await this.linkAccountToUser(newUser, loginData, activeLogin);
         return new DefaultReturn("self-register");
     }
 
@@ -96,11 +75,10 @@ export class RegisterController {
         if (!(res.locals.state as ApiStateData).loggedInUser) {
             throw new HttpException("Not logged in.", HttpStatus.UNAUTHORIZED);
         }
-        const { loginData, activeLogin } =
-            await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
-                input.register_token,
-                (res.locals.state as ApiStateData).loggedInUser,
-            );
+        const { loginData, activeLogin } = await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
+            input.register_token,
+            (res.locals.state as ApiStateData).loggedInUser,
+        );
         const { loggedInUser } = await this.linkAccountToUser(
             (res.locals.state as ApiStateData).loggedInUser,
             loginData,
@@ -125,16 +103,12 @@ export class RegisterController {
             id: input.userIdToLink,
         });
         if (!linkToUser) {
-            throw new HttpException(
-                "No user with given user_to_link_to_id",
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException("No user with given user_to_link_to_id", HttpStatus.BAD_REQUEST);
         }
-        const { loginData, activeLogin } =
-            await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
-                input.register_token,
-                linkToUser,
-            );
+        const { loginData, activeLogin } = await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
+            input.register_token,
+            linkToUser,
+        );
         await this.linkAccountToUser(linkToUser, loginData, activeLogin);
         return new DefaultReturn("admin-link");
     }
@@ -174,10 +148,7 @@ export class RegisterController {
             id: userToLinkTo.id,
         });
 
-        await this.backendUserSerivce.linkAllImsUsersToGropiusUser(
-            userToLinkTo,
-            loginData,
-        );
+        await this.backendUserSerivce.linkAllImsUsersToGropiusUser(userToLinkTo, loginData);
         return { loggedInUser: userToLinkTo, loginData };
     }
 }

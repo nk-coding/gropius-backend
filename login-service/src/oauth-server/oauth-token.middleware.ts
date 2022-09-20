@@ -1,9 +1,4 @@
-import {
-    HttpException,
-    HttpStatus,
-    Injectable,
-    NestMiddleware,
-} from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response } from "express";
 import { TokenService } from "src/backend-services/token.service";
 import { AuthClient } from "src/model/postgres/AuthClient.entity";
@@ -27,23 +22,14 @@ export class OauthTokenMiddleware implements NestMiddleware {
         private readonly postCredentialsMiddleware: PostCredentialsMiddleware,
     ) {}
 
-    private async checkGivenClientSecretValidOrNotRequired(
-        client: AuthClient,
-        givenSecret?: string,
-    ): Promise<boolean> {
-        if (
-            !client.requiresSecret &&
-            (!givenSecret || givenSecret.length == 0)
-        ) {
+    private async checkGivenClientSecretValidOrNotRequired(client: AuthClient, givenSecret?: string): Promise<boolean> {
+        if (!client.requiresSecret && (!givenSecret || givenSecret.length == 0)) {
             return true;
         }
         const hasCorrectClientSecret = (
             await Promise.all(
                 client.clientSecrets.map((hashedSecret) =>
-                    bcrypt.compare(
-                        givenSecret,
-                        hashedSecret.substring(hashedSecret.indexOf(";") + 1),
-                    ),
+                    bcrypt.compare(givenSecret, hashedSecret.substring(hashedSecret.indexOf(";") + 1)),
                 ),
             )
         ).includes(true);
@@ -65,12 +51,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
                     id: clientIdSecret[0],
                 });
                 if (client && client.isValid) {
-                    if (
-                        this.checkGivenClientSecretValidOrNotRequired(
-                            client,
-                            clientIdSecret[1],
-                        )
-                    ) {
+                    if (this.checkGivenClientSecretValidOrNotRequired(client, clientIdSecret[1])) {
                         return client;
                     }
                 }
@@ -81,12 +62,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
             id: req.body.client_id,
         });
         if (client && client.isValid) {
-            if (
-                this.checkGivenClientSecretValidOrNotRequired(
-                    client,
-                    req.body.client_secret,
-                )
-            ) {
+            if (this.checkGivenClientSecretValidOrNotRequired(client, req.body.client_secret)) {
                 return client;
             }
         }
@@ -100,10 +76,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
 
         const client = await this.getCallingClient(req);
         if (!client) {
-            throw new OauthHttpException(
-                "unauthorized_client",
-                "Unknown client or invalid client credentials",
-            );
+            throw new OauthHttpException("unauthorized_client", "Unknown client or invalid client credentials");
         }
         (res.locals.state as OauthServerStateData).client = client;
 
@@ -130,8 +103,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
                 throw new HttpException(
                     {
                         error: "unsupported_grant_type",
-                        error_description:
-                            "No grant_type given or unsupported type",
+                        error_description: "No grant_type given or unsupported type",
                     },
                     HttpStatus.BAD_REQUEST,
                 );

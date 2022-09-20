@@ -24,16 +24,7 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         @Inject("PassportStateJwt")
         passportJwtService: JwtService,
     ) {
-        super(
-            "userpass",
-            strategyInstanceService,
-            strategiesService,
-            passportJwtService,
-            true,
-            false,
-            false,
-            false,
-        );
+        super("userpass", strategyInstanceService, strategiesService, passportJwtService, true, false, false, false);
     }
 
     override get acceptsVariables(): {
@@ -57,42 +48,28 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         return Object.keys(instanceConfig).length === 0;
     }
 
-    private async generateLoginDataData(
-        password: string,
-    ): Promise<{ password: string }> {
+    private async generateLoginDataData(password: string): Promise<{ password: string }> {
         return {
-            password: await bcrypt.hash(
-                password,
-                parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10),
-            ),
+            password: await bcrypt.hash(password, parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10)),
         };
     }
 
-    public override createPassportStrategyInstance(
-        strategyInstance: StrategyInstance,
-    ): passport.Strategy {
+    public override createPassportStrategyInstance(strategyInstance: StrategyInstance): passport.Strategy {
         const loginDataService = this.loginDataService;
         const loginUserService = this.loginUserService;
         return new passportLocal.Strategy(
             {},
-            async (
-                username,
-                password,
-                done: (err: any, user: AuthResult | false, info: any) => any,
-            ) => {
+            async (username, password, done: (err: any, user: AuthResult | false, info: any) => any) => {
                 const dataActiveLogin = {};
-                const loginDataCandidates =
-                    await loginDataService.findForStrategyWithDataContaining(
-                        strategyInstance,
-                        {},
-                    );
+                const loginDataCandidates = await loginDataService.findForStrategyWithDataContaining(
+                    strategyInstance,
+                    {},
+                );
                 const loginDataForCorrectUser = await loginDataService
                     .createQueryBuilder("loginData")
                     .leftJoinAndSelect(`loginData.user`, "user")
                     .where(`user.username = :username`, { username })
-                    .andWhereInIds(
-                        loginDataCandidates.map((candidate) => candidate.id),
-                    )
+                    .andWhereInIds(loginDataCandidates.map((candidate) => candidate.id))
                     .getMany();
 
                 if (loginDataForCorrectUser.length <= 0) {
@@ -100,25 +77,16 @@ export class UserpassStrategyService extends StrategyUsingPassport {
                         null,
                         {
                             dataActiveLogin,
-                            dataUserLoginData: await this.generateLoginDataData(
-                                password,
-                            ),
+                            dataUserLoginData: await this.generateLoginDataData(password),
                             mayRegister: true,
                         },
                         { message: "Username or password incorrect" },
                     );
                 } else if (loginDataForCorrectUser.length > 1) {
-                    return done(
-                        "More than one user with same username",
-                        false,
-                        undefined,
-                    );
+                    return done("More than one user with same username", false, undefined);
                 }
 
-                const hasCorrectPassword = bcrypt.compare(
-                    password,
-                    loginDataForCorrectUser[0].data["password"],
-                );
+                const hasCorrectPassword = bcrypt.compare(password, loginDataForCorrectUser[0].data["password"]);
 
                 if (!hasCorrectPassword) {
                     return done(

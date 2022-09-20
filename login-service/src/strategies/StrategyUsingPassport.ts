@@ -28,12 +28,9 @@ export abstract class StrategyUsingPassport extends Strategy {
         );
     }
 
-    private readonly passportInstances: Map<string, passport.Strategy> =
-        new Map();
+    private readonly passportInstances: Map<string, passport.Strategy> = new Map();
 
-    abstract createPassportStrategyInstance(
-        strategyInstance: StrategyInstance,
-    ): passport.Strategy;
+    abstract createPassportStrategyInstance(strategyInstance: StrategyInstance): passport.Strategy;
 
     protected getAdditionalPassportOptions(
         strategyInstance: StrategyInstance,
@@ -42,14 +39,11 @@ export abstract class StrategyUsingPassport extends Strategy {
         return {};
     }
 
-    getPassportStrategyInstanceFor(
-        strategyInstance: StrategyInstance,
-    ): passport.Strategy {
+    getPassportStrategyInstanceFor(strategyInstance: StrategyInstance): passport.Strategy {
         if (this.passportInstances.has(strategyInstance.id)) {
             return this.passportInstances.get(strategyInstance.id);
         } else {
-            const newInstance =
-                this.createPassportStrategyInstance(strategyInstance);
+            const newInstance = this.createPassportStrategyInstance(strategyInstance);
             console.log(
                 `Created new passport strategy for strategy ${this.typeName}, instance: ${strategyInstance.id}`,
             );
@@ -69,18 +63,14 @@ export abstract class StrategyUsingPassport extends Strategy {
         info: any;
     }> {
         return new Promise((resolve, reject) => {
-            const passportStrategy =
-                this.getPassportStrategyInstanceFor(strategyInstance);
+            const passportStrategy = this.getPassportStrategyInstanceFor(strategyInstance);
             const jwtService = this.passportJwtService;
             passport.authenticate(
                 passportStrategy,
                 {
                     session: false,
                     state: jwtService.sign(authStateData),
-                    ...this.getAdditionalPassportOptions(
-                        strategyInstance,
-                        authStateData,
-                    ),
+                    ...this.getAdditionalPassportOptions(strategyInstance, authStateData),
                 },
                 (err, user: AuthResult | false, info) => {
                     console.log("passport callback", err, user, info);

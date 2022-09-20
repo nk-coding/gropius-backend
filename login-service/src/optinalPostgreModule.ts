@@ -37,9 +37,7 @@ export async function optioalGlobalTypeOrm(): Promise<DynamicModule> {
     );
 }
 
-export async function optionalFeatureTypeOrm(
-    entities: EntityClassOrSchema[],
-): Promise<DynamicModule> {
+export async function optionalFeatureTypeOrm(entities: EntityClassOrSchema[]): Promise<DynamicModule> {
     return (await waitAndGetStubModule()) ?? TypeOrmModule.forFeature(entities);
 }
 

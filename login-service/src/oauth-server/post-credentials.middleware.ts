@@ -26,11 +26,7 @@ export class PostCredentialsMiddleware implements NestMiddleware {
         (mockRes as Response).locals.state = { ...state };
         await new Promise(async (resolve, reject) => {
             try {
-                await this.strategyMiddleware.use(
-                    req,
-                    mockRes as Response,
-                    () => resolve(undefined),
-                );
+                await this.strategyMiddleware.use(req, mockRes as Response, () => resolve(undefined));
             } catch (err) {
                 reject(err);
             }
@@ -41,10 +37,7 @@ export class PostCredentialsMiddleware implements NestMiddleware {
 
         if (!state.activeLogin) {
             if (state.authErrorMessage) {
-                throw new OauthHttpException(
-                    state.authErrorType || "invalid_request",
-                    state.authErrorMessage,
-                );
+                throw new OauthHttpException(state.authErrorType || "invalid_request", state.authErrorMessage);
             }
             throw new OauthHttpException("invalid_request", "Unauthorized");
         }

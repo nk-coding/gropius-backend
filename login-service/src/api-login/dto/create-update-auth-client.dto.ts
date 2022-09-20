@@ -41,13 +41,10 @@ export class CreateOrUpdateAuthClientInput {
      * @param input The input instance to check
      * @returns The given instance unchanged
      */
-    static check(
-        input: CreateOrUpdateAuthClientInput,
-    ): CreateOrUpdateAuthClientInput {
+    static check(input: CreateOrUpdateAuthClientInput): CreateOrUpdateAuthClientInput {
         if (
             input.redirectUrls != undefined &&
-            (!(input.redirectUrls instanceof Array) ||
-                input.redirectUrls.length <= 0)
+            (!(input.redirectUrls instanceof Array) || input.redirectUrls.length <= 0)
         ) {
             throw new HttpException(
                 "If redirect URLs are given, they must be an array of valid url string containing at least one entry",
@@ -56,34 +53,19 @@ export class CreateOrUpdateAuthClientInput {
         }
         for (const url of input.redirectUrls) {
             if (typeof url !== "string") {
-                throw new HttpException(
-                    "All given redirect urls must be valid url strings",
-                    HttpStatus.BAD_REQUEST,
-                );
+                throw new HttpException("All given redirect urls must be valid url strings", HttpStatus.BAD_REQUEST);
             }
             try {
                 new URL(url);
             } catch (err) {
-                throw new HttpException(
-                    "Invalid redirect url: " + err.message ?? err,
-                    HttpStatus.BAD_REQUEST,
-                );
+                throw new HttpException("Invalid redirect url: " + err.message ?? err, HttpStatus.BAD_REQUEST);
             }
         }
         if (input.isValid != undefined && typeof input.isValid !== "boolean") {
-            throw new HttpException(
-                "If isValid is given, it must be a valid boolean",
-                HttpStatus.BAD_REQUEST,
-            );
+            throw new HttpException("If isValid is given, it must be a valid boolean", HttpStatus.BAD_REQUEST);
         }
-        if (
-            input.requiresSecret != undefined &&
-            typeof input.requiresSecret !== "boolean"
-        ) {
-            throw new HttpException(
-                "If requiresSecret is given, it must be a valid boolean",
-                HttpStatus.BAD_REQUEST,
-            );
+        if (input.requiresSecret != undefined && typeof input.requiresSecret !== "boolean") {
+            throw new HttpException("If requiresSecret is given, it must be a valid boolean", HttpStatus.BAD_REQUEST);
         }
         return input;
     }

@@ -40,8 +40,7 @@ export abstract class Strategy {
      */
     protected checkInstanceConfig(instanceConfig: object): boolean | string {
         if (this.canSync) {
-            const imsTemplatedFieldsFilter =
-                instanceConfig["imsTemplatedFieldsFilter"];
+            const imsTemplatedFieldsFilter = instanceConfig["imsTemplatedFieldsFilter"];
             if (!imsTemplatedFieldsFilter) {
                 return "Instances of strategies that can sync must configure the `imsTemplatedFieldsFilter` that sets the expected templated values on the ims";
             }
@@ -52,11 +51,7 @@ export abstract class Strategy {
         return true;
     }
 
-    private updateCapabilityFlags(
-        patrentValue: boolean,
-        useDefault: boolean,
-        inputValue?: boolean | null,
-    ): boolean {
+    private updateCapabilityFlags(patrentValue: boolean, useDefault: boolean, inputValue?: boolean | null): boolean {
         if (inputValue == null || inputValue == undefined) {
             if (useDefault) {
                 return patrentValue;
@@ -75,44 +70,29 @@ export abstract class Strategy {
         const createNew = instanceToUpdate == undefined;
         if (createNew) {
             if ((input as CreateStrategyInstanceInput).type !== this.typeName)
-                throw new Error(
-                    "Called createNewInstance on wrong strategy type",
-                );
+                throw new Error("Called createNewInstance on wrong strategy type");
         }
         if (input.instanceConfig) {
             const verifyResult = this.checkInstanceConfig(input.instanceConfig);
             if (verifyResult !== true) {
-                throw new Error(
-                    "Instance config format invalid: " + verifyResult,
-                );
+                throw new Error("Instance config format invalid: " + verifyResult);
             }
         }
-        const instance = createNew
-            ? new StrategyInstance(this.typeName)
-            : instanceToUpdate;
+        const instance = createNew ? new StrategyInstance(this.typeName) : instanceToUpdate;
         instance.doesImplicitRegister = this.updateCapabilityFlags(
             this.allowsImplicitSignup && this.canLoginRegister,
             createNew,
             input.doesImplicitRegister,
         );
-        instance.isLoginActive = this.updateCapabilityFlags(
-            this.canLoginRegister,
-            createNew,
-            input.isLoginActive,
-        );
+        instance.isLoginActive = this.updateCapabilityFlags(this.canLoginRegister, createNew, input.isLoginActive);
         instance.isSelfRegisterActive = this.updateCapabilityFlags(
             this.canLoginRegister,
             createNew,
             input.isSelfRegisterActive,
         );
-        instance.isSyncActive = this.updateCapabilityFlags(
-            this.canSync,
-            createNew,
-            input.isSyncActive,
-        );
+        instance.isSyncActive = this.updateCapabilityFlags(this.canSync, createNew, input.isSyncActive);
         if (createNew || input.name !== undefined) {
-            instance.name =
-                input.name?.replace(/[^a-zA-Z0-9+/\-_= ]/g, "") ?? null;
+            instance.name = input.name?.replace(/[^a-zA-Z0-9+/\-_= ]/g, "") ?? null;
         }
         if (createNew || input.instanceConfig) {
             instance.instanceConfig = input.instanceConfig;
@@ -142,9 +122,7 @@ export abstract class Strategy {
         return {};
     }
 
-    getSyncTokenForLoginData(
-        loginData: UserLoginData,
-    ): string | null | Promise<string | null> {
+    getSyncTokenForLoginData(loginData: UserLoginData): string | null | Promise<string | null> {
         return null;
     }
 
@@ -165,9 +143,7 @@ export abstract class Strategy {
      * @returns An object which, if it matches the templated fields of an IMS, the given instance is the matching strategy instance for that IMS
      * Null if the strategy does not sync
      */
-    getImsTemplatedValuesForStrategyInstance(
-        instance: StrategyInstance,
-    ): object | null | Promise<object | null> {
+    getImsTemplatedValuesForStrategyInstance(instance: StrategyInstance): object | null | Promise<object | null> {
         if (this.canSync) {
             return instance.instanceConfig["imsTemplatedFieldsFilter"];
         }
@@ -191,9 +167,7 @@ export abstract class Strategy {
      * @returns An object which, if it matches the templated fields of an IMSUser, the given loginData is the matching login for that IMSUser
      * Null if the strategy does not sync
      */
-    getImsUserTemplatedValuesForLoginData(
-        loginData: UserLoginData,
-    ): object | null | Promise<object | null> {
+    getImsUserTemplatedValuesForLoginData(loginData: UserLoginData): object | null | Promise<object | null> {
         if (this.canSync) {
             return loginData.data;
         }
@@ -218,9 +192,7 @@ export abstract class Strategy {
      * @param imsUserTemplatedFields Templated fields and values as well as the fields `id`, `username`, `displayName` and `email` of the IMSUser.
      * @returns An object, that the `.data` field of a login data needs to match.
      */
-    getLoginDataDataForImsUserTemplatedFields(
-        imsUserTemplatedFields: object,
-    ): object | null | Promise<object | null> {
+    getLoginDataDataForImsUserTemplatedFields(imsUserTemplatedFields: object): object | null | Promise<object | null> {
         if (this.canSync) {
             return imsUserTemplatedFields;
         }

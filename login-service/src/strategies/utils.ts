@@ -15,15 +15,7 @@ export function ensureState(res: Response) {
 export function checkType(
     object: object,
     key: string,
-    type:
-        | "bigint"
-        | "boolean"
-        | "function"
-        | "number"
-        | "object"
-        | "string"
-        | "symbol"
-        | "undefined",
+    type: "bigint" | "boolean" | "function" | "number" | "object" | "string" | "symbol" | "undefined",
 ): boolean | string {
     const value = object[key];
     if (!value) {

@@ -30,10 +30,7 @@ import { optioalGlobalTypeOrm } from "./optinalPostgreModule";
                     return {
                         type: "postgres",
                         host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
-                        port: parseInt(
-                            process.env.GROPIUS_LOGIN_DATABASE_PORT,
-                            10,
-                        ),
+                        port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10),
                         username: process.env.GROPIUS_LOGIN_DATABASE_USER,
                         password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
                         database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
@@ -43,9 +40,7 @@ import { optioalGlobalTypeOrm } from "./optinalPostgreModule";
                 } else if (driver == "sqlite") {
                     return {
                         type: "sqlite",
-                        database:
-                            process.env.GROPIUS_LOGIN_DATABASE_DATABASE +
-                            ".sqlite",
+                        database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE + ".sqlite",
                     };
                 } else {
                     return {};

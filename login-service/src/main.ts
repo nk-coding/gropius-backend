@@ -8,14 +8,11 @@ async function bootstrap() {
 
     const openApiConfig = new DocumentBuilder()
         .setTitle("Gropius Login Service")
-        .setDescription(
-            "API for login, registration and linking gropius accounts to accounts on IMSs",
-        )
+        .setDescription("API for login, registration and linking gropius accounts to accounts on IMSs")
         .addTag("login")
         .addOAuth2({
             type: "oauth2",
-            description:
-                "Access token provided by running the oauth flow (and if needed) registering/linking",
+            description: "Access token provided by running the oauth flow (and if needed) registering/linking",
             bearerFormat: "JWT",
         })
         .addBearerAuth({

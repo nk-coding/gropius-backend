@@ -35,7 +35,7 @@ export class CheckRegistrationTokenService {
      * @param activeLogin The activeLog innstance to check. Optional
      * @param loginData The loginData instance to check. Optional
      * @param activeLoginId The id of the activeLogin instance. Just used for error messages. Required
-     * @throws {@link UnauthorizedException} If either of the node is not given or invalid in one way or another.
+     * @throws {@link UnauthorizedException} If either activeLogin or loginData are not given or invalid in any way.
      */
     private checkActiveLoginValid(
         activeLogin: ActiveLogin | undefined | null,

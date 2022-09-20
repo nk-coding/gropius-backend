@@ -72,7 +72,7 @@ class Outgoing(
     }
 
     /**
-     * Find token for an IMSUser or an IMSUser on the same IMS with same username
+     * Find token for an IMSUser
      * @param user user to search token for
      * @param imsProjectConfig active config
      * @return string if token found, null otherwise
@@ -83,23 +83,27 @@ class Outgoing(
             if (token != null) {
                 return token
             }
-            if (user.username?.isEmpty() != false) {
-                return null
-            }
-            val node = Cypher.node(IMSUser::class.simpleName).named("iMSUser")
-            val imsNode = Cypher.node(IMS::class.simpleName)
-                .withProperties(mapOf("id" to Cypher.anonParameter(imsProjectConfig.imsConfig.ims.rawId!!)))
-            val imsCondition = node.relationshipFrom(imsNode, IMS.USER).asCondition()
-            val usernameCondition = node.property("username").eq(Cypher.anonParameter(user.username))
-            for (imsUser in imsUserRepository.findAll(imsCondition.and(usernameCondition)).collectList()
-                .awaitSingle()) {
-                val imsUserToken = tokenManager.getGithubUserToken(imsUser)
-                if (imsUserToken != null) {
-                    return imsUserToken
-                }
-            }
         }
         return null
+    }
+
+    /**
+     * Find all IMSUsers intersecting the configured IMS and the given user
+     * @param user user to search token for
+     * @param imsProjectConfig active config
+     * @return list of all IMSUsers
+     */
+    private suspend fun findAllIMSUsers(imsProjectConfig: IMSProjectConfig, user: User): List<IMSUser> {
+        val node = Cypher.node(IMSUser::class.simpleName).named("iMSUser")
+        val imsNode = Cypher.node(IMS::class.simpleName)
+            .withProperties(mapOf("id" to Cypher.anonParameter(imsProjectConfig.imsConfig.ims.rawId!!)))
+        val imsCondition = node.relationshipFrom(imsNode, IMS.USER).asCondition()
+        val userNode = Cypher.node(GropiusUser::class.simpleName)
+            .withProperties(mapOf("userId" to Cypher.anonParameter(user.rawId!!)))
+        val userCondition = node.relationshipTo(userNode, IMSUser.GROPIUS_USER).asCondition()
+        return imsUserRepository.findAll(
+            imsCondition.and(userCondition)
+        ).collectList().awaitSingle()
     }
 
     /**
@@ -109,22 +113,21 @@ class Outgoing(
      * @return string if token found, null otherwise
      */
     private suspend fun extractUserToken(imsProjectConfig: IMSProjectConfig, user: User): String? {
-        var activeGropiusUser: GropiusUser
-        if (user is IMSUser) {
+        val activeGropiusUser: GropiusUser = if (user is IMSUser) {
             val token = extractIMSUserToken(imsProjectConfig, user)
             if (token != null) {
                 return token
             }
-            val gropiusUser = user.gropiusUser().value
-            if (gropiusUser == null) {
-                return null
-            } else {
-                activeGropiusUser = gropiusUser
-            }
-        } else if (user is GropiusUser) {
-            activeGropiusUser = user
+            user.gropiusUser().value ?: return null
+        } else {
+            user as GropiusUser
         }
-        //TODO("Search gropius user")
+        for (imsUser in findAllIMSUsers(imsProjectConfig, activeGropiusUser)) {
+            val imsUserToken = extractIMSUserToken(imsProjectConfig, imsUser)
+            if (imsUserToken != null) {
+                return imsUserToken
+            }
+        }
         return null
     }
 

@@ -31,6 +31,7 @@ import java.time.OffsetDateTime
  * @param issueInfoRepository Reference for the spring instance of IssueInfoRepository
  * @param userInfoRepository Reference for the spring instance of UserInfoRepository
  * @param labelInfoRepository Reference for the spring instance of LabelInfoRepository
+ * @param tokenManager Reference for the spring instance of TokenManager
  */
 @Component
 class NodeSourcerer(
@@ -39,7 +40,8 @@ class NodeSourcerer(
     private val issueInfoRepository: IssueInfoRepository,
     private val userInfoRepository: UserInfoRepository,
     private val helper: JsonHelper,
-    private val labelInfoRepository: LabelInfoRepository
+    private val labelInfoRepository: LabelInfoRepository,
+    private val tokenManager: TokenManager
 ) {
     /**
      * Ensure the default GitHub issue type with the default template is in the database
@@ -192,11 +194,15 @@ class NodeSourcerer(
         val userInfo = userInfoRepository.findByUrlAndLogin(imsProjectConfig.url, username)
         return if (userInfo == null) {
             var user = IMSUser(
-                username, null, username, mutableMapOf("github_id" to helper.objectMapper.writeValueAsString(userInfo))
+                username,
+                null,
+                username,
+                mutableMapOf("github_id" to (helper.objectMapper.writeValueAsString(githubId) ?: "null"))
             )
             user.ims().value = imsProjectConfig.imsConfig.ims
             user = neoOperations.save(user).awaitSingle()
             userInfoRepository.save(UserInfo(username, user.rawId!!, imsProjectConfig.url)).awaitSingle()
+            tokenManager.advertiseIMSUser(user)
             user
         } else {
             neoOperations.findById(userInfo.neo4jId)!!

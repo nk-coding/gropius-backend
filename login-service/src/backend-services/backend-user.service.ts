@@ -1,10 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { RegisterUserInput } from "src/api-login/dto/self-register-user.dto";
 import { GraphqlService } from "src/model/graphql/graphql.service";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { LoginUserService } from "src/model/services/login-user.service";
+
+export interface CreateUserInput {
+    username: string;
+    displayName: string;
+    email?: string;
+}
 
 @Injectable()
 export class BackendUserService {
@@ -29,7 +34,7 @@ export class BackendUserService {
     }
 
     async createNewUser(
-        input: RegisterUserInput,
+        input: CreateUserInput,
         isAdmin: boolean,
     ): Promise<LoginUser> {
         let loginUser = new LoginUser();

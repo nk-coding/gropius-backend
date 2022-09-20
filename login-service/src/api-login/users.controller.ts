@@ -20,11 +20,7 @@ import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
-import { IsAdminInput, isAdminInputCheck } from "./dto/IsAdminInput";
-import {
-    RegisterUserInput,
-    registerUserInputCheck,
-} from "./dto/self-register-user.dto";
+import { CreateUserAsAdminInput } from "./dto/user-inputs.dto";
 
 @Controller("user")
 @UseGuards(CheckAccessTokenGuard)
@@ -62,17 +58,16 @@ export class UsersController {
     @Post()
     @NeedsAdmin()
     async createNewUser(
-        @Body() input: RegisterUserInput & IsAdminInput,
+        @Body() input: CreateUserAsAdminInput,
     ): Promise<LoginUser> {
-        registerUserInputCheck(input);
-        isAdminInputCheck(input);
+        CreateUserAsAdminInput.check(input);
         return this.backendUserSerice.createNewUser(input, input.isAdmin);
     }
 
     @Put(":id")
     async editUser(
         @Param("id") id: string,
-        @Body() input: Partial<RegisterUserInput & IsAdminInput>,
+        @Body() input: Partial<CreateUserAsAdminInput>,
     ): Promise<LoginUser> {
         throw new HttpException(
             "Needs to be discussed with backend who stores what and what changes where",

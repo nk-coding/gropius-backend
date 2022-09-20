@@ -28,14 +28,10 @@ import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
 import { CheckRegistrationTokenService } from "./check-registration-token.service";
 import {
-    AdminLinkUserIdInput,
-    adminLinkUserIdInputCheck,
-    RegisterTokenInput,
-} from "./dto/RegisterTokenInput";
-import {
-    RegisterUserInput,
-    registerUserInputCheck,
-} from "./dto/self-register-user.dto";
+    AdminLinkUserInput,
+    RegistrationTokenInput,
+} from "./dto/link-user.dto";
+import { SelfRegisterUserInput } from "./dto/user-inputs.dto";
 
 /**
  * Controller for handling slef registration of new users as well as linking of existing users to new loginData
@@ -60,8 +56,10 @@ export class RegisterController {
      * @returns The Default Return.
      */
     @Post("self-register")
-    async register(@Body() input: RegisterUserInput): Promise<DefaultReturn> {
-        registerUserInputCheck(input);
+    async register(
+        @Body() input: SelfRegisterUserInput,
+    ): Promise<DefaultReturn> {
+        SelfRegisterUserInput.check(input);
         const { loginData, activeLogin } =
             await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
                 input.register_token,
@@ -90,9 +88,10 @@ export class RegisterController {
     @UseGuards(CheckAccessTokenGuard)
     @ApiBearerAuth()
     async selfLink(
-        @Body() input: RegisterTokenInput,
+        @Body() input: RegistrationTokenInput,
         @Res({ passthrough: true }) res: Response,
     ): Promise<DefaultReturn> {
+        RegistrationTokenInput.check(input);
         //todo: potentially move to POST user/:id/loginData
         if (!(res.locals.state as ApiStateData).loggedInUser) {
             throw new HttpException("Not logged in.", HttpStatus.UNAUTHORIZED);
@@ -116,14 +115,14 @@ export class RegisterController {
     @NeedsAdmin()
     @ApiBearerAuth()
     async adminLink(
-        @Body() input: RegisterTokenInput & AdminLinkUserIdInput,
+        @Body() input: AdminLinkUserInput,
         @Res({ passthrough: true }) res: Response,
     ): Promise<DefaultReturn> {
         // requires: admin and specification of user id to link with
         //todo: potentially move to POST user/:id/loginData
-        adminLinkUserIdInputCheck(input);
+        AdminLinkUserInput.check(input);
         const linkToUser = await this.userService.findOneBy({
-            id: input.user_to_link_to_id,
+            id: input.userIdToLink,
         });
         if (!linkToUser) {
             throw new HttpException(

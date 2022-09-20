@@ -37,11 +37,6 @@ import {
     CensoredClientSecret,
     GetAuthClientResponse,
 } from "./dto/get-auth-client.dto";
-import { IsAdminInput, isAdminInputCheck } from "./dto/IsAdminInput";
-import {
-    RegisterUserInput,
-    registerUserInputCheck,
-} from "./dto/self-register-user.dto";
 
 /**
  * Controller for all queries related to auth clients and their client secrets

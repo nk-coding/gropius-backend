@@ -14,15 +14,17 @@ import {
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
+    ApiConsumes,
     ApiCreatedResponse,
     ApiNotFoundResponse,
     ApiOAuth2,
     ApiOkResponse,
+    ApiOperation,
 } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenScope } from "src/backend-services/token.service";
-import { DefaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/default-return.dto";
 import { AuthClient } from "src/model/postgres/AuthClient.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
@@ -54,7 +56,8 @@ export class AuthClientController {
     ) {}
 
     /**
-     * Gets all auth clients that exist in the system
+     * Gets all auth clients that exist in the system.
+     * Client secrets are not returned.
      *
      * Needs admin permissions
      *
@@ -66,12 +69,14 @@ export class AuthClientController {
         type: [AuthClient],
         description: "List of all auth clients",
     })
+    @ApiOperation({ summary: "List all existing auth clients." })
     async listAllAuthClients(): Promise<AuthClient[]> {
         return this.authClientService.find();
     }
 
     /**
-     * Gets one specific auth clients by its uuid
+     * Gets one specific auth clients by its uuid.
+     * This will also include the list of censored client secrets (see GET /login/client/:id/clientSecret)
      *
      * Needs admin permissions
      *
@@ -80,6 +85,7 @@ export class AuthClientController {
      */
     @Get(":id")
     @NeedsAdmin()
+    @ApiOperation({ summary: "Details of one auth client (incl. censored secrets)" })
     @ApiOkResponse({
         type: GetAuthClientResponse,
         description: "The auth client with the requested id",
@@ -101,13 +107,19 @@ export class AuthClientController {
     /**
      * Creates a new auth client.
      *
+     * Redirect urls defaults to empty list.
      * If no redirectURLs are specified the client will be unusable until they are updated.
+     * If `requiresSecret` is `true`, authorization as this client won't work until a client secret is added
+     * (see POST /login/client/:id/clientSecret).
+     *
+     * Needs admin persmissions.
      *
      * @param input The input data for the new auth client
      * @returns The newly created auth client instance
      */
     @Post()
     @NeedsAdmin()
+    @ApiOperation({ summary: "Create new auth client" })
     @ApiCreatedResponse({
         type: [AuthClient],
         description: "The auth client that was created",
@@ -142,12 +154,16 @@ export class AuthClientController {
      * Updates the auth client with the given ID.
      * Only parameter given in the input will be changed.
      *
+     * If `redirectUrls` is given, it wil replace **all** previous URLs.
+     * Merging (if needed) needs to be done by the client.
+     *
      * @param id The uuid string of an existing auth client
      * @param input The input data dto
      * @returns The auth client with the updated data
      */
     @Put(":id")
     @NeedsAdmin()
+    @ApiOperation({ summary: "Edit existing auth client" })
     @ApiOkResponse({
         description: "The auth client was successfully updated",
         type: AuthClient,
@@ -190,6 +206,7 @@ export class AuthClientController {
      */
     @Delete(":id")
     @NeedsAdmin()
+    @ApiOperation({ summary: "Permanently delete existing auth client" })
     @ApiOkResponse({
         description: "If deletion succeeded, the default response",
         type: DefaultReturn,
@@ -211,7 +228,8 @@ export class AuthClientController {
     /**
      * Retrieves all existing client secrets of the specified auth client.
      *
-     * The returned secrets only contain the 5 letter prefix and the fingerprint for identification.
+     * The returned secrets only contain the 5 letter prefix (censored client secret text)
+     * and the fingerprint for identification (for deleting secrets).
      * The original secret text is **NOT** returned.
      * It can only be retrieved once while creating the secret.
      *
@@ -220,6 +238,7 @@ export class AuthClientController {
      */
     @Get(":id/clientSecret")
     @NeedsAdmin()
+    @ApiOperation({ summary: "List all client secrets (censored) of auth client" })
     @ApiOkResponse({
         type: [CensoredClientSecret],
         description: "All client secrets of the auth client (censored)",

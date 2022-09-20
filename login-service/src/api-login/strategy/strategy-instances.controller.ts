@@ -12,7 +12,7 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import { CheckAccessTokenGuard, NeedsAdmin } from "src/api-login/check-access-token.guard";
-import { DefaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/default-return.dto";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "src/model/services/strategies.service";

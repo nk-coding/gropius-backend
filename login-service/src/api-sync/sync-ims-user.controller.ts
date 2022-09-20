@@ -13,7 +13,7 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
-import { DefaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/default-return.dto";
 import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { StrategiesService } from "src/model/services/strategies.service";

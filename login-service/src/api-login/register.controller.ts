@@ -14,7 +14,7 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
-import { DefaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/default-return.dto";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.entity";

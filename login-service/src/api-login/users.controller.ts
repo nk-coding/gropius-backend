@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
-import { DefaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/default-return.dto";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { LoginUserService } from "src/model/services/login-user.service";

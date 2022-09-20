@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 /**
  * Manager for token from login service
  * @param neoOperations Reference for the spring instance of ReactiveNeo4jOperations
+ * @param gropiusGithubConfigurationProperties Reference for the spring instance of GropiusGithubConfigurationProperties
  */
 @Component
 class TokenManager(

@@ -10,7 +10,15 @@ import {
     SetMetadata,
     UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import {
+    ApiBadRequestResponse,
+    ApiBearerAuth,
+    ApiNotFoundResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiTags,
+    ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
@@ -49,9 +57,21 @@ export class RegisterController {
      * For the creation to succeed, the registration token and the registration may not be expired yet.
      *
      * @param input The input data for creating a new user
-     * @returns The Default Return.
+     * @returns The Default Return with operation "self-register"
      */
     @Post("self-register")
+    @ApiOperation({ summary: "Self register (create user) using registration token" })
+    @ApiOkResponse({
+        type: DefaultReturn,
+        description: "If successful, the Default Return with operation 'self-register'",
+    })
+    @ApiUnauthorizedResponse({
+        description:
+            "If the given registration token is not/no longer valid or the registration time frame has expired",
+    })
+    @ApiBadRequestResponse({
+        description: "If any of the input data for the user creation are invalid or the username is already taken",
+    })
     async register(@Body() input: SelfRegisterUserInput): Promise<DefaultReturn> {
         SelfRegisterUserInput.check(input);
         const { loginData, activeLogin } = await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
@@ -65,8 +85,28 @@ export class RegisterController {
         return new DefaultReturn("self-register");
     }
 
+    /**
+     * Links a new authentication with a strategy instance with the currently logged in user.
+     * For future logins using that authentication the user will be directly found
+     *
+     * A (still) valid registration token is needed.
+     * After a successful linking, the expiration of the activeLogin and loginData will be updated accoringly
+     * @param input The input containing the registration token obtained from the authentication flow
+     * @param res The response object of the server containing the state with the logged in user
+     * @returns The default response with operation 'self-link'
+     */
     @Post("self-link")
     @UseGuards(CheckAccessTokenGuard)
+    @ApiOperation({ summary: "Link new authentication with current user" })
+    @ApiOkResponse({
+        type: DefaultReturn,
+        description: "If successful, the default response with operation 'self-link'",
+    })
+    @ApiUnauthorizedResponse({
+        description:
+            "If no user is logged in " +
+            ", the given registration token is not/no longer valid or the registration time frame has expired",
+    })
     @ApiBearerAuth()
     async selfLink(
         @Body() input: RegistrationTokenInput,
@@ -90,9 +130,31 @@ export class RegisterController {
         return new DefaultReturn("self-link");
     }
 
+    /**
+     * Links a new authentication with any user specified by id
+     *
+     * Needs admin permissions
+     *
+     * A (still) valid registration token is needed.
+     * After a successful linking, the expiration of the activeLogin and loginData will be updated accoringly
+     * @param input The input with the registration_token and the user id of the user to link
+     * @param res The response object of the server containing the state with the logged in user
+     * @returns The default response with operation 'admin-link'
+     */
     @Post("admin-link")
     @UseGuards(CheckAccessTokenGuard)
     @NeedsAdmin()
+    @ApiOperation({ summary: "Links new authentication with any user by id" })
+    @ApiOkResponse({
+        type: DefaultReturn,
+        description: "If successful, the default response with operation 'admin-link'",
+    })
+    @ApiUnauthorizedResponse({
+        description:
+            "If not an admin is logged in, " +
+            "the given registration token is not/no longer valid or the registration time frame has expired",
+    })
+    @ApiNotFoundResponse({ description: "If the specified user id did not match any existing user" })
     @ApiBearerAuth()
     async adminLink(
         @Body() input: AdminLinkUserInput,
@@ -105,7 +167,7 @@ export class RegisterController {
             id: input.userIdToLink,
         });
         if (!linkToUser) {
-            throw new HttpException("No user with given user_to_link_to_id", HttpStatus.BAD_REQUEST);
+            throw new HttpException("No user with given user_to_link_to_id", HttpStatus.NOT_FOUND);
         }
         const { loginData, activeLogin } = await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
             input.register_token,
@@ -115,6 +177,22 @@ export class RegisterController {
         return new DefaultReturn("admin-link");
     }
 
+    /**
+     * Helper function performing tha actual linking of login data with user.
+     *
+     * If the given login data already has a user set, the user must match the given one,
+     * else a INTERNAL_SERVER_ERROR is raised.
+     *
+     * The expiration of the loginData will be removed.
+     * The expiration of the activeLogin will be set to the default login expiration time,
+     * except if the strategy supports sync, then the active login will never expire.
+     * The state of the loginData will be updated to VALID if it was WAITING_FOR_REGISER before
+     *
+     * @param userToLinkTo The user account to link the new authentication to
+     * @param loginData The new authentication to link to the user
+     * @param activeLogin The active login that was created during the authentication flow
+     * @returns The saved and updated user and login data after linking
+     */
     private async linkAccountToUser(
         userToLinkTo: LoginUser,
         loginData: UserLoginData,

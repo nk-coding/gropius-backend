@@ -107,7 +107,8 @@ export class CheckRegistrationTokenService {
      *
      * @param token The token string to be validated
      * @returns The loginData and activeLogin objects that created the given registration token
-     * @throws `UnauthorizedException` If no token is given, the token is invalid, the referenced activeLogin or loginData don't exist or are invalid or the user does not match
+     * @throws {@link UnauthorizedException} If no token is given, the token is invalid,
+     * the referenced activeLogin or loginData don't exist or are invalid or the user does not match
      */
     async getActiveLoginAndLoginDataForToken(
         token: string | undefined | null,

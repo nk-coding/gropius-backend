@@ -18,6 +18,9 @@ import {
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
 
+/**
+ * Service to validate a registration token and retrieve the referenced nodes
+ */
 @Injectable()
 export class CheckRegistrationTokenService {
     constructor(
@@ -26,31 +29,22 @@ export class CheckRegistrationTokenService {
         private readonly activeLoginService: ActiveLoginService,
     ) {}
 
-    async getActiveLoginAndLoginDataForToken(
-        token: string | undefined | null,
-        userMustBe?: LoginUser | undefined,
-    ): Promise<{ loginData: UserLoginData; activeLogin: ActiveLogin }> {
-        if (!token) {
-            throw new UnauthorizedException(
-                undefined,
-                "No registration token given",
-            );
-        }
-        let activeLoginId: string;
-        try {
-            activeLoginId = await this.tokenService.verifyRegistrationToken(
-                token,
-            );
-        } catch (err) {
-            console.error("Invalid registration token: ", err);
-            throw new UnauthorizedException(
-                undefined,
-                "Invalid registration token: " + (err.message ?? err),
-            );
-        }
-        const activeLogin = await this.activeLoginService.findOneBy({
-            id: activeLoginId,
-        });
+    /**
+     * Checks wether both active login and login data are given and valid.
+     *
+     * Valid means not set invalid and not expired.
+     * For the loginData it is checked, that it is still in the {@link LoginState.WAITING_FOR_REGISTER}
+     *
+     * @param activeLogin The activeLog innstance to check. Optional
+     * @param loginData The loginData instance to check. Optional
+     * @param activeLoginId The id of the activeLogin instance. Just used for error messages. Required
+     * @throws {@link UnauthorizedException} If either of the node is not given or invalid in one way or another.
+     */
+    private checkActiveLoginValid(
+        activeLogin: ActiveLogin | undefined | null,
+        loginData: UserLoginData | undefined | null,
+        activeLoginId: string,
+    ) {
         if (!activeLogin) {
             console.error(
                 `No active login with id from token; id:`,
@@ -61,7 +55,6 @@ export class CheckRegistrationTokenService {
                 "Register token is (no longer) valid.",
             );
         }
-        const loginData = await activeLogin.loginInstanceFor;
         if (!loginData) {
             console.error(`No login data for active login; id:`, activeLoginId);
             throw new UnauthorizedException(
@@ -90,6 +83,24 @@ export class CheckRegistrationTokenService {
                 "A user is already registered for this login",
             );
         }
+    }
+
+    /**
+     * Verifies that the loginData is for the exact user specified.
+     *
+     * Cases:
+     * - If the loginData has no user, the check passes.
+     * - If user is not given/undefined, the login data must be unassigned and have no user.
+     * - If a user is given, the user of the loginData must be the same as the one given.
+     *
+     * @param loginData The loginData for which to verify the user
+     * @param userMustBe The user to verify or undefined
+     * @throws {@link UnauthorizedException} If the user did not match as specified above.
+     */
+    async verifyUserMatches(
+        loginData: UserLoginData,
+        userMustBe?: LoginUser | undefined,
+    ) {
         const loginDataUser = await loginData.user;
         if (!!loginDataUser) {
             if (userMustBe) {
@@ -117,6 +128,47 @@ export class CheckRegistrationTokenService {
                 );
             }
         }
+    }
+
+    /**
+     * Validates a registration token and returns the loginData as well as avtiveLogin that created it.
+     *
+     * Additionally checks that the user linked to the loginData is the same as a given user.
+     * This can be used to check that new registrations are only linked with oneself and not other user accounts
+     *
+     * @param token The token string to be validated
+     * @returns The loginData and activeLogin objects that created the given registration token
+     * @throws `UnauthorizedException` If no token is given, the token is invalid, the referenced activeLogin or loginData don't exist or are invalid or the user does not match
+     */
+    async getActiveLoginAndLoginDataForToken(
+        token: string | undefined | null,
+        userMustBe?: LoginUser | undefined,
+    ): Promise<{ loginData: UserLoginData; activeLogin: ActiveLogin }> {
+        if (!token) {
+            throw new UnauthorizedException(
+                undefined,
+                "No registration token given",
+            );
+        }
+        let activeLoginId: string;
+        try {
+            activeLoginId = await this.tokenService.verifyRegistrationToken(
+                token,
+            );
+        } catch (err) {
+            console.error("Invalid registration token: ", err);
+            throw new UnauthorizedException(
+                undefined,
+                "Invalid registration token: " + (err.message ?? err),
+            );
+        }
+        const activeLogin = await this.activeLoginService.findOneBy({
+            id: activeLoginId,
+        });
+        const loginData = await activeLogin?.loginInstanceFor;
+        this.checkActiveLoginValid(activeLogin, loginData, activeLoginId);
+
+        await this.verifyUserMatches(loginData, userMustBe);
 
         return { loginData, activeLogin };
     }

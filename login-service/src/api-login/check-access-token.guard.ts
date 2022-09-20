@@ -22,6 +22,18 @@ import { ApiStateData } from "./ApiStateData";
 
 export const NeedsAdmin = () => SetMetadata("needsAdmin", true);
 
+/**
+ * Guard for checking the presence of an access token in the request.
+ * If needed, checks for admin permissions of the user.
+ *
+ * Used with `@UseGuards(CheckAccessTokenGuard)`
+ *
+ * The access token is expected in the "Authorization" header, prefixed with "Bearer ".
+ * Not providing a token, a token without prefix or an invalid token will result in a 401 Unauthorized response.
+ *
+ * Once access token (and admin permission) were verified sucessfully,
+ * the logged in user is written to the request state object
+ */
 @Injectable()
 export class CheckAccessTokenGuard implements CanActivate {
     constructor(

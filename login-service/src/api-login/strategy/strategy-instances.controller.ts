@@ -15,7 +15,7 @@ import {
     CheckAccessTokenGuard,
     NeedsAdmin,
 } from "src/api-login/check-access-token.guard";
-import { defaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/defaultReturn";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance.entity";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { StrategiesService } from "src/model/services/strategies.service";
@@ -151,7 +151,7 @@ export class StrategyInstancesController {
         @Body() input: UpdateStrategyInstanceInput,
         @Param("id") id: string,
         @Param("type") type?: string,
-    ): Promise<ReturnType<typeof defaultReturn>> {
+    ): Promise<DefaultReturn> {
         const instance = await this.strategyInstanceService.findOneBy({
             id,
             type,
@@ -163,6 +163,6 @@ export class StrategyInstancesController {
             );
         }
         await this.strategyInstanceService.remove(instance);
-        return defaultReturn("delete-strategyInstance");
+        return new DefaultReturn("delete-strategyInstance");
     }
 }

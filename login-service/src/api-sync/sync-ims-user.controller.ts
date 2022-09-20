@@ -13,7 +13,7 @@ import {
     UseGuards,
 } from "@nestjs/common";
 import { ImsUserFindingService } from "src/backend-services/ims-user-finding.service";
-import { defaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/defaultReturn";
 import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser.entity";
 import { UserLoginDataImsUserService } from "src/model/services/user-login-data-ims-user";
 import { StrategiesService } from "src/model/services/strategies.service";
@@ -72,7 +72,9 @@ export class SyncImsUserController {
 
     //todo: make endpoint accept list of ims users to be linked all at once in order to optimize finding
     @Put("linkIMSUser")
-    async linkIMSUser(@Query("imsUser") imsUserId: string) {
+    async linkIMSUser(
+        @Query("imsUser") imsUserId: string,
+    ): Promise<DefaultReturn> {
         if (!imsUserId || imsUserId.trim().length <= 0) {
             throw new HttpException(
                 "Missing query parameter imsUser",
@@ -80,6 +82,6 @@ export class SyncImsUserController {
             );
         }
         await this.imsUserFindingService.createAndLinkSingleImsUser(imsUserId);
-        return defaultReturn("linkIMSUser");
+        return new DefaultReturn("linkIMSUser");
     }
 }

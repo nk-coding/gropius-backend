@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
-import { defaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/defaultReturn";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { LoginUserService } from "src/model/services/login-user.service";
@@ -88,14 +88,12 @@ export class UsersController {
     }
 
     @Delete(":id")
-    async deleteUser(
-        @Param("id") id: string,
-    ): Promise<ReturnType<typeof defaultReturn>> {
+    async deleteUser(@Param("id") id: string): Promise<DefaultReturn> {
         throw new HttpException(
             "Yeah, we are not even gonna talk about this.",
             HttpStatus.NOT_IMPLEMENTED,
         );
-        return defaultReturn("delete-user");
+        return new DefaultReturn("delete-user");
     }
 
     @Get(":id/loginData")

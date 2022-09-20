@@ -7,6 +7,7 @@ export const validationSchema = Joi.object({
     GROPIUS_INTERNAL_BACKEND_TOKEN: Joi.string(),
     GROPIUS_INTERNAL_BACKEND_JWT_SECRET: Joi.string().required(),
 
+    GROPIUS_LOGIN_DATABASE_DRIVER: Joi.string().default("postgres"),
     GROPIUS_LOGIN_DATABASE_HOST: Joi.string().default("localhost"),
     GROPIUS_LOGIN_DATABASE_PORT: Joi.number()
         .integer()

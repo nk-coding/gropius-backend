@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { optionalFeatureTypeOrm } from "src/optinalPostgreModule";
 import { GraphqlService } from "./graphql/graphql.service";
 import { ActiveLogin } from "./postgres/ActiveLogin.entity";
 import { AuthClient } from "./postgres/AuthClient.entity";

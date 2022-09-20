@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { DynamicModule, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { LazyModuleLoader, RouterModule } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -10,6 +10,8 @@ import { StrategiesModule } from "./strategies/strategies.module";
 import { BackendServicesModule } from "./backend-services/backend-services.module";
 import { validationSchema } from "./configuration-validator";
 import { OauthServerModule } from "./oauth-server/oauth-server.module";
+import { DefaultReturn } from "./defaultReturn";
+import { optioalGlobalTypeOrm } from "./optinalPostgreModule";
 
 @Module({
     imports: [
@@ -21,17 +23,33 @@ import { OauthServerModule } from "./oauth-server/oauth-server.module";
             validationSchema,
         }),
         TypeOrmModule.forRootAsync({
-            useFactory(...args) {
-                return {
-                    type: "postgres",
-                    host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
-                    port: parseInt(process.env.GROPIUS_LOGIN_DATABASE_PORT, 10), // note: using || instead of ?? to catch NaN
-                    username: process.env.GROPIUS_LOGIN_DATABASE_USER,
-                    password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
-                    database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
-                    synchronize: process.env.NODE_ENV !== "production",
-                    autoLoadEntities: true,
-                };
+            async useFactory(...args) {
+                await ConfigModule.envVariablesLoaded;
+                const driver = process.env.GROPIUS_LOGIN_DATABASE_DRIVER;
+                if (!driver || driver == "postgres") {
+                    return {
+                        type: "postgres",
+                        host: process.env.GROPIUS_LOGIN_DATABASE_HOST,
+                        port: parseInt(
+                            process.env.GROPIUS_LOGIN_DATABASE_PORT,
+                            10,
+                        ),
+                        username: process.env.GROPIUS_LOGIN_DATABASE_USER,
+                        password: process.env.GROPIUS_LOGIN_DATABASE_PASSWORD,
+                        database: process.env.GROPIUS_LOGIN_DATABASE_DATABASE,
+                        synchronize: process.env.NODE_ENV !== "production",
+                        autoLoadEntities: true,
+                    };
+                } else if (driver == "sqlite") {
+                    return {
+                        type: "sqlite",
+                        database:
+                            process.env.GROPIUS_LOGIN_DATABASE_DATABASE +
+                            ".sqlite",
+                    };
+                } else {
+                    return {};
+                }
             },
         }),
         ModelModule,

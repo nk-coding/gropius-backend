@@ -10,10 +10,11 @@ import {
     SetMetadata,
     UseGuards,
 } from "@nestjs/common";
+import { ApiBearerAuth } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
-import { defaultReturn } from "src/defaultReturn";
+import { DefaultReturn } from "src/defaultReturn";
 import { ActiveLogin } from "src/model/postgres/ActiveLogin.entity";
 import { LoginUser } from "src/model/postgres/LoginUser.entity";
 import {
@@ -36,6 +37,9 @@ import {
     registerUserInputCheck,
 } from "./dto/self-register-user.dto";
 
+/**
+ * Controller for handling slef registration of new users as well as linking of existing users to new loginData
+ */
 @Controller("registration")
 export class RegisterController {
     constructor(
@@ -46,13 +50,17 @@ export class RegisterController {
         private readonly backendUserSerivce: BackendUserService,
     ) {}
 
-    @Get()
-    async getTest(@Body() body) {
-        console.log(body);
-    }
-
+    /**
+     * Given user data and a registration token, this will create a new user for the registration.
+     * The user will also be created in the backend.
+     *
+     * For the creation to succeed, the registration token and the registration may not be expired yet.
+     *
+     * @param input The input data for creating a new user
+     * @returns The Default Return.
+     */
     @Post("self-register")
-    async register(@Body() input: RegisterUserInput & RegisterTokenInput) {
+    async register(@Body() input: RegisterUserInput): Promise<DefaultReturn> {
         registerUserInputCheck(input);
         const { loginData, activeLogin } =
             await this.checkRegistrationTokenService.getActiveLoginAndLoginDataForToken(
@@ -75,15 +83,16 @@ export class RegisterController {
             loginData,
             activeLogin,
         );
-        return defaultReturn("self-register");
+        return new DefaultReturn("self-register");
     }
 
     @Post("self-link")
     @UseGuards(CheckAccessTokenGuard)
+    @ApiBearerAuth()
     async selfLink(
         @Body() input: RegisterTokenInput,
         @Res({ passthrough: true }) res: Response,
-    ) {
+    ): Promise<DefaultReturn> {
         //todo: potentially move to POST user/:id/loginData
         if (!(res.locals.state as ApiStateData).loggedInUser) {
             throw new HttpException("Not logged in.", HttpStatus.UNAUTHORIZED);
@@ -99,16 +108,17 @@ export class RegisterController {
             activeLogin,
         );
         (res.locals.state as ApiStateData).loggedInUser = loggedInUser;
-        return defaultReturn("self-link");
+        return new DefaultReturn("self-link");
     }
 
     @Post("admin-link")
     @UseGuards(CheckAccessTokenGuard)
     @NeedsAdmin()
+    @ApiBearerAuth()
     async adminLink(
         @Body() input: RegisterTokenInput & AdminLinkUserIdInput,
         @Res({ passthrough: true }) res: Response,
-    ) {
+    ): Promise<DefaultReturn> {
         // requires: admin and specification of user id to link with
         //todo: potentially move to POST user/:id/loginData
         adminLinkUserIdInputCheck(input);
@@ -127,7 +137,7 @@ export class RegisterController {
                 linkToUser,
             );
         await this.linkAccountToUser(linkToUser, loginData, activeLogin);
-        return defaultReturn("admin-link");
+        return new DefaultReturn("admin-link");
     }
 
     private async linkAccountToUser(

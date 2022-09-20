@@ -1,6 +1,7 @@
 package gropius.graphql
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import gropius.dto.input.common.JSONFieldInput
 import gropius.model.template.TemplatedNode
 import gropius.util.JsonNodeMapper
@@ -31,8 +32,8 @@ class TemplatedFieldsFilterEntry(
                 val templatedFieldProperty: KProperty<*> = TemplatedNode::templatedFields
                 val property =
                     node.property("${templatedFieldProperty.name}.${entry[JSONFieldInput::name.name] as String}")
-                val propertyValue =
-                    jsonNodeMapper.jsonNodeToDeterministicString(entry[JSONFieldInput::value.name] as JsonNode)
+                val jsonNode = entry[JSONFieldInput::value.name] as JsonNode? ?: JsonNodeFactory.instance.nullNode()
+                val propertyValue = jsonNodeMapper.jsonNodeToDeterministicString(jsonNode)
                 condition.and(property.isEqualTo(Cypher.anonParameter(propertyValue)))
             }
         }

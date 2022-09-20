@@ -47,6 +47,7 @@ class SyncConfiguration(
  * Configuration properties for the GitHub API
  *
  * @param loginServiceBase Base url for login service
+ * @param apiSecret API Secret for login service
  */
 @ConstructorBinding
 @ConfigurationProperties("gropius.sync.github")

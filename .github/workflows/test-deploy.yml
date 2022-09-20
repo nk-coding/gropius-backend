@@ -35,7 +35,7 @@ jobs:
           cache-dependency-path: "**/package-lock.json"
       - name: Install login-service dependencies
         run: ./gradlew login-service:npm_ci
-      - name: Save graphql schemas
+      - name: Save openapi schemas
         run: |
           chmod +x ./website/scripts/generate-openapi-schema.sh
           ./website/scripts/generate-openapi-schema.sh
@@ -59,6 +59,10 @@ jobs:
         run: |
           chmod +x ./website/scripts/update-graphql-doc.sh
           ./website/scripts/update-graphql-doc.sh
+      - name: Update rest documentation
+        run: |
+          chmod +x ./website/scripts/update-rest-doc.sh
+          ./website/scripts/update-rest-doc.sh
       - name: Build website
         run: npm run build
         working-directory: website

@@ -27,6 +27,8 @@ const config = {
                 docs: {
                     sidebarPath: require.resolve('./sidebars.js'),
                     routeBasePath: '/',
+                    docLayoutComponent: "@theme/DocPage",
+                    docItemComponent: "@theme/ApiItem"
                 },
                 blog: false,
                 theme: {
@@ -61,6 +63,12 @@ const config = {
                     docId: 'graphql/api-public',
                     position: 'left',
                     label: "GraphQL"
+                },
+                {
+                    type: 'doc',
+                    docId: 'rest/login-service/gropius-login-service',
+                    position: 'left',
+                    label: 'REST'
                 },
                 {
                     href: 'https://github.com/ccims/gropius-backend',
@@ -119,7 +127,21 @@ const config = {
                 }
             },
         ],
-    ]
+        [
+            "docusaurus-plugin-openapi-docs",
+            {
+                id: "rest",
+                docsPluginId: "@docusaurus/preset-classic",
+                config: {
+                    "login-service": {
+                        specPath: "schemas/login.json",
+                        outputDir: "docs/rest/login-service"
+                    }
+                }
+            }
+        ]
+    ],
+    themes: ["docusaurus-theme-openapi-docs"]
 };
 
 module.exports = config;

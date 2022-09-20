@@ -20,7 +20,7 @@ export interface OauthTokenEdnpointResponseDto {
 }
 
 @Controller("oauth")
-export class OauthServerController {
+export class OauthTokenController {
     constructor(
         private readonly authClientService: AuthClientService,
         private readonly activeLoginService: ActiveLoginService,

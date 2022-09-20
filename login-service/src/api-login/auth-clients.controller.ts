@@ -260,12 +260,14 @@ export class AuthClientController {
      *
      * **NOTE**: The returned value includes the secret text that is the actual secret.
      * It can **NOT** be retrieved later on.
+     * The censored version and fingerprint will be returned too for reference.
      *
      * @param id The uuid string of an existing auth client to create the secret for
      * @returns The generated client secret
      */
     @Post(":id/clientSecret")
     @NeedsAdmin()
+    @ApiOperation({ summary: "Generate and return new client secret for auth client" })
     @ApiCreatedResponse({
         type: CreateAuthClientSecretResponse,
         description:
@@ -296,13 +298,15 @@ export class AuthClientController {
      */
     @Delete(":id/clientSecret/:fingerprint")
     @NeedsAdmin()
+    @ApiOperation({ summary: "Delete a client secret of auch client" })
     @ApiOkResponse({
         type: DefaultReturn,
         description: 'If deletion was successfull, the default response with operation "delete-clientSecret"',
     })
     @ApiNotFoundResponse({
         description:
-            "If no id or no fingerprint was given or no auth client with the given id or no secret with the given fingerprint was found",
+            "If no id or no fingerprint was given, no auth client with the given id was found " +
+            " or no secret with the given fingerprint was found",
     })
     async deleteClientSecret(
         @Param("id") id: string,

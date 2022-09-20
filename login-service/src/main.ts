@@ -21,7 +21,11 @@ async function bootstrap() {
         .addBearerAuth({
             type: "apiKey",
             description: "Access token provided after running the oauth flow (and if needed registering/linking)",
-            bearerFormat: "JWT",
+        })
+        .addApiKey({
+            name: OpenApiTag.SYNC_API,
+            type: "apiKey",
+            description: "Secret Text shared between sync services and login service",
         })
         .build();
     const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);

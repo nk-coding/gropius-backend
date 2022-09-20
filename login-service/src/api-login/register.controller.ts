@@ -10,7 +10,7 @@ import {
     SetMetadata,
     UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
 import { TokenService } from "src/backend-services/token.service";
@@ -21,6 +21,7 @@ import { LoginState, UserLoginData } from "src/model/postgres/UserLoginData.enti
 import { ActiveLoginService } from "src/model/services/active-login.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
+import { OpenApiTag } from "src/openapi-tag";
 import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
 import { CheckRegistrationTokenService } from "./check-registration-token.service";
@@ -31,6 +32,7 @@ import { SelfRegisterUserInput } from "./dto/user-inputs.dto";
  * Controller for handling slef registration of new users as well as linking of existing users to new loginData
  */
 @Controller("registration")
+@ApiTags(OpenApiTag.LOGIN_API)
 export class RegisterController {
     constructor(
         private readonly checkRegistrationTokenService: CheckRegistrationTokenService,

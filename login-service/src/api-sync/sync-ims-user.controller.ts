@@ -19,9 +19,13 @@ import { UserLoginDataImsUserService } from "src/model/services/user-login-data-
 import { StrategiesService } from "src/model/services/strategies.service";
 import { CheckSyncSecretGuard } from "./check-sync-secret.guard";
 import { GetImsTokenResult } from "./dto/GetImsTokenResult";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { OpenApiTag } from "src/openapi-tag";
 
 @Controller()
 @UseGuards(CheckSyncSecretGuard)
+@ApiTags(OpenApiTag.SYNC_API)
+@ApiBearerAuth(OpenApiTag.SYNC_API)
 export class SyncImsUserController {
     constructor(
         private readonly imsUserService: UserLoginDataImsUserService,

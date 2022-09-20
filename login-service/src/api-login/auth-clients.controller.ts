@@ -20,6 +20,7 @@ import {
     ApiOAuth2,
     ApiOkResponse,
     ApiOperation,
+    ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "express";
 import { BackendUserService } from "src/backend-services/backend-user.service";
@@ -31,6 +32,7 @@ import { UserLoginData } from "src/model/postgres/UserLoginData.entity";
 import { AuthClientService } from "src/model/services/auth-client.service";
 import { LoginUserService } from "src/model/services/login-user.service";
 import { UserLoginDataService } from "src/model/services/user-login-data.service";
+import { OpenApiTag } from "src/openapi-tag";
 import { ApiStateData } from "./ApiStateData";
 import { CheckAccessTokenGuard, NeedsAdmin } from "./check-access-token.guard";
 import { CreateAuthClientSecretResponse } from "./dto/create-auth-client-secret.dto";
@@ -47,6 +49,7 @@ import { CensoredClientSecret, GetAuthClientResponse } from "./dto/get-auth-clie
 @Controller("client")
 @UseGuards(CheckAccessTokenGuard)
 @ApiBearerAuth()
+@ApiTags(OpenApiTag.LOGIN_API)
 export class AuthClientController {
     constructor(
         private readonly userService: LoginUserService,

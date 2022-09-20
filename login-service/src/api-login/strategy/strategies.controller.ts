@@ -1,13 +1,15 @@
 import { All, Controller, Get, HttpException, HttpStatus, Param } from "@nestjs/common";
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
-import { ApiNotFoundResponse, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import { ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { GetStrategyResponse } from "./dto/strategy-api.dto";
+import { OpenApiTag } from "src/openapi-tag";
 
 /**
  * Controller providing (read only) access to existing strategies (strategy types)
  */
 @Controller()
+@ApiTags(OpenApiTag.LOGIN_API)
 export class StrategiesController {
     constructor(private readonly strategiesService: StrategiesService) {}
 

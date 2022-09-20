@@ -19,8 +19,14 @@ import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "../../strategies/Strategy";
 import { CreateStrategyInstanceInput, createStrategyInstanceInputCheck } from "./dto/CreateStrategyInstanceInput";
 import { UpdateStrategyInstanceInput, updateStrategyInstanceInputCheck } from "./dto/UpdateStrategyInstance";
+import { ApiTags } from "@nestjs/swagger";
+import { OpenApiTag } from "src/openapi-tag";
 
+/**
+ * Controller
+ */
 @Controller()
+@ApiTags(OpenApiTag.LOGIN_API)
 export class StrategyInstancesController {
     constructor(
         private readonly strategiesService: StrategiesService,

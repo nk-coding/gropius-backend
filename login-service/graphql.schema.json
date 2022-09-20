@@ -2063,14 +2063,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -2477,6 +2497,22 @@
               "kind": "INPUT_OBJECT",
               "name": "ArtefactTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -6269,6 +6305,11 @@
           },
           {
             "kind": "OBJECT",
+            "name": "IMSUserTemplate",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "InterfaceDefinitionTemplate",
             "ofType": null
           },
@@ -8485,14 +8526,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -8999,6 +9060,22 @@
               "kind": "INPUT_OBJECT",
               "name": "ComponentTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -11892,14 +11969,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -12314,6 +12411,22 @@
               "kind": "INPUT_OBJECT",
               "name": "ComponentVersionTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -13034,6 +13147,30 @@
                 "kind": "SCALAR",
                 "name": "ID",
                 "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Initial values for all templatedFields",
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "JSONFieldInput",
+                    "ofType": null
+                  }
+                }
               }
             },
             "defaultValue": null,
@@ -13848,6 +13985,11 @@
           {
             "kind": "OBJECT",
             "name": "IMSUser",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "IMSUserTemplate",
             "ofType": null
           },
           {
@@ -15768,14 +15910,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -16194,6 +16356,22 @@
             "deprecationReason": null
           },
           {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "users",
             "description": "Filter by users",
             "type": {
@@ -16376,14 +16554,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -16668,6 +16866,22 @@
               "kind": "INPUT_OBJECT",
               "name": "IMSIssueTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -18300,14 +18514,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -18625,6 +18859,22 @@
               "kind": "INPUT_OBJECT",
               "name": "IMSProjectTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -19450,6 +19700,22 @@
               "ofType": {
                 "kind": "OBJECT",
                 "name": "IMSProjectTemplate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "imsUserTemplate",
+            "description": "SubTemplate applied to all IMSUsers with this Template",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "IMSUserTemplate",
                 "ofType": null
               }
             },
@@ -20436,6 +20702,108 @@
             "deprecationReason": null
           },
           {
+            "name": "template",
+            "description": "The Template of this IMSUser",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "IMSUserTemplate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedField",
+            "description": "Value of a field defined by the template. Error if such a field is not defined.",
+            "args": [
+              {
+                "name": "name",
+                "description": "Name of the extension field",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "JSON",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
+            "args": [
+              {
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "JSONField",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "username",
             "description": "The username of the IMSUser. Synced from the IMS this user is part of. Might not be unique.",
             "args": [],
@@ -20458,6 +20826,11 @@
           {
             "kind": "INTERFACE",
             "name": "Node",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "TemplatedNode",
             "ofType": null
           },
           {
@@ -20758,6 +21131,34 @@
             "deprecationReason": null
           },
           {
+            "name": "template",
+            "description": "Filters for nodes where the related node match this filter",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IMSUserTemplateFilterInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
             "name": "username",
             "description": "Filter by username",
             "type": {
@@ -20883,6 +21284,403 @@
             "deprecationReason": null
           }
         ],
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "IMSUserTemplate",
+        "description": "SubTemplate for IMSUser.\n    Part of an IMSTemplate.\n    Defines templated fields with specific types (defined using JSON schema).\n    ",
+        "fields": [
+          {
+            "name": "description",
+            "description": "The description of this entity.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "extensionField",
+            "description": "Value of an extension field by name of the extension field. Null if the field does not exist.",
+            "args": [
+              {
+                "name": "name",
+                "description": "Name of the extension field",
+                "type": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "SCALAR",
+              "name": "JSON",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "extensionFields",
+            "description": "All extension fields, if a `namePrefix` is provided, only those matching it",
+            "args": [
+              {
+                "name": "namePrefix",
+                "description": "Name of the extension field.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "JSONField",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": "The unique id of this node",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": "The name of this entity.",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "partOf",
+            "description": "The Template this SubTemplate is part of",
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "InterfaceSpecificationTemplate",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templateFieldSpecifications",
+            "description": "All template field specifications, if a `namePrefix` is provided, only those matching it",
+            "args": [
+              {
+                "name": "namePrefix",
+                "description": "Name of the extension field.",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "OBJECT",
+                    "name": "JSONField",
+                    "ofType": null
+                  }
+                }
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "usedIn",
+            "description": "Entities which use this template.",
+            "args": [
+              {
+                "name": "after",
+                "description": "Get only items after the cursor",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "before",
+                "description": "Get only items before the cursor",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "filter",
+                "description": "Filter for specific items in the connection",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "InterfaceFilterInput",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "first",
+                "description": "Get the first n items. Must not be used if before is specified",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "last",
+                "description": "Get the last n items. Must not be used if after is specified",
+                "type": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "orderBy",
+                "description": "Order in which the items are sorted",
+                "type": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "InterfaceOrder",
+                  "ofType": null
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              }
+            ],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "OBJECT",
+                "name": "InterfaceConnection",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [
+          {
+            "kind": "INTERFACE",
+            "name": "BaseTemplate",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "ExtensibleNode",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "Named",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "NamedNode",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "Node",
+            "ofType": null
+          },
+          {
+            "kind": "INTERFACE",
+            "name": "SubTemplate",
+            "ofType": null
+          }
+        ],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "INPUT_OBJECT",
+        "name": "IMSUserTemplateFilterInput",
+        "description": "Filter used to filter IMSUserTemplate",
+        "fields": null,
+        "inputFields": [
+          {
+            "name": "and",
+            "description": "Connects all subformulas via and",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "IMSUserTemplateFilterInput",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "description",
+            "description": "Filter by description",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "StringFilterInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "id",
+            "description": "Filter by id",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IDFilterInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "name",
+            "description": "Filter by name",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "StringFilterInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "not",
+            "description": "Negates the subformula",
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IMSUserTemplateFilterInput",
+              "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "or",
+            "description": "Connects all subformulas via or",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "IMSUserTemplateFilterInput",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "interfaces": null,
+        "enumValues": null,
         "possibleTypes": null
       },
       {
@@ -21433,14 +22231,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -21877,14 +22695,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -22315,6 +23153,22 @@
               "kind": "INPUT_OBJECT",
               "name": "InterfaceDefinitionTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -23077,6 +23931,22 @@
             "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "interfaces": null,
@@ -23768,14 +24638,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -24152,6 +25042,22 @@
               "kind": "INPUT_OBJECT",
               "name": "InterfacePartTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -25024,14 +25930,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -26170,6 +27096,22 @@
               "kind": "INPUT_OBJECT",
               "name": "InterfaceSpecificationTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -28170,14 +29112,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -28551,6 +29513,22 @@
               "kind": "INPUT_OBJECT",
               "name": "InterfaceSpecificationVersionTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -32066,14 +33044,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -33753,6 +34751,22 @@
               "kind": "INPUT_OBJECT",
               "name": "IssueTemplateFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -38899,14 +39913,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -39210,6 +40244,11 @@
           {
             "kind": "OBJECT",
             "name": "IMSTemplate",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "IMSUserTemplate",
             "ofType": null
           },
           {
@@ -39712,6 +40751,11 @@
           },
           {
             "kind": "OBJECT",
+            "name": "IMSUserTemplate",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "Interface",
             "ofType": null
           },
@@ -39956,6 +41000,11 @@
           {
             "kind": "OBJECT",
             "name": "IMSUser",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "IMSUserTemplate",
             "ofType": null
           },
           {
@@ -44855,14 +45904,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -46020,6 +47089,22 @@
             "defaultValue": null,
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "interfaces": null,
@@ -46542,14 +47627,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -46750,6 +47855,22 @@
               "kind": "INPUT_OBJECT",
               "name": "RelationListFilterInput",
               "ofType": null
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Filter for templated fields with matching key and values. Entries are joined by AND",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "INPUT_OBJECT",
+                "name": "JSONFieldInput",
+                "ofType": null
+              }
             },
             "defaultValue": null,
             "isDeprecated": false,
@@ -51122,6 +52243,11 @@
           },
           {
             "kind": "OBJECT",
+            "name": "IMSUserTemplate",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
             "name": "InterfaceDefinitionTemplate",
             "ofType": null
           },
@@ -51647,14 +52773,34 @@
           },
           {
             "name": "templatedFields",
-            "description": "All templated fields, if a `namePrefix` is provided, only those matching it",
+            "description": "All templatedFields\n        If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by\n        prefix, otherwise by full name.\n        ",
             "args": [
               {
-                "name": "namePrefix",
-                "description": "Name of the templated field.",
+                "name": "names",
+                "description": "Names of the templated fields. If not provided, all templatedFields.",
+                "type": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                },
+                "defaultValue": null,
+                "isDeprecated": false,
+                "deprecationReason": null
+              },
+              {
+                "name": "prefixMatching",
+                "description": "If true, name matching is performed as prefix matching, otherwise as absolute match.\n            Defaults to absolute matching\n            ",
                 "type": {
                   "kind": "SCALAR",
-                  "name": "String",
+                  "name": "Boolean",
                   "ofType": null
                 },
                 "defaultValue": null,
@@ -51715,6 +52861,11 @@
           {
             "kind": "OBJECT",
             "name": "IMSProject",
+            "ofType": null
+          },
+          {
+            "kind": "OBJECT",
+            "name": "IMSUser",
             "ofType": null
           },
           {
@@ -54149,6 +55300,26 @@
                 "kind": "SCALAR",
                 "name": "ID",
                 "ofType": null
+              }
+            },
+            "defaultValue": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "templatedFields",
+            "description": "Values for templatedFields to update",
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "INPUT_OBJECT",
+                  "name": "JSONFieldInput",
+                  "ofType": null
+                }
               }
             },
             "defaultValue": null,

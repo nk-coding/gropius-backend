@@ -3,6 +3,7 @@ import { RegisterUserInput } from "src/api-login/dto/RegisterUserInput";
 import { GraphqlService } from "src/model/graphql/graphql.service";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { UserLoginDataImsUser } from "src/model/postgres/UserLoginDataImsUser";
 import { LoginUserService } from "src/model/services/login-user.service";
 
 @Injectable()
@@ -56,7 +57,24 @@ export class BackendUserService {
         return loginUser;
     }
 
-    async linkImsUserToGropiusUser(
+    async linkOneImsUserToGropiusUser(
+        loginUser: LoginUser,
+        imsUser: UserLoginDataImsUser,
+    ) {
+        if (!loginUser.neo4jId) {
+            throw new Error("User without neo4jId: " + loginUser.id);
+        }
+        const gropiusUserId = loginUser.neo4jId;
+        if (!gropiusUserId) {
+            throw new Error("Login user has no gropius user associated");
+        }
+        const linkResult = await this.graphqlService.sdk.setImsUserLink({
+            gropiusUserId,
+            imsUserId: imsUser.neo4jId,
+        });
+    }
+
+    async linkAllImsUsersToGropiusUser(
         loginUser: LoginUser,
         loginData: UserLoginData,
     ) {

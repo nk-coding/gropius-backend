@@ -3,11 +3,15 @@ fragment ImsUserWithDetail on IMSUser {
     username
     displayName
     email
+    templatedFields {
+        name
+        value
+    }
     ims {
         id
         name
         description
-        templatedFields(namePrefix: "") {
+        templatedFields {
             name
             value
         }
@@ -32,6 +36,14 @@ query getImsUsersByTemplatedFieldValues(
                     id
                 }
             }
+        }
+    }
+}
+
+mutation createNewImsUserInIms($input: CreateIMSUserInput!) {
+    createIMSUser(input: $input) {
+        imsuser {
+            id
         }
     }
 }

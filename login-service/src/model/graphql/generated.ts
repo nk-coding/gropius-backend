@@ -352,7 +352,12 @@ export type Artefact = AuditedNode & ExtensibleNode & MutableTemplatedNode & Nod
   template: ArtefactTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** If present, the last line of the file this Artefact references, inclusive */
   to?: Maybe<Scalars['Int']>;
@@ -453,7 +458,8 @@ export type ArtefactTemplatedFieldArgs = {
  *
  */
 export type ArtefactTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for Artefact. */
@@ -506,6 +512,8 @@ export type ArtefactFilterInput = {
   referencingComments?: InputMaybe<IssueCommentListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ArtefactTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by to */
   to?: InputMaybe<NullableIntFilterInput>;
   /** Filters for nodes where the related node match this filter */
@@ -1569,7 +1577,12 @@ export type Component = AffectedByIssue & ExtensibleNode & MutableTemplatedNode 
   template: ComponentTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** Versions of this components. */
   versions: ComponentVersionConnection;
@@ -1792,7 +1805,8 @@ export type ComponentTemplatedFieldArgs = {
  *
  */
 export type ComponentTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -1871,6 +1885,8 @@ export type ComponentFilterInput = {
   syncsTo?: InputMaybe<ImsProjectListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ComponentTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by versions */
   versions?: InputMaybe<ComponentVersionListFilterInput>;
 };
@@ -2394,7 +2410,12 @@ export type ComponentVersion = AffectedByIssue & ExtensibleNode & MutableTemplat
   template: ComponentVersionTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** The version of this ComponentVersion */
   version: Scalars['String'];
@@ -2547,7 +2568,8 @@ export type ComponentVersionTemplatedFieldArgs = {
  *
  */
 export type ComponentVersionTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for ComponentVersion. */
@@ -2602,6 +2624,8 @@ export type ComponentVersionFilterInput = {
   outgoingRelations?: InputMaybe<RelationListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ComponentVersionTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by version */
   version?: InputMaybe<StringFilterInput>;
 };
@@ -2757,6 +2781,8 @@ export type CreateImsUserInput = {
   gropiusUser?: InputMaybe<Scalars['ID']>;
   /** The id of the IMS the created IMSUser is part of */
   ims: Scalars['ID'];
+  /** Initial values for all templatedFields */
+  templatedFields: Array<JsonFieldInput>;
   /** The username of the created IMSUser, must be unique */
   username?: InputMaybe<Scalars['String']>;
 };
@@ -3211,7 +3237,12 @@ export type Ims = ExtensibleNode & MutableTemplatedNode & Named & NamedNode & No
   template: ImsTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** Users of this IMS. */
   users: ImsUserConnection;
@@ -3290,7 +3321,8 @@ export type ImsTemplatedFieldArgs = {
  *
  */
 export type ImsTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -3351,6 +3383,8 @@ export type ImsFilterInput = {
   projects?: InputMaybe<ImsProjectListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ImsTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by users */
   users?: InputMaybe<ImsUserListFilterInput>;
 };
@@ -3377,7 +3411,12 @@ export type ImsIssue = ExtensibleNode & Node & TemplatedNode & {
   template: ImsIssueTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -3422,7 +3461,8 @@ export type ImsIssueTemplatedFieldArgs = {
  *
  */
 export type ImsIssueTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for IMSIssue. */
@@ -3463,6 +3503,8 @@ export type ImsIssueFilterInput = {
   or?: InputMaybe<Array<ImsIssueFilterInput>>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ImsIssueTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
 };
 
 /** Used to filter by a connection-based property. Fields are joined by AND */
@@ -3756,7 +3798,12 @@ export type ImsProject = ExtensibleNode & MutableTemplatedNode & Node & Template
   template: ImsProjectTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** The trackable which is synced. */
   trackable: Trackable;
@@ -3835,7 +3882,8 @@ export type ImsProjectTemplatedFieldArgs = {
  *
  */
 export type ImsProjectTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for IMSProject. */
@@ -3878,6 +3926,8 @@ export type ImsProjectFilterInput = {
   partiallySyncedIssues?: InputMaybe<IssueListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<ImsProjectTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filters for nodes where the related node match this filter */
   trackable?: InputMaybe<TrackableFilterInput>;
 };
@@ -4020,6 +4070,8 @@ export type ImsTemplate = BaseTemplate & ExtensibleNode & Named & NamedNode & No
   imsIssueTemplate: ImsIssueTemplate;
   /** SubTemplate applied to all IMSProjects with this Template */
   imsProjectTemplate: ImsProjectTemplate;
+  /** SubTemplate applied to all IMSUsers with this Template */
+  imsUserTemplate: ImsUserTemplate;
   /** If true, this template is deprecated and cannot be used for new entities any more. */
   isDeprecated: Scalars['Boolean'];
   /** The name of this entity. */
@@ -4183,7 +4235,7 @@ export enum ImsTemplateOrderField {
  *     It is possible that this user never heard of Gropius, and is only known to the system due to sync adapters.
  *
  */
-export type ImsUser = ExtensibleNode & Node & User & {
+export type ImsUser = ExtensibleNode & Node & TemplatedNode & User & {
   __typename?: 'IMSUser';
   /** Assignments the user is part of, this includes assignments which aren't active. */
   assignments: AssignmentConnection;
@@ -4205,6 +4257,17 @@ export type ImsUser = ExtensibleNode & Node & User & {
   ims: Ims;
   /** Issues the user participated in. */
   participatedIssues: IssueConnection;
+  /** The Template of this IMSUser */
+  template: ImsUserTemplate;
+  /** Value of a field defined by the template. Error if such a field is not defined. */
+  templatedField?: Maybe<Scalars['JSON']>;
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
+  templatedFields: Array<JsonField>;
   /** The username of the IMSUser. Synced from the IMS this user is part of. Might not be unique. */
   username?: Maybe<Scalars['String']>;
 };
@@ -4289,6 +4352,33 @@ export type ImsUserParticipatedIssuesArgs = {
   orderBy?: InputMaybe<IssueOrder>;
 };
 
+
+/**
+ * A user an IMS.
+ *     This user might be linked to a GropiusUser.
+ *     Note that this link can change at any time.
+ *     The username might not be unique.
+ *     It is possible that this user never heard of Gropius, and is only known to the system due to sync adapters.
+ *
+ */
+export type ImsUserTemplatedFieldArgs = {
+  name: Scalars['String'];
+};
+
+
+/**
+ * A user an IMS.
+ *     This user might be linked to a GropiusUser.
+ *     Note that this link can change at any time.
+ *     The username might not be unique.
+ *     It is possible that this user never heard of Gropius, and is only known to the system due to sync adapters.
+ *
+ */
+export type ImsUserTemplatedFieldsArgs = {
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
+};
+
 /** The connection type for IMSUser. */
 export type ImsUserConnection = {
   __typename?: 'IMSUserConnection';
@@ -4335,6 +4425,10 @@ export type ImsUserFilterInput = {
   or?: InputMaybe<Array<ImsUserFilterInput>>;
   /** Filter by participatedIssues */
   participatedIssues?: InputMaybe<IssueListFilterInput>;
+  /** Filters for nodes where the related node match this filter */
+  template?: InputMaybe<ImsUserTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by username */
   username?: InputMaybe<NullableStringFilterInput>;
 };
@@ -4366,6 +4460,97 @@ export enum ImsUserOrderField {
   /** Order by id */
   Id = 'ID'
 }
+
+/**
+ * SubTemplate for IMSUser.
+ *     Part of an IMSTemplate.
+ *     Defines templated fields with specific types (defined using JSON schema).
+ *
+ */
+export type ImsUserTemplate = BaseTemplate & ExtensibleNode & Named & NamedNode & Node & SubTemplate & {
+  __typename?: 'IMSUserTemplate';
+  /** The description of this entity. */
+  description: Scalars['String'];
+  /** Value of an extension field by name of the extension field. Null if the field does not exist. */
+  extensionField?: Maybe<Scalars['JSON']>;
+  /** All extension fields, if a `namePrefix` is provided, only those matching it */
+  extensionFields: Array<JsonField>;
+  /** The unique id of this node */
+  id: Scalars['ID'];
+  /** The name of this entity. */
+  name: Scalars['String'];
+  /** The Template this SubTemplate is part of */
+  partOf: InterfaceSpecificationTemplate;
+  /** All template field specifications, if a `namePrefix` is provided, only those matching it */
+  templateFieldSpecifications: Array<JsonField>;
+  /** Entities which use this template. */
+  usedIn: InterfaceConnection;
+};
+
+
+/**
+ * SubTemplate for IMSUser.
+ *     Part of an IMSTemplate.
+ *     Defines templated fields with specific types (defined using JSON schema).
+ *
+ */
+export type ImsUserTemplateExtensionFieldArgs = {
+  name: Scalars['String'];
+};
+
+
+/**
+ * SubTemplate for IMSUser.
+ *     Part of an IMSTemplate.
+ *     Defines templated fields with specific types (defined using JSON schema).
+ *
+ */
+export type ImsUserTemplateExtensionFieldsArgs = {
+  namePrefix?: InputMaybe<Scalars['String']>;
+};
+
+
+/**
+ * SubTemplate for IMSUser.
+ *     Part of an IMSTemplate.
+ *     Defines templated fields with specific types (defined using JSON schema).
+ *
+ */
+export type ImsUserTemplateTemplateFieldSpecificationsArgs = {
+  namePrefix?: InputMaybe<Scalars['String']>;
+};
+
+
+/**
+ * SubTemplate for IMSUser.
+ *     Part of an IMSTemplate.
+ *     Defines templated fields with specific types (defined using JSON schema).
+ *
+ */
+export type ImsUserTemplateUsedInArgs = {
+  after?: InputMaybe<Scalars['String']>;
+  before?: InputMaybe<Scalars['String']>;
+  filter?: InputMaybe<InterfaceFilterInput>;
+  first?: InputMaybe<Scalars['Int']>;
+  last?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<InterfaceOrder>;
+};
+
+/** Filter used to filter IMSUserTemplate */
+export type ImsUserTemplateFilterInput = {
+  /** Connects all subformulas via and */
+  and?: InputMaybe<Array<ImsUserTemplateFilterInput>>;
+  /** Filter by description */
+  description?: InputMaybe<StringFilterInput>;
+  /** Filter by id */
+  id?: InputMaybe<IdFilterInput>;
+  /** Filter by name */
+  name?: InputMaybe<StringFilterInput>;
+  /** Negates the subformula */
+  not?: InputMaybe<ImsUserTemplateFilterInput>;
+  /** Connects all subformulas via or */
+  or?: InputMaybe<Array<ImsUserTemplateFilterInput>>;
+};
 
 /**
  * An interface which is part of a specific ComponentVersion.
@@ -4400,7 +4585,12 @@ export type Interface = AffectedByIssue & ExtensibleNode & MutableTemplatedNode 
   template: InterfaceTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -4517,7 +4707,8 @@ export type InterfaceTemplatedFieldArgs = {
  *
  */
 export type InterfaceTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for Interface. */
@@ -4560,7 +4751,12 @@ export type InterfaceDefinition = ExtensibleNode & MutableTemplatedNode & Node &
   template: InterfaceDefinitionTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** Relations because of which `interfaceSpecificationVersion` is visible derived on `componentVersion` */
   visibleDerivedBy: RelationConnection;
@@ -4632,7 +4828,8 @@ export type InterfaceDefinitionTemplatedFieldArgs = {
  *
  */
 export type InterfaceDefinitionTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -4694,6 +4891,8 @@ export type InterfaceDefinitionFilterInput = {
   or?: InputMaybe<Array<InterfaceDefinitionFilterInput>>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<InterfaceDefinitionTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by visibleDerivedBy */
   visibleDerivedBy?: InputMaybe<RelationListFilterInput>;
   /** Filters for nodes where the related node match this filter */
@@ -4861,6 +5060,8 @@ export type InterfaceFilterInput = {
   outgoingRelations?: InputMaybe<RelationListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<InterfaceTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
 };
 
 /** Defines the order of a Interface list */
@@ -4916,7 +5117,12 @@ export type InterfacePart = AffectedByIssue & ExtensibleNode & MutableTemplatedN
   template: InterfacePartTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -5068,7 +5274,8 @@ export type InterfacePartTemplatedFieldArgs = {
  *
  */
 export type InterfacePartTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for InterfacePart. */
@@ -5121,6 +5328,8 @@ export type InterfacePartFilterInput = {
   or?: InputMaybe<Array<InterfacePartFilterInput>>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<InterfacePartTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
 };
 
 /** Used to filter by a connection-based property. Fields are joined by AND */
@@ -5274,7 +5483,12 @@ export type InterfaceSpecification = AffectedByIssue & ExtensibleNode & MutableT
   template: InterfaceSpecificationTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** Versions of this InterfaceSpecification. */
   versions: InterfaceSpecificationVersionConnection;
@@ -5365,7 +5579,8 @@ export type InterfaceSpecificationTemplatedFieldArgs = {
  *
  */
 export type InterfaceSpecificationTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -5574,6 +5789,8 @@ export type InterfaceSpecificationFilterInput = {
   or?: InputMaybe<Array<InterfaceSpecificationFilterInput>>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<InterfaceSpecificationTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by versions */
   versions?: InputMaybe<InterfaceSpecificationVersionListFilterInput>;
 };
@@ -5959,7 +6176,12 @@ export type InterfaceSpecificationVersion = AffectedByIssue & ExtensibleNode & M
   template: InterfaceSpecificationVersionTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** The version of this InterfaceSpecificationVersion. */
   version: Scalars['String'];
@@ -6082,7 +6304,8 @@ export type InterfaceSpecificationVersionTemplatedFieldArgs = {
  *
  */
 export type InterfaceSpecificationVersionTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** The connection type for InterfaceSpecificationVersion. */
@@ -6131,6 +6354,8 @@ export type InterfaceSpecificationVersionFilterInput = {
   or?: InputMaybe<Array<InterfaceSpecificationVersionFilterInput>>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<InterfaceSpecificationVersionTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by version */
   version?: InputMaybe<StringFilterInput>;
 };
@@ -6721,7 +6946,12 @@ export type Issue = AuditedNode & ExtensibleNode & MutableTemplatedNode & Node &
   template: IssueTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
   /** Timeline of the Issue, shows how the Issue changed over time. */
   timelineItems: TimelineItemConnection;
@@ -6980,7 +7210,8 @@ export type IssueTemplatedFieldArgs = {
  *
  */
 export type IssueTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 
@@ -7301,6 +7532,8 @@ export type IssueFilterInput = {
   startDate?: InputMaybe<NullableDateTimeFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<IssueTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
   /** Filter by timelineItems */
   timelineItems?: InputMaybe<TimelineItemListFilterInput>;
   /** Filter by title */
@@ -8401,7 +8634,12 @@ export enum LabelOrderField {
 export type MutableTemplatedNode = {
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -8414,7 +8652,8 @@ export type MutableTemplatedNodeTemplatedFieldArgs = {
 
 /** Interface for all types which support templates describing user writeable fields. */
 export type MutableTemplatedNodeTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 export type Mutation = {
@@ -9367,7 +9606,12 @@ export type Relation = ExtensibleNode & MutableTemplatedNode & Node & TemplatedN
   template: RelationTemplate;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -9500,7 +9744,8 @@ export type RelationTemplatedFieldArgs = {
  *
  */
 export type RelationTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /**
@@ -9746,6 +9991,8 @@ export type RelationFilterInput = {
   startParts?: InputMaybe<InterfacePartListFilterInput>;
   /** Filters for nodes where the related node match this filter */
   template?: InputMaybe<RelationTemplateFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
 };
 
 /** Used to filter by a connection-based property. Fields are joined by AND */
@@ -9792,7 +10039,12 @@ export type RelationPartner = {
   outgoingRelations: RelationConnection;
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -9850,7 +10102,8 @@ export type RelationPartnerTemplatedFieldArgs = {
 
 /** Entity which can be used as start / end of Relations. Can be affected by Issues. */
 export type RelationPartnerTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /** Filter used to filter RelationPartner */
@@ -9873,6 +10126,8 @@ export type RelationPartnerFilterInput = {
   or?: InputMaybe<Array<RelationPartnerFilterInput>>;
   /** Filter by outgoingRelations */
   outgoingRelations?: InputMaybe<RelationListFilterInput>;
+  /** Filter for templated fields with matching key and values. Entries are joined by AND */
+  templatedFields?: InputMaybe<Array<InputMaybe<JsonFieldInput>>>;
 };
 
 /** Template for RelationPartners. */
@@ -10792,7 +11047,12 @@ export type TemplateFieldChangedEventExtensionFieldsArgs = {
 export type TemplatedNode = {
   /** Value of a field defined by the template. Error if such a field is not defined. */
   templatedField?: Maybe<Scalars['JSON']>;
-  /** All templated fields, if a `namePrefix` is provided, only those matching it */
+  /**
+   * All templatedFields
+   *         If `names` is provided, only those matching the name. If `prefixMatching` is true, matching is done by
+   *         prefix, otherwise by full name.
+   *
+   */
   templatedFields: Array<JsonField>;
 };
 
@@ -10805,7 +11065,8 @@ export type TemplatedNodeTemplatedFieldArgs = {
 
 /** Interface for all types which support templates. */
 export type TemplatedNodeTemplatedFieldsArgs = {
-  namePrefix?: InputMaybe<Scalars['String']>;
+  names?: InputMaybe<Array<Scalars['String']>>;
+  prefixMatching?: InputMaybe<Scalars['Boolean']>;
 };
 
 /**
@@ -11258,6 +11519,8 @@ export type UpdateImsUserInput = {
   gropiusUser?: InputMaybe<Scalars['ID']>;
   /** The id of the node to update */
   id: Scalars['ID'];
+  /** Values for templatedFields to update */
+  templatedFields?: InputMaybe<Array<JsonFieldInput>>;
   /** The new username of the updated IMSUser */
   username?: InputMaybe<Scalars['String']>;
 };
@@ -11455,14 +11718,14 @@ export type Versioned = {
   version: Scalars['String'];
 };
 
-export type ImsUserWithDetailFragment = { __typename?: 'IMSUser', id: string, username?: string | null, displayName: string, email?: string | null, ims: { __typename?: 'IMS', id: string, name: string, description: string, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }> } };
+export type ImsUserWithDetailFragment = { __typename?: 'IMSUser', id: string, username?: string | null, displayName: string, email?: string | null, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }>, ims: { __typename?: 'IMS', id: string, name: string, description: string, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }> } };
 
 export type GetImsUserDetailsQueryVariables = Exact<{
   imsUserId: Scalars['ID'];
 }>;
 
 
-export type GetImsUserDetailsQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent' } | { __typename?: 'AddedArtefactEvent' } | { __typename?: 'AddedLabelEvent' } | { __typename?: 'AddedToPinnedIssuesEvent' } | { __typename?: 'AddedToTrackableEvent' } | { __typename?: 'Artefact' } | { __typename?: 'ArtefactTemplate' } | { __typename?: 'Assignment' } | { __typename?: 'AssignmentType' } | { __typename?: 'Body' } | { __typename?: 'ClosedEvent' } | { __typename?: 'Component' } | { __typename?: 'ComponentPermission' } | { __typename?: 'ComponentTemplate' } | { __typename?: 'ComponentVersion' } | { __typename?: 'ComponentVersionTemplate' } | { __typename?: 'DueDateChangedEvent' } | { __typename?: 'EstimatedTimeChangedEvent' } | { __typename?: 'GlobalPermission' } | { __typename?: 'GropiusUser' } | { __typename?: 'IMS' } | { __typename?: 'IMSIssue' } | { __typename?: 'IMSIssueTemplate' } | { __typename?: 'IMSPermission' } | { __typename?: 'IMSProject' } | { __typename?: 'IMSProjectTemplate' } | { __typename?: 'IMSTemplate' } | { __typename?: 'IMSUser', id: string, username?: string | null, displayName: string, email?: string | null, ims: { __typename?: 'IMS', id: string, name: string, description: string, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }> } } | { __typename?: 'Interface' } | { __typename?: 'InterfaceDefinition' } | { __typename?: 'InterfaceDefinitionTemplate' } | { __typename?: 'InterfacePart' } | { __typename?: 'InterfacePartTemplate' } | { __typename?: 'InterfaceSpecification' } | { __typename?: 'InterfaceSpecificationDerivationCondition' } | { __typename?: 'InterfaceSpecificationTemplate' } | { __typename?: 'InterfaceSpecificationVersion' } | { __typename?: 'InterfaceSpecificationVersionTemplate' } | { __typename?: 'InterfaceTemplate' } | { __typename?: 'IntraComponentDependencyParticipant' } | { __typename?: 'IntraComponentDependencySpecification' } | { __typename?: 'Issue' } | { __typename?: 'IssueComment' } | { __typename?: 'IssuePriority' } | { __typename?: 'IssueRelation' } | { __typename?: 'IssueRelationType' } | { __typename?: 'IssueTemplate' } | { __typename?: 'IssueType' } | { __typename?: 'Label' } | { __typename?: 'PriorityChangedEvent' } | { __typename?: 'Project' } | { __typename?: 'ProjectPermission' } | { __typename?: 'RelatedByIssueEvent' } | { __typename?: 'Relation' } | { __typename?: 'RelationCondition' } | { __typename?: 'RelationTemplate' } | { __typename?: 'RemovedAffectedEntityEvent' } | { __typename?: 'RemovedArtefactEvent' } | { __typename?: 'RemovedAssignmentEvent' } | { __typename?: 'RemovedFromPinnedIssuesEvent' } | { __typename?: 'RemovedFromTrackableEvent' } | { __typename?: 'RemovedIncomingRelationEvent' } | { __typename?: 'RemovedLabelEvent' } | { __typename?: 'RemovedOutgoingRelationEvent' } | { __typename?: 'ReopenedEvent' } | { __typename?: 'SpentTimeChangedEvent' } | { __typename?: 'StartDateChangedEvent' } | { __typename?: 'TemplateFieldChangedEvent' } | { __typename?: 'TitleChangedEvent' } | { __typename?: 'TypeChangedEvent' } | null };
+export type GetImsUserDetailsQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent' } | { __typename?: 'AddedArtefactEvent' } | { __typename?: 'AddedLabelEvent' } | { __typename?: 'AddedToPinnedIssuesEvent' } | { __typename?: 'AddedToTrackableEvent' } | { __typename?: 'Artefact' } | { __typename?: 'ArtefactTemplate' } | { __typename?: 'Assignment' } | { __typename?: 'AssignmentType' } | { __typename?: 'Body' } | { __typename?: 'ClosedEvent' } | { __typename?: 'Component' } | { __typename?: 'ComponentPermission' } | { __typename?: 'ComponentTemplate' } | { __typename?: 'ComponentVersion' } | { __typename?: 'ComponentVersionTemplate' } | { __typename?: 'DueDateChangedEvent' } | { __typename?: 'EstimatedTimeChangedEvent' } | { __typename?: 'GlobalPermission' } | { __typename?: 'GropiusUser' } | { __typename?: 'IMS' } | { __typename?: 'IMSIssue' } | { __typename?: 'IMSIssueTemplate' } | { __typename?: 'IMSPermission' } | { __typename?: 'IMSProject' } | { __typename?: 'IMSProjectTemplate' } | { __typename?: 'IMSTemplate' } | { __typename?: 'IMSUser', id: string, username?: string | null, displayName: string, email?: string | null, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }>, ims: { __typename?: 'IMS', id: string, name: string, description: string, templatedFields: Array<{ __typename?: 'JSONField', name: string, value?: any | null }> } } | { __typename?: 'IMSUserTemplate' } | { __typename?: 'Interface' } | { __typename?: 'InterfaceDefinition' } | { __typename?: 'InterfaceDefinitionTemplate' } | { __typename?: 'InterfacePart' } | { __typename?: 'InterfacePartTemplate' } | { __typename?: 'InterfaceSpecification' } | { __typename?: 'InterfaceSpecificationDerivationCondition' } | { __typename?: 'InterfaceSpecificationTemplate' } | { __typename?: 'InterfaceSpecificationVersion' } | { __typename?: 'InterfaceSpecificationVersionTemplate' } | { __typename?: 'InterfaceTemplate' } | { __typename?: 'IntraComponentDependencyParticipant' } | { __typename?: 'IntraComponentDependencySpecification' } | { __typename?: 'Issue' } | { __typename?: 'IssueComment' } | { __typename?: 'IssuePriority' } | { __typename?: 'IssueRelation' } | { __typename?: 'IssueRelationType' } | { __typename?: 'IssueTemplate' } | { __typename?: 'IssueType' } | { __typename?: 'Label' } | { __typename?: 'PriorityChangedEvent' } | { __typename?: 'Project' } | { __typename?: 'ProjectPermission' } | { __typename?: 'RelatedByIssueEvent' } | { __typename?: 'Relation' } | { __typename?: 'RelationCondition' } | { __typename?: 'RelationTemplate' } | { __typename?: 'RemovedAffectedEntityEvent' } | { __typename?: 'RemovedArtefactEvent' } | { __typename?: 'RemovedAssignmentEvent' } | { __typename?: 'RemovedFromPinnedIssuesEvent' } | { __typename?: 'RemovedFromTrackableEvent' } | { __typename?: 'RemovedIncomingRelationEvent' } | { __typename?: 'RemovedLabelEvent' } | { __typename?: 'RemovedOutgoingRelationEvent' } | { __typename?: 'ReopenedEvent' } | { __typename?: 'SpentTimeChangedEvent' } | { __typename?: 'StartDateChangedEvent' } | { __typename?: 'TemplateFieldChangedEvent' } | { __typename?: 'TitleChangedEvent' } | { __typename?: 'TypeChangedEvent' } | null };
 
 export type GetImsUsersByTemplatedFieldValuesQueryVariables = Exact<{
   imsFilterInput: ImsFilterInput;
@@ -11472,12 +11735,19 @@ export type GetImsUsersByTemplatedFieldValuesQueryVariables = Exact<{
 
 export type GetImsUsersByTemplatedFieldValuesQuery = { __typename?: 'Query', imss: { __typename?: 'IMSConnection', nodes: Array<{ __typename?: 'IMS', id: string, users: { __typename?: 'IMSUserConnection', nodes: Array<{ __typename?: 'IMSUser', id: string }> } }> } };
 
+export type CreateNewImsUserInImsMutationVariables = Exact<{
+  input: CreateImsUserInput;
+}>;
+
+
+export type CreateNewImsUserInImsMutation = { __typename?: 'Mutation', createIMSUser?: { __typename?: 'CreateIMSUserPayload', imsuser?: { __typename?: 'IMSUser', id: string } | null } | null };
+
 export type GetBasicGropiusUserDataQueryVariables = Exact<{
   id: Scalars['ID'];
 }>;
 
 
-export type GetBasicGropiusUserDataQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent' } | { __typename?: 'AddedArtefactEvent' } | { __typename?: 'AddedLabelEvent' } | { __typename?: 'AddedToPinnedIssuesEvent' } | { __typename?: 'AddedToTrackableEvent' } | { __typename?: 'Artefact' } | { __typename?: 'ArtefactTemplate' } | { __typename?: 'Assignment' } | { __typename?: 'AssignmentType' } | { __typename?: 'Body' } | { __typename?: 'ClosedEvent' } | { __typename?: 'Component' } | { __typename?: 'ComponentPermission' } | { __typename?: 'ComponentTemplate' } | { __typename?: 'ComponentVersion' } | { __typename?: 'ComponentVersionTemplate' } | { __typename?: 'DueDateChangedEvent' } | { __typename?: 'EstimatedTimeChangedEvent' } | { __typename?: 'GlobalPermission' } | { __typename?: 'GropiusUser', id: string, username: string, displayName: string, email?: string | null } | { __typename?: 'IMS' } | { __typename?: 'IMSIssue' } | { __typename?: 'IMSIssueTemplate' } | { __typename?: 'IMSPermission' } | { __typename?: 'IMSProject' } | { __typename?: 'IMSProjectTemplate' } | { __typename?: 'IMSTemplate' } | { __typename?: 'IMSUser' } | { __typename?: 'Interface' } | { __typename?: 'InterfaceDefinition' } | { __typename?: 'InterfaceDefinitionTemplate' } | { __typename?: 'InterfacePart' } | { __typename?: 'InterfacePartTemplate' } | { __typename?: 'InterfaceSpecification' } | { __typename?: 'InterfaceSpecificationDerivationCondition' } | { __typename?: 'InterfaceSpecificationTemplate' } | { __typename?: 'InterfaceSpecificationVersion' } | { __typename?: 'InterfaceSpecificationVersionTemplate' } | { __typename?: 'InterfaceTemplate' } | { __typename?: 'IntraComponentDependencyParticipant' } | { __typename?: 'IntraComponentDependencySpecification' } | { __typename?: 'Issue' } | { __typename?: 'IssueComment' } | { __typename?: 'IssuePriority' } | { __typename?: 'IssueRelation' } | { __typename?: 'IssueRelationType' } | { __typename?: 'IssueTemplate' } | { __typename?: 'IssueType' } | { __typename?: 'Label' } | { __typename?: 'PriorityChangedEvent' } | { __typename?: 'Project' } | { __typename?: 'ProjectPermission' } | { __typename?: 'RelatedByIssueEvent' } | { __typename?: 'Relation' } | { __typename?: 'RelationCondition' } | { __typename?: 'RelationTemplate' } | { __typename?: 'RemovedAffectedEntityEvent' } | { __typename?: 'RemovedArtefactEvent' } | { __typename?: 'RemovedAssignmentEvent' } | { __typename?: 'RemovedFromPinnedIssuesEvent' } | { __typename?: 'RemovedFromTrackableEvent' } | { __typename?: 'RemovedIncomingRelationEvent' } | { __typename?: 'RemovedLabelEvent' } | { __typename?: 'RemovedOutgoingRelationEvent' } | { __typename?: 'ReopenedEvent' } | { __typename?: 'SpentTimeChangedEvent' } | { __typename?: 'StartDateChangedEvent' } | { __typename?: 'TemplateFieldChangedEvent' } | { __typename?: 'TitleChangedEvent' } | { __typename?: 'TypeChangedEvent' } | null };
+export type GetBasicGropiusUserDataQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent' } | { __typename?: 'AddedArtefactEvent' } | { __typename?: 'AddedLabelEvent' } | { __typename?: 'AddedToPinnedIssuesEvent' } | { __typename?: 'AddedToTrackableEvent' } | { __typename?: 'Artefact' } | { __typename?: 'ArtefactTemplate' } | { __typename?: 'Assignment' } | { __typename?: 'AssignmentType' } | { __typename?: 'Body' } | { __typename?: 'ClosedEvent' } | { __typename?: 'Component' } | { __typename?: 'ComponentPermission' } | { __typename?: 'ComponentTemplate' } | { __typename?: 'ComponentVersion' } | { __typename?: 'ComponentVersionTemplate' } | { __typename?: 'DueDateChangedEvent' } | { __typename?: 'EstimatedTimeChangedEvent' } | { __typename?: 'GlobalPermission' } | { __typename?: 'GropiusUser', id: string, username: string, displayName: string, email?: string | null } | { __typename?: 'IMS' } | { __typename?: 'IMSIssue' } | { __typename?: 'IMSIssueTemplate' } | { __typename?: 'IMSPermission' } | { __typename?: 'IMSProject' } | { __typename?: 'IMSProjectTemplate' } | { __typename?: 'IMSTemplate' } | { __typename?: 'IMSUser' } | { __typename?: 'IMSUserTemplate' } | { __typename?: 'Interface' } | { __typename?: 'InterfaceDefinition' } | { __typename?: 'InterfaceDefinitionTemplate' } | { __typename?: 'InterfacePart' } | { __typename?: 'InterfacePartTemplate' } | { __typename?: 'InterfaceSpecification' } | { __typename?: 'InterfaceSpecificationDerivationCondition' } | { __typename?: 'InterfaceSpecificationTemplate' } | { __typename?: 'InterfaceSpecificationVersion' } | { __typename?: 'InterfaceSpecificationVersionTemplate' } | { __typename?: 'InterfaceTemplate' } | { __typename?: 'IntraComponentDependencyParticipant' } | { __typename?: 'IntraComponentDependencySpecification' } | { __typename?: 'Issue' } | { __typename?: 'IssueComment' } | { __typename?: 'IssuePriority' } | { __typename?: 'IssueRelation' } | { __typename?: 'IssueRelationType' } | { __typename?: 'IssueTemplate' } | { __typename?: 'IssueType' } | { __typename?: 'Label' } | { __typename?: 'PriorityChangedEvent' } | { __typename?: 'Project' } | { __typename?: 'ProjectPermission' } | { __typename?: 'RelatedByIssueEvent' } | { __typename?: 'Relation' } | { __typename?: 'RelationCondition' } | { __typename?: 'RelationTemplate' } | { __typename?: 'RemovedAffectedEntityEvent' } | { __typename?: 'RemovedArtefactEvent' } | { __typename?: 'RemovedAssignmentEvent' } | { __typename?: 'RemovedFromPinnedIssuesEvent' } | { __typename?: 'RemovedFromTrackableEvent' } | { __typename?: 'RemovedIncomingRelationEvent' } | { __typename?: 'RemovedLabelEvent' } | { __typename?: 'RemovedOutgoingRelationEvent' } | { __typename?: 'ReopenedEvent' } | { __typename?: 'SpentTimeChangedEvent' } | { __typename?: 'StartDateChangedEvent' } | { __typename?: 'TemplateFieldChangedEvent' } | { __typename?: 'TitleChangedEvent' } | { __typename?: 'TypeChangedEvent' } | null };
 
 export type GetUserByNameQueryVariables = Exact<{
   username: Scalars['String'];
@@ -11491,7 +11761,7 @@ export type CheckUserIsAdminQueryVariables = Exact<{
 }>;
 
 
-export type CheckUserIsAdminQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent', id: string } | { __typename?: 'AddedArtefactEvent', id: string } | { __typename?: 'AddedLabelEvent', id: string } | { __typename?: 'AddedToPinnedIssuesEvent', id: string } | { __typename?: 'AddedToTrackableEvent', id: string } | { __typename?: 'Artefact', id: string } | { __typename?: 'ArtefactTemplate', id: string } | { __typename?: 'Assignment', id: string } | { __typename?: 'AssignmentType', id: string } | { __typename?: 'Body', id: string } | { __typename?: 'ClosedEvent', id: string } | { __typename?: 'Component', id: string } | { __typename?: 'ComponentPermission', id: string } | { __typename?: 'ComponentTemplate', id: string } | { __typename?: 'ComponentVersion', id: string } | { __typename?: 'ComponentVersionTemplate', id: string } | { __typename?: 'DueDateChangedEvent', id: string } | { __typename?: 'EstimatedTimeChangedEvent', id: string } | { __typename?: 'GlobalPermission', id: string } | { __typename?: 'GropiusUser', id: string } | { __typename?: 'IMS', id: string } | { __typename?: 'IMSIssue', id: string } | { __typename?: 'IMSIssueTemplate', id: string } | { __typename?: 'IMSPermission', id: string } | { __typename?: 'IMSProject', id: string } | { __typename?: 'IMSProjectTemplate', id: string } | { __typename?: 'IMSTemplate', id: string } | { __typename?: 'IMSUser', id: string } | { __typename?: 'Interface', id: string } | { __typename?: 'InterfaceDefinition', id: string } | { __typename?: 'InterfaceDefinitionTemplate', id: string } | { __typename?: 'InterfacePart', id: string } | { __typename?: 'InterfacePartTemplate', id: string } | { __typename?: 'InterfaceSpecification', id: string } | { __typename?: 'InterfaceSpecificationDerivationCondition', id: string } | { __typename?: 'InterfaceSpecificationTemplate', id: string } | { __typename?: 'InterfaceSpecificationVersion', id: string } | { __typename?: 'InterfaceSpecificationVersionTemplate', id: string } | { __typename?: 'InterfaceTemplate', id: string } | { __typename?: 'IntraComponentDependencyParticipant', id: string } | { __typename?: 'IntraComponentDependencySpecification', id: string } | { __typename?: 'Issue', id: string } | { __typename?: 'IssueComment', id: string } | { __typename?: 'IssuePriority', id: string } | { __typename?: 'IssueRelation', id: string } | { __typename?: 'IssueRelationType', id: string } | { __typename?: 'IssueTemplate', id: string } | { __typename?: 'IssueType', id: string } | { __typename?: 'Label', id: string } | { __typename?: 'PriorityChangedEvent', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'ProjectPermission', id: string } | { __typename?: 'RelatedByIssueEvent', id: string } | { __typename?: 'Relation', id: string } | { __typename?: 'RelationCondition', id: string } | { __typename?: 'RelationTemplate', id: string } | { __typename?: 'RemovedAffectedEntityEvent', id: string } | { __typename?: 'RemovedArtefactEvent', id: string } | { __typename?: 'RemovedAssignmentEvent', id: string } | { __typename?: 'RemovedFromPinnedIssuesEvent', id: string } | { __typename?: 'RemovedFromTrackableEvent', id: string } | { __typename?: 'RemovedIncomingRelationEvent', id: string } | { __typename?: 'RemovedLabelEvent', id: string } | { __typename?: 'RemovedOutgoingRelationEvent', id: string } | { __typename?: 'ReopenedEvent', id: string } | { __typename?: 'SpentTimeChangedEvent', id: string } | { __typename?: 'StartDateChangedEvent', id: string } | { __typename?: 'TemplateFieldChangedEvent', id: string } | { __typename?: 'TitleChangedEvent', id: string } | { __typename?: 'TypeChangedEvent', id: string } | null };
+export type CheckUserIsAdminQuery = { __typename?: 'Query', node?: { __typename?: 'AddedAffectedEntityEvent', id: string } | { __typename?: 'AddedArtefactEvent', id: string } | { __typename?: 'AddedLabelEvent', id: string } | { __typename?: 'AddedToPinnedIssuesEvent', id: string } | { __typename?: 'AddedToTrackableEvent', id: string } | { __typename?: 'Artefact', id: string } | { __typename?: 'ArtefactTemplate', id: string } | { __typename?: 'Assignment', id: string } | { __typename?: 'AssignmentType', id: string } | { __typename?: 'Body', id: string } | { __typename?: 'ClosedEvent', id: string } | { __typename?: 'Component', id: string } | { __typename?: 'ComponentPermission', id: string } | { __typename?: 'ComponentTemplate', id: string } | { __typename?: 'ComponentVersion', id: string } | { __typename?: 'ComponentVersionTemplate', id: string } | { __typename?: 'DueDateChangedEvent', id: string } | { __typename?: 'EstimatedTimeChangedEvent', id: string } | { __typename?: 'GlobalPermission', id: string } | { __typename?: 'GropiusUser', id: string } | { __typename?: 'IMS', id: string } | { __typename?: 'IMSIssue', id: string } | { __typename?: 'IMSIssueTemplate', id: string } | { __typename?: 'IMSPermission', id: string } | { __typename?: 'IMSProject', id: string } | { __typename?: 'IMSProjectTemplate', id: string } | { __typename?: 'IMSTemplate', id: string } | { __typename?: 'IMSUser', id: string } | { __typename?: 'IMSUserTemplate', id: string } | { __typename?: 'Interface', id: string } | { __typename?: 'InterfaceDefinition', id: string } | { __typename?: 'InterfaceDefinitionTemplate', id: string } | { __typename?: 'InterfacePart', id: string } | { __typename?: 'InterfacePartTemplate', id: string } | { __typename?: 'InterfaceSpecification', id: string } | { __typename?: 'InterfaceSpecificationDerivationCondition', id: string } | { __typename?: 'InterfaceSpecificationTemplate', id: string } | { __typename?: 'InterfaceSpecificationVersion', id: string } | { __typename?: 'InterfaceSpecificationVersionTemplate', id: string } | { __typename?: 'InterfaceTemplate', id: string } | { __typename?: 'IntraComponentDependencyParticipant', id: string } | { __typename?: 'IntraComponentDependencySpecification', id: string } | { __typename?: 'Issue', id: string } | { __typename?: 'IssueComment', id: string } | { __typename?: 'IssuePriority', id: string } | { __typename?: 'IssueRelation', id: string } | { __typename?: 'IssueRelationType', id: string } | { __typename?: 'IssueTemplate', id: string } | { __typename?: 'IssueType', id: string } | { __typename?: 'Label', id: string } | { __typename?: 'PriorityChangedEvent', id: string } | { __typename?: 'Project', id: string } | { __typename?: 'ProjectPermission', id: string } | { __typename?: 'RelatedByIssueEvent', id: string } | { __typename?: 'Relation', id: string } | { __typename?: 'RelationCondition', id: string } | { __typename?: 'RelationTemplate', id: string } | { __typename?: 'RemovedAffectedEntityEvent', id: string } | { __typename?: 'RemovedArtefactEvent', id: string } | { __typename?: 'RemovedAssignmentEvent', id: string } | { __typename?: 'RemovedFromPinnedIssuesEvent', id: string } | { __typename?: 'RemovedFromTrackableEvent', id: string } | { __typename?: 'RemovedIncomingRelationEvent', id: string } | { __typename?: 'RemovedLabelEvent', id: string } | { __typename?: 'RemovedOutgoingRelationEvent', id: string } | { __typename?: 'ReopenedEvent', id: string } | { __typename?: 'SpentTimeChangedEvent', id: string } | { __typename?: 'StartDateChangedEvent', id: string } | { __typename?: 'TemplateFieldChangedEvent', id: string } | { __typename?: 'TitleChangedEvent', id: string } | { __typename?: 'TypeChangedEvent', id: string } | null };
 
 export type CreateNewUserMutationVariables = Exact<{
   input: CreateGropiusUserInput;
@@ -11563,6 +11833,8 @@ type OnlyId_ImsProjectTemplate_Fragment = { __typename?: 'IMSProjectTemplate', i
 type OnlyId_ImsTemplate_Fragment = { __typename?: 'IMSTemplate', id: string };
 
 type OnlyId_ImsUser_Fragment = { __typename?: 'IMSUser', id: string };
+
+type OnlyId_ImsUserTemplate_Fragment = { __typename?: 'IMSUserTemplate', id: string };
 
 type OnlyId_Interface_Fragment = { __typename?: 'Interface', id: string };
 
@@ -11648,7 +11920,7 @@ type OnlyId_TitleChangedEvent_Fragment = { __typename?: 'TitleChangedEvent', id:
 
 type OnlyId_TypeChangedEvent_Fragment = { __typename?: 'TypeChangedEvent', id: string };
 
-export type OnlyIdFragment = OnlyId_AddedAffectedEntityEvent_Fragment | OnlyId_AddedArtefactEvent_Fragment | OnlyId_AddedLabelEvent_Fragment | OnlyId_AddedToPinnedIssuesEvent_Fragment | OnlyId_AddedToTrackableEvent_Fragment | OnlyId_Artefact_Fragment | OnlyId_ArtefactTemplate_Fragment | OnlyId_Assignment_Fragment | OnlyId_AssignmentType_Fragment | OnlyId_Body_Fragment | OnlyId_ClosedEvent_Fragment | OnlyId_Component_Fragment | OnlyId_ComponentPermission_Fragment | OnlyId_ComponentTemplate_Fragment | OnlyId_ComponentVersion_Fragment | OnlyId_ComponentVersionTemplate_Fragment | OnlyId_DueDateChangedEvent_Fragment | OnlyId_EstimatedTimeChangedEvent_Fragment | OnlyId_GlobalPermission_Fragment | OnlyId_GropiusUser_Fragment | OnlyId_Ims_Fragment | OnlyId_ImsIssue_Fragment | OnlyId_ImsIssueTemplate_Fragment | OnlyId_ImsPermission_Fragment | OnlyId_ImsProject_Fragment | OnlyId_ImsProjectTemplate_Fragment | OnlyId_ImsTemplate_Fragment | OnlyId_ImsUser_Fragment | OnlyId_Interface_Fragment | OnlyId_InterfaceDefinition_Fragment | OnlyId_InterfaceDefinitionTemplate_Fragment | OnlyId_InterfacePart_Fragment | OnlyId_InterfacePartTemplate_Fragment | OnlyId_InterfaceSpecification_Fragment | OnlyId_InterfaceSpecificationDerivationCondition_Fragment | OnlyId_InterfaceSpecificationTemplate_Fragment | OnlyId_InterfaceSpecificationVersion_Fragment | OnlyId_InterfaceSpecificationVersionTemplate_Fragment | OnlyId_InterfaceTemplate_Fragment | OnlyId_IntraComponentDependencyParticipant_Fragment | OnlyId_IntraComponentDependencySpecification_Fragment | OnlyId_Issue_Fragment | OnlyId_IssueComment_Fragment | OnlyId_IssuePriority_Fragment | OnlyId_IssueRelation_Fragment | OnlyId_IssueRelationType_Fragment | OnlyId_IssueTemplate_Fragment | OnlyId_IssueType_Fragment | OnlyId_Label_Fragment | OnlyId_PriorityChangedEvent_Fragment | OnlyId_Project_Fragment | OnlyId_ProjectPermission_Fragment | OnlyId_RelatedByIssueEvent_Fragment | OnlyId_Relation_Fragment | OnlyId_RelationCondition_Fragment | OnlyId_RelationTemplate_Fragment | OnlyId_RemovedAffectedEntityEvent_Fragment | OnlyId_RemovedArtefactEvent_Fragment | OnlyId_RemovedAssignmentEvent_Fragment | OnlyId_RemovedFromPinnedIssuesEvent_Fragment | OnlyId_RemovedFromTrackableEvent_Fragment | OnlyId_RemovedIncomingRelationEvent_Fragment | OnlyId_RemovedLabelEvent_Fragment | OnlyId_RemovedOutgoingRelationEvent_Fragment | OnlyId_ReopenedEvent_Fragment | OnlyId_SpentTimeChangedEvent_Fragment | OnlyId_StartDateChangedEvent_Fragment | OnlyId_TemplateFieldChangedEvent_Fragment | OnlyId_TitleChangedEvent_Fragment | OnlyId_TypeChangedEvent_Fragment;
+export type OnlyIdFragment = OnlyId_AddedAffectedEntityEvent_Fragment | OnlyId_AddedArtefactEvent_Fragment | OnlyId_AddedLabelEvent_Fragment | OnlyId_AddedToPinnedIssuesEvent_Fragment | OnlyId_AddedToTrackableEvent_Fragment | OnlyId_Artefact_Fragment | OnlyId_ArtefactTemplate_Fragment | OnlyId_Assignment_Fragment | OnlyId_AssignmentType_Fragment | OnlyId_Body_Fragment | OnlyId_ClosedEvent_Fragment | OnlyId_Component_Fragment | OnlyId_ComponentPermission_Fragment | OnlyId_ComponentTemplate_Fragment | OnlyId_ComponentVersion_Fragment | OnlyId_ComponentVersionTemplate_Fragment | OnlyId_DueDateChangedEvent_Fragment | OnlyId_EstimatedTimeChangedEvent_Fragment | OnlyId_GlobalPermission_Fragment | OnlyId_GropiusUser_Fragment | OnlyId_Ims_Fragment | OnlyId_ImsIssue_Fragment | OnlyId_ImsIssueTemplate_Fragment | OnlyId_ImsPermission_Fragment | OnlyId_ImsProject_Fragment | OnlyId_ImsProjectTemplate_Fragment | OnlyId_ImsTemplate_Fragment | OnlyId_ImsUser_Fragment | OnlyId_ImsUserTemplate_Fragment | OnlyId_Interface_Fragment | OnlyId_InterfaceDefinition_Fragment | OnlyId_InterfaceDefinitionTemplate_Fragment | OnlyId_InterfacePart_Fragment | OnlyId_InterfacePartTemplate_Fragment | OnlyId_InterfaceSpecification_Fragment | OnlyId_InterfaceSpecificationDerivationCondition_Fragment | OnlyId_InterfaceSpecificationTemplate_Fragment | OnlyId_InterfaceSpecificationVersion_Fragment | OnlyId_InterfaceSpecificationVersionTemplate_Fragment | OnlyId_InterfaceTemplate_Fragment | OnlyId_IntraComponentDependencyParticipant_Fragment | OnlyId_IntraComponentDependencySpecification_Fragment | OnlyId_Issue_Fragment | OnlyId_IssueComment_Fragment | OnlyId_IssuePriority_Fragment | OnlyId_IssueRelation_Fragment | OnlyId_IssueRelationType_Fragment | OnlyId_IssueTemplate_Fragment | OnlyId_IssueType_Fragment | OnlyId_Label_Fragment | OnlyId_PriorityChangedEvent_Fragment | OnlyId_Project_Fragment | OnlyId_ProjectPermission_Fragment | OnlyId_RelatedByIssueEvent_Fragment | OnlyId_Relation_Fragment | OnlyId_RelationCondition_Fragment | OnlyId_RelationTemplate_Fragment | OnlyId_RemovedAffectedEntityEvent_Fragment | OnlyId_RemovedArtefactEvent_Fragment | OnlyId_RemovedAssignmentEvent_Fragment | OnlyId_RemovedFromPinnedIssuesEvent_Fragment | OnlyId_RemovedFromTrackableEvent_Fragment | OnlyId_RemovedIncomingRelationEvent_Fragment | OnlyId_RemovedLabelEvent_Fragment | OnlyId_RemovedOutgoingRelationEvent_Fragment | OnlyId_ReopenedEvent_Fragment | OnlyId_SpentTimeChangedEvent_Fragment | OnlyId_StartDateChangedEvent_Fragment | OnlyId_TemplateFieldChangedEvent_Fragment | OnlyId_TitleChangedEvent_Fragment | OnlyId_TypeChangedEvent_Fragment;
 
 export type UserDataFragment = { __typename?: 'GropiusUser', id: string, username: string, displayName: string, email?: string | null };
 
@@ -11658,11 +11930,15 @@ export const ImsUserWithDetailFragmentDoc = gql`
   username
   displayName
   email
+  templatedFields {
+    name
+    value
+  }
   ims {
     id
     name
     description
-    templatedFields(namePrefix: "") {
+    templatedFields {
       name
       value
     }
@@ -11699,6 +11975,15 @@ export const GetImsUsersByTemplatedFieldValuesDocument = gql`
           id
         }
       }
+    }
+  }
+}
+    `;
+export const CreateNewImsUserInImsDocument = gql`
+    mutation createNewImsUserInIms($input: CreateIMSUserInput!) {
+  createIMSUser(input: $input) {
+    imsuser {
+      id
     }
   }
 }
@@ -11755,6 +12040,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     getImsUsersByTemplatedFieldValues(variables: GetImsUsersByTemplatedFieldValuesQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetImsUsersByTemplatedFieldValuesQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetImsUsersByTemplatedFieldValuesQuery>(GetImsUsersByTemplatedFieldValuesDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getImsUsersByTemplatedFieldValues', 'query');
+    },
+    createNewImsUserInIms(variables: CreateNewImsUserInImsMutationVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<CreateNewImsUserInImsMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<CreateNewImsUserInImsMutation>(CreateNewImsUserInImsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'createNewImsUserInIms', 'mutation');
     },
     getBasicGropiusUserData(variables: GetBasicGropiusUserDataQueryVariables, requestHeaders?: Dom.RequestInit["headers"]): Promise<GetBasicGropiusUserDataQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetBasicGropiusUserDataQuery>(GetBasicGropiusUserDataDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'getBasicGropiusUserData', 'query');
@@ -11832,6 +12120,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMSIssueTemplate",
       "IMSProjectTemplate",
       "IMSTemplate",
+      "IMSUserTemplate",
       "InterfaceDefinitionTemplate",
       "InterfacePartTemplate",
       "InterfaceSpecificationTemplate",
@@ -11870,6 +12159,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMSProjectTemplate",
       "IMSTemplate",
       "IMSUser",
+      "IMSUserTemplate",
       "Interface",
       "InterfaceDefinition",
       "InterfaceDefinitionTemplate",
@@ -11940,6 +12230,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMSPermission",
       "IMSProjectTemplate",
       "IMSTemplate",
+      "IMSUserTemplate",
       "Interface",
       "InterfaceDefinitionTemplate",
       "InterfacePart",
@@ -11973,6 +12264,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMSIssueTemplate",
       "IMSProjectTemplate",
       "IMSTemplate",
+      "IMSUserTemplate",
       "Interface",
       "InterfaceDefinitionTemplate",
       "InterfacePart",
@@ -12019,6 +12311,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMSProjectTemplate",
       "IMSTemplate",
       "IMSUser",
+      "IMSUserTemplate",
       "Interface",
       "InterfaceDefinition",
       "InterfaceDefinitionTemplate",
@@ -12075,6 +12368,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "ComponentVersionTemplate",
       "IMSIssueTemplate",
       "IMSProjectTemplate",
+      "IMSUserTemplate",
       "InterfaceDefinitionTemplate",
       "InterfacePartTemplate",
       "InterfaceSpecificationVersionTemplate",
@@ -12095,6 +12389,7 @@ export type Sdk = ReturnType<typeof getSdk>;
       "IMS",
       "IMSIssue",
       "IMSProject",
+      "IMSUser",
       "Interface",
       "InterfaceDefinition",
       "InterfacePart",

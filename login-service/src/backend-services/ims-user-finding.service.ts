@@ -8,6 +8,7 @@ import { UserLoginDataService } from "src/model/services/user-login-data.service
 import { StrategiesService } from "src/model/services/strategies.service";
 import { Strategy } from "src/strategies/Strategy";
 import { jsonFieldArrayToObject, objectToJsonFieldArray } from "./JSONField";
+import { BackendUserService } from "./backend-user.service";
 
 @Injectable()
 export class ImsUserFindingService {
@@ -16,6 +17,7 @@ export class ImsUserFindingService {
         private readonly strategiesService: StrategiesService,
         private readonly loginDataService: UserLoginDataService,
         private readonly imsUserService: UserLoginDataImsUserService,
+        private readonly backendUserService: BackendUserService,
     ) {}
 
     /**
@@ -223,10 +225,13 @@ export class ImsUserFindingService {
     async createAndLinkSingleImsUser(
         imsUserId: string,
     ): Promise<UserLoginDataImsUser> {
-        const loginData = await this.findLoginDataForImsUser(imsUserId);
         const existingImsUser = await this.imsUserService.findOneBy({
             neo4jId: imsUserId,
         });
+        if (existingImsUser) {
+            return existingImsUser;
+        }
+        const loginData = await this.findLoginDataForImsUser(imsUserId);
         const otherLoginData = await existingImsUser.loginData;
         if (existingImsUser && otherLoginData.id != loginData.id) {
             throw new Error(`The ims users to link is already assigned to another login data.
@@ -234,15 +239,25 @@ This very likely means the filters of strategy instances overlap or the filters 
 IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, conflicting loginData: ${otherLoginData.id}`);
         }
 
-        const newImsUser = new UserLoginDataImsUser();
+        let newImsUser = new UserLoginDataImsUser();
         newImsUser.neo4jId = imsUserId;
         newImsUser.loginData = Promise.resolve(loginData);
-        return this.imsUserService.save(newImsUser);
+        newImsUser = await this.imsUserService.save(newImsUser);
+
+        const loginUser = await loginData.user;
+        if (loginUser) {
+            this.backendUserService.linkOneImsUserToGropiusUser(
+                loginUser,
+                newImsUser,
+            );
+        }
+
+        return newImsUser;
     }
 
     async findImsUserIdsForLoginData(
         loginData: UserLoginData,
-    ): Promise<string[]> {
+    ): Promise<{ imsUserIds: string[]; imsIdsWithoutImsUsers: string[] }> {
         const strategyInstance = await loginData.strategyInstance;
         const strategy = this.strategiesService.getStrategyByName(
             strategyInstance.type,
@@ -284,28 +299,82 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
             await this.graphqlService.sdk.getImsUsersByTemplatedFieldValues({
                 imsFilterInput: {
                     ...directRequiredIms,
-                    /*templatedFields: requiredImsTemplatedValuesAsArray*/ //todo: uncomment once templated field filters are available
+                    templatedFields: requiredImsTemplatedValuesAsArray,
                 },
                 userFilterInput: {
                     ...directRequiredUser,
-                    /*templatedFields: requiredUserTemplatedFieldsAsArray*/ //todo: uncomment once templated field filters are available
+                    templatedFields: requiredUserTemplatedFieldsAsArray,
                 },
             });
 
         console.log("Retrieved matching imss and ims users:", matchingImsUsers);
-        return matchingImsUsers.imss.nodes.flatMap((ims) =>
-            ims.users.nodes.map((user) => user.id),
+        return {
+            imsUserIds: matchingImsUsers.imss.nodes.flatMap((ims) =>
+                ims.users.nodes.map((user) => user.id),
+            ),
+            imsIdsWithoutImsUsers: matchingImsUsers.imss.nodes
+                .filter((ims) => ims.users.nodes.length == 0)
+                .map((ims) => ims.id),
+        };
+    }
+
+    async createNewImsUserInBackendForLoginDataAndIms(
+        loginData: UserLoginData,
+        imsId: string,
+    ): Promise<string> {
+        const strategyInstance = await loginData.strategyInstance;
+        const strategy = this.strategiesService.getStrategyByName(
+            strategyInstance.type,
         );
+        const templatedFieldValuesForImsUser =
+            strategy.getImsUserTemplatedValuesForLoginData(loginData);
+        const directValues = this.extractFieldsFromObject(
+            templatedFieldValuesForImsUser,
+            ["id", "username", "displayName", "email"],
+        );
+        const templatedValuesAsArray = objectToJsonFieldArray(
+            templatedFieldValuesForImsUser,
+        );
+        let findPossibleDisplayName =
+            directValues["displayName"] ??
+            directValues["username"] ??
+            directValues["email"];
+        if (!findPossibleDisplayName) {
+            for (const key in templatedFieldValuesForImsUser) {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        templatedFieldValuesForImsUser,
+                        key,
+                    )
+                ) {
+                    const value = templatedFieldValuesForImsUser[key];
+                    if (value) {
+                        findPossibleDisplayName = value;
+                        break;
+                    }
+                }
+            }
+        }
+        const result = await this.graphqlService.sdk.createNewImsUserInIms({
+            input: {
+                ims: imsId,
+                username: directValues["username"],
+                displayName: findPossibleDisplayName ?? "Unknown username",
+                email: directValues["email"],
+                templatedFields: templatedValuesAsArray,
+            },
+        });
+        return result.createIMSUser.imsuser.id;
     }
 
     async createAndLinkImsUsersForLoginData(
         loginData: UserLoginData,
     ): Promise<UserLoginDataImsUser[]> {
-        const listOfImsUserIds = await this.findImsUserIdsForLoginData(
-            loginData,
-        );
+        const { imsUserIds, imsIdsWithoutImsUsers } =
+            await this.findImsUserIdsForLoginData(loginData);
+
         const listOfKnownImsUsers = await Promise.all(
-            listOfImsUserIds.map(async (id) => {
+            imsUserIds.map(async (id) => {
                 const imsUser = await this.imsUserService.findOneBy({
                     neo4jId: id,
                 });
@@ -325,8 +394,23 @@ This very likely means the filters of strategy instances overlap or the filters 
 IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}, current login data: ${loginData.id}, conflicting loginData: ${imsUserWithDifferentLoginData.loginDataId}`);
         }
 
+        const backendCreatedImsUsers = await Promise.all(
+            imsIdsWithoutImsUsers
+                .map((ims) =>
+                    this.createNewImsUserInBackendForLoginDataAndIms(
+                        loginData,
+                        ims,
+                    ),
+                )
+                .map(async (idPromise) => {
+                    const id = await idPromise;
+                    return { id, imsUser: null, loginDataId: null };
+                }),
+        );
+
         const newImsUsers = await Promise.all(
             listOfKnownImsUsers
+                .concat(backendCreatedImsUsers)
                 .filter((result) => !result.imsUser)
                 .map((result) => {
                     const user = new UserLoginDataImsUser();
@@ -336,6 +420,18 @@ IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}, curr
                 })
                 .map(async (user) => this.imsUserService.save(user)),
         );
+
+        const loginUser = await loginData.user;
+        if (loginUser) {
+            await Promise.all(
+                newImsUsers.map((imsUser) =>
+                    this.backendUserService.linkOneImsUserToGropiusUser(
+                        loginUser,
+                        imsUser,
+                    ),
+                ),
+            );
+        }
 
         return newImsUsers;
     }

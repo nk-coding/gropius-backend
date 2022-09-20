@@ -162,7 +162,7 @@ export class RegisterController {
             id: userToLinkTo.id,
         });
 
-        await this.backendUserSerivce.linkImsUserToGropiusUser(
+        await this.backendUserSerivce.linkAllImsUsersToGropiusUser(
             userToLinkTo,
             loginData,
         );

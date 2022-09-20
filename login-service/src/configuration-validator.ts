@@ -1,7 +1,9 @@
 import * as Joi from "joi";
 
 export const validationSchema = Joi.object({
-    GROPIUS_INTERNAL_BACKEND_ENDPOINT: Joi.string().uri().required(),
+    GROPIUS_INTERNAL_BACKEND_ENDPOINT: Joi.string()
+        .uri()
+        .default("http://localhost:8081/graphql"),
     GROPIUS_INTERNAL_BACKEND_TOKEN: Joi.string(),
     GROPIUS_INTERNAL_BACKEND_JWT_SECRET: Joi.string().required(),
 

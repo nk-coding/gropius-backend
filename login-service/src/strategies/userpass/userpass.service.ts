@@ -12,6 +12,7 @@ import { LoginUser } from "src/model/postgres/LoginUser";
 import { AuthResult } from "../AuthResult";
 import { StrategyUsingPassport } from "../StrategyUsingPassport";
 import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class UserpassStrategyService extends StrategyUsingPassport {
@@ -26,13 +27,13 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         super(
             "userpass",
             strategyInstanceService,
+            strategiesService,
             passportJwtService,
             true,
             false,
             false,
             false,
         );
-        strategiesService.addStrategy("userpass", this);
     }
 
     override get acceptsVariables(): {
@@ -56,6 +57,17 @@ export class UserpassStrategyService extends StrategyUsingPassport {
         return Object.keys(instanceConfig).length === 0;
     }
 
+    private async generateLoginDataData(
+        password: string,
+    ): Promise<{ password: string }> {
+        return {
+            password: await bcrypt.hash(
+                password,
+                parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10),
+            ),
+        };
+    }
+
     public override createPassportStrategyInstance(
         strategyInstance: StrategyInstance,
     ): passport.Strategy {
@@ -69,13 +81,10 @@ export class UserpassStrategyService extends StrategyUsingPassport {
                 done: (err: any, user: AuthResult | false, info: any) => any,
             ) => {
                 const dataActiveLogin = {};
-                const dataUserLoginData = {
-                    password,
-                };
                 const loginDataCandidates =
                     await loginDataService.findForStrategyWithDataContaining(
                         strategyInstance,
-                        { password },
+                        {},
                     );
                 const loginDataForCorrectUser = await loginDataService
                     .createQueryBuilder("loginData")
@@ -85,20 +94,52 @@ export class UserpassStrategyService extends StrategyUsingPassport {
                         loginDataCandidates.map((candidate) => candidate.id),
                     )
                     .getMany();
-                if (loginDataForCorrectUser.length != 1) {
-                    done(
+
+                if (loginDataForCorrectUser.length <= 0) {
+                    return done(
                         null,
-                        { dataActiveLogin, dataUserLoginData },
+                        {
+                            dataActiveLogin,
+                            dataUserLoginData: await this.generateLoginDataData(
+                                password,
+                            ),
+                            mayRegister: true,
+                        },
+                        { message: "Username or password incorrect" },
+                    );
+                } else if (loginDataForCorrectUser.length > 1) {
+                    return done(
+                        "More than one user with same username",
+                        false,
+                        undefined,
+                    );
+                }
+
+                const hasCorrectPassword = bcrypt.compare(
+                    password,
+                    loginDataForCorrectUser[0].data["password"],
+                );
+
+                if (!hasCorrectPassword) {
+                    return done(
+                        null,
+                        {
+                            dataActiveLogin,
+                            dataUserLoginData: {},
+                            mayRegister: false,
+                        },
                         { message: "Username or password incorrect" },
                     );
                 }
+
                 console.log(`Auth for ${username} with ${password}`);
-                done(
+                return done(
                     null,
                     {
                         loginData: loginDataForCorrectUser[0],
                         dataActiveLogin,
-                        dataUserLoginData,
+                        dataUserLoginData: {},
+                        mayRegister: false,
                     },
                     {},
                 );

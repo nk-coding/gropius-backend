@@ -40,17 +40,23 @@ export class StrategiesMiddleware implements NestMiddleware {
         return instance;
     }
 
-    async performImsUserSearchIfNeeded(state: AuthStateData) {
-        if (typeof state.activeLogin == "object" && state.activeLogin.id) {
-            const imsUserSearchOnModes =
-                process.env.GROPIUS_PERFORM_IMS_USER_SEARCH_ON.split(
-                    ",",
-                ).filter((s) => !!s);
-            if (imsUserSearchOnModes.includes(state.function)) {
-                const loginData = await state.activeLogin.loginInstanceFor;
-                this.imsUserFindingService.createAndLinkImsUsersForLoginData(
-                    loginData,
-                );
+    async performImsUserSearchIfNeeded(
+        state: AuthStateData,
+        instance: StrategyInstance,
+        strategy: Strategy,
+    ) {
+        if (strategy.canSync && instance.isSyncActive) {
+            if (typeof state.activeLogin == "object" && state.activeLogin.id) {
+                const imsUserSearchOnModes =
+                    process.env.GROPIUS_PERFORM_IMS_USER_SEARCH_ON.split(
+                        ",",
+                    ).filter((s) => !!s);
+                if (imsUserSearchOnModes.includes(state.function)) {
+                    const loginData = await state.activeLogin.loginInstanceFor;
+                    await this.imsUserFindingService.createAndLinkImsUsersForLoginData(
+                        loginData,
+                    );
+                }
             }
         }
     }
@@ -99,7 +105,11 @@ export class StrategiesMiddleware implements NestMiddleware {
                     strategy,
                 );
             res.locals.state = { ...res.locals.state, ...executionResult };
-            await this.performImsUserSearchIfNeeded(res.locals.state);
+            await this.performImsUserSearchIfNeeded(
+                res.locals.state,
+                instance,
+                strategy,
+            );
         } else {
             (res.locals.state as AuthStateData).authErrorMessage =
                 result.info?.message?.toString() ||

@@ -14,6 +14,9 @@ export class BackendUserService {
 
     async checkIsUserAdmin(user: LoginUser): Promise<boolean> {
         // todo: adapt once actual query is available
+        if (!user.neo4jId) {
+            throw new Error("User without neo4jId: " + user.id);
+        }
         return (
             true ||
             (
@@ -30,6 +33,7 @@ export class BackendUserService {
     ): Promise<LoginUser> {
         let loginUser = new LoginUser();
         loginUser.username = input.username;
+        loginUser.revokeTokensBefore = new Date();
         loginUser = await this.loginUserService.save(loginUser);
         try {
             const backendUser = await this.graphqlService.sdk.createNewUser({
@@ -56,6 +60,9 @@ export class BackendUserService {
         loginUser: LoginUser,
         loginData: UserLoginData,
     ) {
+        if (!loginUser.neo4jId) {
+            throw new Error("User without neo4jId: " + loginUser.id);
+        }
         const gropiusUserId = loginUser.neo4jId;
         if (!gropiusUserId) {
             throw new Error("Login user has no gropius user associated");

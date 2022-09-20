@@ -5,6 +5,7 @@ import { ActiveLogin } from "src/model/postgres/ActiveLogin";
 import { LoginUser } from "src/model/postgres/LoginUser";
 import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { UserLoginData } from "src/model/postgres/UserLoginData";
+import { StrategiesService } from "src/model/services/strategies.service";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
 import { AuthResult, AuthStateData } from "./AuthResult";
 
@@ -18,12 +19,15 @@ export interface StrategyVariable {
 export abstract class Strategy {
     constructor(
         public readonly typeName: string,
-        private readonly strategyInstanceService: StrategyInstanceService,
+        protected readonly strategyInstanceService: StrategyInstanceService,
+        protected readonly strategiesService: StrategiesService,
         public readonly canLoginRegister: boolean = true,
         public readonly canSync: boolean = false,
         public readonly needsRedirectFlow = false,
         public readonly allowsImplicitSignup = false,
-    ) {}
+    ) {
+        strategiesService.addStrategy(typeName, this);
+    }
 
     /**
      * Checks the given config for a instance of this strategy for validity
@@ -107,7 +111,8 @@ export abstract class Strategy {
             input.isSyncActive,
         );
         if (createNew || input.name !== undefined) {
-            instance.name = input.name?.replace(/[^a-zA-Z0-9-_ ]/g, "") ?? null;
+            instance.name =
+                input.name?.replace(/[^a-zA-Z0-9+/\-_= ]/g, "") ?? null;
         }
         if (createNew || input.instanceConfig) {
             instance.instanceConfig = input.instanceConfig;

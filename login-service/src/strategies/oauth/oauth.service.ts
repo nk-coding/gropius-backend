@@ -27,13 +27,13 @@ export class OauthStrategyService extends StrategyUsingPassport {
         super(
             "oauth",
             strategyInstanceService,
+            strategiesService,
             passportJwtService,
             true,
             true,
             true,
             true,
         );
-        strategiesService.addStrategy("oauth", this);
     }
 
     protected override checkInstanceConfig(
@@ -160,7 +160,11 @@ export class OauthStrategyService extends StrategyUsingPassport {
                             );
                             done(
                                 null,
-                                { dataActiveLogin, dataUserLoginData },
+                                {
+                                    dataActiveLogin,
+                                    dataUserLoginData,
+                                    mayRegister: true,
+                                },
                                 { message: "No unique user found" },
                             );
                         } else {
@@ -170,6 +174,7 @@ export class OauthStrategyService extends StrategyUsingPassport {
                                     loginData: loginDataCandidates[0],
                                     dataActiveLogin,
                                     dataUserLoginData,
+                                    mayRegister: true,
                                 },
                                 {},
                             );

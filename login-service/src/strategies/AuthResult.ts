@@ -19,4 +19,5 @@ export interface AuthResult {
     dataActiveLogin: object;
     dataUserLoginData: object;
     loginData?: UserLoginData;
+    mayRegister: boolean;
 }

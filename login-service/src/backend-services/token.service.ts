@@ -34,6 +34,9 @@ export class TokenService {
         expiresIn?: number,
     ): Promise<string> {
         const expiryObject = !!expiresIn ? { expiresIn: expiresIn / 1000 } : {};
+        if (!user.neo4jId) {
+            throw new Error("Login user without neo4jId: " + user.id);
+        }
         return this.backendJwtService.sign(
             {},
             {

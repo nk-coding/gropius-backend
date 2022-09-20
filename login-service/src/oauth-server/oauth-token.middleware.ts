@@ -14,6 +14,8 @@ import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.mid
 import * as bcrypt from "bcrypt";
 import { ensureState } from "src/strategies/utils";
 import { OauthServerStateData } from "./oauth-autorize.middleware";
+import { PostCredentialsMiddleware } from "./post-credentials.middleware";
+import { OauthHttpException } from "./OauthHttpException";
 
 @Injectable()
 export class OauthTokenMiddleware implements NestMiddleware {
@@ -22,6 +24,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
         private readonly authClientService: AuthClientService,
         private readonly tokenResponseCodeMiddleware: TokenAuthorizationCodeMiddleware,
         private readonly strategiesMiddleware: StrategiesMiddleware,
+        private readonly postCredentialsMiddleware: PostCredentialsMiddleware,
     ) {}
 
     private async checkGivenClientSecretValidOrNotRequired(
@@ -37,7 +40,10 @@ export class OauthTokenMiddleware implements NestMiddleware {
         const hasCorrectClientSecret = (
             await Promise.all(
                 client.clientSecrets.map((hashedSecret) =>
-                    bcrypt.compare(givenSecret, hashedSecret),
+                    bcrypt.compare(
+                        givenSecret,
+                        hashedSecret.substring(hashedSecret.indexOf(";") + 1),
+                    ),
                 ),
             )
         ).includes(true);
@@ -93,6 +99,12 @@ export class OauthTokenMiddleware implements NestMiddleware {
         console.log(req.params);
 
         const client = await this.getCallingClient(req);
+        if (!client) {
+            throw new OauthHttpException(
+                "unauthorized_client",
+                "Unknown client or invalid client credentials",
+            );
+        }
         (res.locals.state as OauthServerStateData).client = client;
 
         const grant_type = req.body.grant_type;
@@ -100,7 +112,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
             case "refresh_token": //Request for new token using refresh token
             //Fallthrough as resfrehsh token works the same as the initial code (both used to obtain new access token)
             case "authorization_code": //Request for token based on obtained code
-                this.tokenResponseCodeMiddleware.use(req, res, () => {
+                await this.tokenResponseCodeMiddleware.use(req, res, () => {
                     console.log("authorization_code called next");
                     next();
                 });
@@ -108,7 +120,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
             case "password": //Request for token immediately containing username + password
             //Fallthrough to custom grant where all credentials are acceptd
             case "post_credentials": //Extension/Non standard: Request for token immediately containing credentials
-                this.strategiesMiddleware.use(req, res, () => {
+                await this.postCredentialsMiddleware.use(req, res, () => {
                     console.log("password/post_credentials called next");
                     next();
                 });

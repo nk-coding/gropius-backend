@@ -6,8 +6,8 @@ export class LoginUser {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column({ unique: true })
-    neo4jId: string;
+    @Column({ unique: true, nullable: true })
+    neo4jId: string | null;
 
     @Column({ unique: true })
     username: string;

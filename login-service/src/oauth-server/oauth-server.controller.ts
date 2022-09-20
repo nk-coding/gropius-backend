@@ -104,6 +104,7 @@ export class OauthServerController {
     private async updateRefreshTokenIdAndExpirationDate(
         activeLogin: ActiveLogin,
         isRegisterLogin: boolean,
+        currentClient: AuthClient,
     ): Promise<ActiveLogin> {
         const loginExpiresIn = parseInt(
             process.env.GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS,
@@ -122,6 +123,7 @@ export class OauthServerController {
                 );
         }
         activeLogin.nextExpectedRefreshTokenNumber++;
+        activeLogin.createdByClient = Promise.resolve(currentClient);
         return await this.activeLoginService.save(activeLogin);
     }
 
@@ -154,6 +156,7 @@ export class OauthServerController {
         activeLogin = await this.updateRefreshTokenIdAndExpirationDate(
             activeLogin,
             loginData.state == LoginState.WAITING_FOR_REGISTER,
+            currentClient,
         );
 
         const refreshToken = await this.tokenService.signActiveLoginCode(

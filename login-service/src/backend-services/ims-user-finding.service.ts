@@ -245,7 +245,7 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
     ): Promise<string[]> {
         const strategyInstance = await loginData.strategyInstance;
         const strategy = this.strategiesService.getStrategyByName(
-            strategyInstance.name,
+            strategyInstance.type,
         );
 
         const requiredImsTemplatedValues =

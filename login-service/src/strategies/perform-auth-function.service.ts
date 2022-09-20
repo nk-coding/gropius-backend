@@ -196,6 +196,13 @@ export class PerformAuthFunctionService {
                     instance.doesImplicitRegister &&
                     state.function == AuthFunction.LOGIN)
             ) {
+                if (!authResult.mayRegister) {
+                    console.error(
+                        "Strategy did not provide existing loginData but it did not allow registering",
+                    );
+                    return { authErrorMessage: "Invalid user credentials." };
+                }
+
                 return this.registerNewUser(
                     authResult,
                     instance,

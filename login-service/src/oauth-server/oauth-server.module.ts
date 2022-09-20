@@ -9,6 +9,7 @@ import { OauthAutorizeMiddleware } from "./oauth-autorize.middleware";
 import { OauthRedirectMiddleware } from "./oauth-redirect.middleware";
 import { OauthServerController } from "./oauth-server.controller";
 import { OauthTokenMiddleware } from "./oauth-token.middleware";
+import { PostCredentialsMiddleware } from "./post-credentials.middleware";
 import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.middleware";
 
 @Module({
@@ -18,6 +19,7 @@ import { TokenAuthorizationCodeMiddleware } from "./token-authorization-code.mid
         OauthRedirectMiddleware,
         OauthTokenMiddleware,
         TokenAuthorizationCodeMiddleware,
+        PostCredentialsMiddleware,
     ],
     controllers: [OauthServerController],
 })

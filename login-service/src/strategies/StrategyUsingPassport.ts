@@ -4,11 +4,13 @@ import { StrategyInstance } from "src/model/postgres/StrategyInstance";
 import { AuthStateData, AuthResult } from "./AuthResult";
 import { JwtService } from "@nestjs/jwt";
 import { StrategyInstanceService } from "src/model/services/strategy-instance.service";
+import { StrategiesService } from "src/model/services/strategies.service";
 
 export abstract class StrategyUsingPassport extends Strategy {
     constructor(
         typeName: string,
         strategyInstanceService: StrategyInstanceService,
+        strategiesService: StrategiesService,
         protected readonly passportJwtService: JwtService,
         canLoginRegister = true,
         canSync = false,
@@ -18,6 +20,7 @@ export abstract class StrategyUsingPassport extends Strategy {
         super(
             typeName,
             strategyInstanceService,
+            strategiesService,
             canLoginRegister,
             canSync,
             needsRedirectFlow,

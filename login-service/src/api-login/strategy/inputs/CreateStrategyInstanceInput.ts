@@ -22,9 +22,9 @@ export function createStrategyInstanceInputCheck(
             HttpStatus.BAD_REQUEST,
         );
     }
-    if (input.name != undefined && !input.name.match(/[^a-zA-Z0-9_\- ]/g)) {
+    if (input.name != undefined && !input.name.match(/[^a-zA-Z0-9+/\-_= ]/g)) {
         throw new HttpException(
-            "Name of strategy instance may only contain alphanumeric characters, -, _ and space",
+            "Name of strategy instance may only contain alphanumeric characters, -, _, +, /, = and space",
             HttpStatus.BAD_REQUEST,
         );
     }

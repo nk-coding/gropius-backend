@@ -20,6 +20,7 @@ import {
     ApiOAuth2,
     ApiOkResponse,
     ApiOperation,
+    ApiParam,
     ApiTags,
 } from "@nestjs/swagger";
 import { Response } from "express";
@@ -89,6 +90,12 @@ export class AuthClientController {
     @Get(":id")
     @NeedsAdmin()
     @ApiOperation({ summary: "Details of one auth client (incl. censored secrets)" })
+    @ApiParam({
+        name: "id",
+        type: String,
+        format: "uuid",
+        description: "The uuid string of an existing auth client to return",
+    })
     @ApiOkResponse({
         type: GetAuthClientResponse,
         description: "The auth client with the requested id",
@@ -167,6 +174,7 @@ export class AuthClientController {
     @Put(":id")
     @NeedsAdmin()
     @ApiOperation({ summary: "Edit existing auth client" })
+    @ApiParam({ name: "id", format: "uuid", type: String, description: "The uuid string of an existing auth client" })
     @ApiOkResponse({
         description: "The auth client was successfully updated",
         type: AuthClient,
@@ -210,6 +218,12 @@ export class AuthClientController {
     @Delete(":id")
     @NeedsAdmin()
     @ApiOperation({ summary: "Permanently delete existing auth client" })
+    @ApiParam({
+        name: "id",
+        type: String,
+        format: "uuid",
+        description: "The uuid string of an existing auth client to delete",
+    })
     @ApiOkResponse({
         description: "If deletion succeeded, the default response",
         type: DefaultReturn,
@@ -242,6 +256,7 @@ export class AuthClientController {
     @Get(":id/clientSecret")
     @NeedsAdmin()
     @ApiOperation({ summary: "List all client secrets (censored) of auth client" })
+    @ApiParam({ name: "id", type: String, format: "uuid", description: "The uuid string of an existing auth client" })
     @ApiOkResponse({
         type: [CensoredClientSecret],
         description: "All client secrets of the auth client (censored)",
@@ -271,6 +286,12 @@ export class AuthClientController {
     @Post(":id/clientSecret")
     @NeedsAdmin()
     @ApiOperation({ summary: "Generate and return new client secret for auth client" })
+    @ApiParam({
+        name: "id",
+        type: String,
+        format: "uuid",
+        description: "The uuid string of an existing auth client to create the secret for",
+    })
     @ApiCreatedResponse({
         type: CreateAuthClientSecretResponse,
         description:
@@ -302,6 +323,17 @@ export class AuthClientController {
     @Delete(":id/clientSecret/:fingerprint")
     @NeedsAdmin()
     @ApiOperation({ summary: "Delete a client secret of auch client" })
+    @ApiParam({
+        name: "id",
+        type: String,
+        format: "uuid",
+        description: "The uuid string of an existing auth client to delete",
+    })
+    @ApiParam({
+        name: "fingerprint",
+        type: String,
+        description: "The uuid string of an existing auth client to delete",
+    })
     @ApiOkResponse({
         type: DefaultReturn,
         description: 'If deletion was successfull, the default response with operation "delete-clientSecret"',
@@ -309,7 +341,7 @@ export class AuthClientController {
     @ApiNotFoundResponse({
         description:
             "If no id or no fingerprint was given, no auth client with the given id was found " +
-            " or no secret with the given fingerprint was found",
+            "or no secret with the given fingerprint was found",
     })
     async deleteClientSecret(
         @Param("id") id: string,

@@ -1,13 +1,13 @@
 package gropius.sync.github.utils
 
 import com.apollographql.apollo3.ApolloClient
-import gropius.sync.github.model.RepoDescription
 import gropius.sync.github.config.IMSProjectConfig
 import gropius.sync.github.generated.IssueReadQuery
 import gropius.sync.github.generated.IssueReadQuery.Data.Companion.metaData
 import gropius.sync.github.generated.IssueReadQuery.Data.Repository.Issues.PageInfo.Companion.pageInfoData
 import gropius.sync.github.generated.fragment.IssueDataExtensive
 import gropius.sync.github.model.IssueDataCache
+import gropius.sync.github.model.RepoDescription
 import gropius.sync.github.model.RepositoryInfo
 import gropius.sync.github.repository.RepositoryInfoRepository
 import kotlinx.coroutines.flow.Flow

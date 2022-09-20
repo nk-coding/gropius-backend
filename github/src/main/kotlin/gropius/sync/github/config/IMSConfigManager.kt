@@ -138,10 +138,11 @@ class IMSConfigManager(
         /**
          * Fields of the required IMSIssueTemplate
          */
-        private val IMS_USER_TEMPLATE_FIELDS = mapOf("github_id" to obj {
-            "\$schema" to SCHEMA
-            "type" to arr["null", "string"]
-        }.toString()
+        private val IMS_USER_TEMPLATE_FIELDS = mapOf(
+            "github_id" to obj {
+                "\$schema" to SCHEMA
+                "type" to arr["null", "string"]
+            }.toString()
         )
     }
 

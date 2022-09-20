@@ -10,6 +10,9 @@ import gropius.model.user.IMSUser
 import gropius.model.user.User
 import gropius.repository.issue.IssueRepository
 import gropius.repository.user.IMSUserRepository
+import gropius.sync.JsonHelper
+import gropius.sync.SyncNotificator
+import gropius.sync.github.config.IMSProjectConfig
 import gropius.sync.github.generated.*
 import gropius.sync.github.generated.MutateAddLabelMutation.Data.AddLabelsToLabelable.Labelable.Companion.asIssue
 import gropius.sync.github.generated.MutateCreateLabelMutation.Data.CreateLabel.Label.Companion.labelData
@@ -19,6 +22,7 @@ import gropius.sync.github.model.LabelInfo
 import gropius.sync.github.repository.IssueInfoRepository
 import gropius.sync.github.repository.LabelInfoRepository
 import gropius.sync.github.repository.TimelineEventInfoRepository
+import gropius.sync.github.utils.TimelineItemHandler
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.awaitSingle
 import org.neo4j.cypherdsl.core.Cypher
@@ -143,7 +147,9 @@ class Outgoing(
             token = extractUserToken(imsProjectConfig, user)
         }
         if (token == null) {
-            token = tokenManager.getTokenForIMSUser(imsProjectConfig.imsConfig, null)
+            token = tokenManager.getTokenForIMSUser(
+                imsProjectConfig.imsConfig.ims, imsProjectConfig.imsConfig.readUser, null
+            )
         }
         return ApolloClient.Builder().serverUrl(imsProjectConfig.imsConfig.graphQLUrl.toString())
             .addHttpHeader("Authorization", "bearer $token")
@@ -230,7 +236,7 @@ class Outgoing(
                     issueInfo.githubId, label.name, label.description, label.color
                 )
             ).execute()
-            val newLabel = createLabelResponse?.data?.createLabel?.label?.labelData()
+            val newLabel = createLabelResponse.data?.createLabel?.label?.labelData()
             if (newLabel != null) {
                 nodeSourcerer.ensureLabel(imsProjectConfig, newLabel)
                 val response = client.mutation(MutateAddLabelMutation(issueInfo.githubId, newLabel.id)).execute()
@@ -353,7 +359,7 @@ class Outgoing(
         return timeline.mapNotNull { it as? IssueComment }
             .filter { timelineEventInfoRepository.findByNeo4jId(it.rawId!!) == null }.flatMap {
                 githubPostComment(
-                    imsProjectConfig, issueInfo, it as IssueComment, it.lastModifiedBy().value
+                    imsProjectConfig, issueInfo, it, it.lastModifiedBy().value
                 )
             }
     }

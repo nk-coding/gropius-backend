@@ -1,4 +1,4 @@
-package gropius.sync.github
+package gropius.sync.github.config
 
 import com.lectra.koson.arr
 import com.lectra.koson.obj

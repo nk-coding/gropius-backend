@@ -7,144 +7,147 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 const apiSidebar = require('./sidebars').apiSidebar
 const graphqlSidebar = require('./sidebars').graphqlSidebar
 
-/** @type {import('@docusaurus/types').Config} */
-const config = {
-    title: 'Gropius Backend',
-    url: 'https://ccims.github.io/',
-    baseUrl: '/gropius-backend-docs/',
-    onBrokenLinks: 'throw',
-    onBrokenMarkdownLinks: 'throw',
-    onDuplicateRoutes: 'throw',
-    organizationName: 'ccims',
-    projectName: 'gropius-backend-docs',
-    trailingSlash: false,
+async function createConfig() {
+    const mdxMermaid = await import('mdx-mermaid')
 
-    presets: [
-        [
-            '@docusaurus/preset-classic',
-            /** @type {import('@docusaurus/preset-classic').Options} */
+    return {
+        title: 'Gropius Backend',
+        url: 'https://ccims.github.io/',
+        baseUrl: '/gropius-backend-docs/',
+        onBrokenLinks: 'throw',
+        onBrokenMarkdownLinks: 'throw',
+        onDuplicateRoutes: 'throw',
+        organizationName: 'ccims',
+        projectName: 'gropius-backend-docs',
+        trailingSlash: false,
+
+        presets: [
+            [
+                '@docusaurus/preset-classic',
+                ({
+                    docs: {
+                        sidebarPath: require.resolve('./sidebars.js'),
+                        routeBasePath: '/',
+                        docLayoutComponent: "@theme/DocPage",
+                        docItemComponent: "@theme/ApiItem",
+                        remarkPlugins: [mdxMermaid.default],
+                    },
+                    blog: false,
+                    theme: {
+                        customCss: [require.resolve('./src/css/custom.css')],
+                    },
+                }),
+            ],
+        ],
+
+        themeConfig:
+            /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
             ({
-                docs: {
-                    sidebarPath: require.resolve('./sidebars.js'),
-                    routeBasePath: '/',
-                    docLayoutComponent: "@theme/DocPage",
-                    docItemComponent: "@theme/ApiItem"
+                colorMode: {
+                    defaultMode: 'dark',
                 },
-                blog: false,
-                theme: {
-                    customCss: [require.resolve('./src/css/custom.css')],
+                navbar: {
+                    title: 'Gropius Backend',
+                    items: [{
+                        type: 'doc',
+                        docId: 'docs/docs',
+                        position: 'left',
+                        label: 'Docs',
+                    },
+                    {
+                        type: 'doc',
+                        docId: apiSidebar[0]?.items[0]?.id ?? apiSidebar[0]?.items[0]?.link?.id ?? "docs/docs",
+                        position: 'left',
+                        label: 'API',
+                    },
+                    {
+                        type: 'doc',
+                        docId: 'graphql/api-public',
+                        position: 'left',
+                        label: "GraphQL"
+                    },
+                    {
+                        type: 'doc',
+                        docId: 'rest/login-service/gropius-login-service',
+                        position: 'left',
+                        label: 'REST'
+                    },
+                    {
+                        href: 'https://github.com/ccims/gropius-backend',
+                        label: 'GitHub',
+                        position: 'right',
+                    },
+                    ],
+                },
+                footer: {
+                    style: 'dark',
+                    copyright: `Built with Docusaurus.`,
+                },
+                prism: {
+                    theme: lightCodeTheme,
+                    darkTheme: darkCodeTheme,
+                    defaultLanguage: 'kotlin',
+                    additionalLanguages: ['kotlin'],
                 },
             }),
-        ],
-    ],
 
-    themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-        ({
-        colorMode: {
-            defaultMode: 'dark',
-        },
-        navbar: {
-            title: 'Gropius Backend',
-            items: [{
-                    type: 'doc',
-                    docId: 'docs/docs',
-                    position: 'left',
-                    label: 'Docs',
-                },
+        plugins: [
+            () => ({
+                name: 'custom-webpack-loaders',
+                configureWebpack: () => ({
+                    module: {
+                        rules: [
+                            {
+                                test: /\.source$/,
+                                type: 'asset/source'
+                            }
+                        ]
+                    }
+                })
+            }),
+            [
+                "@edno/docusaurus2-graphql-doc-generator",
                 {
-                    type: 'doc',
-                    docId: apiSidebar[0]?.items[0]?.id ?? apiSidebar[0]?.items[0]?.link?.id ?? "docs/docs",
-                    position: 'left',
-                    label: 'API',
-                },
-                {
-                    type: 'doc',
-                    docId: 'graphql/api-public',
-                    position: 'left',
-                    label: "GraphQL"
-                },
-                {
-                    type: 'doc',
-                    docId: 'rest/login-service/gropius-login-service',
-                    position: 'left',
-                    label: 'REST'
-                },
-                {
-                    href: 'https://github.com/ccims/gropius-backend',
-                    label: 'GitHub',
-                    position: 'right',
+                    id: "api-public",
+                    schema: "./schemas/api-public.gql",
+                    rootPath: "./docs",
+                    baseURL: "graphql/api-public",
+                    docOptions: {
+                        index: true
+                    }
                 },
             ],
-        },
-        footer: {
-            style: 'dark',
-            copyright: `Built with Docusaurus.`,
-        },
-        prism: {
-            theme: lightCodeTheme,
-            darkTheme: darkCodeTheme,
-            defaultLanguage: 'kotlin',
-            additionalLanguages: ['kotlin'],
-        },
-    }),
-
-    plugins: [
-        () => ({
-            name: 'custom-webpack-loaders',
-            configureWebpack: () => ({
-                module: {
-                    rules: [
-                        {
-                            test: /\.source$/,
-                            type: 'asset/source'
-                        }
-                    ]
-                }
-            })
-        }),
-        [
-            "@edno/docusaurus2-graphql-doc-generator",
-            {
-                id: "api-public",
-                schema: "./schemas/api-public.gql",
-                rootPath: "./docs",
-                baseURL: "graphql/api-public",
-                docOptions: {
-                    index: true
-                }
-            },
-        ],
-        [
-            "@edno/docusaurus2-graphql-doc-generator",
-            {
-                id: "api-internal",
-                schema: "./schemas/api-internal.gql",
-                rootPath: "./docs",
-                baseURL: "graphql/api-internal",
-                docOptions: {
-                    index: true
-                }
-            },
-        ],
-        [
-            "docusaurus-plugin-openapi-docs",
-            {
-                id: "rest",
-                docsPluginId: "@docusaurus/preset-classic",
-                config: {
-                    "login-service": {
-                        specPath: "schemas/login.json",
-                        outputDir: "docs/rest/login-service",
-                        sidebarOptions: {
-                            groupPathsBy: "tag"
+            [
+                "@edno/docusaurus2-graphql-doc-generator",
+                {
+                    id: "api-internal",
+                    schema: "./schemas/api-internal.gql",
+                    rootPath: "./docs",
+                    baseURL: "graphql/api-internal",
+                    docOptions: {
+                        index: true
+                    }
+                },
+            ],
+            [
+                "docusaurus-plugin-openapi-docs",
+                {
+                    id: "rest",
+                    docsPluginId: "@docusaurus/preset-classic",
+                    config: {
+                        "login-service": {
+                            specPath: "schemas/login.json",
+                            outputDir: "docs/rest/login-service",
+                            sidebarOptions: {
+                                groupPathsBy: "tag"
+                            }
                         }
                     }
                 }
-            }
-        ]
-    ],
-    themes: ["docusaurus-theme-openapi-docs"]
-};
+            ]
+        ],
+        themes: ["docusaurus-theme-openapi-docs"]
+    };
+}
 
-module.exports = config;
+module.exports = createConfig;

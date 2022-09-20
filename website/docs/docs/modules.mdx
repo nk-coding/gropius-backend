@@ -5,9 +5,9 @@ slug: /modules
 
 # Modules
 
-## Runnable Modules
+# Runnable Modules
 
-### api-public
+## api-public
 
 The main GraphQL API of the backend.
 Can safely be publicly exposed and can be horizontally scaled. 
@@ -18,41 +18,140 @@ Authorization: Bearer token
 Authorization can be disabled for debugging purposes by setting `gropius.api.debugNoAuthentication=true`, however, note that mutations still require the token to determine the user (however permissions will not be checked).  
 Depends on [api-common](#api-common)
 
-#### Configuration Properties
-|Name|Default value|Description|
+#### Configuration
+|Spring property|Default value|Description|
 |--|--|--|
 |gropius.api.public.debugNoAuthentication|`false`|If `true`, authorization is disabled|
 |gropius.api.public.jwtSecret|- (required)|Secret for JWT validation|
 
-### api-internal
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+
+#### Run
+```sh
+./gradlew api-public:bootRun
+```
+
+## api-internal
 
 The internal GraphQL API of the backend.
 MUST NOT be publicly exposed as no authentication or authorization is done.
 Can be horizontally scaled.  
 Depends on [api-common](#api-common)
 
-### github
+#### Configuration
+
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+
+#### Run
+```sh
+./gradlew api-internal:bootRun
+```
+
+## login-service
+
+Nodejs/Nestjs service that does the user management and authentication for the gropius-backend.
+It will generate tokens for the user to use to identify against the api.
+
+#### Configuration
+TODO
+
+#### Requirements
+- Node >= 16.17.0
+
+#### Dependencies
+- Postgres database
+- internal-api
+
+#### Run
+```sh
+# install
+./gradlew login-service:npm_install
+# run
+./gradlew login-service:npm_start
+```
+
+## github
 
 Github sync that executes exactly one sync cycle.
 May not be executed more than once at the same time.
 Documentation about the concept can be found [here](github.mdx).  
 Depends on [sync](#sync)
 
-## Abstract Modules
+#### Configuration
 
-### core
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+- MongoDB database
+- login-service
+
+#### Run
+```sh
+./gradlew github:bootRun
+```
+
+# Abstract Modules
+
+## core
 
 The core part of the Gropius backend, contains the domain model as well as service and repository classes.  
 Requires a Neo4j database, for the configuration see [Configure the project](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project).
 
-### api-common
+#### Configuration
+
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+
+## api-common
 
 Contains common functionality for [api-public](#api-public) and [api-internal](#api-internal).  
-By default, the API is provided on port 8080 at the endpoint `/graphql`, a GraphQL Playground can be found at `/playground`. 
+By default, the API is provided on port 8080 at the endpoint `/graphql`, a GraphiQL can be found at `/graphiql`. 
 For the configuration of the GraphQL endpoints, see [Configuration Properties](https://opensource.expediagroup.com/graphql-kotlin/docs/server/spring-server/spring-properties).  
 Depends on [core](#core)
 
-### sync
+#### Configuration
+
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+
+## sync
 
 Contains abstract helpers for general sync development.  
 Depends on [core](#core)
+
+#### Configuration
+
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) and Spring Data MonoDB is required.
+
+#### Requirements
+- Java >= 17
+
+#### Dependencies
+- Neo4j database
+- login-service

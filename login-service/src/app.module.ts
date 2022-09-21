@@ -4,7 +4,6 @@ import { LazyModuleLoader, RouterModule } from "@nestjs/core";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ApiLoginModule } from "./api-login/api-login.module";
 import { ApiSyncModule } from "./api-sync/api-sync.module";
-import { AppController } from "./app.controller";
 import { ModelModule } from "./model/model.module";
 import { StrategiesModule } from "./strategies/strategies.module";
 import { BackendServicesModule } from "./backend-services/backend-services.module";
@@ -60,7 +59,7 @@ import { optioalGlobalTypeOrm } from "./optinalPostgreModule";
         ]),
         BackendServicesModule,
     ],
-    controllers: [AppController],
+    controllers: [],
     providers: [],
 })
 export class AppModule {}

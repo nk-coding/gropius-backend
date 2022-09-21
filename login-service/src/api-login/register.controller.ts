@@ -57,7 +57,7 @@ export class RegisterController {
      * For the creation to succeed, the registration token and the registration may not be expired yet.
      *
      * @param input The input data for creating a new user
-     * @returns The Default Return with operation "self-register"
+     * @returns The default return with operation "self-register"
      */
     @Post("self-register")
     @ApiOperation({ summary: "Self register (create user) using registration token" })

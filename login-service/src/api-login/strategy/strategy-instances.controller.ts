@@ -194,6 +194,7 @@ export class StrategyInstancesController {
      * @returns If successful, the updated strategy instance.
      */
     @Put(["strategyInstance/:id", "strategy/:type/instance/:id"])
+    @ApiTags(OpenApiTag.LOGIN_API, OpenApiTag.LOGIN_API)
     @UseGuards(CheckAccessTokenGuard)
     @NeedsAdmin()
     @ApiOperation({ summary: "Edit an existing strategy instance" })

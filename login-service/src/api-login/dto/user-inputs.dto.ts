@@ -48,8 +48,10 @@ export class BaseUserInput {
         if (!input.displayName || input.displayName.trim().length <= 0) {
             throw new HttpException("Display name must be given and can't be empty", HttpStatus.BAD_REQUEST);
         }
-        if (input.email != undefined && input.email.trim().length <= 0) {
-            throw new HttpException("If email is given it can't be empty", HttpStatus.BAD_REQUEST);
+        if (input.email != undefined) {
+            if (input.email.trim().length <= 0) {
+                throw new HttpException("If email is given it can't be empty", HttpStatus.BAD_REQUEST);
+            }
         }
         return input;
     }
@@ -115,8 +117,10 @@ export class CreateUserAsAdminInput extends BaseUserInput {
      */
     static check(input: CreateUserAsAdminInput): CreateUserAsAdminInput {
         BaseUserInput.check(input);
-        if (input.isAdmin != undefined && typeof input.isAdmin != "boolean") {
-            throw new HttpException("If isAdmin is given it must be a valid boolean", HttpStatus.BAD_REQUEST);
+        if (input.isAdmin != undefined) {
+            if (typeof input.isAdmin != "boolean") {
+                throw new HttpException("If isAdmin is given it must be a valid boolean", HttpStatus.BAD_REQUEST);
+            }
         }
         return input;
     }

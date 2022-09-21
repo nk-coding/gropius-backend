@@ -28,7 +28,13 @@ async function bootstrap() {
             description: "Secret Text shared between sync services and login service",
         })
         .build();
-    const openApiDocument = SwaggerModule.createDocument(app, openApiConfig);
+    let runningIndex = 0;
+    const openApiDocument = SwaggerModule.createDocument(app, openApiConfig, {
+        operationIdFactory(controllerKey, methodKey) {
+            runningIndex = (runningIndex + 1) % (Number.MAX_SAFE_INTEGER - 1);
+            return controllerKey + "_" + methodKey + "_" + runningIndex;
+        },
+    });
     SwaggerModule.setup("login-api-doc", app, openApiDocument);
 
     app.enableCors();

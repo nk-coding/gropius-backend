@@ -61,10 +61,10 @@ export class CreateOrUpdateAuthClientInput {
                 throw new HttpException("Invalid redirect url: " + err.message ?? err, HttpStatus.BAD_REQUEST);
             }
         }
-        if (!(input.isValid == undefined) && typeof input.isValid !== "boolean") {
+        if (input.isValid != undefined && typeof input.isValid !== "boolean") {
             throw new HttpException("If isValid is given, it must be a valid boolean", HttpStatus.BAD_REQUEST);
         }
-        if (!(input.requiresSecret == undefined) && typeof input.requiresSecret !== "boolean") {
+        if (input.requiresSecret != undefined && typeof input.requiresSecret !== "boolean") {
             throw new HttpException("If requiresSecret is given, it must be a valid boolean", HttpStatus.BAD_REQUEST);
         }
         return input;

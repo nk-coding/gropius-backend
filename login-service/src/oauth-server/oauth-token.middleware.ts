@@ -46,6 +46,7 @@ export class OauthTokenMiddleware implements NestMiddleware {
                 ?.toString("utf-8")
                 ?.split(":")
                 ?.map((text) => decodeURIComponent(text));
+
             if (clientIdSecret && clientIdSecret.length == 2) {
                 const client = await this.authClientService.findOneBy({
                     id: clientIdSecret[0],

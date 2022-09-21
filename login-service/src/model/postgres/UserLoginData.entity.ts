@@ -95,7 +95,8 @@ export class UserLoginData {
 
     /**
      * If not `null`, this authentication should be considered *invalid* on any date+time AFTER this.
-     * This is to ensure created UserLoginData that are not used for registration or linking in time ate not kept forever.
+     * This is to ensure created UserLoginData, that are not used for registration
+     * or linking in time, are not kept forever.
      *
      * If `null`, the authentication should not expire by date.
      */
@@ -105,14 +106,16 @@ export class UserLoginData {
     /**
      * All IMSUser instances in the backend that are represented by this authentication.
      *
-     * This are all users in an IMS that are represented by the strategy instance of this that match the needed data for this user.
+     * These are all users in an IMS that are represented by the strategy instance
+     * of this that match the needed data for this user.
      * If a request for an access token for any of these IMS users comes in,
      * the best token from all logins of this authenticaiton will be returned.
      *
      * IMSUsers are added when:
      * - a sync service sends the information, that a IMSUser was created
      * - a user registeres (or logs in) using this authentication and new matching IMSUsers are found
-     * - a user registeres (or logs in) using this authentication and an IMS is found on which no IMSUser for this authentication is found.
+     * - a user registeres (or logs in) using this authentication and
+     *     an IMS is found on which no IMSUser for this authentication is found.
      */
     @OneToMany(() => UserLoginDataImsUser, (imsUser) => imsUser.loginData)
     @ApiHideProperty()

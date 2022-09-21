@@ -121,10 +121,13 @@ export class PerformAuthFunctionService {
         if (authResult.loginData) {
             // sucessfully found login data matching the authentication
             if (authResult.loginData.expires != null && authResult.loginData.expires <= new Date()) {
-                // Found login data is expired => shouldn't happen as expired login data are filtered when searhcing for them
+                // Found login data is expired =>
+                // shouldn't happen as expired login data are filtered when searhcing for them
                 return {
                     authErrorMessage:
-                        "The login using this strategy instance has expired. If you were just registering, try starting the registration again. If this error happens again, something internally went wrong.",
+                        "The login using this strategy instance has expired. " +
+                        "If you were just registering, try starting the registration again. " +
+                        "If this error happens again, something internally went wrong.",
                 };
             }
             if (state.function == AuthFunction.REGISTER || state.function == AuthFunction.REGISTER_WITH_SYNC) {
@@ -138,22 +141,26 @@ export class PerformAuthFunctionService {
                     case LoginState.WAITING_FOR_REGISTER:
                         return {
                             authErrorMessage:
-                                "For these credentials a registration process is still running. Complete (or restart) the registration before logging in",
+                                "For these credentials a registration process is still running. " +
+                                "Complete (or restart) the registration before logging in",
                         };
                     case LoginState.BLOCKED:
                         return {
                             authErrorMessage:
-                                "The login to this account using this specific strategy instance was blocked by the administrator.",
+                                "The login to this account using this specific strategy instance " +
+                                "was blocked by the administrator.",
                         };
                     case LoginState.VALID:
                         return this.loginExistingUser(authResult, instance);
                 }
             }
         } else {
+            const wantsToDoImplicitRegister =
+                strategy.allowsImplicitSignup && instance.doesImplicitRegister && state.function == AuthFunction.LOGIN;
             if (
                 state.function == AuthFunction.REGISTER ||
                 state.function == AuthFunction.REGISTER_WITH_SYNC ||
-                (strategy.allowsImplicitSignup && instance.doesImplicitRegister && state.function == AuthFunction.LOGIN)
+                wantsToDoImplicitRegister
             ) {
                 if (!authResult.mayRegister) {
                     console.error("Strategy did not provide existing loginData but it did not allow registering");
@@ -161,10 +168,7 @@ export class PerformAuthFunctionService {
                 }
 
                 return this.registerNewUser(authResult, instance, state.function == AuthFunction.REGISTER_WITH_SYNC);
-            } else if (
-                state.function == AuthFunction.LOGIN &&
-                (!strategy.allowsImplicitSignup || !instance.doesImplicitRegister)
-            ) {
+            } else if (state.function == AuthFunction.LOGIN && !wantsToDoImplicitRegister) {
                 return { authErrorMessage: "Invalid user credentials." };
             }
         }

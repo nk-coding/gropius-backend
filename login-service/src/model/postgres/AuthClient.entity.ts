@@ -5,6 +5,17 @@ import * as crypto from "crypto";
 import { promisify } from "util";
 import { ApiHideProperty } from "@nestjs/swagger";
 
+/**
+ * The minimum length of the client secret in bytes.
+ * If a number smaller than this is set in the config,
+ * this wil clamp it to at least 15
+ */
+const MINUMUM_SECRET_LENGTH_BYTES = 15;
+/**
+ * The length of the censored prefix of the secret
+ */
+const CENSORED_SECRET_LENGTH = 5;
+
 const randomBytesAsync = promisify(crypto.randomBytes);
 
 /**
@@ -36,7 +47,7 @@ export class AuthClient {
     /**
      * The list of hashed client secrets.
      * Every entry is structured like `[CENSORED];[BCRYPT_HASH]` with:
-     * - [CENSORED] is a 5 letter prefix of the actual secret to display to the user for easier association
+     * - [CENSORED] is a n letter prefix of the actual secret to display to the user for easier association
      * - [BCRYPT_HASH] is the salted hash of the full secret for use to compare with a later given secret
      */
     @Column("json")
@@ -52,7 +63,8 @@ export class AuthClient {
     isValid: boolean;
 
     /**
-     * If `true` requesting a token as this client requires the use of a client secret accoring to the oauth specification.
+     * If `true` requesting a token as this client requires the use
+     * of a client secret accoring to the oauth specification.
      *
      * If `false` client secrets can be present and given but are not required
      * @example false
@@ -84,7 +96,7 @@ export class AuthClient {
      *
      * **Note**: The secret text is only returned here and will not be saved as plain text.
      * There is no way to retrieve it later.
-     * Only a hashed version and a 5 letter prefix (for easier identification) will be saved
+     * Only a hashed version and a n letter prefix (for easier identification) will be saved
      *
      * The generated secret will be hex encoded random bytes of length GROPIUS_CLIENT_SECRET_LENGTH
      * @returns The generated secret text, the fingerprint of the hash of the secret and the censored version
@@ -94,16 +106,10 @@ export class AuthClient {
         fingerprint: string;
         censored: string;
     }> {
-        const length = Math.min(15, parseInt(process.env.GROPIUS_CLIENT_SECRET_LENGTH, 10));
+        const length = Math.min(MINUMUM_SECRET_LENGTH_BYTES, parseInt(process.env.GROPIUS_CLIENT_SECRET_LENGTH, 10));
         const secretText = (await randomBytesAsync(length)).toString("hex");
-        if (secretText.length < 15) {
-            throw new Error("Secret must be at least 15 characters long");
-        }
-        if (secretText.match(/[^a-zA-Z0-9+/-_=]/)) {
-            throw new Error("Secret can not match /[^a-zA-Z0-9+/-_=]/");
-        }
         const hash = await bcrypt.hash(secretText, parseInt(process.env.GROPIUS_BCRYPT_HASH_ROUNDS, 10));
-        const censored = secretText.substring(0, 5);
+        const censored = secretText.substring(0, CENSORED_SECRET_LENGTH);
         if (!this.clientSecrets?.length || !this.clientSecrets?.push) {
             this.clientSecrets = [];
         }
@@ -117,7 +123,8 @@ export class AuthClient {
     }
 
     /**
-     * Returns a list containing not only the string stored in the database but also the 5 letter censored prefix and the fingerprint of the hash.
+     * Returns a list containing not only the string stored in the database,
+     * but also the n letter censored prefix and the fingerprint of the hash.
      *
      * The result of this should NOT be exposed as it contains the full hash.
      * @returns A list of the full stored hash, censore version and the fingerprint of the hash for every secret

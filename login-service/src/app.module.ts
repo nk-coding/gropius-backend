@@ -10,7 +10,6 @@ import { BackendServicesModule } from "./backend-services/backend-services.modul
 import { validationSchema } from "./configuration-validator";
 import { OauthServerModule } from "./oauth-server/oauth-server.module";
 import { DefaultReturn } from "./default-return.dto";
-import { optioalGlobalTypeOrm } from "./optinalPostgreModule";
 
 @Module({
     imports: [

@@ -24,6 +24,7 @@ export const validationSchema = Joi.object({
         .pattern(/^((LOGIN|REG|REG_SYNC),)*(LOGIN|REG|REG_SYNC)?$/)
         .default("LOGIN,REG,REG_SYNC"),
     GROPIUS_CLIENT_SECRET_LENGTH: Joi.number().min(15).default(48),
+    GROPIUS_LOGIN_LISTEN_PORT: Joi.number().default(3000),
 
     GROPIUS_PASSPORT_STATE_JWT_ISSUER: Joi.string().default("gropius-login-state"),
     GROPIUS_BCRYPT_HASH_ROUNDS: Joi.number().min(8).default(10),

@@ -24,12 +24,14 @@ export class ImsUserFindingService {
      * Checks if the values of the specified fields on the templatedValues match the values of those fields on the node
      * Deletes the keys that were compared from `templatedValue`
      *
-     * Can be used directly on e.g. the ims as node to check the description or on the templated fields of the ims to check those
+     * Can be used directly on e.g. the ims as node to check the description
+     * or on the templated fields of the ims to check those
      *
      * @param node The node object containing all values of keys to potentially check
      * @param requiredTemplatedValues The values that the node object must match to pass.
      * All fields to check will be deleted from this object
-     * @param fieldsToCheck The names of the fields that should be checked for equivalence on the node object directly instead of on its templated fields.
+     * @param fieldsToCheck The names of the fields that should be checked for equivalence
+     * on the node object directly instead of on its templated fields.
      * If not given, all keys of `templatedFields` will be matched
      * @returns `true` iff all specified keys that the templatedValues had a value fore matched, `false` else
      */
@@ -105,7 +107,8 @@ export class ImsUserFindingService {
     }
 
     /**
-     * Extracts a subset of fields from the given object, deletes them from the given object and returns them as seperate object
+     * Extracts a subset of fields from the given object,
+     * deletes them from the given object and returns them as seperate object
      *
      * @param data The object to extract fields from. This will be modified using `delete`
      * @param fields The names of the fields to remove from the object
@@ -140,7 +143,8 @@ export class ImsUserFindingService {
         });
         if (!requiredLoginDataData) {
             throw new Error(
-                "Strategy did not provide required login data data field for ims user. Make sure, the strategy can sync.",
+                "Strategy did not provide required login data data field for ims user. " +
+                    "Make sure, the strategy can sync.",
             );
         }
 
@@ -166,7 +170,7 @@ export class ImsUserFindingService {
         const imsTemplatedValues = jsonFieldArrayToObject(ims.templatedFields);
         const matchingInstance = await this.getMatchingInstance(ims, imsTemplatedValues);
 
-        const imsUserTemplatedValues = jsonFieldArrayToObject(imsUserWithDetail["templatedFields"] ?? []); // todo: retrieve ims user templated values once implemented in backend
+        const imsUserTemplatedValues = jsonFieldArrayToObject(imsUserWithDetail["templatedFields"] ?? []);
         return this.getMatchingLoginData(
             matchingInstance.instance,
             matchingInstance.strategy,
@@ -184,12 +188,6 @@ export class ImsUserFindingService {
             return existingImsUser;
         }
         const loginData = await this.findLoginDataForImsUser(imsUserId);
-        const otherLoginData = await existingImsUser.loginData;
-        if (existingImsUser && otherLoginData.id != loginData.id) {
-            throw new Error(`The ims users to link is already assigned to another login data.
-This very likely means the filters of strategy instances overlap or the filters for users are not properly defined. 
-IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, conflicting loginData: ${otherLoginData.id}`);
-        }
 
         let newImsUser = new UserLoginDataImsUser();
         newImsUser.neo4jId = imsUserId;
@@ -309,9 +307,15 @@ IMSUser id with conflict: ${imsUserId}, current login data: ${loginData.id}, con
             (result) => (result.loginDataId != null || result.imsUser != null) && result.loginDataId != loginData.id,
         );
         if (!!imsUserWithDifferentLoginData) {
-            throw new Error(`The filtered resulting ims users included at least one ims user that is already assigned to another login data.
-This very likely means the filters of strategy instances overlap or the filters for users are not properly defined. 
-IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}, current login data: ${loginData.id}, conflicting loginData: ${imsUserWithDifferentLoginData.loginDataId}`);
+            throw new Error(
+                `The filtered resulting ims users included at least one ims user ` +
+                    `that is already assigned to another login data.\n ` +
+                    `This very likely means the filters of strategy instances overlap ` +
+                    `or the filters for users are not properly defined.\n ` +
+                    `IMSUser id with conflict: ${imsUserWithDifferentLoginData.imsUser.neo4jId}` +
+                    `, current login data: ${loginData.id}` +
+                    `, conflicting loginData: ${imsUserWithDifferentLoginData.loginDataId}`,
+            );
         }
 
         const backendCreatedImsUsers = await Promise.all(

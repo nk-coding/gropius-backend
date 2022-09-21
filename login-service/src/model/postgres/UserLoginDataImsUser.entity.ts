@@ -13,11 +13,12 @@ import { UserLoginData } from "./UserLoginData.entity";
 export class UserLoginDataImsUser {
     /**
      * The id of the IMSUser in the backend.
-     * Also used as identifying column as an entity of this type will only be created once the id is known and ids are uniqe.
+     * Also used as identifying column as an entity of this type
+     * will only be created once the id is known and ids are uniqe.
      *
      * @example 12345678-90ab-cdef-fedc-ab0987654321
      */
-    @PrimaryColumn("uuid")
+    @PrimaryColumn()
     @ApiHideProperty()
     neo4jId: string;
 

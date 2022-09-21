@@ -3,6 +3,7 @@ import { AppModule } from "./app.module";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { TokenScope } from "./backend-services/token.service";
 import { OpenApiTag } from "./openapi-tag";
+import { ConfigModule } from "@nestjs/config";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -37,7 +38,10 @@ async function bootstrap() {
     });
     SwaggerModule.setup("login-api-doc", app, openApiDocument);
 
+    await ConfigModule.envVariablesLoaded;
+    const portNumber = parseInt(process.env.GROPIUS_LOGIN_LISTEN_PORT, 10) || 3000;
+
     app.enableCors();
-    await app.listen(3000);
+    await app.listen(portNumber);
 }
 bootstrap();

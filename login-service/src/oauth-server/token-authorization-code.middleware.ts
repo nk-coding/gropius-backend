@@ -13,7 +13,7 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
 
     private throwGenericCodeError(res: Response, next: () => void) {
         (res.locals.state as AuthStateData).authErrorMessage = "Given code was invalid or expired";
-        (res.locals.state as AuthStateData).authErrorType = "invalid_request";
+        (res.locals.state as AuthStateData).authErrorType = "invalid_grant";
         return next();
     }
 
@@ -49,19 +49,28 @@ export class TokenAuthorizationCodeMiddleware implements NestMiddleware {
             console.error("Active login was not created by current client", tokenData.activeLoginId);
             return this.throwGenericCodeError(res, next);
         }
-        if ((activeLogin.expires != null && activeLogin.expires <= new Date()) || !activeLogin.isValid) {
-            console.error("Active login is expired or set invalid", tokenData.activeLoginId);
+        if (!activeLogin.isValid) {
+            console.error("Active login set invalid", tokenData.activeLoginId);
+            return this.throwGenericCodeError(res, next);
+        }
+        if (activeLogin.expires != null && activeLogin.expires <= new Date()) {
+            console.error("Active login is expired", tokenData.activeLoginId);
             return this.throwGenericCodeError(res, next);
         }
         const codeUniqueId = parseInt(tokenData.tokenUniqueId, 10);
         if (!isFinite(codeUniqueId) || codeUniqueId !== activeLogin.nextExpectedRefreshTokenNumber) {
-            //todo: maybe make login and all tokens invalid on reuse of code as it has the same consequence as reusing refresh tokens
-            // or rather: merge code and refresh token as it is essentially the same functionality
+            //Make active login invalid if code/refresh token is reused
+            activeLogin.isValid = false;
+            await this.activeLoginService.save(activeLogin);
             console.error(
-                "Code is no longer valid as it was already used and a token was already generated",
+                "Code is no longer valid as it was already used and a token was already generated.\n " +
+                    "Active login has been made invalid",
                 tokenData.activeLoginId,
             );
-            return this.throwGenericCodeError(res, next);
+            (res.locals.state as AuthStateData).authErrorMessage =
+                "Given code was liekely reused. Login and codes invalidated";
+            (res.locals.state as AuthStateData).authErrorType = "invalid_grant";
+            return next();
         }
         (res.locals.state as AuthStateData).activeLogin = activeLogin;
         next();

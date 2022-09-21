@@ -67,17 +67,21 @@ export class UpdateStrategyInstanceInput {
      * @returns If successful, the input data
      */
     static check(input: UpdateStrategyInstanceInput): UpdateStrategyInstanceInput {
-        if (input.name != undefined && (typeof input.name != "string" || input.name.trim().length <= 0)) {
-            throw new HttpException("If name is given it must be a non empty string", HttpStatus.BAD_REQUEST);
+        if (input.name != undefined) {
+            if (typeof input.name != "string" || input.name.trim().length <= 0) {
+                throw new HttpException("If name is given it must be a non empty string", HttpStatus.BAD_REQUEST);
+            }
         }
-        if (input.name != undefined && !input.name.match(/[^a-zA-Z0-9+/\-_= ]/g)) {
-            throw new HttpException(
-                "Name of strategy instance may only contain alphanumeric characters, -, _, +, /, = and space",
-                HttpStatus.BAD_REQUEST,
-            );
+        if (input.name != undefined) {
+            if (!input.name.match(/[^a-zA-Z0-9+/\-_= ]/g)) {
+                throw new HttpException(
+                    "Name of strategy instance may only contain alphanumeric characters, -, _, +, /, = and space",
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
         }
         if (input.instanceConfig != undefined && typeof input.instanceConfig != "object") {
-            throw new HttpException("Instance config must be given as object", HttpStatus.BAD_REQUEST);
+            throw new HttpException("If instance config is given, it must be given as object", HttpStatus.BAD_REQUEST);
         }
         if (input.isLoginActive != undefined && typeof input.isLoginActive != "boolean") {
             throw new HttpException("If isLoginActive is given it must be a valid boolean", HttpStatus.BAD_REQUEST);

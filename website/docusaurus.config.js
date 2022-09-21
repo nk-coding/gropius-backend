@@ -5,7 +5,6 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const apiSidebar = require('./sidebars').apiSidebar
-const graphqlSidebar = require('./sidebars').graphqlSidebar
 
 async function createConfig() {
     const mdxMermaid = await import('mdx-mermaid')
@@ -28,8 +27,6 @@ async function createConfig() {
                     docs: {
                         sidebarPath: require.resolve('./sidebars.js'),
                         routeBasePath: '/',
-                        docLayoutComponent: "@theme/DocPage",
-                        docItemComponent: "@theme/ApiItem",
                         remarkPlugins: [mdxMermaid.default],
                     },
                     blog: false,
@@ -68,9 +65,10 @@ async function createConfig() {
                     },
                     {
                         type: 'doc',
-                        docId: 'rest/login-service/gropius-login-service',
+                        docId: 'login-service/gropius-login-service',
                         position: 'left',
-                        label: 'REST'
+                        label: 'REST',
+                        docsPluginId: "rest-docs"
                     },
                     {
                         href: 'https://github.com/ccims/gropius-backend',
@@ -132,17 +130,28 @@ async function createConfig() {
             [
                 "docusaurus-plugin-openapi-docs",
                 {
-                    id: "rest",
+                    id: "rest-docs",
                     docsPluginId: "@docusaurus/preset-classic",
                     config: {
                         "login-service": {
                             specPath: "schemas/login.json",
-                            outputDir: "docs/rest/login-service",
+                            outputDir: "rest-docs/login-service",
                             sidebarOptions: {
                                 groupPathsBy: "tag"
                             }
                         }
                     }
+                }
+            ],
+            [
+                "@docusaurus/plugin-content-docs",
+                {
+                    id: "rest-docs",
+                    path: "rest-docs",
+                    routeBasePath: "rest",
+                    sidebarPath: require.resolve('./rest-sidebars.js'),
+                    docLayoutComponent: "@theme/DocPage",
+                    docItemComponent: "@theme/ApiItem",
                 }
             ]
         ],

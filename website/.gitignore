@@ -30,4 +30,4 @@ docs/graphql/api-public/
 docs/graphql/api-internal/
 
 # generated rest documentation
-docs/rest/
+rest-docs/

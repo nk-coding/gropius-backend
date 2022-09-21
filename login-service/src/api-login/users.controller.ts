@@ -152,7 +152,7 @@ export class UsersController {
      * @param input If sucessful, the updated user object
      */
     @Put(":id")
-    @ApiOperation({ summary: "NOT IMPLEMENTED: Update an existing user object" })
+    @ApiOperation({ summary: "NOT IMPLEMENTED! Update an existing user object" })
     @ApiParam({ name: "id", type: String, format: "uuid", description: "The uuid string of the existing user to edit" })
     @ApiOkResponse({ type: LoginUser, description: "If sucessful, the updated user object" })
     @ApiNotFoundResponse({ description: "If no user with the given id could be found" })
@@ -179,7 +179,7 @@ export class UsersController {
      * @param input The default response with operation 'delete-user'
      */
     @Delete(":id")
-    @ApiOperation({ summary: "NOT IMPLEMENTED: Update an existing user object" })
+    @ApiOperation({ summary: "NOT IMPLEMENTED! Update an existing user object" })
     @ApiParam({ name: "id", type: String, format: "uuid", description: "The uuid string of the existing user to edit" })
     @ApiOkResponse({ type: LoginUser, description: "If sucessful, the updated user object" })
     @ApiNotFoundResponse({ description: "If no user with the given id could be found" })

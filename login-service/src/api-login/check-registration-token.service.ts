@@ -50,12 +50,14 @@ export class CheckRegistrationTokenService {
             console.error(`No login data for active login; id:`, activeLoginId);
             throw new UnauthorizedException(undefined, "Register token is (no longer) valid.");
         }
-        if (
-            (loginData.expires != null && loginData.expires <= new Date()) ||
-            (activeLogin.expires != null && activeLogin.expires <= new Date()) ||
-            !activeLogin.isValid
-        ) {
-            throw new UnauthorizedException(undefined, "Login has expired. Registration did not happen time");
+        if (loginData.expires != null && loginData.expires <= new Date()) {
+            throw new UnauthorizedException(undefined, "Login has expired. Registration did not happen in time");
+        }
+        if (activeLogin.expires != null && activeLogin.expires <= new Date()) {
+            throw new UnauthorizedException(undefined, "Login has expired. Registration did not happen in time");
+        }
+        if (!activeLogin.isValid) {
+            throw new UnauthorizedException(undefined, "Login has been set invalid");
         }
         if (loginData.state !== LoginState.WAITING_FOR_REGISTER) {
             console.error("State is not waiting for register of login data", loginData.id);

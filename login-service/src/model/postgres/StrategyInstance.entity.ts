@@ -5,7 +5,7 @@ import { Strategy } from "../../strategies/Strategy";
 /**
  * Entity representing an instance of a strategy including its config.
  *
- * For example one GiHub instance as instance of strategy type github.
+ * For example one GiHub instance as instance of strategy type GitHub.
  *
  * One StrategyInstance equates to 0-n IMSs of the same template in the backend
  * which all reference the same ims instance.
@@ -93,7 +93,7 @@ export class StrategyInstance {
     isSyncActive: boolean;
 
     /**
-     * If `true`, a user automatically gets a registration token if he tried to login and an account was not found but the user provided credentials
+     * If `true`, a user automatically gets a registration token if they tried to login and an account was not found but the user provided credentials
      * (i.e. sucessfully authenticated with the 3rd party).
      * Needs {@link Strategy.allowsImplicitSignup} to be `true`.
      *

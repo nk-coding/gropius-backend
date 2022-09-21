@@ -3,8 +3,8 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserLoginData } from "./UserLoginData.entity";
 
 /**
- * A user of the gropius system.
- * This 1:1 equates the GropiusUSer entity in the backend.
+ * A user of the Gropius system.
+ * This 1:1 equates the GropiusUser entity in the backend.
  *
  * A user can have many ways of authenticating (login data)
  */

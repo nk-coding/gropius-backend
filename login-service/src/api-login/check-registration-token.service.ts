@@ -81,7 +81,7 @@ export class CheckRegistrationTokenService {
             if (userMustBe) {
                 if (loginDataUser.id !== userMustBe.id) {
                     console.error(
-                        "User already esists and is not the user that currently tries to link for login data, user",
+                        "User already exists and is not the user that currently tries to link for login data, user",
                         loginData.id,
                         userMustBe.id,
                     );
@@ -100,7 +100,7 @@ export class CheckRegistrationTokenService {
     }
 
     /**
-     * Validates a registration token and returns the loginData as well as avtiveLogin that created it.
+     * Validates a registration token and returns the loginData as well as activeLogin that created it.
      *
      * Additionally checks that the user linked to the loginData is the same as a given user.
      * This can be used to check that new registrations are only linked with oneself and not other user accounts

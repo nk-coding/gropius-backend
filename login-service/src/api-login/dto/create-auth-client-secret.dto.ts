@@ -1,5 +1,5 @@
 /**
- * Response when creating a new client secret for an aith client.
+ * Response when creating a new client secret for an auth client.
  * Contains the original secret text
  */
 export class CreateAuthClientSecretResponse {

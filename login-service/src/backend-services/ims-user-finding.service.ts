@@ -24,7 +24,7 @@ export class ImsUserFindingService {
      * Checks if the values of the specified fields on the templatedValues match the values of those fields on the node
      * Deletes the keys that were compared from `templatedValue`
      *
-     * Can be used directly on e.g. the ims as node to chech the description or on the templated fields of the ims to check those
+     * Can be used directly on e.g. the ims as node to check the description or on the templated fields of the ims to check those
      *
      * @param node The node object containing all values of keys to potentially check
      * @param requiredTemplatedValues The values that the node object must match to pass.

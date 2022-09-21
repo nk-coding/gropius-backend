@@ -31,7 +31,7 @@ export enum LoginState {
 /**
  * Entity for representing the authenticatoin of a user using onme strategy instance
  *
- * It contains the data needed to identify a user if he tries to log in (e.g. username/id on 3rd party service).
+ * It contains the data needed to identify a user if they tries to log in (e.g. username/id on 3rd party service).
  * For example password for username/password auth or the username for GitHub auth
  */
 @Entity()
@@ -105,7 +105,7 @@ export class UserLoginData {
     /**
      * All IMSUser instances in the backend that are represented by this authentication.
      *
-     * This are all users in an IMS that is represented by the strategy instance of this that match the needed data for this user.
+     * This are all users in an IMS that are represented by the strategy instance of this that match the needed data for this user.
      * If a request for an access token for any of these IMS users comes in,
      * the best token from all logins of this authenticaiton will be returned.
      *

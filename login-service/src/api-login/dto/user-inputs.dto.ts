@@ -94,7 +94,7 @@ export class SelfRegisterUserInput extends BaseUserInput {
  */
 export class CreateUserAsAdminInput extends BaseUserInput {
     /**
-     * Set wether the newly created user will be an administrator.
+     * Set whether the newly created user will be an administrator.
      *
      * If not given, defaults to false
      *

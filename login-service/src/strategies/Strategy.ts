@@ -134,7 +134,7 @@ export abstract class Strategy {
      * The fields `id`, `name` and `description` of the returned object will not be compared to the templated values,
      * but instead to the actual fields of the IMS with those respective names.
      *
-     * For example: The API-Url must match in order for a github IMS belonging to a github strategy instance
+     * For example: The API-Url must match in order for a GitHub IMS belonging to a GitHub strategy instance
      *
      * Can/Should be overridden by strategies capable of sync.
      * Default implementation returns `imsTemplatedFieldsFilter` of instance config
@@ -158,7 +158,7 @@ export abstract class Strategy {
      * The fields `id`, `username`, `displayName` and `email` of the returned object will not be compared to the templated values,
      * but instead to the actual fields of the IMSUser with those respective names.
      *
-     * For example: The username on Github must match the username in the login data.
+     * For example: The username on GitHub must match the username in the login data.
      *
      * Can/Should/Must be overridden by strategies capable of sync.
      * Default implementation returns the `loginData.data` field unchanged

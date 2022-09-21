@@ -27,7 +27,7 @@ export class ActiveLoginService extends Repository<ActiveLogin> {
             .where(`"loginInstanceForId" = :loginDataId`, {
                 loginDataId: loginData.id,
             })
-            .andWhere(`"isValid"=true`, {})
+            .andWhere(`"isValid" = true`, {})
             .andWhere(`("expires" is null or "expires" > :expires)`, {
                 expires: new Date(),
             });

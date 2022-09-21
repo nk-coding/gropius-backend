@@ -7,6 +7,32 @@ slug: /modules
 
 # Runnable Modules
 
+<Mermaid chart={`C4Dynamic
+    Boundary(b1, "Public Services") {
+        Boundary(b2, "Public Services") {
+            System(public-api, public-api, "")
+            System(login-service, login-service, "")
+        }
+        Boundary(b3, "Internal Services") {
+            System(internal-api, internal-api, "")
+            System(github, github, "")
+        }
+        Boundary(b4, "Databases") {
+            SystemDb(neo4j, "Neo4j", "")
+            SystemDb(mongodb, "MongoDB", "")
+            SystemDb(postgres, "PostgresQL", "")
+        }
+    }
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="2")
+    Rel(public-api, neo4j, "bolt/TCP")
+    Rel(internal-api, neo4j, "bolt/TCP")
+    Rel(github, login-service, "REST/HTTP")
+    Rel(login-service, internal-api, "GraphQL/HTTP")
+    Rel(github, neo4j, "bolt/TCP")
+    Rel(github, mongodb, "mongodb/TCP")
+    Rel(login-service, postgres, "TCP")
+`} config={ { theme: { light: 'neutral', dark: 'neutral' } , mermaid: { c4: { }, diagramPadding: 0 } } } />
+
 ## api-public
 
 The main GraphQL API of the backend.
@@ -22,7 +48,7 @@ Depends on [api-common](#api-common)
 |Spring property|Default value|Description|
 |--|--|--|
 |gropius.api.public.debugNoAuthentication|`false`|If `true`, authorization is disabled|
-|gropius.api.public.jwtSecret|- (required)|Secret for JWT validation|
+|gropius.api.public.jwtSecret|- (required)|Secret for JWT validation. Caution: value is interpreted as Base64 encoded string!|
 
 Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
 
@@ -79,6 +105,7 @@ It will generate tokens for the user to use to identify against the api.
 |GROPIUS_REGULAR_LOGINS_INACTIVE_EXPIRATION_TIME_MS|0|The time after which a regular login event (non sync login) will expire and refresh tokens become invalid. The actual time after which the user looses access is quantized by the expiration time of the issued access token. If 0, logins won't expire.|
 |GROPIUS_PERFORM_IMS_USER_SEARCH_ON|=LOGIN,REG,REG_SYNC|The authentication events on which a search for yet unlinked ims users will be done. To link them to the authentication and (if present) the gropius user. Comma separated list.|
 |GROPIUS_CLIENT_SECRET_LENGTH|48|The length (in bytes) of the generated client secrets for the oauth clients.|
+|GROPIUS_LOGIN_LISTEN_PORT|3000|The port number on which to listen for API requests|
 
 </details>
 
@@ -89,7 +116,7 @@ It will generate tokens for the user to use to identify against the api.
 |--|--|--|
 |GROPIUS_INTERNAL_BACKEND_ENDPOINT|http://localhost:8081/graphql|The full GraphQL-API endpoint URL of the internal backend api (usually ends with /graphql). Remember: If running in docker-compose, you can use the docker service name as hostname.|
 |GROPIUS_INTERNAL_BACKEND_TOKEN||The API secret that the internal backend API expects to allow requests. Will be prefixed with "Bearer ".|
-|GROPIUS_INTERNAL_BACKEND_JWT_SECRET|- (required)|Secret to be used to sign the access tokens that can be used with the backend. Must be the same value as configured in the backend so the tokens are accepted. It is recommended to choos a different secret from GROPIUS_LOGIN_SPECIFIC_JWT_SECRET to avoid token misuse. Make sure this is a LONG and RANDOM value and NOBONDY knows it. Else they can create valid tokens.|
+|GROPIUS_INTERNAL_BACKEND_JWT_SECRET|- (required)|Secret to be used to sign the access tokens that can be used with the backend. Must be the same value as configured in the backend so the tokens are accepted. It is recommended to choos a different secret from GROPIUS_LOGIN_SPECIFIC_JWT_SECRET to avoid token misuse. Make sure this is a LONG and RANDOM value and NOBONDY knows it. Else they can create valid tokens. Caution: value is interpreted as Base64 encoded string!|
 
 </details>
 

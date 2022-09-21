@@ -21,6 +21,7 @@ yarn-error.log*
 
 # generated api documentation
 docs/api/
+docs/login-service-api/
 
 # generated schema
 schemas/

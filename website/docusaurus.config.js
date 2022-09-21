@@ -1,103 +1,103 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require("prism-react-renderer/themes/github");
+const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
-const apiSidebar = require('./sidebars').apiSidebar
+const apiSidebar = require("./sidebars").apiSidebar
 
 async function createConfig() {
-    const mdxMermaid = await import('mdx-mermaid')
+    const mdxMermaid = await import("mdx-mermaid")
 
     return {
-        title: 'Gropius Backend',
-        url: 'https://ccims.github.io/',
-        baseUrl: '/gropius-backend-docs/',
-        onBrokenLinks: 'throw',
-        onBrokenMarkdownLinks: 'throw',
-        onDuplicateRoutes: 'throw',
-        organizationName: 'ccims',
-        projectName: 'gropius-backend-docs',
+        title: "Gropius Backend",
+        url: "https://ccims.github.io/",
+        baseUrl: "/gropius-backend-docs/",
+        onBrokenLinks: "throw",
+        onBrokenMarkdownLinks: "throw",
+        onDuplicateRoutes: "throw",
+        organizationName: "ccims",
+        projectName: "gropius-backend-docs",
         trailingSlash: false,
 
         presets: [
             [
-                '@docusaurus/preset-classic',
+                "@docusaurus/preset-classic",
                 ({
                     docs: {
-                        sidebarPath: require.resolve('./sidebars.js'),
-                        routeBasePath: '/',
+                        sidebarPath: require.resolve("./sidebars.js"),
+                        routeBasePath: "/",
                         remarkPlugins: [mdxMermaid.default],
                     },
                     blog: false,
                     theme: {
-                        customCss: [require.resolve('./src/css/custom.css')],
+                        customCss: [require.resolve("./src/css/custom.css")],
                     },
                 }),
             ],
         ],
 
         themeConfig:
-            /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+            /** @type {import("@docusaurus/preset-classic").ThemeConfig} */
             ({
                 colorMode: {
-                    defaultMode: 'dark',
+                    defaultMode: "dark",
                 },
                 navbar: {
-                    title: 'Gropius Backend',
+                    title: "Gropius Backend",
                     items: [{
-                        type: 'doc',
-                        docId: 'docs/docs',
-                        position: 'left',
-                        label: 'Docs',
+                        type: "doc",
+                        docId: "docs/docs",
+                        position: "left",
+                        label: "Docs",
                     },
                     {
-                        type: 'doc',
+                        type: "doc",
                         docId: apiSidebar[0]?.items[0]?.id ?? apiSidebar[0]?.items[0]?.link?.id ?? "docs/docs",
-                        position: 'left',
-                        label: 'API',
+                        position: "left",
+                        label: "API",
                     },
                     {
-                        type: 'doc',
-                        docId: 'graphql/api-public',
-                        position: 'left',
+                        type: "doc",
+                        docId: "graphql/api-public",
+                        position: "left",
                         label: "GraphQL"
                     },
                     {
-                        type: 'doc',
-                        docId: 'login-service/gropius-login-service',
-                        position: 'left',
-                        label: 'REST',
+                        type: "doc",
+                        docId: "login-service/gropius-login-service",
+                        position: "left",
+                        label: "REST",
                         docsPluginId: "rest-docs"
                     },
                     {
-                        href: 'https://github.com/ccims/gropius-backend',
-                        label: 'GitHub',
-                        position: 'right',
+                        href: "https://github.com/ccims/gropius-backend",
+                        label: "GitHub",
+                        position: "right",
                     },
                     ],
                 },
                 footer: {
-                    style: 'dark',
+                    style: "dark",
                     copyright: `Built with Docusaurus.`,
                 },
                 prism: {
                     theme: lightCodeTheme,
                     darkTheme: darkCodeTheme,
-                    defaultLanguage: 'kotlin',
-                    additionalLanguages: ['kotlin'],
+                    defaultLanguage: "kotlin",
+                    additionalLanguages: ["kotlin"],
                 },
             }),
 
         plugins: [
             () => ({
-                name: 'custom-webpack-loaders',
+                name: "custom-webpack-loaders",
                 configureWebpack: () => ({
                     module: {
                         rules: [
                             {
                                 test: /\.source$/,
-                                type: 'asset/source'
+                                type: "asset/source"
                             }
                         ]
                     }
@@ -149,9 +149,18 @@ async function createConfig() {
                     id: "rest-docs",
                     path: "rest-docs",
                     routeBasePath: "rest",
-                    sidebarPath: require.resolve('./rest-sidebars.js'),
+                    sidebarPath: require.resolve("./rest-sidebars.js"),
                     docLayoutComponent: "@theme/DocPage",
                     docItemComponent: "@theme/ApiItem",
+                }
+            ],
+            [
+                "docusaurus-plugin-typedoc",
+                {
+                    entryPoints: ["../login-service/src/"],
+                    tsconfig: "../login-service/tsconfig.json",
+                    entryPointStrategy: "expand",
+                    out: "login-service-api"
                 }
             ]
         ],

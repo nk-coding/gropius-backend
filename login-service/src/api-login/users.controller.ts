@@ -184,7 +184,10 @@ export class UsersController {
     @ApiOkResponse({ type: LoginUser, description: "If sucessful, the updated user object" })
     @ApiNotFoundResponse({ description: "If no user with the given id could be found" })
     async deleteUser(@Param("id") id: string): Promise<DefaultReturn> {
-        throw new HttpException("Yeah, we are not even gonna talk about this.", HttpStatus.NOT_IMPLEMENTED);
+        throw new HttpException(
+            "I'm not supposed to say wht I think. But why this isn't yet implemented is difficult to explain.",
+            HttpStatus.NOT_IMPLEMENTED,
+        );
         return new DefaultReturn("delete-user");
     }
 
@@ -223,8 +226,13 @@ export class UsersController {
         if (id == "self") {
             id = loggedInUser.id;
         }
-        if (id != loggedInUser.id && !this.backendUserSerice.checkIsUserAdmin(loggedInUser)) {
-            throw new HttpException("No permission to access others login data if not admin", HttpStatus.UNAUTHORIZED);
+        if (id != loggedInUser.id) {
+            if (!this.backendUserSerice.checkIsUserAdmin(loggedInUser)) {
+                throw new HttpException(
+                    "No permission to access others login data if not admin",
+                    HttpStatus.UNAUTHORIZED,
+                );
+            }
         }
         return this.loginDataSerive.findBy({
             user: {

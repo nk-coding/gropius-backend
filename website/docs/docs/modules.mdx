@@ -160,6 +160,41 @@ It will generate tokens for the user to use to identify against the api.
 
 </details>
 
+<details>
+<summary>Entity management</summary>
+
+The following section allows creating default strategy instance and user for initialization.
+If none of the values are set (i.e. if they're commented out), no entity creation will take place.
+
+Parameters for creating a strategy instance.
+Type and instance cnfig must be given for creation to happen.
+The config should follow the same rules as when creating through the API.
+
+|Environment variable|Default value|Description|
+|--|--|--|
+|GROPIUS_DEFAULT_STRATEGY_INSTANCE_TYPE|userpass|Type of the default strategy instance|
+|GROPIUS_DEFAULT_STRATEGY_INSTANCE_CONFIG|{}|Config of the default strategy instance|
+|GROPIUS_DEFAULT_STRATEGY_INSTANCE_NAME|userpass-local|Name of the default strategy instance|
+
+Parameters for creating an admin user.
+Username, displayName and strategy instance name are required for creation to happen.
+This can only create users for strategies that accept credentials via POST.
+(i.e. not for oauth, ...). The structure/valiables of the post data must be the same as for the API request.
+If a user with that username already exists or the credentials aren't unique, the creation will fail.
+
+|Environment variable|Default value|Description|
+|--|--|--|
+|GROPIUS_DEFAULT_USER_USERNAME|administrator|Name of the default user|
+|GROPIUS_DEFAULT_USER_DISPLAYNAME|System-Admin|Display name of the default user|
+|GROPIUS_DEFAULT_USER_POST_DATA|{"password": "admin"}|Credentials for the default user that would otherwise have been passed via POST|
+|GROPIUS_DEFAULT_USER_STRATEGY_INSTANCE_NAME|userpass-local|Name of the authentication strategy instance used for credential management|
+
+|Environment variable|Default value|Description|
+|--|--|--|
+|GROPIUS_DEFAULT_AUTH_CLIENT_NAME|initial-client|Parameter for creating an auth client. If this is set, an auth client with that name and with no requirement for secrets will be created. The clientId of the created/found auth client will be printed to the console on startup.|
+
+</details>
+
 #### Requirements
 - Node >= 16.17.0
 

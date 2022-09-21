@@ -5,7 +5,7 @@ export GROPIUS_INTERNAL_BACKEND_JWT_SECRET="SecretToGetGraphQLSchemaDoNotUseInPr
 export GROPIUS_LOGIN_SPECIFIC_JWT_SECRET="LoginSpecificSecretdoNotUseInProduction"
 export GROPIUS_LOGIN_DATABASE_DRIVER="sqlite"
 
-./gradlew login-service:npm_start &
+./gradlew login-service:npm_start --no-daemon &
 gradlew_pid=$!
 schema_endpoint="http://localhost:3000/login-api-doc-json"
 c=0

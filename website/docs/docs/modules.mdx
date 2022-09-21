@@ -67,10 +67,17 @@ Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/d
 
 The internal GraphQL API of the backend.
 MUST NOT be publicly exposed as no authentication or authorization is done.
-Can be horizontally scaled.  
+Can be horizontally scaled.
+If the `gropius.api.internal.apiToken` config property is set, users have to be authenticated using the Authorization-Header:
+```
+Authorization: Bearer token
+```
 Depends on [api-common](#api-common)
 
 #### Configuration
+|Name|Default value|Description|
+|--|--|--|
+|gropius.api.internal.apiToken||If provided, each GraphQL request must provide the token in the Authorization header|
 
 Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
 
@@ -168,7 +175,7 @@ It will generate tokens for the user to use to identify against the api.
 ./gradlew login-service:npm_start
 ```
 
-## github
+### github
 
 Github sync that executes exactly one sync cycle.
 May not be executed more than once at the same time.

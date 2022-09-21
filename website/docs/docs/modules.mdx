@@ -29,7 +29,7 @@ Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/d
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
 
 #### Run
@@ -51,7 +51,7 @@ Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/d
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
 
 #### Run
@@ -129,9 +129,9 @@ It will generate tokens for the user to use to identify against the api.
 #### Requirements
 - Node >= 16.17.0
 
-#### Dependencies
+#### Runtime Dependencies
 - Postgres database
-- internal-api
+- [internal-api](#internal-api)
 
 #### Run
 ```sh
@@ -149,16 +149,19 @@ Documentation about the concept can be found [here](github.mdx).
 Depends on [sync](#sync)
 
 #### Configuration
+|Spring property|Default value|Description|
+|--|--|--|
+|gropius.sync.github.maxMutationCount|100|Maximum number of Mutations per cycle that are allowed for one IMS|
 
-Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
+Configuration for [sync](#sync), [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) and Spring Data MonoDB is required.
 
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
 - MongoDB database
-- login-service
+- [login-service](#login-service)
 
 #### Run
 ```sh
@@ -179,7 +182,7 @@ Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/d
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
 
 ## api-common
@@ -196,7 +199,7 @@ Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/d
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
 
 ## sync
@@ -205,12 +208,16 @@ Contains abstract helpers for general sync development.
 Depends on [core](#core)
 
 #### Configuration
+|Spring property|Default value|Description|
+|--|--|--|
+|gropius.sync.loginServiceBase|- (required)|Base url of the login service|
+|gropius.sync.apiSecret|- (required)|Secret for login service|
 
-Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) and Spring Data MonoDB is required.
+Configuration for [Spring Data Neo4j](https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#configure-spring-boot-project) is required.
 
 #### Requirements
 - Java >= 17
 
-#### Dependencies
+#### Runtime Dependencies
 - Neo4j database
-- login-service
+- [login-service](#login-service)

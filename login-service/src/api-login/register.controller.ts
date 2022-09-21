@@ -29,7 +29,7 @@ import { AdminLinkUserInput, RegistrationTokenInput } from "./dto/link-user.dto"
 import { SelfRegisterUserInput } from "./dto/user-inputs.dto";
 
 /**
- * Controller for handling slef registration of new users as well as linking of existing users to new loginData
+ * Controller for handling self registration of new users as well as linking of existing users to new loginData
  */
 @Controller("registration")
 @ApiTags(OpenApiTag.LOGIN_API)
@@ -134,9 +134,9 @@ export class RegisterController {
             loginData.user = Promise.resolve(userToLinkTo);
         } else {
             if (currentLoginDataUser.id !== userToLinkTo.id) {
-                // Shoud not be rachable as this is already checked in token check
+                // Shoud not be reachable as this is already checked in token check
                 throw new HttpException(
-                    "Login data user did not match logged in user. Internal server error",
+                    "Login data user did not match logged in user",
                     HttpStatus.INTERNAL_SERVER_ERROR,
                 );
             }

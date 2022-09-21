@@ -62,7 +62,7 @@ export class BackendUserService {
         }
         const gropiusUserId = loginUser.neo4jId;
         if (!gropiusUserId) {
-            throw new Error("Login user has no gropius user associated");
+            throw new Error("Login user has no Gropius user associated");
         }
         const linkResult = await this.graphqlService.sdk.setImsUserLink({
             gropiusUserId,
@@ -76,7 +76,7 @@ export class BackendUserService {
         }
         const gropiusUserId = loginUser.neo4jId;
         if (!gropiusUserId) {
-            throw new Error("Login user has no gropius user associated");
+            throw new Error("Login user has no Gropius user associated");
         }
         const imsUsers = await loginData.imsUsers;
         const linkResults = await Promise.allSettled(
@@ -94,6 +94,6 @@ export class BackendUserService {
                     (result.status == "fulfilled" && !result.value.updateIMSUser.imsuser.id),
             )
             .map((result) => (result.status == "fulfilled" ? result.value : result.reason));
-        console.warn("Failures during linking ims user and gropius user:", failedLinks);
+        console.warn("Failures during linking ims user and Gropius user:", failedLinks);
     }
 }

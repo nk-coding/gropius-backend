@@ -44,7 +44,7 @@ export class SyncImsUserController {
                 neo4jId: imsUserId,
             });
         } catch (err) {
-            console.error("Error loading imsuser by neo4jid", err);
+            console.error("Error loading imsuser by neo4jId", err);
             throw new HttpException("Could not load ims user by id. Check the id syntax", HttpStatus.BAD_REQUEST);
         }
         if (!imsUser) {

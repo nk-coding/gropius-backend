@@ -12,7 +12,7 @@ export class GetStrategyResponse {
     typeName: string;
 
     /**
-     * `true` iff instances of this strategy have the theoretical capability of loging in users
+     * `true` iff instances of this strategy have the theoretical capability of logging in users
      *
      * @example true
      */

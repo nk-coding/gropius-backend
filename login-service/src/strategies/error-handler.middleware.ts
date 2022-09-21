@@ -32,7 +32,7 @@ export class ErrorHandlerMiddleware implements NestMiddleware {
             }
         } else if (res.locals?.state == undefined || res.locals?.state == null) {
             throw new HttpException(
-                "State of request was lost. Internal server error",
+                "State of request was lost",
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         } else {

@@ -8,7 +8,7 @@ import { ApiHideProperty } from "@nestjs/swagger";
 const randomBytesAsync = promisify(crypto.randomBytes);
 
 /**
- * Entity representing a client application that requires access to gropius and that can ask for authentication.
+ * Entity representing a client application that requires access to Gropius and that can ask for authentication.
  *
  * A client is identified by its client id and CAN optionally be secured by secrets to restrict usage
  */
@@ -143,7 +143,7 @@ export class AuthClient {
     /**
      * Removes the full hash from the result of {@link AuthClient.getFullHashesPlusCensoredAndFingerprint}
      *
-     * Can be published on the API
+     * May be published on the API
      * @returns A list of censored secret and hash-fingerprint for every secret of this client
      */
     getSecretsShortedAndFingerprint(): {

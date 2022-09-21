@@ -50,7 +50,7 @@ export class ActiveLogin {
     expires: Date | null;
 
     /**
-     * Wether this login is valid to be used.
+     * Whether this login is valid to be used.
      *
      * If `false` it should be considered *invalid* (just like expired) and no new tokens issued for it.
      * @example true
@@ -59,7 +59,7 @@ export class ActiveLogin {
     isValid: boolean;
 
     /**
-     * Wether this login events data can be used for sync by the sync service.
+     * Whether this login events data can be used for sync by the sync service.
      * Should be `true` for logins created with REGISTER_SYNC function, `false` otherwise
      *
      * If `true`, the data (e.g. the token) will be passed to tke sync service
@@ -76,7 +76,7 @@ export class ActiveLogin {
      * The numeric identifier of the last refresh token given out (the next one expected).
      *
      * **ONLY** the token with this id should be accepted as refresh token for this login event.
-     * If a **valid** token with an **older** id is user, this login event should be made invalid, as it is a reuse of the reshresh token,
+     * If a **valid** token with an **older** id is user, this login event should be made invalid, as it is a reuse of the refresh token,
      * which likely means it has been abused.
      *
      * For a new instance this starts at LOGGED_IN_BUT_TOKEN_NOT_YET_RETRIVED=-1 and gets incremented once the first refresh token is created.

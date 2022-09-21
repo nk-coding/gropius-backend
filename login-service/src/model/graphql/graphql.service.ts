@@ -15,7 +15,7 @@ export class GraphqlService {
     ) {
         this.client = new GraphQLClient(internalApiEndpoint, {
             headers: {
-                Authorization: internalApiToken ? "bearer " + internalApiToken : undefined,
+                Authorization: internalApiToken ? "Bearer " + internalApiToken : undefined,
             },
         });
         this.sdk = getSdk(this.client);

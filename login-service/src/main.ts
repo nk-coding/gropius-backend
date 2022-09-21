@@ -9,7 +9,7 @@ async function bootstrap() {
 
     const openApiConfig = new DocumentBuilder()
         .setTitle("Gropius Login Service")
-        .setDescription("API for login, registration and linking gropius accounts to accounts on IMSs")
+        .setDescription("API for login, registration and linking Gropius accounts to accounts on IMSs")
         .addTag(OpenApiTag.LOGIN_API, "Endpoints to interact with the model, register and link authentications")
         .addTag(OpenApiTag.SYNC_API, "API to be used by sync services for exchanging IMSUser info")
         .addTag(OpenApiTag.CREDENTIALS, "Endpoints for actual authentication. Token retrieval, oauth flow, ...")

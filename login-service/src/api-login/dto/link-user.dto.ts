@@ -24,7 +24,7 @@ export class RegistrationTokenInput {
      */
     static check(input: RegistrationTokenInput): RegistrationTokenInput {
         if (typeof input.register_token != "string" || input.register_token.trim().length <= 0) {
-            throw new HttpException("Thr regiser_token must be given and can't be empty", HttpStatus.BAD_REQUEST);
+            throw new HttpException("The register_token must be given and can't be empty", HttpStatus.BAD_REQUEST);
         }
         return input;
     }

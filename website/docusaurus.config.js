@@ -12,6 +12,7 @@ async function createConfig() {
     return {
         title: "Gropius Backend",
         url: "https://ccims.github.io/",
+        favicon: "img/logo.svg",
         baseUrl: "/gropius-backend-docs/",
         onBrokenLinks: "throw",
         onBrokenMarkdownLinks: "throw",

@@ -45,6 +45,9 @@ async function createConfig() {
                 },
                 navbar: {
                     title: "Gropius Backend",
+                    logo: {
+                        src: "img/logo.svg"
+                    },
                     items: [{
                         type: "doc",
                         docId: "docs/docs",

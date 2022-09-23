@@ -11,13 +11,13 @@ async function createConfig() {
 
     return {
         title: "Gropius Backend",
-        url: "https://ccims.github.io/",
+        url: "https://nk-coding.github.io/",
         favicon: "img/logo.svg",
         baseUrl: "/gropius-backend-docs/",
         onBrokenLinks: "throw",
         onBrokenMarkdownLinks: "throw",
         onDuplicateRoutes: "throw",
-        organizationName: "ccims",
+        organizationName: "nk-coding",
         projectName: "gropius-backend-docs",
         trailingSlash: false,
 
@@ -110,6 +110,7 @@ async function createConfig() {
             [
                 "@edno/docusaurus2-graphql-doc-generator",
                 {
+<<<<<<< HEAD
                     id: "api-public",
                     schema: "./schemas/api-public.gql",
                     rootPath: "./docs",
@@ -117,6 +118,23 @@ async function createConfig() {
                     docOptions: {
                         index: true
                     }
+=======
+                    type: 'doc',
+                    docId: apiSidebar[0]?.items[0]?.id ?? apiSidebar[0]?.items[0]?.link?.id ?? "docs/docs",
+                    position: 'left',
+                    label: 'API',
+                },
+                {
+                    type: 'doc',
+                    docId: 'graphql/api-public',
+                    position: 'left',
+                    label: "GraphQL"
+                },
+                {
+                    href: 'https://github.com/nk-coding/gropius-backend',
+                    label: 'GitHub',
+                    position: 'right',
+>>>>>>> private_main
                 },
             ],
             [

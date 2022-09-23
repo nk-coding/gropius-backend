@@ -10,12 +10,12 @@ const graphqlSidebar = require('./sidebars').graphqlSidebar
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'Gropius Backend',
-    url: 'https://ccims.github.io/',
+    url: 'https://nk-coding.github.io/',
     baseUrl: '/gropius-backend-docs/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'throw',
     onDuplicateRoutes: 'throw',
-    organizationName: 'ccims',
+    organizationName: 'nk-coding',
     projectName: 'gropius-backend-docs',
     trailingSlash: false,
 
@@ -63,7 +63,7 @@ const config = {
                     label: "GraphQL"
                 },
                 {
-                    href: 'https://github.com/ccims/gropius-backend',
+                    href: 'https://github.com/nk-coding/gropius-backend',
                     label: 'GitHub',
                     position: 'right',
                 },

@@ -63,5 +63,5 @@ jobs:
           # Build output to publish to the `gh-pages` branch:
           publish_dir: ./website/build
           force_orphan: true
-          external_repository: ccims/gropius-backend-docs
+          external_repository: nk-coding/gropius-backend-docs
           publish_branch: main
